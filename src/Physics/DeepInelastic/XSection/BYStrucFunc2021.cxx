@@ -110,7 +110,7 @@ void BYStrucFunc2021::Init(void)
   fH3   = 0;
 }
 //____________________________________________________________________________
-double BYStrucFunc2021::ScalingVar(const Interaction * interaction) const
+double BYStrucFunc2021::ScalingVar(const Interaction * interaction, double Mf ) const
 {
 // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
@@ -121,7 +121,8 @@ double BYStrucFunc2021::ScalingVar(const Interaction * interaction) const
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
 
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
-  double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
+  double Mf2 = TMath::Power( Mf, 2 ) ; 
+  double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
   return xw;
 }
 //____________________________________________________________________________

@@ -1,25 +1,25 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
+  Copyright (c) 2003-2025, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <c.andreopoulos \at cern.ch>
- University of Liverpool
+  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+  University of Liverpool
 
- This GENIE code was adapted from the neugen3 code co-authored by Donna Naples
- (Pittsburgh U.), Hugh Gallagher (Tufts U), and Costas Andreopoulos (RAL)
+  This GENIE code was adapted from the neugen3 code co-authored by Donna Naples
+  (Pittsburgh U.), Hugh Gallagher (Tufts U), and Costas Andreopoulos (RAL)
 
- A fix was installed (Aug 12, 2014) by Brian Tice (Rochester) so that
- the nuclear modification to the pdf should be calculated in terms
- of the experimental x, not the rescaled x. The same goes for R(x,Q2).
+  A fix was installed (Aug 12, 2014) by Brian Tice (Rochester) so that
+  the nuclear modification to the pdf should be calculated in terms
+  of the experimental x, not the rescaled x. The same goes for R(x,Q2).
 
- A fix of the scaling variable used for the relations between structure
- functions was installed by C. Bronner and J. Morrison Jun 06, 2016
- after it was confirmed by A. Bodek that x and not the modified
- scaling variable should be used there.
+  A fix of the scaling variable used for the relations between structure
+  functions was installed by C. Bronner and J. Morrison Jun 06, 2016
+  after it was confirmed by A. Bodek that x and not the modified
+  scaling variable should be used there.
 
- Changes required to implement the GENIE Boosted Dark Matter module
- were installed by Josh Berger (Univ. of Wisconsin)
+  Changes required to implement the GENIE Boosted Dark Matter module
+  were installed by Josh Berger (Univ. of Wisconsin)
 */
 //____________________________________________________________________________
 
@@ -42,19 +42,19 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 QPMDISStrucFuncBase::QPMDISStrucFuncBase() :
-DISStructureFuncModelI()
+  DISStructureFuncModelI()
 {
   this->InitPDF();
 }
 //____________________________________________________________________________
 QPMDISStrucFuncBase::QPMDISStrucFuncBase(string name) :
-DISStructureFuncModelI(name)
+  DISStructureFuncModelI(name)
 {
   this->InitPDF();
 }
 //____________________________________________________________________________
 QPMDISStrucFuncBase::QPMDISStrucFuncBase(string name, string config):
-DISStructureFuncModelI(name, config)
+  DISStructureFuncModelI(name, config)
 {
   this->InitPDF();
 }
@@ -83,7 +83,7 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 
   //-- pdf
   const PDFModelI * pdf_model =
-         dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
+    dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   fPDF  -> SetModel(pdf_model);
   fPDFc -> SetModel(pdf_model);
 
@@ -132,7 +132,7 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::InitPDF(void)
 {
-                     // evaluated at:
+  // evaluated at:
   fPDF  = new PDF(); //   x = computed (+/-corrections) scaling var, Q2
   fPDFc = new PDF(); //   x = computed charm slow re-scaling var,    Q2
 }
@@ -186,42 +186,42 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   if(tgt.HitQrkIsSet()) {
 
-     switch_uv    = 0.;
-     switch_us    = 0.;
-     switch_ubar  = 0.;
-     switch_dv    = 0.;
-     switch_ds    = 0.;
-     switch_dbar  = 0.;
-     switch_s     = 0.;
-     switch_sbar  = 0.;
-     switch_c     = 0.;
-     switch_cbar  = 0.;
+    switch_uv    = 0.;
+    switch_us    = 0.;
+    switch_ubar  = 0.;
+    switch_dv    = 0.;
+    switch_ds    = 0.;
+    switch_dbar  = 0.;
+    switch_s     = 0.;
+    switch_sbar  = 0.;
+    switch_c     = 0.;
+    switch_cbar  = 0.;
 
-     int  qpdg = tgt.HitQrkPdg();
-     bool sea  = tgt.HitSeaQrk();
+    int  qpdg = tgt.HitQrkPdg();
+    bool sea  = tgt.HitSeaQrk();
 
-     bool is_u    = pdg::IsUQuark     (qpdg);
-     bool is_ubar = pdg::IsAntiUQuark (qpdg);
-     bool is_d    = pdg::IsDQuark     (qpdg);
-     bool is_dbar = pdg::IsAntiDQuark (qpdg);
-     bool is_s    = pdg::IsSQuark     (qpdg);
-     bool is_sbar = pdg::IsAntiSQuark (qpdg);
-     bool is_c    = pdg::IsCQuark     (qpdg);
-     bool is_cbar = pdg::IsAntiCQuark (qpdg);
+    bool is_u    = pdg::IsUQuark     (qpdg);
+    bool is_ubar = pdg::IsAntiUQuark (qpdg);
+    bool is_d    = pdg::IsDQuark     (qpdg);
+    bool is_dbar = pdg::IsAntiDQuark (qpdg);
+    bool is_s    = pdg::IsSQuark     (qpdg);
+    bool is_sbar = pdg::IsAntiSQuark (qpdg);
+    bool is_c    = pdg::IsCQuark     (qpdg);
+    bool is_cbar = pdg::IsAntiCQuark (qpdg);
 
-     if      (!sea && is_u   ) { switch_uv   = 1; }
-     else if ( sea && is_u   ) { switch_us   = 1; }
-     else if ( sea && is_ubar) { switch_ubar = 1; }
-     else if (!sea && is_d   ) { switch_dv   = 1; }
-     else if ( sea && is_d   ) { switch_ds   = 1; }
-     else if ( sea && is_dbar) { switch_dbar = 1; }
-     else if ( sea && is_s   ) { switch_s    = 1; }
-     else if ( sea && is_sbar) { switch_sbar = 1; }
-     else if ( sea && is_c   ) { switch_c    = 1; }
-     else if ( sea && is_cbar) { switch_cbar = 1; }
-     else return;
+    if      (!sea && is_u   ) { switch_uv   = 1; }
+    else if ( sea && is_u   ) { switch_us   = 1; }
+    else if ( sea && is_ubar) { switch_ubar = 1; }
+    else if (!sea && is_d   ) { switch_dv   = 1; }
+    else if ( sea && is_d   ) { switch_ds   = 1; }
+    else if ( sea && is_dbar) { switch_dbar = 1; }
+    else if ( sea && is_s   ) { switch_s    = 1; }
+    else if ( sea && is_sbar) { switch_sbar = 1; }
+    else if ( sea && is_c   ) { switch_c    = 1; }
+    else if ( sea && is_cbar) { switch_cbar = 1; }
+    else return;
 
-     // make sure user inputs make sense
+    // make sure user inputs make sense
     if(is_nu    && is_CC && is_u   ) return;
     if(is_nu    && is_CC && is_c   ) return;
     if(is_nu    && is_CC && is_dbar) return;
@@ -271,14 +271,14 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double gad2 = TMath::Power(gad, 2.);
 
     double q2   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu2+gau2) +
-                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd2+gad2);
+      (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd2+gad2);
     double q3   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (2*gvu*gau) +
-                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (2*gvd*gad);
+      (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (2*gvd*gad);
 
     double qb2  = (switch_ubar * fus + switch_cbar * fc)  * (gvu2+gau2) +
-                  (switch_dbar * fds + switch_sbar * fs)  * (gvd2+gad2);
+      (switch_dbar * fds + switch_sbar * fs)  * (gvd2+gad2);
     double qb3  = (switch_ubar * fus + switch_cbar * fc)  * (2*gvu*gau) +
-                  (switch_dbar * fds + switch_sbar * fs)  * (2*gvd*gad);
+      (switch_dbar * fds + switch_sbar * fs)  * (2*gvd*gad);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
@@ -296,30 +296,30 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
     if (is_nu) {
       q    = ( switch_dv * fdv   + switch_ds * fds   ) * fVud2 +
-             ( switch_s  * fs                        ) * fVus2 +
-             ( switch_dv * fdv_c + switch_ds * fds_c ) * fVcd2 +
-             ( switch_s  * fs_c                      ) * fVcs2;
+	( switch_s  * fs                        ) * fVus2 +
+	( switch_dv * fdv_c + switch_ds * fds_c ) * fVcd2 +
+	( switch_s  * fs_c                      ) * fVcs2;
 
       qbar = ( switch_ubar * fus  ) * fVud2 +
-             ( switch_ubar * fus  ) * fVus2 +
-             ( switch_cbar * fc_c ) * fVcd2 +
-             ( switch_cbar * fc_c ) * fVcs2;
+	( switch_ubar * fus  ) * fVus2 +
+	( switch_cbar * fc_c ) * fVcd2 +
+	( switch_cbar * fc_c ) * fVcs2;
     }
     else
-    if (is_nubar) {
-      q    = ( switch_uv * fuv + switch_us * fus    ) * fVud2 +
-             ( switch_uv * fuv + switch_us * fus    ) * fVus2 +
-             ( switch_c  * fc_c                     ) * fVcd2 +
-             ( switch_c  * fc_c                     ) * fVcs2;
+      if (is_nubar) {
+	q    = ( switch_uv * fuv + switch_us * fus    ) * fVud2 +
+	  ( switch_uv * fuv + switch_us * fus    ) * fVus2 +
+	  ( switch_c  * fc_c                     ) * fVcd2 +
+	  ( switch_c  * fc_c                     ) * fVcs2;
 
-      qbar = ( switch_dbar * fds_c ) * fVcd2 +
-             ( switch_dbar * fds   ) * fVud2 +
-             ( switch_sbar * fs    ) * fVus2 +
-             ( switch_sbar * fs_c  ) * fVcs2;
-    }
-    else {
-      return;
-    }
+	qbar = ( switch_dbar * fds_c ) * fVcd2 +
+	  ( switch_dbar * fds   ) * fVud2 +
+	  ( switch_sbar * fs    ) * fVus2 +
+	  ( switch_sbar * fs_c  ) * fVcs2;
+      }
+      else {
+	return;
+      }
 
     F2val  = 2*(q+qbar);
     xF3val = 2*(q-qbar);
@@ -399,15 +399,15 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG)
-     << "F1-F5 = "
-     << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5;
+    << "F1-F5 = "
+    << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5;
 #endif
 }
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::Q2(const Interaction * interaction) const
 {
-// Return Q2 from the kinematics or, if not set, compute it from x,y
-// The x might be corrected
+  // Return Q2 from the kinematics or, if not set, compute it from x,y
+  // The x might be corrected
 
   const Kinematics & kinematics = interaction->Kine();
 
@@ -449,20 +449,26 @@ double QPMDISStrucFuncBase::q0(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
+double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction, double Mf ) const
 {
-// The scaling variable is set to the normal Bjorken x.
-// Override DISStructureFuncModel::ScalingVar() to compute corrections
-
+  // The scaling variable is set to the normal Bjorken x.
+  // Override DISStructureFuncModel::ScalingVar() to compute corrections
+  if( Mf != 0 ) { // For Charm production only 
+    const Target & tgt = interaction->InitState().Tgt();
+    double x     = this->ScalingVar(interaction);
+    double Q2val = this->Q2(interaction);
+    double M = tgt.HitNucP4().M();
+    return utils::kinematics::SlowRescalingVar(x, Q2val, M, fMc);
+  }
   return interaction->Kine().x();
 }
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::KFactors(const Interaction *,
-                 double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
+				   double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
-// This is an abstract class: no model-specific correction
-// The PDF scaling variables are set to 1
-// Override this method to compute model-dependent corrections
+  // This is an abstract class: no model-specific correction
+  // The PDF scaling variables are set to 1
+  // Override this method to compute model-dependent corrections
 
   kuv = 1.;
   kdv = 1.;
@@ -473,26 +479,26 @@ void QPMDISStrucFuncBase::KFactors(const Interaction *,
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
 {
-// Nuclear modification to Fi
-// The scaling variable can be overwritten to include corrections
+  // Nuclear modification to Fi
+  // The scaling variable can be overwritten to include corrections
 
   if( interaction->TestBit(kIAssumeFreeNucleon)   ) return 1.0;
   if( interaction->TestBit(kINoNuclearCorrection) ) return 1.0;
 
   double f = 1.;
   if(fIncludeNuclMod) {
-     const Target & tgt  = interaction->InitState().Tgt();
+    const Target & tgt  = interaction->InitState().Tgt();
 
-//   The x used for computing the DIS Nuclear correction factor should be the
-//   experimental x, not the rescaled x or off-shell-rest-frame version of x
-//   (i.e. selected x).  Since we do not have access to experimental x at this
-//   point in the calculation, just use selected x.
-     const Kinematics & kine  = interaction->Kine();
-     double x  = kine.x();
-     int    A = tgt.A();
-     f = utils::nuclear::DISNuclFactor(x,A);
+    //   The x used for computing the DIS Nuclear correction factor should be the
+    //   experimental x, not the rescaled x or off-shell-rest-frame version of x
+    //   (i.e. selected x).  Since we do not have access to experimental x at this
+    //   point in the calculation, just use selected x.
+    const Kinematics & kine  = interaction->Kine();
+    double x  = kine.x();
+    int    A = tgt.A();
+    f = utils::nuclear::DISNuclFactor(x,A);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
+    LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
 #endif
   }
 
@@ -501,17 +507,17 @@ double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 {
-// Computes R ( ~ longitudinal structure function FL = R * 2xF1)
-// The scaling variable can be overwritten to include corrections
+  // Computes R ( ~ longitudinal structure function FL = R * 2xF1)
+  // The scaling variable can be overwritten to include corrections
 
-//   The x used for computing the DIS Nuclear correction factor should be the
-//   experimental x, not the rescaled x or off-shell-rest-frame version of x
-//   (i.e. selected x).  Since we do not have access to experimental x at this
-//   point in the calculation, just use selected x.
+  //   The x used for computing the DIS Nuclear correction factor should be the
+  //   experimental x, not the rescaled x or off-shell-rest-frame version of x
+  //   (i.e. selected x).  Since we do not have access to experimental x at this
+  //   point in the calculation, just use selected x.
   if(fIncludeR) {
     const Kinematics & kine  = interaction->Kine();
     double x  = kine.x();
-//    double x  = this->ScalingVar(interaction);
+    //    double x  = this->ScalingVar(interaction);
     double Q2val = this->Q2(interaction);
     double Rval  = utils::phys::RWhitlow(x, Q2val);
     return Rval;
@@ -548,32 +554,32 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
 
   // Check whether it is above charm threshold
   bool above_charm =
-           utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fMc);
+    utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fMc);
   if(above_charm) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG)
       << "The event is above the charm threshold (mcharm = " << fMc << ")";
 #endif
     if(fCharmOff) {
-       LOG("DISSF", pINFO) << "Charm production is turned off";
+      LOG("DISSF", pINFO) << "Charm production is turned off";
     } else {
-       // compute the slow rescaling var
-       double xc = utils::kinematics::SlowRescalingVar(x, Q2val, M, fMc);
-       if(xc<0 || xc>1) {
-          LOG("DISSF", pINFO) << "Unphys. slow rescaling var: xc = " << xc;
-       } else {
-          // compute PDFs at (xc,Q2)
+      // compute the slow rescaling var
+      double xc = ScalingVar(interaction, fMc);
+      if(xc<0 || xc>1) {
+	LOG("DISSF", pINFO) << "Unphys. slow rescaling var: xc = " << xc;
+      } else {
+	// compute PDFs at (xc,Q2)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-          LOG("DISSF", pDEBUG)
-              << "Calculating PDFs @ xc (slow rescaling) = " << x << ", Q2 = " << Q2val;
+	LOG("DISSF", pDEBUG)
+	  << "Calculating PDFs @ xc (slow rescaling) = " << x << ", Q2 = " << Q2val;
 #endif
-          fPDFc->Calculate(xc, Q2pdf);
-       }
+	fPDFc->Calculate(xc, Q2pdf);
+      }
     }// charm off?
   }//above charm thr?
   else {
     LOG("DISSF", pDEBUG)
-     << "The event is below the charm threshold (mcharm = " << fMc << ")";
+      << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
 
   // Compute the K factors
@@ -605,12 +611,12 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   fPDF->ScaleStrange     (ksea_s);
   fPDF->ScaleCharm       (ksea_u);
   if(above_charm) {
-     fPDFc->ScaleUpValence   (kval_u);
-     fPDFc->ScaleDownValence (kval_d);
-     fPDFc->ScaleUpSea       (ksea_u);
-     fPDFc->ScaleDownSea     (ksea_d);
-     fPDFc->ScaleStrange     (ksea_d);
-     fPDFc->ScaleCharm       (ksea_u);
+    fPDFc->ScaleUpValence   (kval_u);
+    fPDFc->ScaleDownValence (kval_d);
+    fPDFc->ScaleUpSea       (ksea_u);
+    fPDFc->ScaleDownSea     (ksea_d);
+    fPDFc->ScaleStrange     (ksea_d);
+    fPDFc->ScaleCharm       (ksea_u);
   }
 
   // Rules of thumb
