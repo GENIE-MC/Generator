@@ -51,6 +51,7 @@ protected:
   double ScalingVar (const Interaction * i) const;
   void   KFactors   (const Interaction * i, double & kuv,
                          double & kdv, double & kus, double & kds, double & kss ) const;
+  double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
 
   // Bodek-Yang model-specific parameters

@@ -138,4 +138,18 @@ double BYStrucFunc2021::H(const Interaction * interaction) const {
   double bjx = kinematics.x();
   return fH0 + fH1 * bjx + fH2 * pow(bjx,2) + fH3 * pow(bjx,3);
 }
+//____________________________________________________________________________
+double BYStrucFunc2021::R(const Interaction * interaction) const {
 
+  // Evaluate correction for Q2 < 0.3 GeV2/c4 according to Sec. 7 of https://arxiv.org/pdf/2108.09240
+  double Q2 = this->Q2(interaction);
+  double R1998 = QPMDISStrucFuncBase::R(interaction);
+
+  if( Q2 < 0.3 ) {
+    Q2 = 0.3 ;
+    double Q4 = pow(Q2,2);
+    R1998 *= 3.633 * Q2 / ( Q4 + 1 ) ;
+  }
+  
+  return R1998 ; 
+}
