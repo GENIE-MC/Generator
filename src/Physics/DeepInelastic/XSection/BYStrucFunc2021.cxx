@@ -75,6 +75,9 @@ void BYStrucFunc2021::ReadBYParams(void)
   GetParam( "BY-Cv1D", fCv1D ) ;
   GetParam( "BY-Cv2D", fCv2D ) ;
   GetParam( "BY-CsS" , fCsS  ) ;
+  GetParam( "BY-PsA" , fPsA  ) ;
+  GetParam( "BY-PvA" , fPvA  ) ;
+  GetParam( "BY-CsA" , fCsA  ) ;
   GetParam( "BY-H0" , fH0  ) ;
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
@@ -93,6 +96,13 @@ void BYStrucFunc2021::Init(void)
   fCv1D = 0;
   fCv2D = 0;
   fCsS  = 0;
+  fPsA  = 0;
+  fPvA  = 0;
+  fCsA  = 0;
+  fH0   = 0;
+  fH1   = 0;
+  fH2   = 0;
+  fH3   = 0;
 }
 //____________________________________________________________________________
 double BYStrucFunc2021::ScalingVar(const Interaction * interaction) const
@@ -129,6 +139,13 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   kus = myQ2/(myQ2+fCsU);    // K - u(sea)
   kds = myQ2/(myQ2+fCsD);    // K - d(sea)
   kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
+}
+//____________________________________________________________________________
+void BYStrucFunc2021::KAxialFactors (const Interaction * i, double & ksea, double & kvalance ) const {
+  // https://arxiv.org/pdf/2108.09240 Sec 11.2 
+  double myQ2  = this->Q2(interaction);
+  ksea = ( myQ2 + kPsA*kCsA ) / ( myQ2 + kCsA ) ;
+  kvalance = ( myQ2 + kPvA * 0.18 ) / ( myQ2 + 0.18 ) ; 
 }
 //____________________________________________________________________________
 double BYStrucFunc2021::H(const Interaction * interaction) const {

@@ -15,6 +15,9 @@ BY-Cv1U                    double  No    Bodek-Yang u val K factor param
 BY-Cv2U                    double  No    Bodek-Yang u val K factor param        
 BY-Cv1D                    double  No    Bodek-Yang d val K factor param        
 BY-Cv2D                    double  No    Bodek-Yang d val K factor param        
+BY-PsA                     double  No    Bodek-Yang P sea axial param
+BY-PvA                     double  No    Bodek-Yang P sea valance param
+BY-PsC                     double  No    Bodek-Yang C sea axial param
 BY-H0                      double  No    Bodek-Yang high order QCD parameter
 BY-H1                      double  No    Bodek-Yang high order QCD parameter
 BY-H2                      double  No    Bodek-Yang high order QCD parameter
@@ -55,6 +58,9 @@ WeinbergAngle              double  No                                           
      <param type="double" name="BY-Cv1D">  0.341   </param>
      <param type="double" name="BY-Cv2D">  0.323   </param>
      <param type="double" name="BY-CsS">   0.561   </param>
+     <param type="double" name="BY-PsA">   0.55   </param>
+     <param type="double" name="BY-PvA">   0.30   </param>
+     <param type="double" name="BY-CsA">   0.75   </param>
      <param type="double" name="BY-H0">    0.914   </param>
      <param type="double" name="BY-H1">    0.296   </param>
      <param type="double" name="BY-H2">    -0.374   </param>

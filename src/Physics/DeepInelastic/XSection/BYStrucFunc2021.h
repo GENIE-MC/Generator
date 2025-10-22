@@ -49,8 +49,8 @@ protected:
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
   double ScalingVar (const Interaction * i) const;
-  void   KFactors   (const Interaction * i, double & kuv,
-                         double & kdv, double & kus, double & kds, double & kss ) const;
+  void   KFactors   (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const;
+  void   KAxialFactors (const Interaction * i, double & ksea, double & kvalance ) const;
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double NuclMod(const Interaction * interaction) const;
@@ -66,6 +66,9 @@ protected:
   double fCv2U;  ///< U-val K factor parameter
   double fCv1D;  ///< D-val K factor parameter
   double fCv2D;  ///< D-val K factor parameter
+  double fPsA;   ///< P-axial sea parameter
+  double fPvA;   ///< P-axial valance paramter
+  double fCsA;   ///< C-axial sea parameter
   double fH0;
   double fH1;
   double fH2;
