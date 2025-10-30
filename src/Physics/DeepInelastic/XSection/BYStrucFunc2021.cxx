@@ -141,7 +141,7 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   double KLW = 1 ;
   // The K factor blows up at q0 = 0. A. Bodek recomends to use it until W = 1.1 GeV
   double W = interaction->Kine().W();      
-  if ( W >= 1.1 ) KLW = ( q02 + fCvLW ) / q02;
+  //if ( W >= 1.1 ) KLW = ( q02 + fCvLW ) / q02;
   
   kuv = KLW * (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
   kdv = KLW * (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
@@ -164,14 +164,17 @@ void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & k
   int  probe_pdgc  = init_state.ProbePdg();
   bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
-  double KLW = 1; 
-  if( is_nu ) {
-    KLW = ( q02 + fCaLW_nu ) / q02 ;
-  } else if( is_nubar ) {
-    KLW = ( q02 + fCaLW_nubar ) / q02 ;
+  double KLW = 1;
+  if( q02 > 0 ) {
+    // TO DECIDE ! It breaks the e- implementation
+    if( is_nu ) {
+      KLW = ( q02 + fCaLW_nu ) / q02 ;
+    } else if( is_nubar ) {
+      KLW = ( q02 + fCaLW_nubar ) / q02 ;
+    }
   }
   // double check it only affects valance factors:
-  kvalance *= KLW ; 
+  //kvalance *= KLW ; 
 }
 //____________________________________________________________________________
 double BYStrucFunc2021::H(const Interaction * interaction) const {
@@ -186,7 +189,50 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
 
   // Evaluate correction for Q2 < 0.3 GeV2/c4 according to Sec. 7 of https://arxiv.org/pdf/2108.09240
   double Q2 = this->Q2(interaction);
-  double R1998 = QPMDISStrucFuncBase::R(interaction);
+  double Q4 = pow(Q2,2);
+  double Q8 = pow(Q4,2);
+
+  const Kinematics & kinematics = interaction->Kine();
+  double x = kinematics.x();
+  double x2 = pow(x,2);
+  double x3 = pow(x,3);
+  
+  double Theta = 1 + 12.0 * ( Q2 / (Q2+1.) ) * pow(0.125,2)/(pow(0.125,2)+x2);
+  
+  // R1998 is defined as the average of Ra, Rb and Rc, each parameterized to accomodate new data at low x
+  // https://arxiv.org/pdf/hep-ex/980802
+  const double a1 = 0.0485;
+  const double a2 = 0.5470;
+  const double a3 = 2.0621;
+  const double a4 = -0.3804;
+  const double a5 = 0.5090;
+  const double a6 = -0.0285;
+  
+  double Ra = (a1 * Theta / TMath::Log(Q2/0.04) ) ;
+  Ra += a2 * ( 1 + a4 * x + a5 * x2 ) * pow( x, a6 ) ;
+  Ra /= pow( Q8 + pow(a3,4), 1./4. ) ;
+
+  const double b1 = 0.0481;
+  const double b2 = 0.6114;
+  const double b3 = -0.3509;
+  const double b4 = -0.4611;
+  const double b5 = 0.7172;
+  const double b6 = -0.0317;
+
+  double Rb = b1 * Theta / TMath::Log(Q2/0.04) ;
+  Rb += (b2 / Q2 + b3 / (Q4 + pow(0.3,2)) ) * (1+b4*x+b5*x2) * pow(x,b6);
+	 
+  const double c1 = 0.0577;
+  const double c2 = 0.4644;
+  const dobule c3 = 1.8288;
+  const double c4 = 12.3708;
+  const double c5 = -43.1043;
+  const double c6 = 41.7415;
+  double Q2thr = c4*x + c5*x2 + c6*x3;
+  double Rc = c1 * Theta / TMath::Log( Q2/0.04 ) ;
+  Rc += c2 * sqrt( pow(Q2 - Q2thr,2) + pow(c3,2));
+  
+  double R1998 = (Ra + Rb + Rc) / 3. ;
 
   if( Q2 < 0.3 ) {
     Q2 = 0.3 ;
