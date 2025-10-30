@@ -205,7 +205,7 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
   double Theta = 1 + 12.0 * ( Q2 / (Q2+1.) ) * pow(0.125,2)/(pow(0.125,2)+x2);
   
   // R1998 is defined as the average of Ra, Rb and Rc, each parameterized to accomodate new data at low x
-  // https://arxiv.org/pdf/hep-ex/980802
+  // arXiv:hep-ex/9808028
   const double a1 = 0.0485;
   const double a2 = 0.5470;
   const double a3 = 2.0621;
