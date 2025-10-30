@@ -189,6 +189,11 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
 
   // Evaluate correction for Q2 < 0.3 GeV2/c4 according to Sec. 7 of https://arxiv.org/pdf/2108.09240
   double Q2 = this->Q2(interaction);
+  double Q2_int = this->Q2(interaction) ;
+  if( Q2_int < 0.3 ) {
+    // Freeze R at Q2 = 0.3 GeV2
+    Q2 = 0.3 ;
+  }
   double Q4 = pow(Q2,2);
   double Q8 = pow(Q4,2);
 
@@ -234,10 +239,9 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
   
   double R1998 = (Ra + Rb + Rc) / 3. ;
 
-  if( Q2 < 0.3 ) {
-    Q2 = 0.3 ;
-    double Q4 = pow(Q2,2);
-    R1998 *= 3.633 * Q2 / ( Q4 + 1 ) ;
+  if( Q2_int < 0.3 ) {  
+    double Q4_int = pow(Q2_int,2);
+    R1998 *= 3.633 * Q2_int / ( Q4_int + 1 ) ;
   }
   
   return R1998 ; 
