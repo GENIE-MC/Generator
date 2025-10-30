@@ -224,7 +224,7 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
 	 
   const double c1 = 0.0577;
   const double c2 = 0.4644;
-  const dobule c3 = 1.8288;
+  const double c3 = 1.8288;
   const double c4 = 12.3708;
   const double c5 = -43.1043;
   const double c6 = 41.7415;
