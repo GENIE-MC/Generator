@@ -5,19 +5,16 @@
 
 \brief    Computes the Martini-QE model differential cross section.
           Uses precomputed hadron tensor tables.
-          Is a concrete implementation of the XSecAlgorithmI interface.
 
-\author   Steven Gardiner <gardiner \at fnal.gov>
-          Fermi National Acclerator Laboratory
+\author   Lavinia Russo <lavinia.russo \at lpnhe.in2p3.fr>
+          Laboratoire de physique nucléaire et des hautes énergies (LPNHE) - CNRS - Sorbonne University
 
-          Stephen Dolan <stephen.joseph.dolan \at cern.ch>
-          European Organization for Nuclear Research (CERN)
+\ref      L. Russo, M. Martini, S. Dolan, L. Munteanu, B. Popov, C. Giganti
+          Implementation of the Martini-Ericson-Chanfray-Marteau RPA-based
+          (anti)neutrino cross-section model in the GENIE neutrino event generator
+          arXiv:2508.13939 [hep-ex]
 
-\ref      G.D. Megias et al., "Meson-exchange currents and quasielastic
-          predictions for charged-current neutrino-12C scattering in the
-          superscaling approach," PRD 91 (2015) 073004
-
-\created  November 2, 2018
+\created  Feb 2024
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org

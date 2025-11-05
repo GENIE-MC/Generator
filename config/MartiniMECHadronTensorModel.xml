@@ -24,27 +24,47 @@ DataPathType       string   Yes        Whether the specified path is    relative
     <!-- Paths can be absolute or relative to the $GENIE folder -->
     <!-- <param type="string" name="DataPathType"> relative </param> -->
 
-    <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini </param>
+    <!--
+      The DataPath specifies the directory from which GENIE loads the
+      Martini–Ericson–Chanfray–Marteau hadron tensor tables.
+
+      A list of all available subdirectories (NN2p2h, DD2p2h, ND2p2h,
+      2p2h total, 3p3h, or the default full set in martini/) is provided
+      here. To select a different npnh component, simply comment out the
+      current line and uncomment the desired one.
+
+      For detailed documentation, see:
+      data/evgen/hadron_tensors/martini/README.md
+    -->
+
+    <!-- Default: full 2p2h + 3p3h contributions -->
+    <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ </param>
+
+    <!-- NN 2p2h only -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/NN2p2h/ </param> -->
+
+    <!-- ΔΔ 2p2h only -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/DD2p2h/ </param> -->
+
+    <!-- NΔ 2p2h only -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ND2p2h/ </param> -->
+
+    <!-- Total 2p2h (NN + ΔΔ + NΔ) -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/2p2h/ </param> -->
+
+    <!-- 3p3h ΔΔ contribution -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/3p3h/ </param> -->
+
 
     <!-- 12C -->
     <param type="string" name="MEC_FullAll@Pdg=1000060120"> Martini_1000060120_MEC_FullAll.dat </param>
-    <!-- <param type="string" name="MEC_Fullpn@Pdg=1000060120"> Martini_1000060120_MEC_Fullpn.dat </param>
-    <param type="string" name="MEC_FullAll_Param@Pdg=1000060120"> Martini_1000060120_MEC_FullAll_Param.dat </param>
-    <param type="string" name="MEC_FullAll_wImag@Pdg=1000060120"> Martini_1000060120_MEC_FullAll_wImag.dat </param>
-    <param type="string" name="MEC_EM@Pdg=1000060120"> Martini_1000060120_MEC_EM.dat </param>
-    <param type="string" name="MEC_EM_pn@Pdg=1000060120"> Martini_1000060120_MEC_EM_pn.dat </param>
-    <param type="string" name="MEC_EM_pp@Pdg=1000060120"> Martini_1000060120_MEC_EM_pp.dat </param>
-    <param type="string" name="MEC_EM_wImag@Pdg=1000060120"> Martini_1000060120_MEC_EM_wImag.dat </param>
-    -->
 
     <!-- 16O -->
     <param type="string" name="MEC_FullAll@Pdg=1000080160"> Martini_1000080160_MEC_FullAll.dat </param>
-    <!-- <param type="string" name="MEC_EM@Pdg=1000080160"> Martini_1000080160_MEC_EM.dat </param>
-    -->
+
     <!-- 40C -->
     <param type="string" name="MEC_FullAll@Pdg=1000200400"> Martini_1000200400_MEC_FullAll.dat </param>
-    <!-- <param type="string" name="MEC_EM@Pdg=1000200400"> Martini_1000200400_MEC_EM.dat </param>
-    -->
+
   </param_set>
 
 </alg_conf>

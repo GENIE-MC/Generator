@@ -1,30 +1,49 @@
-The default implemented tables contain the **sum of all 2p2h and 3p3h contributions**.
+**Additional tables** are provided in separate subdirectories, one for each npnh contribution:
 
-**Additional tables**, corresponding to specific components, are provided in the `martini/npnh/` subdirectory:
+- `martini/NN2p2h/` → nucleon–nucleon correlations for 2p2h (denoted *NN 2p2h* in [1])
+- `martini/DD2p2h/` → Δ–MEC contribution for 2p2h (denoted *ΔΔ 2p2h* in [1])
+- `martini/ND2p2h/` → NN–Δ interference for 2p2h (denoted *NΔ 2p2h* in [1])
+- `martini/2p2h/` → total 2p2h (sum of NN, ΔΔ, and NΔ)
+- `martini/3p3h/` → Δ–MEC contribution for 3p3h (denoted *ΔΔ 3p3h* in [1])
 
-- `Martini_XXXXXXXXXX_MEC_NN2p2h.dat` → nucleon–nucleon correlations for 2p2h (denoted *NN 2p2h* in [1])  
-- `Martini_XXXXXXXXXX_MEC_DD2p2h.dat` → Δ–MEC contribution for 2p2h (denoted *ΔΔ 2p2h* in [1])  
-- `Martini_XXXXXXXXXX_MEC_ND2p2h.dat` → NN correlations–Δ–MEC interference 2p2h (denoted *NΔ 2p2h* in [1])  
-- `Martini_XXXXXXXXXX_MEC_2p2h.dat` → sum of the three 2p2h contributions above  
-- `Martini_XXXXXXXXXX_MEC_3p3h.dat` → Δ–MEC contribution for 3p3h (denoted *ΔΔ 3p3h* in [1])  
-- `Martini_XXXXXXXXXX_MEC_npnh.dat` → sum of all 2p2h and 3p3h contributions  
+The hadron tensor tables used by default contain the **sum of all 2p2h and 3p3h contributions** and are located in the top-level `martini/` directory.
 
-By default, GENIE uses the last option (`_npnh.dat`), accessed via the filename  
-`Martini_XXXXXXXXXX_MEC_FullAll.dat`.
+All files inside these subdirectories share the same filename, which for each nuclear target has the form:
+`Martini_XXXXXXXXXX_MEC_FullAll.dat`
+
+The **only element that changes is the subdirectory name**, which specifies the npnh component.  
+This design allows users to switch between tensor sets simply by redirecting GENIE to a different subdirectory, without renaming any files.
+
+GENIE uses the following tables by default, depending on the selected interaction channel:
+
+- MEC channel → `data/evgen/hadron_tensors/martini/Martini_XXXXXXXXXX_MEC_FullAll.dat`
+- CCQE channel → `data/evgen/hadron_tensors/martini/Martini_XXXXXXXXXX_QE_Full.dat`
 
 ---
 
 ## How to use a different table
 
-Since GENIE always looks for the table with the filename:
+Since the filename is fixed, selecting a different npnh component requires changing the directory where GENIE searches for the hadron tensor table file.  
+This path is controlled by the line:
 
-data/evgen/hadron_tensors/martini/Martini_XXXXXXXXXX_MEC_FullAll.dat (see also `~/config/MartiniMECHadronTensorModel.xml`).
+```
+<param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ </param>
+```
 
-To use a different option, simply replace this file with the desired one.  
-For example, to run GENIE with only the 2p2h contributions:
+inside `config/MartiniMECHadronTensorModel.xml`.
 
-1. Rename `Martini_XXXXXXXXXX_MEC_2p2h.dat` → `Martini_XXXXXXXXXX_MEC_FullAll.dat`  
-2. Copy it to the directory `data/evgen/hadron_tensors/martini/`, replacing the existing file.
+To select another component (e.g. only NN 2p2h or only 3p3h), modify the `DataPath` entry so that it points to:
+
+```
+data/evgen/hadron_tensors/<desired_subdirectory>/
+```
+
+All available subdirectories are already listed in  
+`config/MartiniMECHadronTensorModel.xml`.  
+To switch to a different component, **simply comment out the default line and uncomment the desired one**.  
+
+No renaming of the hadron tensor table files is required — only the directory path changes.  
+No recompilation is needed after editing `config/MartiniMECHadronTensorModel.xml`.
 
 ---
 
@@ -32,4 +51,4 @@ For example, to run GENIE with only the 2p2h contributions:
 
 For a comprehensive description of these interaction channels, see:
 
-[1] M. Martini, M. Ericson, and G. Chanfray, *Phys. Rev. C 80*, 065501 (2009), [arXiv:0910.2622](https://arxiv.org/abs/0910.2622) [nucl-th]
+[1] M. Martini, M. Ericson, and G. Chanfray, *Phys. Rev. C 80*, 065501 (2009), arXiv:0910.2622 [nucl-th]

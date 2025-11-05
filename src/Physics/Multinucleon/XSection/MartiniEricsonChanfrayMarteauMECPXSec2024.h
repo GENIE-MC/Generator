@@ -6,19 +6,16 @@
 \brief    Computes the Martini, Ericson, Chanfray and Marteau MEC model
           differential cross section.
           Uses precomputed hadon tensor tables.
-          Is a concrete implementation of the XSecAlgorithmI interface.
 
-\author   Sara Bolognesi <sara.bolognesi@cea.fr>
-          CEA Saclay
+\author   Lavinia Russo <lavinia.russo \at lpnhe.in2p3.fr>
+          Laboratoire de physique nucléaire et des hautes énergies (LPNHE) - CNRS - Sorbonne University
 
-          Marco Martini
-          CEA Saclay
+\ref      L. Russo, M. Martini, S. Dolan, L. Munteanu, B. Popov, C. Giganti
+          Implementation of the Martini-Ericson-Chanfray-Marteau RPA-based
+          (anti)neutrino cross-section model in the GENIE neutrino event generator
+          arXiv:2508.13939 [hep-ex]
 
-\ref      M. Martini, M. Ericson, G. Chanfray, J. Marteau.
-          Neutrino and antineutrino quasielastic interactions with nuclei
-          Phys.Rev. C81 (2010) 045502
-
-\created  Apr 2024
+\created  Feb 2024
 
 \cpright  Copyright (c) 2003-2023, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          

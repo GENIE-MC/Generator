@@ -68,13 +68,6 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
     tensor_type = kHT_MEC_EM;
     //pn_tensor_type = kHT_MEC_EM;
   }
-  /*lavi: comes from SuSAv2 but has to be modified as Nieves
-  // Currently we only have the relative pair contributions for C12.
-  int tensor_pdg = kPdgTgtC12;
-  if(tensor_pdg != target_pdg) need_to_scale = true;
-  */
-
-  /// lavi: modifica tensor_type invece che MEC_FullAll riga 81
 
   int tensor_pdg = target_pdg;
   if ( ! fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) )

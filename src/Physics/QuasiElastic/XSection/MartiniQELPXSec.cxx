@@ -3,7 +3,6 @@
  Copyright (c) 2003-2023, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
-
  For the class documentation see the corresponding header file.
 */
 //_________________________________________________________________________
@@ -104,7 +103,6 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   }
 
   if (tensor_pdg != target_pdg) need_to_scale = true;
-
   // The SuSAv2-1p1h hadron tensors are defined using the same conventions
   // as the Valencia MEC (and SuSAv2-MEC) model, so we can use the same sort of tensor
   // object to describe them.
