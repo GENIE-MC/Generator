@@ -27,7 +27,7 @@ Since the filename is fixed, selecting a different npnh component requires chang
 This path is controlled by the line:
 
 ```
-<param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ </param>
+<param type="string" name="DataPath"> data/evgen/hadron_tensors/martini </param>
 ```
 
 inside `config/MartiniMECHadronTensorModel.xml`.
@@ -35,7 +35,7 @@ inside `config/MartiniMECHadronTensorModel.xml`.
 To select another component (e.g. only NN 2p2h or only 3p3h), modify the `DataPath` entry so that it points to:
 
 ```
-data/evgen/hadron_tensors/<desired_subdirectory>/
+data/evgen/hadron_tensors/<desired_subdirectory>
 ```
 
 All available subdirectories are already listed in  

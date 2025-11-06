@@ -38,22 +38,22 @@ DataPathType       string   Yes        Whether the specified path is    relative
     -->
 
     <!-- Default: full 2p2h + 3p3h contributions -->
-    <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ </param>
+    <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini </param>
 
     <!-- NN 2p2h only -->
-    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/NN2p2h/ </param> -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/NN2p2h </param> -->
 
     <!-- ΔΔ 2p2h only -->
-    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/DD2p2h/ </param> -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/DD2p2h </param> -->
 
     <!-- NΔ 2p2h only -->
-    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ND2p2h/ </param> -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/ND2p2h </param> -->
 
     <!-- Total 2p2h (NN + ΔΔ + NΔ) -->
-    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/2p2h/ </param> -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/2p2h </param> -->
 
     <!-- 3p3h ΔΔ contribution -->
-    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/3p3h/ </param> -->
+    <!-- <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini/3p3h </param> -->
 
 
     <!-- 12C -->
