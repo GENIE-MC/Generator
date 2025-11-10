@@ -141,8 +141,8 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   double KLW = 1 ;
   // The K factor blows up at q0 = 0. A. Bodek recomends to use it until W = 1.1 GeV
   double W = interaction->Kine().W();      
-  //if ( W >= 1.1 ) KLW = ( q02 + fCvLW ) / q02;
-  
+  //if ( W > 1.1 )  KLW = ( q02 + fCvLW ) / q02;
+
   kuv = KLW * (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
   kdv = KLW * (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
   kus = myQ2/(myQ2+fCsU);    // K - u(sea)
