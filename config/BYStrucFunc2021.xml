@@ -38,7 +38,6 @@ CKM-Vcd                    double  No                                           
 CKM-Vcs                    double  No                                           CommonParam[CKM]
 CKM-Vud                    double  No                                           CommonParam[CKM]
 CKM-Vus                    double  No                                           CommonParam[CKM]
-Use2016Corrections         bool    No    Use SF corrections?                    
 LowQ2CutoffF1F2            double  No    min for F1/F2 SF relation             
 WeinbergAngle              double  No                                           CommonParam[WeakInt]
 -->
@@ -80,7 +79,6 @@ WeinbergAngle              double  No                                           
      <param type="bool"   name="IncludeR">           true  </param>
      <param type="bool"   name="IncludeH">           true  </param>
      <param type="bool"   name="IncludeNuclMod">     true  </param>
-     <param type="bool"   name="Use2016Corrections"> false </param>
      <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
      
     </param_set>

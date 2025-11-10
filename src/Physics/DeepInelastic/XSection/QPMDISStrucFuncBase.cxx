@@ -114,7 +114,7 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   GetParam( "IncludeNuclMod", fIncludeNuclMod ) ;
 
   //-- Use 2016 SF relation corrections
-  GetParam( "Use2016Corrections", fUse2016Corrections ) ;
+  GetParam( "Use2016Corrections", fUse2016Corrections, false ) ;
 
   //-- Set min for relation between 2xF1 and F2
   GetParam( "LowQ2CutoffF1F2", fLowQ2CutoffF1F2 ) ;
@@ -360,15 +360,37 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
   LOG("DISSF", pDEBUG) << "H = " << H;
 #endif
-  
-  double a = TMath::Power(x,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
-  double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
-  
-  fF3 = f * H * xF3val / x;
-  fF2 = f * F2val;
-  fF1 = fF2 * 0.5 * c / x;
-  fF5 = fF2 / x;         // Albright-Jarlskog relation
-  fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
+
+  if(fUse2016Corrections) {
+    //It was confirmed by A.Bodek that the modified scaling variable
+    //should just be used to compute the strucure functions F2 and xF3,
+    //but that the usual Bjorken x should be used for the relations
+    //between the structure functions.
+    //For the same reason remove the freezing of Q2 at 0.8 for those relations,
+    //although it has not been explicitly asked to A.Bodek if it should be done.
+
+    const Kinematics & kinematics = interaction->Kine();
+    double bjx = kinematics.x();
+
+    double a = TMath::Power(bjx,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
+    double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
+
+    fF3 = f * xF3val/bjx;
+    fF2 = f * F2val;
+    fF1 = fF2 * 0.5*c/bjx;
+    fF5 = fF2/bjx;           // Albright-Jarlskog relation
+    fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
+  }
+  else {
+    double a = TMath::Power(x,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
+    double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
+    
+    fF3 = f * H * xF3val / x;
+    fF2 = f * F2val;
+    fF1 = fF2 * 0.5 * c / x;
+    fF5 = fF2 / x;         // Albright-Jarlskog relation
+    fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
+  }
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG)
