@@ -589,12 +589,17 @@ if($gopt_enable_apfel eq "YES") {
     }
     print "Setting --with-apfel-lib=$gopt_with_apfel_lib\n";
   }
-  # check
-  my $file    = "$gopt_with_apfel_lib/libAPFEL.la";
-  if(! -e $file) {
-     print "*** Error *** You need to specify the path to APFEL library using --with-apfel-lib=/some/path/\n";
-     print "*** Error *** Otherwise, you should --disable-apfel\n\n";
-     exit 1;
+
+  # check for APFEL libraries
+  my $file_so = "$gopt_with_apfel_lib/libAPFEL.so";
+  my $file_a  = "$gopt_with_apfel_lib/libAPFEL.a";
+  my $file_la = "$gopt_with_apfel_lib/libAPFEL.la";
+  
+  if(! -e $file_so && ! -e $file_a && ! -e $file_la) {
+      print "*** Error *** Could not find libAPFEL.[so|a|la] in $gopt_with_apfel_lib\n";
+      print "*** Error *** You need to specify the path to APFEL library using --with-apfel-lib=/some/path/\n";
+      print "*** Error *** Otherwise, you should --disable-apfel\n\n";
+      exit 1;
   }
 }
 
