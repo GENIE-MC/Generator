@@ -583,11 +583,22 @@ if($gopt_enable_apfel eq "YES") {
   # if it still not set, try autodetecting it
   if(! -d $gopt_with_apfel_lib && $auto_detect)  {
     print "Auto-detecting APFEL library path...\n";
-    $matched = auto_detect("libAPFEL.la");
-    if( $matched=~m/(\S*)\/libAPFEL.la/i ) {
-       $gopt_with_apfel_lib = $1;
+
+    my $matchfile = "";
+    my @apfel_candidates = ("libAPFEL.so", "libAPFEL.a", "libAPFEL.la");
+
+    foreach my $cand (@apfel_candidates) {
+      $matched = auto_detect($cand);
+      if(defined $matched && $matched ne "") {
+        $matchfile = $matched;
+        last;
+      }
     }
-    print "Setting --with-apfel-lib=$gopt_with_apfel_lib\n";
+
+    if($matchfile =~ m{(\S*)/libAPFEL\.(?:so|a|la)}i) {
+      $gopt_with_apfel_lib = $1;
+      print "Setting --with-apfel-lib=$gopt_with_apfel_lib\n";
+    }
   }
 
   # check for APFEL libraries
