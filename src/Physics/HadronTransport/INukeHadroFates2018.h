@@ -8,11 +8,11 @@
 
 \author   Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts Univ.
-          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
+          Costas Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
 
 \created  November 1, 2005
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
            
 */

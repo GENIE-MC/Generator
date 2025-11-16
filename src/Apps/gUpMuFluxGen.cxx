@@ -79,12 +79,12 @@
 \created April 15, 2011
 
 \author  Jen Truby <jen.truby \at sky.com>
-         Oxford University - University of Liverpool & STFC Rutherford Appleton Laboratory summer student
+         Oxford University - University of Liverpool summer student
 
-         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+         Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */

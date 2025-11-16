@@ -12,12 +12,12 @@
          The flux files necessary for running this flux driver can be obtained
          from:​http://www.icrr.u-tokyo.ac.jp/~mhonda/
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-         University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+         University of Liverpool
 
 \created July 9, 2015
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          for the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________

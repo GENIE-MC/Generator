@@ -47,11 +47,11 @@
 #...................................................................................
 #
 # Author:
-#   Costas Andreopoulos <costas.andreopoulos \st stfc.ac.uk>
-#   University of Liverpool & STFC Rutherford Appleton Laboratory
+#   Costas Andreopoulos <c.andreopoulos \st cern.ch>
+#   University of Liverpool
 #
 # Copyright:
-#   Copyright (c) 2003-2023, The GENIE Collaboration
+#   Copyright (c) 2003-2025, The GENIE Collaboration
 #   For the full text of the license visit http://copyright.genie-mc.org
 #-----------------------------------------------------------------------------------------------------------
 #

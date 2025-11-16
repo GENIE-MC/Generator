@@ -2,7 +2,7 @@
 # Makefile for GENIE Neutrino Generator
 #
 # Author: Joshua Berger <jberger \at physics.wisc.edu>
-#         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>         
+#         Costas Andreopoulos <c.andreopoulos \at cern.ch>         
 #
 
 SHELL    = /bin/sh

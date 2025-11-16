@@ -211,19 +211,19 @@
 
 \created August 20, 2010
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+         University of Liverpool
 
          Torben Ferber <torben.ferber \at DESY.DE>
          DESY
 
-         Hugh Gallagher <hugh.gallagher \at stfc.ac.uk>
+         Hugh Gallagher <hugh.gallagher \at tufts.edu>
          Tufts University
 
          Tarak Thakore <tarak \at mailhost.tifr.res.in>
          Tata Institute of Fundamental Research
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
 
 */
