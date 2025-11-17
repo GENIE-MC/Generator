@@ -38,7 +38,7 @@ const double       kGHnd3DCosThetaMax           =   1.0;
 const unsigned int kGHnd3DNumPhiBins       	=  12;
 const double       kGHnd3DPhiMin           	=   0.0;
 const double       kGHnd3DPhiMax           	= 360.0;
-const unsigned int kGHnd3DNumLogEvBins          = 101;
+const unsigned int kGHnd3DNumLogEvBins          = 101; // 47 for up to ~20GeV (19.953GeV)
 const unsigned int kGHnd3DNumLogEvBinsPerDecade =  20;
 const double       kGHnd3DEvMin                 =   0.1; // GeV
 
