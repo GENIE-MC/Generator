@@ -67,11 +67,11 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   if ( A_request <= 4 ) {
     // Use carbon tensor for very light nuclei. This is not ideal . . .
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbHe; Eb_ten=fEbC;
+    Eb_tgt=fEbHe; Eb_ten=fEbHe;
   }
   else if (A_request < 9) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbLi; Eb_ten=fEbC;
+    Eb_tgt=fEbLi; Eb_ten=fEbLi;
   }
   else if (A_request >= 9 && A_request < 15) {
     tensor_pdg = kPdgTgtC12;
@@ -83,23 +83,23 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   }
   else if(A_request >= 22 && A_request < 40) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbMg; Eb_ten=fEbC;
+    Eb_tgt=fEbMg; Eb_ten=fEbMg;
   }
   else if(A_request >= 40 && A_request < 56) {
     tensor_pdg = kPdgTgtCa40;
-    Eb_tgt=fEbAr; Eb_ten=fEbCa;
+    Eb_tgt=fEbAr; Eb_ten=fEbAr;
   }
   else if(A_request >= 56 && A_request < 119) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbFe; Eb_ten=fEbC;
+    Eb_tgt=fEbFe; Eb_ten=fEbFe;
   }
   else if(A_request >= 119 && A_request < 206) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbSn; Eb_ten=fEbC;
+    Eb_tgt=fEbSn; Eb_ten=fEbSn;
   }
   else if(A_request >= 206) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbPb; Eb_ten=fEbC;
+    Eb_tgt=fEbPb; Eb_ten=fEbPb;
   }
 
   if (tensor_pdg != target_pdg) need_to_scale = true;

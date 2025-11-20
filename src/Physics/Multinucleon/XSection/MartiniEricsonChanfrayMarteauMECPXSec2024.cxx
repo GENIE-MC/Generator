@@ -382,36 +382,32 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::Qvalue(const Interaction & int
   /// \todo Add more hadron tensors so this scaling is not so terrible
   // At the moment all we have is Carbon so this is all just a place holder ...
   if ( A_request == 4 ) {
-    Eb_tgt=fEbHe; Eb_ten=fEbC;
+    Eb_tgt=fEbHe; Eb_ten=fEbHe;
     // This is for helium 4, but use carbon tensor, may not be ideal ...
   }
   else if (A_request < 9) {
-    Eb_tgt=fEbLi; Eb_ten=fEbC;
+    Eb_tgt=fEbLi; Eb_ten=fEbLi;
   }
   else if (A_request >= 9 && A_request < 15) {
     Eb_tgt=fEbC; Eb_ten=fEbC;
   }
   else if(A_request >= 15 && A_request < 22) {
-    //tensor_pdg = kPdgTgtO16;
-    // Oxygen tensor has some issues - xsec @ 50 GeV = 45.2835 x 1E-38 cm^2
-    // This is ~ 24 times higher than C
-    // I think it's just a missing scale factor but I need to check.
     Eb_tgt=fEbO; Eb_ten=fEbO;
   }
   else if(A_request >= 22 && A_request < 40) {
-    Eb_tgt=fEbMg; Eb_ten=fEbC;
+    Eb_tgt=fEbMg; Eb_ten=fEbMg;
   }
   else if(A_request >= 40 && A_request < 56) {
-    Eb_tgt=fEbAr; Eb_ten=fEbCa;
+    Eb_tgt=fEbAr; Eb_ten=fEbAr;
   }
   else if(A_request >= 56 && A_request < 119) {
-    Eb_tgt=fEbFe; Eb_ten=fEbC;
+    Eb_tgt=fEbFe; Eb_ten=fEbFe;
   }
   else if(A_request >= 119 && A_request < 206) {
-    Eb_tgt=fEbSn; Eb_ten=fEbC;
+    Eb_tgt=fEbSn; Eb_ten=fEbSn;
   }
   else if(A_request >= 206) {
-    Eb_tgt=fEbPb; Eb_ten=fEbC;
+    Eb_tgt=fEbPb; Eb_ten=fEbPb;
   }
 
   // SD: The Q-Value essentially corrects q0 to account for nuclear
