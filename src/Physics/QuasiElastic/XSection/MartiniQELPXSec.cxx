@@ -67,11 +67,11 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   if ( A_request <= 4 ) {
     // Use carbon tensor for very light nuclei. This is not ideal . . .
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbHe; Eb_ten=fEbHe;
+    Eb_tgt=fEbHe; Eb_ten=fEbC;
   }
   else if (A_request < 9) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbLi; Eb_ten=fEbLi;
+    Eb_tgt=fEbLi; Eb_ten=fEbC;
   }
   else if (A_request >= 9 && A_request < 15) {
     tensor_pdg = kPdgTgtC12;
@@ -83,28 +83,28 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   }
   else if(A_request >= 22 && A_request < 40) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbMg; Eb_ten=fEbMg;
+    Eb_tgt=fEbMg; Eb_ten=fEbO;
   }
   else if(A_request >= 40 && A_request < 56) {
     tensor_pdg = kPdgTgtCa40;
-    Eb_tgt=fEbAr; Eb_ten=fEbAr;
+    Eb_tgt=fEbAr; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbFe; Eb_ten=fEbFe;
+    Eb_tgt=fEbFe; Eb_ten=fEbCa;
   }
   else if(A_request >= 119 && A_request < 206) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbSn; Eb_ten=fEbSn;
+    Eb_tgt=fEbSn; Eb_ten=fEbCa;
   }
   else if(A_request >= 206) {
     tensor_pdg = kPdgTgtC12;
-    Eb_tgt=fEbPb; Eb_ten=fEbPb;
+    Eb_tgt=fEbPb; Eb_ten=fEbCa;
   }
 
   if (tensor_pdg != target_pdg) need_to_scale = true;
-  // The SuSAv2-1p1h hadron tensors are defined using the same conventions
-  // as the Valencia MEC (and SuSAv2-MEC) model, so we can use the same sort of tensor
+  // The Martini-1p1h hadron tensors are defined using the same conventions
+  // as the Valencia MEC (and Martini-MEC) model, so we can use the same sort of tensor
   // object to describe them.
   const LabFrameHadronTensorI* tensor
     = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
@@ -194,8 +194,7 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
     // p vs. n when making splines. The nuclear cross section is obtained
     // by scaling by A/2 for an isoscalar target, so we can get the right
     // behavior for all targets by scaling by Z/2 or N/2 as appropriate.
-    // Do the same for NC. TODO: double-check that this is the right
-    // thing to do when we SuSAv2 NC hadronic tensors are added to GENIE.
+    // Do the same for NC.
     int hit_nuc_pdg = tgt.HitNucPdg();
     if ( pdg::IsProton(hit_nuc_pdg) ) xsec *= tgt.Z() / 2.;
     else if ( pdg::IsNeutron(hit_nuc_pdg) ) xsec *= tgt.N() / 2.;

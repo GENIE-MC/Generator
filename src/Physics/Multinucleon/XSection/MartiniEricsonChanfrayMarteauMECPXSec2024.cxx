@@ -92,17 +92,13 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
     }
     else if (A_request >= 9 && A_request < 15) {
       tensor_pdg = kPdgTgtC12;
-      //}
-      // could explicitly put in nitrogen for air
-      //else if ( A_request >= 14 && A < 15) { // AND CHANGE <=14 to <14.
-      //  tensor_pdg = kPdgTgtN14;
     }
     else if (A_request >= 15 && A_request < 22) {
       tensor_pdg = kPdgTgtO16;
     }
     else if (A_request >= 22 && A_request < 33) {
       // of special interest, this gets Al27 and Si28
-      tensor_pdg = 1000140280;
+      tensor_pdg = kPdgTgtO16;
     }
     else if (A_request >= 33 && A_request < 50) {
       // of special interest, this gets Ar40 and Ti48
@@ -110,15 +106,15 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
     }
     else if (A_request >= 50 && A_request < 90) {
       // pseudoFe56, also covers many other ferrometals and Ge
-      tensor_pdg = 1000280560;
+      tensor_pdg = kPdgTgtCa40;
     }
     else if (A_request >= 90 && A_request < 160) {
       // use Ba112 = PseudoCd.  Row5 of Periodic table useless. Ag, Xe?
-      tensor_pdg = 1000561120;
+      tensor_pdg = kPdgTgtCa40;
     }
     else if (A_request >= 160) {
       // use Rf208 = pseudoPb
-      tensor_pdg = 1001042080;
+      tensor_pdg = kPdgTgtCa40;
     }
     else {
       MAXLOG("MartiniEricsonChanfrayMarteauMEC", pWARN, 10)
@@ -382,11 +378,11 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::Qvalue(const Interaction & int
   /// \todo Add more hadron tensors so this scaling is not so terrible
   // At the moment all we have is Carbon so this is all just a place holder ...
   if ( A_request == 4 ) {
-    Eb_tgt=fEbHe; Eb_ten=fEbHe;
+    Eb_tgt=fEbHe; Eb_ten=fEbC;
     // This is for helium 4, but use carbon tensor, may not be ideal ...
   }
   else if (A_request < 9) {
-    Eb_tgt=fEbLi; Eb_ten=fEbLi;
+    Eb_tgt=fEbLi; Eb_ten=fEbC;
   }
   else if (A_request >= 9 && A_request < 15) {
     Eb_tgt=fEbC; Eb_ten=fEbC;
@@ -395,19 +391,19 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::Qvalue(const Interaction & int
     Eb_tgt=fEbO; Eb_ten=fEbO;
   }
   else if(A_request >= 22 && A_request < 40) {
-    Eb_tgt=fEbMg; Eb_ten=fEbMg;
+    Eb_tgt=fEbMg; Eb_ten=fEbO;
   }
   else if(A_request >= 40 && A_request < 56) {
-    Eb_tgt=fEbAr; Eb_ten=fEbAr;
+    Eb_tgt=fEbAr; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
-    Eb_tgt=fEbFe; Eb_ten=fEbFe;
+    Eb_tgt=fEbFe; Eb_ten=fEbCa;
   }
   else if(A_request >= 119 && A_request < 206) {
-    Eb_tgt=fEbSn; Eb_ten=fEbSn;
+    Eb_tgt=fEbSn; Eb_ten=fEbCa;
   }
   else if(A_request >= 206) {
-    Eb_tgt=fEbPb; Eb_ten=fEbPb;
+    Eb_tgt=fEbPb; Eb_ten=fEbCa;
   }
 
   // SD: The Q-Value essentially corrects q0 to account for nuclear
