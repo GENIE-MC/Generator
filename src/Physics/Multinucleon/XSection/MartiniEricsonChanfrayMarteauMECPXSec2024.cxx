@@ -394,7 +394,7 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::Qvalue(const Interaction & int
     Eb_tgt=fEbMg; Eb_ten=fEbO;
   }
   else if(A_request >= 40 && A_request < 56) {
-    Eb_tgt=fEbAr; Eb_ten=fEbCa;
+    Eb_tgt=fEbCa; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
     Eb_tgt=fEbFe; Eb_ten=fEbCa;

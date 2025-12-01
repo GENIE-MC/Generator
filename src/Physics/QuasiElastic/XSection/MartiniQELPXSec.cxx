@@ -21,7 +21,6 @@
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
-
 using namespace genie;
 
 //_________________________________________________________________________
@@ -87,7 +86,7 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   }
   else if(A_request >= 40 && A_request < 56) {
     tensor_pdg = kPdgTgtCa40;
-    Eb_tgt=fEbAr; Eb_ten=fEbCa;
+    Eb_tgt=fEbCa; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
     tensor_pdg = kPdgTgtC12;
