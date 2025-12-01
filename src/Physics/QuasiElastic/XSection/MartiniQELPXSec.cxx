@@ -89,15 +89,15 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
     Eb_tgt=fEbCa; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
-    tensor_pdg = kPdgTgtC12;
+    tensor_pdg = kPdgTgtCa40;
     Eb_tgt=fEbFe; Eb_ten=fEbCa;
   }
   else if(A_request >= 119 && A_request < 206) {
-    tensor_pdg = kPdgTgtC12;
+    tensor_pdg = kPdgTgtCa40;
     Eb_tgt=fEbSn; Eb_ten=fEbCa;
   }
   else if(A_request >= 206) {
-    tensor_pdg = kPdgTgtC12;
+    tensor_pdg = kPdgTgtCa40;
     Eb_tgt=fEbPb; Eb_ten=fEbCa;
   }
 
