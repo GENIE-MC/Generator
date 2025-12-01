@@ -81,7 +81,7 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
     Eb_tgt=fEbO; Eb_ten=fEbO;
   }
   else if(A_request >= 22 && A_request < 40) {
-    tensor_pdg = kPdgTgtC12;
+    tensor_pdg = kPdgTgtO16;
     Eb_tgt=fEbMg; Eb_ten=fEbO;
   }
   else if(A_request >= 40 && A_request < 56) {
