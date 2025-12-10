@@ -138,10 +138,13 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
 
   double q0 = this->q0(interaction);
   double q02 = TMath::Power(q0,2);
-  double KLW = 1 ;
+  double KLW = 1. ;
+
+  // The KLW is only important in the SIS region (W<2GeV). As we scale it altogether with the RES region, we do not need this factor.
+  // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out. 
   // The K factor blows up at q0 = 0. A. Bodek recomends to use it until W = 1.1 GeV
-  double W = interaction->Kine().W();      
-  //if ( W > 1.1 )  KLW = ( q02 + fCvLW ) / q02;
+  // double W = interaction->Kine().W();      
+  // if ( W > 1.1 )  KLW = ( q02 + fCvLW ) / q02;
 
   kuv = KLW * (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
   kdv = KLW * (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
@@ -165,6 +168,9 @@ void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & k
   bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
   double KLW = 1;
+  // The KLW is only important in the SIS region (W<2GeV). As we scale it altogether with the RES region, we do not need this factor.                            
+  // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out.
+  /*
   if( q02 > 0 ) {
     // TO DECIDE ! It breaks the e- implementation
     if( is_nu ) {
@@ -172,10 +178,12 @@ void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & k
     } else if( is_nubar ) {
       KLW = ( q02 + fCaLW_nubar ) / q02 ;
     }
-  }
+    }
   // double check it only affects valance factors:
   //kvalance *= KLW ; 
+  */
 }
+
 //____________________________________________________________________________
 double BYStrucFunc2021::H(const Interaction * interaction) const {
   // Overrides QPMDISStrucFuncBase::H() function to compute the correction of the BY 2021 update
