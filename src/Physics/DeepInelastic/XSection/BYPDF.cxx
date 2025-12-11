@@ -95,6 +95,13 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   double dv = uncorrected_pdfs.dval;
   double ds = uncorrected_pdfs.dsea;
 
+  // we increase the up and down quark sea by 5%, and decrease the up and down valence quarks
+  // such that the sum of quark and antiquark distributions remain the same.
+  uv -= 2 * fUpScale * uncorrected_pdfs.uval;
+  dv -= 2 * fDownScale * uncorrected_pdfs.dval;
+  us *= ( 1 + fUpScale ) ;
+  ds *= ( 1 + fUpScale ) ;
+  
   // compute correction factor delta(d/u)
   double delta = this->DeltaDU(x);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -168,7 +175,8 @@ void BYPDF::LoadConfig(void)
   GetParam( "BY-X0", fX0 ) ;
   GetParam( "BY-X1", fX1 ) ;
   GetParam( "BY-X2", fX2 ) ;
-
+  GetParamDef( "BY-UpScale", fUpScale, 0. );
+  GetParamDef( "BY-DownScale", fDownScale, 0. );
   GetParam( "PDF-Q2min", fQ2min ) ;
 
   // get the base PDF model (typically GRV9* LO)

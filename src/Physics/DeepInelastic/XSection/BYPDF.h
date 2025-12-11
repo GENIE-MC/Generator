@@ -61,6 +61,8 @@ private:
   double fX0;    ///< correction param X0
   double fX1;    ///< correction param X1
   double fX2;    ///< correction param X2
+  double fUpScale; ///< Scaling parameter to scale up contributions. Default 1.
+  double fDownScale; ///< Scaling parameter to scale down contributions. Default 1.
   double fQ2min; ///< min. Q2 for PDF evaluation
 };
 
