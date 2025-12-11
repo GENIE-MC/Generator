@@ -26,6 +26,13 @@ Uncorr-PDF-Set             alg     No    Uncorrected PDF model
 
   </param_set>
 
+  <param_set name="BY2021">
+    
+    <param type="double" name="BY-UpScale">   0.05 </param>
+    <param type="double" name="BY-DownScale">   0.05 </param>
+
+  </param_set>
+
 
   <param_set name="Optional"> 
     
