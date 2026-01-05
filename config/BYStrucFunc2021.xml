@@ -83,6 +83,10 @@ WeinbergAngle              double  No                                           
      <param type="bool"   name="Use2016Corrections"> true </param>     
 
     </param_set>
-   
+
+    <param_set name="Test"> 
+     <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+    </param_set>
+
 </alg_conf>
 

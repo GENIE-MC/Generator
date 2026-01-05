@@ -14,6 +14,8 @@ BY-X1                      double  No    Bodek-Yang param X1
 BY-X2                      double  No    Bodek-Yang param X2                    
 PDF-Q2min                  double  Yes   Min Q2 for PDF evaluation              from "Uncorr-PDF-Set" register
 Uncorr-PDF-Set             alg     No    Uncorrected PDF model 
+BY-UpScale                 double  Yes   Scaling the up distribution. Default 0.
+By-DownScale               double  Yes   Scaling the down distribution. Default 0.
 -->
 
   <param_set name="Default"> 
@@ -25,14 +27,6 @@ Uncorr-PDF-Set             alg     No    Uncorrected PDF model
     <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
 
   </param_set>
-
-  <param_set name="BY2021">
-    
-    <param type="double" name="BY-UpScale">   0.05 </param>
-    <param type="double" name="BY-DownScale">   0.05 </param>
-
-  </param_set>
-
 
   <param_set name="Optional"> 
     
