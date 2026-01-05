@@ -56,6 +56,8 @@ protected:
   double NuclMod(const Interaction * interaction) const;
   // Bodek-Yang model-specific parameters
 
+  double fMv;    ///< Vector Mass
+  double fMv2;   ///< Vector Mass Squared
   double fA;     ///< better scaling var parameter A
   double fB;     ///< better scaling var parameter B
   double fCvLW;   ///< C low-nu vector paramter

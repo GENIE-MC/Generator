@@ -62,6 +62,10 @@ void BYStrucFunc2021::Configure(string param_set)
 //____________________________________________________________________________
 void BYStrucFunc2021::ReadBYParams(void)
 {
+  // vector mass
+  GetParam( "EL-Mv",fMv ) ;
+  fMv2 = TMath::Power(fMv,2);
+  
 // Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
 // registry and set some private data members so as not to accessing the
 // registry at every calculation.
@@ -89,6 +93,8 @@ void BYStrucFunc2021::ReadBYParams(void)
 //____________________________________________________________________________
 void BYStrucFunc2021::Init(void)
 {
+  fMv   = 0;
+  fMv2  = 0;
   fA    = 0;
   fB    = 0;
   fCsU  = 0;
@@ -133,7 +139,7 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
 // u(valence), d(valence), u(sea), d(sea), s(sea);
 
   double myQ2  = this->Q2(interaction);
-  double GD  = 1. / TMath::Power(1.+myQ2/0.71, 2); // p elastic form factor
+  double GD  = 1. / TMath::Power(1.+myQ2/fMv2, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
 
   double q0 = this->q0(interaction);
