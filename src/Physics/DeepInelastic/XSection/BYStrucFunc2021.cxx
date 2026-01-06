@@ -142,13 +142,13 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   double GD  = 1. / TMath::Power(1.+myQ2/fMv2, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
 
-  double q0 = this->q0(interaction);
-  double q02 = TMath::Power(q0,2);
-  double KLW = 1. ;
 
   // The KLW is only important in the SIS region (W<2GeV). As we scale it altogether with the RES region, we do not need this factor.
   // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out. 
   // The K factor blows up at q0 = 0. A. Bodek recomends to use it until W = 1.1 GeV
+  double KLW = 1. ;
+  //double q0 = this->q0(interaction);
+  //double q02 = TMath::Power(q0,2);
   // double W = interaction->Kine().W();      
   // if ( W > 1.1 )  KLW = ( q02 + fCvLW ) / q02;
 
