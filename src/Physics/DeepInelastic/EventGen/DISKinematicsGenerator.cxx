@@ -23,6 +23,7 @@
 #include "Framework/EventGen/RunningThreadInfo.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -134,6 +135,10 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         << "Trying: x = " << gx << ", y = " << gy
         << " (W  = " << interaction->KinePtr()->W()  << ","
         << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
+
+     //-- Check Q2 threshold (important for EM scattering where xsec diverges as Q2->0)
+     double Q2min = interaction->ProcInfo().IsEM() ? KPhaseSpace::GetQ2MinEM() : controls::kMinQ2Limit;
+     if(interaction->KinePtr()->Q2() < Q2min) continue;
 
      //-- compute the cross section for current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);

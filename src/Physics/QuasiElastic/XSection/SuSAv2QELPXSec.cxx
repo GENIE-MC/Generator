@@ -10,6 +10,7 @@
 
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Units.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -64,8 +65,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	// mode (this is important for EM interactions since the differential
 	// cross section blows up as Q^2 --> 0)
 	double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-	if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-		::electromagnetic::kMinQ2Limit; // EM limit
+	if ( interaction->ProcInfo().IsEM() ) Q2min = KPhaseSpace::GetQ2MinEM(); // EM limit from config
 
 	// Neglect shift due to binding energy. The cut is on the actual
 	// value of Q^2, not the effective one to use in the tensor contraction.

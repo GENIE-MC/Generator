@@ -102,16 +102,18 @@ namespace kinematics
 
   namespace electromagnetic
   {
+   // Default Q2 threshold for em scattering events (GeV^2)
+   // This value can be overridden via the EM-Q2-min parameter in CommonParam.xml [Kinematics]
+   static const double kMinQ2Limit   = 0.02;  // GeV^2
+
    Range1D_t  InelWLim    (double El, double ml, double M);
-   Range1D_t  InelQ2Lim_W (double El, double ml, double M, double W);
-   Range1D_t  Inelq2Lim_W (double El, double ml, double M, double W);
-   Range1D_t  InelQ2Lim   (double El, double ml, double M);
-   Range1D_t  Inelq2Lim   (double El, double ml, double M);
+   Range1D_t  InelQ2Lim_W (double El, double ml, double M, double W, double Q2min_cut = kMinQ2Limit);
+   Range1D_t  Inelq2Lim_W (double El, double ml, double M, double W, double q2min_cut = -1*kMinQ2Limit);
+   Range1D_t  InelQ2Lim   (double El, double ml, double M, double Q2min_cut = kMinQ2Limit);
+   Range1D_t  Inelq2Lim   (double El, double ml, double M, double q2min_cut = -1*kMinQ2Limit);
    Range1D_t  InelXLim    (double El, double ml, double M);
    Range1D_t  InelYLim    (double El, double ml, double M);
    Range1D_t  InelYLim_X  (double El, double ml, double M, double x);
-
-   static const double kMinQ2Limit   = 0.02;  // GeV^2 // Q2 threshold relevant for em scattering events
   }
 
 } // kinematics namespace

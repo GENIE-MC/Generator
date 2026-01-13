@@ -74,6 +74,24 @@ double KPhaseSpace::GetTMaxDFR()
 
 }
 //___________________________________________________________________________
+double KPhaseSpace::GetQ2MinEM()
+{
+  static bool q2MinLoaded = false;
+  static double EM_Q2Min = -1;
+
+  if (!q2MinLoaded)
+  {
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    const Registry * r = confp->CommonList( "Param", "Kinematics" ) ;
+    double q2min = r->GetDouble("EM-Q2-min");
+    EM_Q2Min = q2min;
+    q2MinLoaded = true;
+  }
+
+  return EM_Q2Min;
+
+}
+//___________________________________________________________________________
 void KPhaseSpace::UseInteraction(const Interaction * in)
 {
   fInteraction = in;
@@ -552,7 +570,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   } else if (is_dme || is_dmdis) {
     Q2l = kinematics::DarkQ2Lim_W(Ev,M,ml,W);
   } else {
-     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,GetQ2MinEM()) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
   }
 
   return Q2l;
@@ -632,7 +650,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
     if (pi.IsInverseBetaDecay()) {
       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
     } else {
-     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,GetQ2MinEM()) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
     }
 
     return Q2l;
@@ -662,7 +680,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   // TODO: Q2maxConfig
   if (pi.IsMEC()){
     double W = fInteraction->RecoilNucleon()->Mass();
-    Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
+    Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,GetQ2MinEM()) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
     double Q2maxConfig = 1.44; // need to pull from config file somehow?
     if (Q2l.max > Q2maxConfig) Q2l.max = Q2maxConfig;
     return Q2l;
@@ -674,7 +692,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   }
 
   // inelastic
-  Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim(Ev,ml,M) : kinematics::InelQ2Lim(Ev,M,ml);
+  Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim(Ev,ml,M,GetQ2MinEM()) : kinematics::InelQ2Lim(Ev,M,ml);
   return Q2l;
 }
 //____________________________________________________________________________

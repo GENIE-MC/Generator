@@ -22,6 +22,7 @@
 #include "Framework/EventGen//RunningThreadInfo.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -286,7 +287,7 @@ double RESKinematicsGenerator::ComputeMaxXSec(
   const InitialState & init_state = interaction -> InitState();
   double E = init_state.ProbeE(kRfHitNucRest);
   bool is_em = interaction->ProcInfo().IsEM();
-  double Q2Thres = is_em ? utils::kinematics::electromagnetic::kMinQ2Limit : controls::kMinQ2Limit;
+  double Q2Thres = is_em ? KPhaseSpace::GetQ2MinEM() : controls::kMinQ2Limit;
 
   double md;
   if(!interaction->ExclTag().KnownResonance()) md=1.23;

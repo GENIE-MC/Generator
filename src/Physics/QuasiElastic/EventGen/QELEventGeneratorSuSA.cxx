@@ -18,6 +18,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/KinePhaseSpace.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/EventGen/RunningThreadInfo.h"
@@ -99,8 +100,7 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
   double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  if ( interaction->ProcInfo().IsEM() ) Q2min = KPhaseSpace::GetQ2MinEM(); // EM limit from config
 
   // The SuSA 1p1h model kinematics works in a system where
   // the whole nuclear target system has no momentum.
