@@ -280,15 +280,20 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
      double xv3    = xv2 * xv;
      double xv4    = xv3 * xv;
      double xv5    = xv4 * xv;
-
-     double f = 1.;
      
      // first factor goes from free nucleons to deuterium
      if(A >= 2) {
        f= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
      }
 
-     double chiTM = this->ScalingVar(interaction);
+     
+     // Computing target-mass-corrected scaling variable
+     double Q2 = kinematics.Q2();
+     double M  = kNucleonMass;
+     double M2 = pow( M, 2);
+     double chi_TM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
+     double f = 1.;
+
      // 2nd factor goes from deuterium to iso-scalar iron
      if(A > 2) {
        // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
