@@ -291,7 +291,7 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
      double Q2 = kinematics.Q2();
      double M  = kNucleonMass;
      double M2 = pow( M, 2);
-     double chi_TM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
+     double chiTM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
      double f = 1.;
 
      // 2nd factor goes from deuterium to iso-scalar iron
