@@ -136,10 +136,6 @@ void DISKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         << " (W  = " << interaction->KinePtr()->W()  << ","
         << " (Q2 = " << interaction->KinePtr()->Q2() << ")";
 
-     //-- Check Q2 threshold (important for EM scattering where xsec diverges as Q2->0)
-     double Q2min = interaction->ProcInfo().IsEM() ? KPhaseSpace::GetQ2MinEM() : controls::kMinQ2Limit;
-     if(interaction->KinePtr()->Q2() < Q2min) continue;
-
      //-- compute the cross section for current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxyfE);
 

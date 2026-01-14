@@ -45,21 +45,11 @@ Default value maintains backward compatibility (0.02 GeV²).
   - Line 683: Q2Lim() for MEC
   - Line 695: Q2Lim() for general inelastic
 
-### 3. Physics Module Changes (8 files)
+### 3. Physics Module Changes (7 files)
 
-#### Issues Found and Fixed
+#### Hardcoded References Replaced
 
-**Critical Issue in DISKinematicsGenerator.cxx:**
-- **Problem**: Generator samples in (x,y) space and converts to (W,Q²), but had **no check** to reject events with Q² < Q²min
-- **Impact**: Events were leaking below the Q² threshold even with correct cross-sections
-- **Fix**: Added Q²min check after computing Q² from (x,y):
-  ```cpp
-  double Q2min = interaction->ProcInfo().IsEM() ? KPhaseSpace::GetQ2MinEM() : controls::kMinQ2Limit;
-  if(interaction->KinePtr()->Q2() < Q2min) continue;
-  ```
-
-**Hardcoded References in 7 Other Files:**
-All used `utils::kinematics::electromagnetic::kMinQ2Limit` directly. Replaced with `KPhaseSpace::GetQ2MinEM()`:
+All files below used `utils::kinematics::electromagnetic::kMinQ2Limit` directly. Replaced with `KPhaseSpace::GetQ2MinEM()`:
 
 1. **RESKinematicsGenerator.cxx** (line 290)
    - Used in max cross-section calculation for resonance production
@@ -98,6 +88,7 @@ Changes take effect immediately after recompiling and regenerating cross-section
 2. **Spline Regeneration Required**: Cross-section splines must be regenerated with the new Q²min value, as total cross-sections are computed by integrating over the allowed phase space
 3. **Backward Compatibility**: Default value (0.02 GeV²) maintains existing behavior
 4. **Scope**: Only affects electromagnetic scattering events (IsEM() == true); neutrino interactions continue using `controls::kMinQ2Limit = 1E-4 GeV²`
+5. **Enforcement Mechanism**: The Q²min threshold is enforced implicitly through the existing kinematic validation chain: `ValidKinematics() → IsAllowed() → Q2Lim_W() → InelQ2Lim_W()`. No explicit checks in event generators are needed.
 
 ## Testing
 
@@ -125,8 +116,7 @@ Confirmed all generated events have Q² ≥ 1.0 GeV².
 - src/Framework/Interaction/KPhaseSpace.h
 - src/Framework/Interaction/KPhaseSpace.cxx
 
-### Physics Modules (8 files)
-- src/Physics/DeepInelastic/EventGen/DISKinematicsGenerator.cxx
+### Physics Modules (7 files)
 - src/Physics/Resonance/EventGen/RESKinematicsGenerator.cxx
 - src/Physics/Multinucleon/XSection/EmpiricalMECPXSec2015.cxx
 - src/Physics/Multinucleon/XSection/MECUtils.cxx
@@ -135,4 +125,4 @@ Confirmed all generated events have Q² ≥ 1.0 GeV².
 - src/Physics/QuasiElastic/XSection/SuSAv2QELPXSec.cxx
 - src/Physics/QuasiElastic/EventGen/QELEventGeneratorSuSA.cxx
 
-**Total: 17 files modified**
+**Total: 16 files modified**
