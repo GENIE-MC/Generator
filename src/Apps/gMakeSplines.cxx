@@ -19,6 +19,7 @@
                   [--no-copy]
                   [--seed seed_number]
                   [--input-cross-sections xml_file]
+                  [--em-q2-min q2_value]
 
                   // command line args handled by RunOpt:
                   [--event-generator-list list_name] // default "Default"
@@ -59,6 +60,10 @@
               Name (incl. full path) of an XML file with pre-computed
               free-nucleon cross-section values. If loaded, it can speed-up
               cross-section calculation for nuclear targets.
+           --em-q2-min
+              Override the minimum Q^2 threshold for electromagnetic scattering
+              events (in GeV^2). This overrides the EM-Q2-min value from
+              CommonParam.xml [Kinematics].
 
            --event-generator-list
               List of event generators to load in event generation drivers.
@@ -110,6 +115,7 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 #include "Tools/Geometry/ROOTGeomAnalyzer.h"
@@ -140,6 +146,8 @@ bool     gOptNoCopy         = false;
 long int gOptRanSeed        = -1;   // random number seed
 string   gOptInpXSecFile    = "";   // input cross-section file
 string   gOptOutXSecFile    = "";   // output cross-section file
+double   gOptEMQ2Min;               // EM Q2 minimum override value
+bool     gOptEMQ2MinSet     = false; // whether --em-q2-min was specified
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -152,6 +160,24 @@ int main(int argc, char ** argv)
     exit(-1);
   }
   RunOpt::Instance()->BuildTune();
+
+  // Apply EM Q2 min override if specified on command line
+  // This must be done after BuildTune() loads XML configs but before
+  // any physics code calls KPhaseSpace::GetQ2MinEM()
+  if(gOptEMQ2MinSet) {
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    Registry * r = confp->CommonList("Param", "Kinematics");
+    if(r) {
+      r->UnLock();
+      r->Set("EM-Q2-min", gOptEMQ2Min);
+      r->Lock();
+      LOG("gmkspl", pNOTICE)
+        << "Overriding EM-Q2-min from command line: " << gOptEMQ2Min << " GeV^2";
+    } else {
+      LOG("gmkspl", pWARN)
+        << "Could not find Kinematics registry to override EM-Q2-min";
+    }
+  }
 
   // throw on NaNs and Infs...
 #if defined(HAVE_FENV_H) && defined(HAVE_FEENABLEEXCEPT)
@@ -329,6 +355,14 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
+  // EM Q2 minimum override
+  gOptEMQ2MinSet = false;
+  if( parser.OptionExists("em-q2-min") ) {
+    LOG("gmkspl", pINFO) << "Reading EM Q2 minimum cut override";
+    gOptEMQ2Min = parser.ArgAsDouble("em-q2-min");
+    gOptEMQ2MinSet = true;
+  }
+
   //
   // print the command-line options
   //
@@ -340,8 +374,12 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n Input ROOT geometry : " << gOptGeomFilename
      << "\n Output cross-section file : " << gOptOutXSecFile
      << "\n Input cross-section file : " << gOptInpXSecFile
-     << "\n Random number seed : " << gOptRanSeed
-     << "\n";
+     << "\n Random number seed : " << gOptRanSeed;
+  if(gOptEMQ2MinSet) {
+     LOG("gmkspl", pNOTICE)
+       << "\n EM Q2 minimum override : " << gOptEMQ2Min << " GeV^2";
+  }
+  LOG("gmkspl", pNOTICE) << "\n";
 
   LOG("gmkspl", pNOTICE) << *RunOpt::Instance();
 }
@@ -358,6 +396,7 @@ void PrintSyntax(void)
     << "\n    [--no-copy]"
     << "\n    [--seed seed_number]"
     << "\n    [--input-cross-sections xml_file]"
+    << "\n    [--em-q2-min q2_value]"
     << RunOpt::RunOptSyntaxString(false)
     << "\n";
 

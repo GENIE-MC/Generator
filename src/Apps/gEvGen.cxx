@@ -31,6 +31,7 @@ Syntax:
              [--force-flux-ray-interaction]
              [--seed random_number_seed]
              [--cross-sections xml_file]
+             [--em-q2-min q2_value]
 
              // command line args handled by RunOpt:
              [--event-generator-list list_name] // default "Default"
@@ -105,6 +106,10 @@ Syntax:
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
+           --em-q2-min
+              Override the minimum Q^2 threshold for electromagnetic scattering
+              events (in GeV^2). This overrides the EM-Q2-min value from
+              CommonParam.xml [Kinematics].
 
            --event-generator-list
               List of event generators to load in event generation drivers.
@@ -185,6 +190,7 @@ Syntax:
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/SystemUtils.h"
 #include "Framework/Utils/CmdLnArgParser.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
@@ -240,6 +246,8 @@ long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
 string          gOptOutFileName;  // Optional outfile name
 string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
+double          gOptEMQ2Min;      // EM Q2 minimum override value
+bool            gOptEMQ2MinSet;   // whether --em-q2-min was specified
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -278,6 +286,24 @@ void Initialize()
     exit(-1);
   }
   RunOpt::Instance()->BuildTune();
+
+  // Apply EM Q2 min override if specified on command line
+  // This must be done after BuildTune() loads XML configs but before
+  // any physics code calls KPhaseSpace::GetQ2MinEM()
+  if(gOptEMQ2MinSet) {
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    Registry * r = confp->CommonList("Param", "Kinematics");
+    if(r) {
+      r->UnLock();
+      r->Set("EM-Q2-min", gOptEMQ2Min);
+      r->Lock();
+      LOG("gevgen", pNOTICE)
+        << "Overriding EM-Q2-min from command line: " << gOptEMQ2Min << " GeV^2";
+    } else {
+      LOG("gevgen", pWARN)
+        << "Could not find Kinematics registry to override EM-Q2-min";
+    }
+  }
 
   // Initialization of random number generators, cross-section table,
   // messenger thresholds, cache file
@@ -816,6 +842,14 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
+  // EM Q2 minimum override
+  gOptEMQ2MinSet = false;
+  if( parser.OptionExists("em-q2-min") ) {
+    LOG("gevgen", pINFO) << "Reading EM Q2 minimum cut override";
+    gOptEMQ2Min = parser.ArgAsDouble("em-q2-min");
+    gOptEMQ2MinSet = true;
+  }
+
   //
   // print-out the command line options
   //
@@ -865,6 +899,10 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevgen", pNOTICE)
           << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
+  if(gOptEMQ2MinSet) {
+     LOG("gevgen", pNOTICE)
+       << "EM Q2 minimum override: " << gOptEMQ2Min << " GeV^2";
+  }
   LOG("gevgen", pNOTICE) << "\n";
 
   LOG("gevgen", pNOTICE) << *RunOpt::Instance();
@@ -887,6 +925,7 @@ void PrintSyntax(void)
     << "\n              [--force-flux-ray-interaction]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"
+    << "\n              [--em-q2-min q2_value]"
     << RunOpt::RunOptSyntaxString(true)
     << "\n";
 
