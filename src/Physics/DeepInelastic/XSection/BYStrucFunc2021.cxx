@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
+  Copyright (c) 2003-2023, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
 
- Júlia Tena Vidal <jtenavidal \at tauex.tau.ac.il>
- Tel Aviv University
+  Júlia Tena Vidal <jtenavidal \at tauex.tau.ac.il>
+  Tel Aviv University
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool
+  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+  University of Liverpool
 
 */
 //____________________________________________________________________________
@@ -26,13 +26,13 @@ using namespace genie::constants;
 
 //____________________________________________________________________________
 BYStrucFunc2021::BYStrucFunc2021() :
-QPMDISStrucFuncBase("genie::BYStrucFunc2021")
+  QPMDISStrucFuncBase("genie::BYStrucFunc2021")
 {
   this->Init();
 }
 //____________________________________________________________________________
 BYStrucFunc2021::BYStrucFunc2021(string config):
-QPMDISStrucFuncBase("genie::BYStrucFunc2021", config)
+  QPMDISStrucFuncBase("genie::BYStrucFunc2021", config)
 {
   this->Init();
 }
@@ -44,11 +44,11 @@ BYStrucFunc2021::~BYStrucFunc2021()
 //____________________________________________________________________________
 void BYStrucFunc2021::Configure(const Registry & config)
 {
-// Overload Algorithm::Configure() to read the config. registry and set
-// private data members.
-// QPMDISStrucFuncBase::Configure() creates the owned PDF object that gets
-// configured with the specified PDFModelI
-// For the ReadBYParams() method see below
+  // Overload Algorithm::Configure() to read the config. registry and set
+  // private data members.
+  // QPMDISStrucFuncBase::Configure() creates the owned PDF object that gets
+  // configured with the specified PDFModelI
+  // For the ReadBYParams() method see below
 
   QPMDISStrucFuncBase::Configure(config);
   this->ReadBYParams();
@@ -66,10 +66,10 @@ void BYStrucFunc2021::ReadBYParams(void)
   GetParamDef( "EL-Mv",fMv, 0.84 ) ;
   fMv2 = TMath::Power(fMv,2);
   
-// Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
-// registry and set some private data members so as not to accessing the
-// registry at every calculation.
-//
+  // Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
+  // registry and set some private data members so as not to accessing the
+  // registry at every calculation.
+  //
   GetParam( "BY-A", fA ) ;
   GetParam( "BY-B", fB ) ;
   GetParam( "BY-CsU", fCsU ) ;
@@ -118,7 +118,7 @@ void BYStrucFunc2021::Init(void)
 //____________________________________________________________________________
 double BYStrucFunc2021::ScalingVar(const Interaction * interaction, double Mf ) const
 {
-// Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
+  // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
@@ -133,10 +133,10 @@ double BYStrucFunc2021::ScalingVar(const Interaction * interaction, double Mf ) 
 }
 //____________________________________________________________________________
 void BYStrucFunc2021::KFactors(const Interaction * interaction,
-   double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
+			       double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
-// Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
-// u(valence), d(valence), u(sea), d(sea), s(sea);
+  // Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
+  // u(valence), d(valence), u(sea), d(sea), s(sea);
 
   double myQ2  = this->Q2(interaction);
   double GD  = 1. / TMath::Power(1.+myQ2/fMv2, 2); // p elastic form factor
@@ -177,17 +177,17 @@ void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & k
   // The KLW is only important in the SIS region (W<2GeV). As we scale it altogether with the RES region, we do not need this factor.                            
   // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out.
   /*
-  if( q02 > 0 ) {
+    if( q02 > 0 ) {
     // TO DECIDE ! It breaks the e- implementation
     if( is_nu ) {
-      KLW = ( q02 + fCaLW_nu ) / q02 ;
+    KLW = ( q02 + fCaLW_nu ) / q02 ;
     } else if( is_nubar ) {
-      KLW = ( q02 + fCaLW_nubar ) / q02 ;
+    KLW = ( q02 + fCaLW_nubar ) / q02 ;
     }
     }
-  // double check it only affects valance factors:
-  //kvalance *= KLW ; 
-  */
+    // double check it only affects valance factors:
+    //kvalance *= KLW ; 
+    */
 }
 
 //____________________________________________________________________________
@@ -262,8 +262,8 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
 }
 //____________________________________________________________________________
 double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
-// Nuclear modification to Fi
-// The scaling variable can be overwritten to include corrections
+  // Nuclear modification to Fi
+  // The scaling variable can be overwritten to include corrections
 
   if( interaction->TestBit(kIAssumeFreeNucleon)   ) return 1.0;
   if( interaction->TestBit(kINoNuclearCorrection) ) return 1.0;
@@ -271,48 +271,44 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
   double f = 1.;
   if(fIncludeNuclMod) {
     const Target & tgt  = interaction->InitState().Tgt();
-     const Kinematics & kinematics = interaction->Kine();
-     double x = kinematics.x();
-     int    A = tgt.A();
+    const Kinematics & kinematics = interaction->Kine();
+    double x = kinematics.x();
+    int    A = tgt.A();
 
-     double xv     = TMath::Min(0.75, TMath::Max(0.05, x));
-     double xv2    = xv  * xv;
-     double xv3    = xv2 * xv;
-     double xv4    = xv3 * xv;
-     double xv5    = xv4 * xv;
+    double xv     = TMath::Min(0.75, TMath::Max(0.05, x));
+    double xv2    = xv  * xv;
+    double xv3    = xv2 * xv;
+    double xv4    = xv3 * xv;
+    double xv5    = xv4 * xv;
      
-     // first factor goes from free nucleons to deuterium
-     if(A >= 2) {
-       f= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
-     }
+    // first factor goes from free nucleons to deuterium
+    if(A >= 2) {
+      f*= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
+    }
+        
+    // Computing target-mass-corrected scaling variable
+    double Q2 = kinematics.Q2();
+    double M  = kNucleonMass;
+    double M2 = pow( M, 2);
+    double chiTM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
+   
+    // 2nd factor goes from deuterium to iso-scalar iron
+    if(A > 2) {
+      // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
+      if(! interaction->TestBit(kIAssumeFreeNucleon) && chiTM > 0.65 ) chiTM = 0.65;
+      f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;
+    }
 
+    if( A == 79 || A == 82 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
+      f *= (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)); 
+    }
+
+    if( A == 12 ) { // F2(Fe)/F2(C)
+      f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
+    }
      
-     // Computing target-mass-corrected scaling variable
-     double Q2 = kinematics.Q2();
-     double M  = kNucleonMass;
-     double M2 = pow( M, 2);
-     double chiTM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
-     double f = 1.;
-
-     // 2nd factor goes from deuterium to iso-scalar iron
-     if(A > 2) {
-       // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
-       if(! interaction->TestBit(kIAssumeFreeNucleon) && chiTM > 0.65 ) chiTM = 0.65;
-       f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;
-     }
-
-     if( A == 79 || A == 82 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
-       f *= (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)); 
-     }
-
-     if( A == 12 ) { // F2(Fe)/F2(C)
-       f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
-     }
-     
-  return f;
-
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
+    LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
 #endif
   }
 
