@@ -291,22 +291,23 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
     double M  = kNucleonMass;
     double M2 = pow( M, 2);
     double chiTM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
-   
+    // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
+    if( chiTM > 0.65 ) chiTM = 0.65;
+    
     // 2nd factor goes from deuterium to iso-scalar iron
     if(A > 2) {
-      // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
-      if(! interaction->TestBit(kIAssumeFreeNucleon) && chiTM > 0.65 ) chiTM = 0.65;
-      f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;
+      f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;								
     }
 
-    if( A == 79 || A == 82 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
+    if( A == 197 || A == 208 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
       f *= (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)); 
+      std::cout << " correction for gold " << (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)) << std::endl;
     }
 
     if( A == 12 ) { // F2(Fe)/F2(C)
       f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
     }
-     
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
 #endif
