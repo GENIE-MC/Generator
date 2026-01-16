@@ -285,11 +285,23 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
     if(A >= 2) {
       f*= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
     }
-        
+
+    // Implementing parameterization as a function of A from PhysRevD.49.4348
+    double xv6    = xv5 * xv;
+    double xv7    = xv6 * xv;
+    double xv8    = xv7 * xv;
+    double alpha = -0.070 + 2.189 * xv - 24.667 * xv2 + 145.291 * xv3 - 497.237 * xv4 +1013.129 * xv5 - 1208.393 * xv6 +775.767 * xv7 - 205.872 * xv8; 
+    double lnC   = 0.017 +0.018 * TMath::Log(xv) + 0.005 * pow( TMath::Log(xv),2 );
+    double C = TMath::Exp( lnC ) ;
+    f *= C * pow( A, alpha ) ;
+
+    /*
     // Computing target-mass-corrected scaling variable
     double Q2 = kinematics.Q2();
     double M  = kNucleonMass;
     double M2 = pow( M, 2);
+
+    
     double chiTM = 2 * xv / (1+sqrt(1+4*xv2*M2/Q2) );
     // Fermi motion is already accounted for at high chiTM. To avoid double-counting, we limit the chiTM range:
     if( chiTM > 0.65 ) chiTM = 0.65;
@@ -301,13 +313,13 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
 
     if( A == 197 || A == 208 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
       f *= (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)); 
-      std::cout << " correction for gold " << (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)) << std::endl;
     }
 
     if( A == 12 ) { // F2(Fe)/F2(C)
       f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
     }
-
+    */
+    
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
 #endif

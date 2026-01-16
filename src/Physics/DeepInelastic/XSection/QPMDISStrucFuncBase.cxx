@@ -375,9 +375,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double a = TMath::Power(bjx,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
 
-    fF3 = f * xF3val/bjx;
+    fF3 = f * H * xF3val / bjx;
     fF2 = f * F2val;
-    fF1 = fF2 * 0.5*c/bjx;
+    fF1 = fF2 * 0.5 * c / bjx;
     fF5 = fF2/bjx;           // Albright-Jarlskog relation
     fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
   }
