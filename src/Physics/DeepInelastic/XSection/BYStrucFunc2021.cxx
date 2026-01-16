@@ -286,6 +286,7 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
       f*= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
     }
 
+    /*
     // Implementing parameterization as a function of A from PhysRevD.49.4348
     double xv6    = xv5 * xv;
     double xv7    = xv6 * xv;
@@ -294,8 +295,8 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
     double lnC   = 0.017 +0.018 * TMath::Log(xv) + 0.005 * pow( TMath::Log(xv),2 );
     double C = TMath::Exp( lnC ) ;
     f *= C * pow( A, alpha ) ;
+    */
 
-    /*
     // Computing target-mass-corrected scaling variable
     double Q2 = kinematics.Q2();
     double M  = kNucleonMass;
@@ -318,7 +319,6 @@ double BYStrucFunc2021::NuclMod(const Interaction * interaction) const {
     if( A == 12 ) { // F2(Fe)/F2(C)
       f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
     }
-    */
     
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
