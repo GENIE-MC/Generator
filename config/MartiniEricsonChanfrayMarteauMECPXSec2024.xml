@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the Martini-MEC cross-section model
+
+Configurable Parameters:
+.....................................................................................................
+Name                  Type     Optional   Comment                                    Default
+.....................................................................................................
+MEC-XSecScale         double   Yes        XSec Scaling factor                        1.
+CKM-Vud               double   No         Vud element of CKM matrix                  CommonParam[CKM]
+FermiMomentumTable    string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
+MECScaleAlg           alg      Yes        XSecScale algorithm used                   The cross section is unscaled
+                                          to scale the cross section
+QvalueShifterAlg      algo     yes        Qvalue shifter algo                        none 
+-->
+  <param_set name="Default"> 
+      <!-- <param type="string" name="CommonParam"> CKM </param> No longer needed -->
+      <param type="alg"  name="NumericalIntegrationAlg"> genie::MECXSec/Default </param>
+      <param type="alg" name="HadronTensorAlg"> genie::MartiniMECHadronTensorModel/Default </param>
+      <param type="double" name="MEC-XSecScale"> 1.000 </param>
+      <param type="string" name="CommonParam"> FermiGas  </param> <!-- For Kf lookups -->
+  </param_set>
+
+</alg_conf>
