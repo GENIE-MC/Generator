@@ -24,27 +24,18 @@ University of Liverpool
 
   <param_set name="Tunable">
     <!-- Reserved register for tuning -->
-    <param type="double" name="RES-Ma">  1.088962  </param>
-    <param type="double" name="DIS-CC-XSecScale"> 1.062213 </param>
-    <param type="double" name="RES-CC-XSecScale"> 0.838730 </param>
-  </param_set>
 
-  <param_set name="KNO2Pythia">
-    <!--
-         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         Invariant mass window for the transition from KNO model to PYTHIA
-    -->
+    <!-- <param type="double" name="DIS-CC-XSecScale">    1.032 </param> -->
+   <!-- <param type="double" name="MEC-CC-XSecScale"> 1.000 </param> -->
 
-    <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
-    <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
 
   </param_set>
+
 
   <param_set name="WeakInt">
     <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 -->
     <param type="double" name="FermiConstant"> 1.16639E-5 </param> <!-- GeV^-2 --> <!-- historical GENIE value -->
     <param type="double" name="FineStructureConstant"> 7.2973525332858855E-3 </param> <!-- historical GENIE value -->
-
   </param_set>
 
   <param_set name="StrongInt">
@@ -96,33 +87,33 @@ University of Liverpool
 
     -->
     <param type="bool"   name="UseDRJoinScheme"> true </param>
-    <param type="double" name="Wcut"> 1.809000 </param>
+    <param type="double" name="Wcut">            1.7  </param>
 
     <!--
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	NEUGEN parameters applied to DIS hadronic multiplicity distributions
 	to avoid 2-ble counting with RES
     -->
-    <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.008 </param>
-    <param type="double" name="DIS-HMultWgt-vp-CC-m3">  0.943153 </param>
+    <param type="double" name="DIS-HMultWgt-vp-CC-m2">  0.100  </param>
+    <param type="double" name="DIS-HMultWgt-vp-CC-m3">  1.000  </param>
     <param type="double" name="DIS-HMultWgt-vp-NC-m2">  0.100  </param>
     <param type="double" name="DIS-HMultWgt-vp-NC-m3">  1.000  </param>
     <param type="double" name="DIS-HMultWgt-vp-EM-m2">  0.100  </param>
     <param type="double" name="DIS-HMultWgt-vp-EM-m3">  1.000  </param>
-    <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.030802 </param>
-    <param type="double" name="DIS-HMultWgt-vn-CC-m3">  2.338338 </param>
+    <param type="double" name="DIS-HMultWgt-vn-CC-m2">  0.300  </param>
+    <param type="double" name="DIS-HMultWgt-vn-CC-m3">  1.000  </param>
     <param type="double" name="DIS-HMultWgt-vn-NC-m2">  0.300  </param>
     <param type="double" name="DIS-HMultWgt-vn-NC-m3">  1.000  </param>
     <param type="double" name="DIS-HMultWgt-vn-EM-m2">  0.300  </param>
     <param type="double" name="DIS-HMultWgt-vn-EM-m3">  1.000  </param>
-    <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.030802 </param>
-    <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 2.338338 </param>
+    <param type="double" name="DIS-HMultWgt-vbp-CC-m2"> 0.300  </param>
+    <param type="double" name="DIS-HMultWgt-vbp-CC-m3"> 1.000  </param>
     <param type="double" name="DIS-HMultWgt-vbp-NC-m2"> 0.300  </param>
     <param type="double" name="DIS-HMultWgt-vbp-NC-m3"> 1.000  </param>
     <param type="double" name="DIS-HMultWgt-vbp-EM-m2"> 0.300  </param>
     <param type="double" name="DIS-HMultWgt-vbp-EM-m3"> 1.000  </param>
-    <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.008 </param>
-    <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 0.943153 </param>
+    <param type="double" name="DIS-HMultWgt-vbn-CC-m2"> 0.100  </param>
+    <param type="double" name="DIS-HMultWgt-vbn-CC-m3"> 1.000  </param>
     <param type="double" name="DIS-HMultWgt-vbn-NC-m2"> 0.100  </param>
     <param type="double" name="DIS-HMultWgt-vbn-NC-m3"> 1.000  </param>
     <param type="double" name="DIS-HMultWgt-vbn-EM-m2"> 0.100  </param>
@@ -142,7 +133,7 @@ University of Liverpool
 	Currently, if you explicitly specify a binding energy for a nucleus then the same value will
 	be used for all isotopes.
     -->
-	  <param type="double" name="RFG-MomentumCutOff">              0.5000 </param> <!-- BR tail -->
+    <param type="double" name="RFG-MomentumCutOff">              0.5000 </param>
     <param type="double" name="RFG-NucRemovalE@Pdg=1000020040">  0.0150 </param> <!-- He4    -->
     <param type="double" name="RFG-NucRemovalE@Pdg=1000030060">  0.0170 </param> <!-- Li6    -->
     <param type="double" name="RFG-NucRemovalE@Pdg=1000060120">  0.0250 </param> <!-- C12    -->
@@ -153,9 +144,9 @@ University of Liverpool
     <param type="double" name="RFG-NucRemovalE@Pdg=1000220480">  0.0300 </param> <!-- Ti48  -->
     <param type="double" name="RFG-NucRemovalE@Pdg=1000260560">  0.0360 </param> <!-- Fe56   -->
     <param type="double" name="RFG-NucRemovalE@Pdg=1000280580">  0.0360 </param> <!-- Ni58   -->
+    <param type="double" name="RFG-NucRemovalE@Pdg=1000822080">  0.0440 </param> <!-- Pb208  -->
     <param type="double" name="RFG-NucRemovalE@Pdg=1000501190">  0.0280 </param> <!-- Sn119  -->
     <param type="double" name="RFG-NucRemovalE@Pdg=1000791970">  0.0310 </param> <!-- Au197  -->
-    <param type="double" name="RFG-NucRemovalE@Pdg=1000822080">  0.0440 </param> <!-- Pb208  -->
     <param type="bool"   name="RFG-UseParametrization">          false  </param>
 
     <!--
@@ -223,7 +214,7 @@ Or changing the name of this parameter set
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	Axial and vector masses for quasi-elastic scattering
     -->
-    <param type="double" name="QEL-Ma"> 0.994989 </param>
+    <param type="double" name="QEL-Ma"> 0.990 </param>
     <param type="double" name="QEL-Mv"> 0.840 </param>
 
   </param_set>
@@ -240,7 +231,8 @@ Or changing the name of this parameter set
 
   <param_set name="MultiNucleons">
     <!--  Q3 max for 2p2h model    -->
-    <param type="double" name="NSV-Q3Max"> 1.2 </param>
+    <!-- <param type="double" name="NSV-Q3Max"> 1.2 </param> --> \\ Nieves
+    <param type="double" name="NSV-Q3Max"> 2.0 </param> \\ SuSAv2, Martini
   </param_set>
 
   <param_set name="ElasticFF">
@@ -252,6 +244,7 @@ Or changing the name of this parameter set
 	- genie::BBA03ELFormFactorsModel, H.Budd, NuINT-02 proceedings
 	- genie::BBA05ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and J.Arrington, hep-ex/0602017
 	- genie::BBA07ELFormFactorsModel, R.Bradford, A.Bodek, H.Budd and S.Avvakumov, Euro.Phys.J.C53 (2008);[arXiv:0708.1946 [hep-ex]]
+        - genie::GalsterELFormFactorsModel, S.Galster et al., Nuclear Physics B32 (1971) 221-237
     -->
     <param type="alg" name="ElasticFormFactorsModel"> genie::BBA07ELFormFactorsModel/Default </param>
 
@@ -274,13 +267,6 @@ Or changing the name of this parameter set
       P31(1910),P33(1920),F35(1905),F37(1950),P11(1710)
     </param>
 
-
-    <!--
-	In this configuration set we include only the first two resonances
-	<param type="string" name="ResonanceNameList">    P33(1232),P11(1440)       </param>
-    -->
-
-
   </param_set>
 
   <param_set name="Lepton">
@@ -289,6 +275,45 @@ Or changing the name of this parameter set
   </param_set>
 
 
+  <param_set name="BoostedDarkMatter">
+    <!--
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Set the coupling of dark matter to nucleons
+    -->
+    <param type="double" name="ZpCoupling"> 0.1 </param>
+    <param type="double" name="DarkLeftCharge"> 1.0 </param>
+    <param type="double" name="DarkRightCharge"> 1.0 </param>
+    <param type="double" name="DarkScalarCharge"> 1.0 </param>
+    <param type="double" name="UpLeftCharge"> 1.0 </param>
+    <param type="double" name="UpRightCharge"> 1.0 </param>
+    <param type="double" name="DownLeftCharge"> 1.0 </param>
+    <param type="double" name="DownRightCharge"> 1.0 </param>
+    <param type="double" name="StrangeLeftCharge"> 1.0 </param>
+    <param type="double" name="StrangeRightCharge"> 1.0 </param>
+    <param type="double" name="CharmLeftCharge"> 1.0 </param>
+    <param type="double" name="CharmRightCharge"> 1.0 </param>
+    <param type="double" name="ElectronLeftCharge"> 1.0 </param>
+    <param type="double" name="ElectronRightCharge"> 1.0 </param>
+    <param type="double" name="DMEL-Mp"> 1.441 </param>
+    <param type="double" name="DMEL-Mpi"> 0.1349766 </param>
+    <param type="double" name="DMEL-Meta"> 0.547862 </param>
+    <param type="double" name="AxialVectorSpin-u"> 0.827 </param>
+    <param type="double" name="AxialVectorSpin-d"> -0.38 </param>
+    <param type="double" name="AxialVectorSpin-s"> -0.0427 </param>
+  </param_set>
+
+
+  <param_set name="KNO2Pythia">
+    <!--
+
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Invariant mass window for the transition from KNO model to PYTHIA
+    -->
+
+    <param type="double" name="KNO2PYTHIA-Wmin">  2.30 </param>
+    <param type="double" name="KNO2PYTHIA-Wmax">  3.00 </param>
+  </param_set>
+
   <param_set name="PDG">
     <!-- when using the PDG table provideed by genie,
          that are contained in $GENIE/data/evgen/catalogues/pdg
@@ -296,6 +321,7 @@ Or changing the name of this parameter set
          Please be aware that changing the PDG table might invalidated the selected tune -->
     <param type="string" name="PDG-TableName"> genie_pdg_table.txt </param>
   </param_set>
+
 
 
   <param_set name="Validation">
@@ -307,5 +333,7 @@ Or changing the name of this parameter set
     <param type="double" name="GVLD-Emax"> 1000.000  </param>
 
   </param_set>
+
+
 
 </common_Param_list>
