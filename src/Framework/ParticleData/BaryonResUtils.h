@@ -6,8 +6,8 @@
 \brief     Baryon Resonance utilities.
 
 
-  \authors    Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
-              University of Liverpool & STFC Rutherford Appleton Lab \n
+  \authors    Costas Andreopoulos <c.andreopoulos \at cern.ch>
+              University of Liverpool \n
               Updates were made by 
               Igor Kakorin <kakorin@jinr.ru> Joint Institute for Nuclear Research 
   
@@ -20,7 +20,7 @@
             Now mass and widths are taken from PDG table via TDatabasePDG and cached. \n
 
 
-\cpright   Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright   Copyright (c) 2003-2025, The GENIE Collaboration
            For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________

@@ -9,6 +9,8 @@
    <config alg="genie::HAIntranuke">                     HAIntranuke.xml                     </config>
    <config alg="genie::HAIntranuke2018">                 HAIntranuke2018.xml                 </config>
    <config alg="genie::HNIntranuke2018">                 HNIntranuke2018.xml                 </config>
+   <config alg="genie::HAIntranuke2025">                 HAIntranuke2025.xml                 </config>
+   <config alg="genie::HNIntranuke2025">                 HNIntranuke2025.xml                 </config>
    <config alg="genie::HINCLCascadeIntranuke">           HINCLCascadeIntranuke.xml           </config>
    <config alg="genie::HG4BertCascIntranuke">            HG4BertCascIntranuke.xml            </config>
    <config alg="genie::CascadeReweight">                 CascadeReweight.xml                 </config>
@@ -114,8 +116,9 @@
    <config alg="genie::AGKY2019">                AGKY2019.xml                </config>
    <config alg="genie::Pythia6Hadro2019">        Pythia6Hadro2019.xml        </config>
    <config alg="genie::Pythia8Hadro2019">        Pythia8Hadro2019.xml        </config>
-   <config alg="genie::AGCharm2019">             AGCharm2019.xml             </config>
-   <config alg="genie::LeptoHadronization">      LeptoHadronization.xml      </config>
+   <config alg="genie::AGCharmPythiaBaseHadro2023"> AGCharm2023.xml             </config>
+   <config alg="genie::LeptoHadPythia6">            HEDISGenerator.xml      </config>
+   <config alg="genie::LeptoHadPythia8">            HEDISGenerator.xml      </config>
 
    <!-- ****** CONFIGURATION FOR PARTON DENSITY FUNCTION ALGORITHMS ****** -->
    <config alg="genie::GRV98LO">                     GRV98LO.xml                     </config>
@@ -124,7 +127,8 @@
    <config alg="genie::BYPDF">                       BYPDF.xml                       </config>
 
    <!-- ****** CONFIGURATION FOR PARTICLE DECAY ALGORITHMS****** -->
-   <config alg="genie::PythiaDecayer">               PythiaDecayer.xml               </config>
+   <config alg="genie::Pythia6Decayer2023">          PythiaDecayer.xml               </config>
+   <config alg="genie::Pythia8Decayer2023">          PythiaDecayer.xml               </config>
    <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
    <config alg="genie::DarkSectorDecayer">           DarkSectorDecayer.xml           </config>
 
@@ -136,7 +140,8 @@
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
-   <config alg="genie::KuzminNaumov2016AxialFormFactorModel">    KuzminNaumov2016AxialFormFactorModel.xml    </config>
+   <config alg="genie::ZExpELFormFactorModel">                      ZExpELFormFactorModel.xml                </config>
+   <config alg="genie::MArunAxialFormFactorModel">               MArunAxialFormFactorModel.xml               </config>
    <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
    <config alg="genie::MKFFEM">                                  MKFFEM.xml                                  </config>
    <config alg="genie::MKFFCC">                                  MKFFCC.xml                                  </config>
@@ -266,15 +271,21 @@
    <config alg="genie::SuSAv2QELHadronTensorModel">     SuSAv2QELHadronTensorModel.xml   </config>
    <config alg="genie::SuSAv2MECHadronTensorModel">     SuSAv2MECHadronTensorModel.xml   </config>
 
-   <!-- ****** CONFIGURATION FOR REWEIGHT ALGORITHMS ****** -->
-   <config alg="genie::rew::GSystUncertaintyTable">     GSystUncertaintyTable.xml        </config>
-
  <!-- ****** EvtLib / EventLibraryInterface ****** -->
    <config alg="genie::evtlib::EventLibraryInterface">          EventLibraryInterface.xml          </config>
    <config alg="genie::evtlib::EvtLibInteractionListGenerator"> EvtLibInteractionListGenerator.xml </config>
    <config alg="genie::evtlib::EvtLibPXSec">                    EvtLibPXSec.xml                    </config>
-   
+
    <config alg="genie::NormGenerator">                       NormGenerator.xml                  </config>
    <config alg="genie::NormXSec">                            NormXSec.xml                       </config>
    <config alg="genie::NormInteractionListGenerator">        NormInteractionListGenerator.xml   </config>
+
+   <!-- ****** CONFIGURATION FOR HELEPTON W DECAY ALGORITHMS ****** -->
+   <config alg="genie::GLRESWdecPythia6">         GLRESGenerator.xml          </config>
+   <config alg="genie::GLRESWdecPythia8">         GLRESGenerator.xml          </config>
+   <config alg="genie::PhotonCOHWdecPythia6">     PhotonCOHGenerator.xml      </config>
+   <config alg="genie::PhotonCOHWdecPythia8">     PhotonCOHGenerator.xml      </config>
+   <config alg="genie::PhotonRESWdecPythia6">     PhotonRESGenerator.xml      </config>
+   <config alg="genie::PhotonRESWdecPythia8">     PhotonRESGenerator.xml      </config>
+
 </genie_config>

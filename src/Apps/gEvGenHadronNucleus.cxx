@@ -71,13 +71,13 @@
           University of Pittsburgh
 
           Costas Andreopoulos,
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+          University of Liverpool
 
 \version 1.3
 
 \created May 1, 2007
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -245,11 +245,11 @@ const EventRecordVisitorI * GetIntranuke(void)
   } else if ( gOptMode.compare("hN") == 0 ) {
      sname = "genie::HNIntranuke";
      sconf = "Default";
-  } else if ( gOptMode.compare("hA2019") == 0 ) {
-     sname = "genie::HAIntranuke2019";
+  } else if ( gOptMode.compare("hA2025") == 0 ) {
+     sname = "genie::HAIntranuke2025";
      sconf = "Default";
-  } else if ( gOptMode.compare("hN2019") == 0 ) {
-     sname = "genie::HNIntranuke2019";
+  } else if ( gOptMode.compare("hN2025") == 0 ) {
+     sname = "genie::HNIntranuke2025";
      sconf = "Default";
   } else if ( gOptMode.compare("hA2018") == 0 ) {
      sname = "genie::HAIntranuke2018";

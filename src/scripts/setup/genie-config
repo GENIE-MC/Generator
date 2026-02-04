@@ -24,6 +24,9 @@ fi
 ### GENIE src top level directory:
 srcdir=$GENIE/src
 
+### enabled features
+features=""
+
 ### GENIE libraries;
 # Order is important for loadlibs.C - try to keep libraries before those their depend on.
 
@@ -41,15 +44,19 @@ phys_libs=" -lGPhXSIg -lGPhPDF -lGPhNuclSt -lGPhCmn -lGPhDcy -lGPhHadTransp -lGP
 # (optional)
 if test "$GOPT_ENABLE_NUCLEON_DECAY" = "YES"; then
   phys_libs="$phys_libs -lGPhNDcy "
+  features="$features nucleon-decay"
 fi
 if test "$GOPT_ENABLE_NNBAR_OSCILLATION" = "YES"; then
   phys_libs="$phys_libs -lGPhNNBarOsc"
+  features="$features nnbar-oscillation"
 fi
 if test "$GOPT_ENABLE_BOOSTED_DARK_MATTER" = "YES"; then
   phys_libs="$phys_libs -lGPhBDMXS -lGPhBDMEG"
+  features="$features boosted-dark-matter"
 fi
 if test "$GOPT_ENABLE_HEAVY_NEUTRAL_LEPTON" = "YES"; then
   phys_libs="$phys_libs -lGPhHNL "
+  features="$features heavy-neutral-lepton"
 fi
 
 # Libraries from GENIE/Generator/Tools
@@ -58,20 +65,90 @@ tool_libs=" "
 # (optional)
 if test "$GOPT_ENABLE_GEOM_DRIVERS" = "YES"; then
   tool_libs="$tool_libs -lGTlGeo "
+  features="$features geom-drivers"
 fi
 if test "$GOPT_ENABLE_FLUX_DRIVERS" = "YES"; then
   tool_libs="$tool_libs -lGTlFlx "
+  features="$features flux-drivers"
 fi
 if test "$GOPT_ENABLE_MASTERCLASS" = "YES"; then
   tool_libs="$tool_libs -lGTlMcls "
+  features="$features masterclass"
 fi
+
+# More features
+if test "$GOPT_ENABLE_PYTHIA6" = "YES"; then
+  features="$features pythia6"
+fi
+if test "$GOPT_ENABLE_PYTHIA8" = "YES"; then
+  features="$features pythia8"
+fi
+if test "$GOPT_ENABLE_INCL" = "YES"; then
+  features="$features incl"
+fi
+if test "$GOPT_ENABLE_GEANT4_INTERFACE" = "YES"; then
+  features="$features geant4"
+fi
+if test "$GOPT_ENABLE_LHAPDF5" = "YES"; then
+  features="$features lhapdf5"
+fi
+if test "$GOPT_ENABLE_LHAPDF6" = "YES"; then
+  features="$features lhapdf6"
+fi
+if test "$GOPT_ENABLE_APFEL" = "YES"; then
+  features="$features apfel"
+fi
+if test "$GOPT_ENABLE_T2K" = "YES"; then
+  features="$features t2k"
+fi
+if test "$GOPT_ENABLE_FNAL" = "YES"; then
+  features="$features fnal"
+fi
+if test "$GOPT_ENABLE_ATMO" = "YES"; then
+  features="$features atmo"
+fi
+if test "$GOPT_ENABLE_HNL_VALIDATION" = "YES"; then
+  features="$features hnl-validation"
+fi
+if test "$GOPT_ENABLE_DARK_NEUTRINO" = "YES"; then
+  features="$features dark-neutrino"
+fi
+if test "$GOPT_ENABLE_EVTLIB" = "YES"; then
+  features="$features evtlib"
+fi
+if test "$GOPT_ENABLE_TEST" = "YES"; then
+  features="$features test"
+fi
+if test "$GOPT_ENABLE_DYLIBVERSION" = "YES"; then
+  features="$features dylibversion"
+fi
+if test "$GOPT_ENABLE_LOW_LEVEL_MESG" = "YES"; then
+  features="$features lowlevel-mesg"
+fi
+if test "$GOPT_ENABLE_PROFILER" = "YES"; then
+  features="$features profiler"
+fi
+if test "$GOPT_ENABLE_DOXYGEN_DOC" = "YES"; then
+  features="$features doxygen-doc"
+fi
+if test "$GOPT_ENABLE_GFORTRAN" = "YES"; then
+  features="$features gfortran"
+fi
+if test "$GOPT_ENABLE_G2C" = "YES"; then
+  features="$features g2c"
+fi
+if test "$GOPT_ENABLE_PROFESSOR2" = "YES"; then
+  features="$features professor2"
+fi
+
+
 
 # Assemble the final libs variable
 libs="-L$libdir $fmwk_libs $phys_libs $tool_libs "
 
 ### Usage
 usage="\
-Usage: genie-config [--libs] [--libdir] [--topsrcdir] [--version]"
+Usage: genie-config [--libs] [--libdir] [--topsrcdir] [--features] [--has-<feature>] [--version]"
 
 if test $# -eq 0; then
    echo "${usage}" 1>&2
@@ -99,9 +176,22 @@ while test $# -gt 0; do
       ### Output GENIE top level src directory
       out="$out $srcdir"
       ;;
+    --features)
+      ### Output GENIE enabled features
+      out="$out $features"
+      ;;
     --version)
       ### Output version
       out="$out $(cat ${GENIE}/VERSION)"
+      ;;
+     --has-*)
+      ### Output if a feature is enabled
+      afeature=`echo $1 | cut -c 7-`
+      if echo "$features" | grep -q $afeature ; then
+        out="$out yes"
+      else
+        out="$out no"
+      fi
       ;;
   esac
   shift

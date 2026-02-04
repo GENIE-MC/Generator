@@ -10,7 +10,7 @@
 
 \created  Dec 8, 2021
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -19,8 +19,7 @@
 #ifndef _HE_NUEL_GENERATOR_H_
 #define _HE_NUEL_GENERATOR_H_
 
-#define __GENIE_PYTHIA6_ENABLED__
-
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HELepton/XSection/Born.h"
 

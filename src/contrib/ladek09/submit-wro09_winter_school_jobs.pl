@@ -19,7 +19,7 @@
 #  perl submit-wro09_winter_school_jobs.pl --production wroclaw09 --cycle 01 --version v2.5.1 --run 1001
 #  perl submit-wro09_winter_school_jobs.pl --production wroclaw09 --cycle 01 --version v2.5.1 --run all
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 # STFC, Rutherford Appleton Lab
 #----------------------------------------------------------------------
 #

@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool STFC, Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -23,25 +23,13 @@ using namespace genie;
 
 //____________________________________________________________________________
 GRV98LO::GRV98LO() :
-PDFModelI("genie::GRV98LO"),
- fXUVF(NULL),
- fXDVF(NULL),
- fXDEF(NULL),
- fXUDF(NULL),
- fXSF (NULL),
- fXGF (NULL)
+PDFModelI("genie::GRV98LO")
 {
   this->Initialize();
 }
 //____________________________________________________________________________
 GRV98LO::GRV98LO(string config) :
-PDFModelI("genie::GRV98LO", config),
- fXUVF(NULL),
- fXDVF(NULL),
- fXDEF(NULL),
- fXUDF(NULL),
- fXSF (NULL),
- fXGF (NULL)
+PDFModelI("genie::GRV98LO", config)
 {
   LOG("GRV98LO", pDEBUG) << "GRV98LO configuration:\n " << GetConfig() ;
 
@@ -49,14 +37,7 @@ PDFModelI("genie::GRV98LO", config),
 }
 //____________________________________________________________________________
 GRV98LO::~GRV98LO()
-{
-  if (fXUVF) {delete fXUVF; fXUVF = NULL;}
-  if (fXDVF) {delete fXDVF; fXDVF = NULL;}
-  if (fXDEF) {delete fXDEF; fXDEF = NULL;}
-  if (fXUDF) {delete fXUDF; fXUDF = NULL;}
-  if (fXSF ) {delete fXSF ; fXSF  = NULL;}
-  if (fXGF ) {delete fXGF ; fXGF  = NULL;}
-}
+{}
 //____________________________________________________________________________
 double GRV98LO::UpValence(double x, double Q2) const
 {
@@ -330,12 +311,12 @@ void GRV98LO::Initialize(void)
     k++;
   }
 
-  fXUVF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUVF[0]);
-  fXDVF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDVF[0]);
-  fXDEF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDEF[0]);
-  fXUDF = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUDF[0]);
-  fXSF  = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXSF [0]);
-  fXGF  = new Interpolator2D(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXGF [0]);
+  fXUVF = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUVF[0]);
+  fXDVF = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDVF[0]);
+  fXDEF = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXDEF[0]);
+  fXUDF = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXUDF[0]);
+  fXSF  = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXSF [0]);
+  fXGF  = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXGF [0]);
 
   fInitialized = true;
 }

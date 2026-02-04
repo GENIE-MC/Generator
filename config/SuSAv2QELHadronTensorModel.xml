@@ -30,6 +30,8 @@ DataPathType       string   Yes        Whether the specified path is    relative
 
     <param type="string" name="QE_Full@Pdg=1000060120"> SuSAv2_1000060120_QE_Full.dat </param>
     <param type="string" name="QE_EM@Pdg=1000060120"> SuSAv2_1000060120_QE_EM.dat </param>
+    <param type="string" name="QE_EM_proton@Pdg=1000060120"> SuSAv2_1000060120_QE_EM_proton.dat </param>
+    <param type="string" name="QE_EM_neutron@Pdg=1000060120"> SuSAv2_1000060120_QE_EM_neutron.dat </param>
 
 
 
@@ -144,7 +146,6 @@ DataPathType       string   Yes        Whether the specified path is    relative
     <param type="string" name="QE_HFPW_anu_High@Pdg=1000180400"> HF_PW_1000180400_anu_QE_High.dat </param>
 
 
-    
 
     <param type="string" name="QE_SuSABlend@Pdg=1000060120"> SuSABlend_1000060120_QE_SuSABlend.dat </param>
     <param type="string" name="QE_SuSABlend@Pdg=1000080160"> SuSABlend_1000080160_QE_SuSABlend.dat </param>

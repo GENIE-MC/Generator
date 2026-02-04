@@ -39,12 +39,12 @@
               can be found in the /path and /other_path directories and write-out
               a single file named xsec_all.xml
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
          Rutherford Appleton Laboratory
 
 \created July 05, 2007
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2025, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */

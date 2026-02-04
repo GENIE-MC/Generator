@@ -5,7 +5,7 @@
 #
 # Usage:  ./build_lhapdf.sh [version] [--refetch]
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 version=5.7.0

@@ -5,7 +5,7 @@
 # Syntax:
 #   ./htcondor_exec.sh [/path/genie_setup_script] [/job/dir] [executable --argument1  --argument2 ...] [another_executable --argument1  --argument2 ...] ...
 #
-# C.Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# C.Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 #!/bin/bash

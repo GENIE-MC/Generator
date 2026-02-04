@@ -5,15 +5,15 @@
 
 \brief    Contains minimal information for tagging exclusive processes.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Additions for single-\rho and single-\gamma processes were installed
           by Marco Roda <mroda@liverpool.ac.uk>, University of Liverpool
 
 \created  December 08, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //___________________________________________________________________________
