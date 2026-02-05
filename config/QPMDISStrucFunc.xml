@@ -8,6 +8,7 @@ Algorithm Configurable Parameters:
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
 PDF-Set                    alg     No    PDF model
+DISNuclModel               alg     No    DIS Nuclear Model 
 Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
 Charm-Prod-Off             bool    Yes   charm production is turned off         false
 PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
@@ -28,7 +29,8 @@ WeinbergAngle              double  No                                           
 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
 
-     <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
+    <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
+    <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel/Default </param>
 
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
