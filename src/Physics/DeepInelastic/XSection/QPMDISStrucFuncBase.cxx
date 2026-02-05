@@ -122,6 +122,8 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   //-- turn charm production off?
   GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
 
+  fNuclMod = dynamic_cast<const DISNuclearModelI*>(this->SubAlg("DISNuclModel"));
+  
   //-- weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
@@ -351,7 +353,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   double Q2val = this->Q2        (interaction);
   double x     = this->ScalingVar(interaction);
-  double f     = this->NuclMod   (interaction); // nuclear modification
+  double f     = fIncludeNuclMod ? fNuclMod->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
     
@@ -471,34 +473,7 @@ void QPMDISStrucFuncBase::KFactors(const Interaction *,
   kds = 1.;
   kss = 1.;
 }
-//____________________________________________________________________________
-double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
-{
-  // Nuclear modification to Fi
-  // The scaling variable can be overwritten to include corrections
 
-  if( interaction->TestBit(kIAssumeFreeNucleon)   ) return 1.0;
-  if( interaction->TestBit(kINoNuclearCorrection) ) return 1.0;
-
-  double f = 1.;
-  if(fIncludeNuclMod) {
-    const Target & tgt  = interaction->InitState().Tgt();
-
-    //   The x used for computing the DIS Nuclear correction factor should be the
-    //   experimental x, not the rescaled x or off-shell-rest-frame version of x
-    //   (i.e. selected x).  Since we do not have access to experimental x at this
-    //   point in the calculation, just use selected x.
-    const Kinematics & kine  = interaction->Kine();
-    double x  = kine.x();
-    int    A = tgt.A();
-    f = utils::nuclear::DISNuclFactor(x,A);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
-#endif
-  }
-
-  return f;
-}
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 {

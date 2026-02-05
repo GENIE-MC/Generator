@@ -30,6 +30,7 @@
 #include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDF.h"
+#include "Physics/NuclearState/DISNuclearModelI.h"
 
 namespace genie {
 
@@ -66,7 +67,6 @@ protected:
   virtual double q0         (const Interaction * i) const;
   virtual double ScalingVar (const Interaction * i, double Mf = 0 ) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
-  virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
   virtual double H          (const Interaction * i) const;
   virtual void   KFactors   (const Interaction * i, double & kuv,
@@ -91,6 +91,8 @@ protected:
   bool   fUse2016Corrections;///< Use 2016 SF relation corrections
   double fLowQ2CutoffF1F2;   ///< Set min for relation between 2xF1 and F2
 
+  const DISNuclearModelI * fNuclMod ; ///< model for nuclear factors (shadowing, anti-shadowing,...)
+  
   mutable double fF1;
   mutable double fF2;
   mutable double fF3;
