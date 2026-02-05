@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the J. Gomez et. al. DIS Nuclear model journals.aps.org/prd/pdf/10.1103/PhysRevD.49.4348
+
+Configurable Parameters:
+.........................................................................................
+Name        Type    Optional   Comment                      Default
+.........................................................................................
+-->
+
+ <param_set name="Default"> 
+    
+    
+ </param_set>
+
+</alg_conf>
+
