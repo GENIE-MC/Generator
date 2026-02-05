@@ -29,17 +29,18 @@ JGDISNuclearModel::JGDISNuclearModel(string config) :
 
 //____________________________________________________________________________
 
-double JGDISNuclearModel::DISACorrection (const Interaction & interaction) const {
+double JGDISNuclearModel::DISACorrection (const Interaction * interaction) const {
+  if ( !interaction ) return 0; 
   double f = 1.;
   
   // Nuclear modification to Fi
   // The scaling variable can be overwritten to include corrections
 
-  if( interaction.TestBit(kIAssumeFreeNucleon)   ) return f;
-  if( interaction.TestBit(kINoNuclearCorrection) ) return f;
+  if( interaction->TestBit(kIAssumeFreeNucleon)   ) return f;
+  if( interaction->TestBit(kINoNuclearCorrection) ) return f;
 
-  const Target & tgt  = interaction.InitState().Tgt();
-  const Kinematics & kinematics = interaction.Kine();
+  const Target & tgt  = interaction->InitState().Tgt();
+  const Kinematics & kinematics = interaction->Kine();
   double x = kinematics.x();
   int    A = tgt.A();
   

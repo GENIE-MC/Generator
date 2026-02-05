@@ -4,7 +4,6 @@
 \class    genie::BYDISNuclearModel
 
 \brief    Uses DIS Nuclear Model Correction from Bodek-Yang 
-          Reference: arxiv.org/pdf/2108.09240 (Section 9)
 
 \author   J. Tena Vidal <julia.tena-vidal@ific.uv.es>
           Universitat de Valencia
@@ -16,8 +15,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BY_DIS_NUCLEAR_MODEL_I_H_
-#define _BY_DIS_NUCLEAR_MODEL_I_H_
+#ifndef _BY_DIS_NUCLEAR_MODEL_H_
+#define _BY_DIS_NUCLEAR_MODEL_H_
 
 #include <string>
 
@@ -32,7 +31,7 @@ public:
   BYDISNuclearModel(string config);
   virtual ~BYDISNuclearModel() {};
 
-  double DISACorrection (const Interaction & interaction) const ;
+  double DISACorrection (const Interaction * interaction) const ;
   void Configure (const Registry & config);
   void Configure (string config);
 
@@ -41,4 +40,4 @@ private:
 };
 
 }         // genie namespace
-#endif    // _BY_DIS_NUCLEAR_MODEL_I_H_
+#endif    // _BY_DIS_NUCLEAR_MODEL_H_

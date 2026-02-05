@@ -41,7 +41,7 @@ class DISNuclearModelI : public Algorithm {
 
 public:
   virtual ~DISNuclearModelI() {};
-  virtual double DISACorrection (const Interaction & interaction) const = 0;
+  virtual double DISACorrection (const Interaction * interaction) const = 0;
 
 protected:
 
