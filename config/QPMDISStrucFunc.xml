@@ -30,8 +30,6 @@ WeinbergAngle              double  No                                           
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
 
     <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
-    <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel/Default </param>
-
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	  Switches controlling the DIS structure function calculation. Those switches specify whether to:
