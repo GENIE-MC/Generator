@@ -45,6 +45,14 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // doesn't make sense
   if ( !this->ValidProcess(interaction) ) return 0.;
 
+  if ( kps != kPSTlctl ) {
+    LOG("SuSAv2MEC", pWARN)
+      << "Doesn't support transformation from "
+      << KinePhaseSpace::AsString(kPSTlctl) << " to "
+      << KinePhaseSpace::AsString(kps);
+    xsec = 0.;
+  }
+
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
   // electron scattering
@@ -158,14 +166,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
 
   // Scale given a scaling algorithm:
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
-
-  if ( kps != kPSTlctl ) {
-    LOG("SuSAv2MEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
-  }
 
   return xsec;
 }

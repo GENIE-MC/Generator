@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
  For the class documentation see the corresponding header file.
@@ -41,6 +41,14 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
   if ( !this->ValidProcess(interaction) ) return 0.;
+
+  if ( kps != kPSTlctl ) {
+    LOG("MartiniQE", pWARN)
+      << "Doesn't support transformation from "
+      << KinePhaseSpace::AsString(kPSTlctl) << " to "
+      << KinePhaseSpace::AsString(kps);
+    xsec = 0.;
+  }
 
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
@@ -227,14 +235,6 @@ double MartiniQELPXSec::XSec(const Interaction* interaction,
   // Apply given overall scaling factor
   xsec *= fXSecScale;
 
-  if ( kps != kPSTlctl ) {
-    LOG("MartiniQE", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
-  }
-
   return xsec;
 }
 //_________________________________________________________________________
@@ -268,9 +268,8 @@ bool MartiniQELPXSec::ValidProcess(const Interaction* interaction) const
 
   bool prcok = ( proc_info.IsWeakCC() && ((isP && isnub) || (isN && isnu)) )
     || ( proc_info.IsEM() && is_chgl && (isP || isN) );
-  if ( !prcok ) return false;
 
-  return true;
+  return prcok;
 }
 //_________________________________________________________________________
 void MartiniQELPXSec::Configure(const Registry& config)

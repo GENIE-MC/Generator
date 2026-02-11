@@ -48,6 +48,15 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 {
 	if ( !this->ValidProcess(interaction) ) return 0.;
 
+	if ( kps != kPSTlctl ) {
+		LOG("SuSAv2QE", pWARN)
+			<< "Doesn't support transformation from "
+			<< KinePhaseSpace::AsString(kPSTlctl) << " to "
+			<< KinePhaseSpace::AsString(kps);
+		xsec = 0.;
+	}
+
+
 	// Check that the input kinematical point is within the range
 	// in which hadron tensors are known (for chosen target)
 	double Ev    = interaction->InitState().ProbeE(kRfLab);
@@ -469,14 +478,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	else if( interaction->ProcInfo().IsEM() ) xsec_scale = fXSecEMScale;
 
 	xsec *= xsec_scale ;
-
-	if ( kps != kPSTlctl ) {
-		LOG("SuSAv2QE", pWARN)
-			<< "Doesn't support transformation from "
-			<< KinePhaseSpace::AsString(kPSTlctl) << " to "
-			<< KinePhaseSpace::AsString(kps);
-		xsec = 0.;
-	}
 
 	return xsec;
 }
