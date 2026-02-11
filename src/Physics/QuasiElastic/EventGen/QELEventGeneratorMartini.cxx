@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -99,8 +99,8 @@ void QELEventGeneratorMartini::SelectLeptonKinematics (GHepRecord * event) const
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
   double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  if ( interaction->ProcInfo().IsEM() )
+    Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
 
   // The SuSA 1p1h model kinematics works in a system where
   // the whole nuclear target system has no momentum.
