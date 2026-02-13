@@ -20,7 +20,6 @@ WeinbergAngle               double  No                                          
 
      <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
-     <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel/Default </param>
      <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
      <param type="double" name="DIS-NC-XSecScale">    1.032 </param>
      <param type="double" name="DIS-EM-XSecScale">    1. </param>
@@ -35,14 +34,4 @@ WeinbergAngle               double  No                                          
     <param type="double" name="DIS-EM-XSecScale">    1. </param>
   </param_set>
   
-    <param_set name="GRV982010_JDNuclModel">
-    <param type="string" name="CommonParam"> WeakInt  </param>
-    <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
-    <param type="alg" name="SFAlg"> genie::BYStrucFunc2021/Test </param>
-    <param type="alg" name="DISNuclModel">  genie::JGDISNuclearModel/Default </param>
-    <param type="double" name="DIS-CC-XSecScale">    1. </param>
-    <param type="double" name="DIS-NC-XSecScale">    1. </param>
-    <param type="double" name="DIS-EM-XSecScale">    1. </param>
-  </param_set>
-
 </alg_conf>
