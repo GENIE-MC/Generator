@@ -77,7 +77,8 @@ double DISXSec::Integrate(
   // If yes, calculate the nuclear cross section based on that value.
   //
   XSecSplineList * xsl = XSecSplineList::Instance();
-  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() && !fDISNuclCorr ) {
+    // Computes xsec from free nucleon calculation wo nuclear effects
     Interaction * interaction = new Interaction(*in);
     Target * target = interaction->InitStatePtr()->TgtPtr();
     if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
@@ -104,7 +105,7 @@ double DISXSec::Integrate(
   // at any subsequent call.
   //
   bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
-  if(precalc_bare_xsec) {
+  if(precalc_bare_xsec && !fDISNuclCorr) { ///// CHECK LATER. I THINK NOT NEEDED THE CHANGE HERE 
      Cache * cache = Cache::Instance();
      Interaction * interaction = new Interaction(*in);
      string key = this->CacheBranchName(model,interaction);
@@ -140,7 +141,7 @@ double DISXSec::Integrate(
      // Since nuclear corrections don't need to be included at this stage, all the
      // nuclear cross sections can be trivially built from the free nucleon ones.
      //
-     interaction->SetBit(kINoNuclearCorrection);
+     if(!fDISNuclCorr) interaction->SetBit(kINoNuclearCorrection);
 
      Range1D_t Wl  = kps.WLim();
      Range1D_t Q2l = kps.Q2Lim();
@@ -207,6 +208,10 @@ void DISXSec::LoadConfig(void)
   GetParam( "GVLD-Emin", fVldEmin) ;
   GetParam( "GVLD-Emax", fVldEmax) ;
 
+  // This is set to false by default for historical reasons.
+  // The new option set this to true which distorts sigma/E
+  // Set this to false to keep the historical behavior flat sigma/E     
+  GetParamDef("DIS-NuclCorr", fDISNuclCorr, false);
 }
 //____________________________________________________________________________
 void DISXSec::CacheFreeNucleonXSec(
