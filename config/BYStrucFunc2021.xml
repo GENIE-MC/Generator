@@ -79,12 +79,18 @@ WeinbergAngle              double  No                                           
     <param type="bool"   name="IncludeNuclMod">     true  </param>
     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
     <param type="bool"   name="Use2016Corrections"> true </param>
-    <!-- Specify DIS nuclear correction to use-->
+    <!-- Specify DIS nuclear correction to use
+	 In this case we use the A-Dependent parameterization by J.Gomez et. al. 
+    -->
+    <param type="alg" name="DISNuclModel">  genie::JGDISNuclearModel/Default </param>
+  </param_set>
+
+  <param_set name="GRV982021">
     <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel21/Default </param>
   </param_set>
 
-  <param_set name="Test">
-        <param type="bool"   name="Use2016Corrections"> false </param>     
+  <param_set name="GRV982000">
+    <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel/Default </param>
   </param_set>
 </alg_conf>
 
