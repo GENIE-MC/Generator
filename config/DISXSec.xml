@@ -7,10 +7,10 @@ Algorithm Configurable Parameters:
 ..........................................................................................................................
 Name                        Type    Opt   Comment                                             Default
 ..........................................................................................................................
-gsl-integration-type        string  No
-gsl-max-eval                int     No
-gsl-min-eval                int     No
-gsl-relative-tolerance      double  No
+gsl-integration-type        string  Yes                                                       adaptative
+gsl-max-eval                int     Yes                                                       500000
+gsl-min-eval                int     Yes                                                       10000
+gsl-relative-tolerance      double  Yes                                                       1E-2
 DIS-NuclCorr                bool    Yes   Apply DIS Nuclear Correction                        false 
 -->
 
