@@ -122,7 +122,7 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   //-- turn charm production off?
   GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
 
-  fNuclMod = dynamic_cast<const DISNuclearModelI*>(this->SubAlg("DISNuclModel"));
+  fDISNuclCorr = dynamic_cast<const DISNuclearModelI*>(this->SubAlg("DISNuclModel"));
   
   //-- weinberg angle
   double thw ;
@@ -353,7 +353,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   double Q2val = this->Q2        (interaction);
   double x     = this->ScalingVar(interaction);
-  double f     = fIncludeNuclMod ? fNuclMod->DISACorrection(interaction) : 1 ;
+  double f     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
     
