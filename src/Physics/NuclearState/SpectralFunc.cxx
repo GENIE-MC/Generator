@@ -42,13 +42,13 @@ using namespace genie::controls;
 //____________________________________________________________________________
 SpectralFunc::SpectralFunc() : NuclearModelI("genie::SpectralFunc")
 {
-
+  fFermiMoverInteractionType = kFermiMoveSpectralFunc;
 }
 //____________________________________________________________________________
 SpectralFunc::SpectralFunc(string config) :
   NuclearModelI("genie::SpectralFunc", config)
 {
-
+  fFermiMoverInteractionType = kFermiMoveSpectralFunc;
 }
 //____________________________________________________________________________
 SpectralFunc::~SpectralFunc()

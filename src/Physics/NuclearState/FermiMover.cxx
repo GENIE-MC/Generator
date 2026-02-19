@@ -145,7 +145,9 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType();
 
   // EffectiveSF treatment or momentum-dependent removal energy
-  if (interaction_type == kFermiMoveEffectiveSF1p1h || fMomDepErmv ) {
+  if (interaction_type == kFermiMoveEffectiveSF1p1h ||
+      interaction_type == kFermiMoveSpectralFunc    || 
+      fMomDepErmv ) {
     EN = nucleon->Mass() - w - pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
   } else if (interaction_type == kFermiMoveEffectiveSF2p2h_eject ||
              interaction_type == kFermiMoveEffectiveSF2p2h_noeject) {
@@ -196,6 +198,20 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   p4->SetE ( EN      );
 
   nucleon->SetMomentum(*p4); // update GHEP value
+
+  // The below call to KPhaseSpace::IsAboveThreshold() depends on the target p4.
+  // If the EN < p3.Mag() then this is unphysical and kills code. Handle it here
+  if( p4->Mag2() < 0.0 ) {
+    LOG("FermiMover", pNOTICE)
+                  << "Event generates an unphysical initial state target with p4 = "
+		  << utils::print::P4AsShortString(p4)
+		  << ". Skipping event";
+    evrec->EventFlags()->SetBitNumber(kBelowThrNRF, true);
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Unphysical initial state 4-momentum after FermiMover acted on it");
+    exception.SwitchOnFastForward();
+    throw exception;
+  }
 
   // Sometimes, for interactions near threshold, Fermi momentum might bring
   // the neutrino energy in the nucleon rest frame below threshold (for the
