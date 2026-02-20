@@ -83,8 +83,13 @@ double KPhaseSpace::GetQ2MinEM()
   {
     AlgConfigPool * confp = AlgConfigPool::Instance();
     const Registry * r = confp->CommonList( "Param", "Kinematics" ) ;
-    double q2min = r->GetDouble("EM-Q2-min");
-    EM_Q2Min = q2min;
+    if(r) {
+      EM_Q2Min = r->GetDouble("EM-Q2-min");
+    } else {
+      LOG("KPhaseSpace", pWARN)
+        << "No Kinematics common list found, using default EM-Q2-min = 0.02 GeV^2";
+      EM_Q2Min = 0.02;  // default from base CommonParam.xml
+    }
     q2MinLoaded = true;
   }
 
