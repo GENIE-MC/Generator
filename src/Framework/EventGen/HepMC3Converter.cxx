@@ -67,18 +67,22 @@ namespace {
   // Vertex status codes for NuHepMC
   constexpr int NUHEPMC_PRIMARY_VERTEX = 1;
   // V.C.1
-  constexpr int NUHEPMC_NUCLEAR_VERTEX = 20;
-  constexpr int NUHEPMC_SECONDARY_VERTEX = 12;
+  constexpr int NUHEPMC_NUCLEAR_VERTEX = 21;
+  constexpr int NUHEPMC_SECONDARY_VERTEX = 22;
+
+  // P.C.2: Replaces kPdgHadronicBlob in the NuHepMC output
+  constexpr int NUHEPMC_PDG_NUCLEAR_REMNANT = 2009900000;
 
   // Default set of implemented NuHepMC conventions
+  // G.R.4
   const std::set< std::string > NUHEPMC_CONVENTIONS(
-    { "G.C.1", "G.C.4", "G.C.6", "G.S.2", "E.C.1", "E.C.2", "E.C.4", "E.C.5",
-      "P.C.1" } );
+    { "G.C.3", "G.C.5", "G.S.2", "E.C.1", "E.C.2", "E.C.3", "E.C.4", "E.C.5",
+      "P.C.1", "P.C.2", "V.C.1" } );
 
   // Implemented version of the NuHepMC standard
   // (https://github.com/NuHepMC/Spec)
-  constexpr int NUHEPMC_MAJOR_VERSION = 0;
-  constexpr int NUHEPMC_MINOR_VERSION = 9;
+  constexpr int NUHEPMC_MAJOR_VERSION = 1;
+  constexpr int NUHEPMC_MINOR_VERSION = 0;
   constexpr int NUHEPMC_PATCH_VERSION = 0;
 
   using SType = genie::EScatteringType;
@@ -88,19 +92,20 @@ namespace {
   // Mapping of GENIE (ScatteringType_t, InteractionType_t) pairs to NuHepMC
   // process ID codes. Note that the latter are distinct from GENIE's own
   // process labeling scheme.
-  //
-  // NOTE: NuHepMC 0.9.0 includes a convention that EM processes should have
-  // negative process IDs. For now, they are omitted from the map.
   const std::map< std::pair<SType,IType>, int > NUHEPMC_PROC_MAP = {
 
     { { SType::kScUnknown, IType::kIntNull }, NUHEPMC_PROC_UNKNOWN }, // Unknown
     { { SType::kScAMNuGamma, IType::kIntWeakNC }, 751 }, // AM-NUGAMMA
-    { { SType::kScCoherentProduction, IType::kIntWeakCC }, 100 }, // COH-CC
-    { { SType::kScCoherentProduction, IType::kIntWeakNC }, 150 }, // COH-NC
+    { { SType::kScGlashowResonance, IType::kIntWeakCC }, 705 }, // IBD
+    { { SType::kScCoherentElastic, IType::kIntWeakNC }, 150 }, // COH-El-NC
+    { { SType::kScCoherentProduction, IType::kIntWeakCC }, 704 }, // COH-CC
+    { { SType::kScCoherentProduction, IType::kIntWeakNC }, 754 }, // COH-NC
+    { { SType::kScInverseBetaDecay, IType::kIntWeakCC }, 100 }, // IBD
     { { SType::kScDiffractive, IType::kIntWeakCC }, 700 }, // DFR-CC
     { { SType::kScDiffractive, IType::kIntWeakNC }, 750 }, // DFR-NC
     { { SType::kScDeepInelastic, IType::kIntWeakCC }, 600 }, // DIS-CC
     { { SType::kScSingleKaon, IType::kIntWeakCC }, 601 }, // DIS-SINGLEK-CC
+    { { SType::kScSingleKaon, IType::kIntWeakNC }, 651 }, // DIS-SINGLEK-NC
     { { SType::kScDeepInelastic, IType::kIntWeakNC }, 650 }, // DIS-NC
     { { SType::kScInverseMuDecay, IType::kIntWeakCC }, 701 }, // IMD
     { { SType::kScIMDAnnihilation, IType::kIntWeakCC }, 702 }, // IMD-ANH
@@ -114,6 +119,17 @@ namespace {
     { { SType::kScQuasiElastic, IType::kIntWeakNC }, 250 }, // QEL-NC
     { { SType::kScResonant, IType::kIntWeakCC }, 400 }, // RES-CC
     { { SType::kScResonant, IType::kIntWeakNC }, 450 }, // RES-NC
+
+    // Electromagnetic channels have negative process IDs according to E.C.1
+    { { SType::kScCoherentElastic, IType::kIntEM }, -100 }, // COH-El-EM
+    { { SType::kScCoherentProduction, IType::kIntEM }, -704 }, // COH-EM
+    { { SType::kScDiffractive, IType::kIntEM }, -700 }, // DFR-EM
+    { { SType::kScDeepInelastic, IType::kIntEM }, -600 }, // DIS-EM
+    { { SType::kScSingleKaon, IType::kIntEM }, -601 }, // DIS-SINGLEK-EM
+    { { SType::kScMEC, IType::kIntEM }, -300 }, // MEC-EM
+    { { SType::kScNuElectronElastic, IType::kIntEM }, -703 }, // EM-EL
+    { { SType::kScQuasiElastic, IType::kIntEM }, -200 }, // QEL-CC
+    { { SType::kScResonant, IType::kIntEM }, -400 }, // RES-CC
   };
 
   // P.R.1
@@ -129,6 +145,10 @@ namespace {
     std::string desc_;
   };
 
+  // Standard codes defined by HepMC3 (beam) and NuHepMC (target)
+  constexpr int NUHEPMC_PARTICLE_STATUS_BEAM = 4;
+  constexpr int NUHEPMC_PARTICLE_STATUS_TARGET = 20;
+
   const std::map< genie::GHepStatus_t, PartStatusInfo >
     NUHEPMC_PARTICLE_STATUS_MAP
   {
@@ -136,9 +156,10 @@ namespace {
       { 0, "Not defined", "Not meaningful" } },
 
     // NuHepMC divides the initial state into "incoming beam" and "target"
-    // particles
+    // particles, so we omit this entry and assign the status manually below
     //{ genie::EGHepStatus::kIStInitialState,
-    //  { 4, "Incoming beam particle", "Not meaningful" } },
+    //  { NUHEPMC_PARTICLE_STATUS_BEAM, "Incoming beam particle",
+    //    "Assignment ambiguous, so DO NOT USE THIS ENTRY" } },
 
     { genie::EGHepStatus::kIStStableFinalState,
       { 1, "Final state", "Undecayed physical particle" } },
@@ -162,14 +183,19 @@ namespace {
     { genie::EGHepStatus::kIStHadronInTheNucleus,
       { 26, "Hadron in the nucleus",
         "Input particle for intranuclear cascade" } },
+
+    // Code 27 reserved for future use as a marker for nuclei before
+    // de-excitations
+
+    // P.C.2
     { genie::EGHepStatus::kIStFinalStateNuclearRemnant,
-      { 27, "Hadronic blob", "Pseudoparticle representing the"
+      { 28, "Hadronic blob", "Pseudoparticle representing the"
         " final-state remnant nucleus" } },
     { genie::EGHepStatus::kIStNucleonClusterTarget,
-      { 28, "Nucleon cluster", "Temporary multi-nucleon system for"
+      { 29, "Nucleon cluster", "Temporary multi-nucleon system for"
         " internal use" } },
     { genie::EGHepStatus::kIStFormZone,
-      { 29, "Formation zone", "Hadron before formation zone free step" } },
+      { 30, "Formation zone", "Hadron before formation zone free step" } },
   };
 
   // Convert the contents of a TBits object into a string that can be stored in
@@ -233,7 +259,8 @@ namespace {
   {
      { genie::kPdgHadronicSyst,
        { "HadronicSystem", "DIS hadronic system before hadronization" } },
-     { genie::kPdgHadronicBlob,
+
+     { NUHEPMC_PDG_NUCLEAR_REMNANT, // Replaces kPdgHadronicBlob to match P.C.2
        { "HadronicBlob", "Unmodeled portion of the hadronic system" } },
      { genie::kPdgBindino,
        { "Bindino", "Pseudo-particle representing binding energy"
@@ -290,11 +317,11 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   const genie::EventRecord& gevrec )
 {
   // TODO: check GENIE's unit conventions
-  // E.R.3
+  // E.R.4
   auto evt = std::make_shared< HepMC3::GenEvent >( HepMC3::Units::GEV,
     HepMC3::Units::CM );
 
-  // E.R.4 and E.C.5
+  // E.R.5 and E.C.5
   // Set the overall event 4-position in the lab frame using the GHepRecord
   // vertex
   const TLorentzVector* g_vtx = gevrec.Vertex();
@@ -302,10 +329,10 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
   // Convert from GENIE's position units (m) to cm
   TLorentzVector vtx4( g_vtx->X() * M_TO_CM, g_vtx->Y() * M_TO_CM,
     g_vtx->Z() * M_TO_CM, g_vtx->T() );
-  evt->add_attribute( "LabPos", four_vector_to_attribute(vtx4, false) );
+  evt->add_attribute( "lab_pos", four_vector_to_attribute(vtx4, false) );
 
   // Create the primary vertex
-  // E.R.5
+  // E.R.6
   auto prim_vtx = std::make_shared< HepMC3::GenVertex >();
   prim_vtx->set_status( NUHEPMC_PRIMARY_VERTEX );
 
@@ -377,7 +404,11 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
     int hepmc3_status = this->GetNuHepMCParticleStatus( g_part, gevrec );
 
-    auto part = std::make_shared< HepMC3::GenParticle >( mom4, g_part->Pdg(),
+    // Following P.C.2, convert to the NuHepMC special particle number if
+    // we're working with a hadronic blob
+    int pdg = g_part->Pdg();
+    if ( pdg == kPdgHadronicBlob ) pdg = NUHEPMC_PDG_NUCLEAR_REMNANT;
+    auto part = std::make_shared< HepMC3::GenParticle >( mom4, pdg,
       hepmc3_status );
 
     // Primary particles have no mother
@@ -542,8 +573,13 @@ std::shared_ptr< HepMC3::GenEvent > genie::HepMC3Converter::ConvertToHepMC3(
 
   // E.C.2
   double totXS = gevrec.TotInclXSec() / genie::units::picobarn;
-  evt->add_attribute( "TotXS",
+  evt->add_attribute( "tot_xs",
     std::make_shared< HepMC3::DoubleAttribute >(totXS) );
+
+  // E.C.3
+  double procXS = gevrec.XSec() / genie::units::picobarn;
+  evt->add_attribute( "proc_xs",
+    std::make_shared< HepMC3::DoubleAttribute >(procXS) );
 
   // E.C.4
   double flux_avg_xsec = gevrec.FluxAvgXSec() / genie::units::picobarn;
@@ -565,8 +601,8 @@ int genie::HepMC3Converter::GetNuHepMCParticleStatus(
   genie::GHepStatus_t status = gpart->Status();
   if ( status == genie::EGHepStatus::kIStInitialState ) {
     genie::GHepParticle* probe = gevrec.Probe();
-    if ( gpart == probe ) return 4; // NuHepMC beam particle
-    else return 20; // NuHepMC target particle
+    if ( gpart == probe ) return NUHEPMC_PARTICLE_STATUS_BEAM;
+    else return NUHEPMC_PARTICLE_STATUS_TARGET;
   }
 
   // Otherwise, there is a one-to-one mapping of GENIE codes to NuHepMC
@@ -614,7 +650,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   fRunInfo->add_attribute( "GENIE.XSecTune",
     std::make_shared<HepMC3::StringAttribute>(tune_name) );
 
-  // G.R.4
+  // G.R.8
   std::set< int > proc_IDs;
 
   // Build the list of process IDs from the currently-enabled interactions
@@ -671,7 +707,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
       mode_to_xsec_models[ id_code ].insert( model_name );
     }
 
-    // G.C.6
+    // G.C.3
     // Get a reference to the current set of DOIs for models of the given
     // process. The set will be created if it doesn't already exist.
     auto& mode_citations = mode_to_citation_DOIs[ id_code ];
@@ -764,12 +800,12 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
     std::make_shared< HepMC3::VectorStringAttribute >( NUHEPMC_GENIE_DOIs )
   );
 
-  // G.R.5
+  // G.R.9
   std::vector< int > vertex_IDs;
 
   const std::map< int, std::pair<std::string, std::string> > vtx_status_map = {
     { NUHEPMC_PRIMARY_VERTEX,
-      { "Primary", "The primary vertex or hard scatter" } },
+      { "Primary", "The primary vertex or hard interaction" } },
     { NUHEPMC_NUCLEAR_VERTEX,
       { "Nuclear", "Separate the hit nucleon from the spectator nucleus" } },
     { NUHEPMC_SECONDARY_VERTEX, { "Secondary", "Secondary vertex" } },
@@ -790,19 +826,24 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   fRunInfo->add_attribute( "NuHepMC.VertexStatusIDs",
     std::make_shared< HepMC3::VectorIntAttribute >(vertex_IDs) );
 
-  // G.R.6
-  std::set< int > particle_statuses = { 4, 20 };
+  // G.R.10
+  std::set< int > particle_statuses = { NUHEPMC_PARTICLE_STATUS_BEAM,
+    NUHEPMC_PARTICLE_STATUS_TARGET };
 
-  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[4].Name",
+  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo["
+    + std::to_string( NUHEPMC_PARTICLE_STATUS_BEAM ) + "].Name",
     std::make_shared< HepMC3::StringAttribute >("Beam") );
 
-  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[4].Description",
+  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo["
+    + std::to_string( NUHEPMC_PARTICLE_STATUS_BEAM ) + "].Description",
     std::make_shared< HepMC3::StringAttribute >("Incoming beam particle") );
 
-  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[20].Name",
+  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo["
+    + std::to_string( NUHEPMC_PARTICLE_STATUS_TARGET ) + "].Name",
     std::make_shared< HepMC3::StringAttribute >("Target") );
 
-  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo[20].Description",
+  fRunInfo->add_attribute( "NuHepMC.ParticleStatusInfo["
+    + std::to_string( NUHEPMC_PARTICLE_STATUS_TARGET ) + "].Description",
     std::make_shared< HepMC3::StringAttribute >("Target particle") );
 
   for ( const auto& pstatus_pair : NUHEPMC_PARTICLE_STATUS_MAP ) {
@@ -830,7 +871,7 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   // G.R.7
   fRunInfo->set_weight_names( { "CV" } );
 
-  // G.R.8
+  // G.R.11
   std::vector< int > pdg_codes_vec;
 
   for ( const auto& pdg_pair : NUHEPMC_EXTRA_PDG_MAP ) {
@@ -842,11 +883,11 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
 
     pdg_codes_vec.push_back( pdg_code );
 
-    fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumber[" + pdg_str
+    fRunInfo->add_attribute( "NuHepMC.AdditionalParticleInfo[" + pdg_str
       + "].Name", std::make_shared< HepMC3::StringAttribute >(name) );
 
-    // G.S.2
-    fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumber[" + pdg_str
+    // G.C.5
+    fRunInfo->add_attribute( "NuHepMC.AdditionalParticleInfo[" + pdg_str
       + "].Description",
       std::make_shared< HepMC3::StringAttribute >(desc) );
   }
@@ -854,7 +895,6 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   fRunInfo->add_attribute( "NuHepMC.AdditionalParticleNumbers",
     std::make_shared< HepMC3::VectorIntAttribute >(pdg_codes_vec) );
 
-  // G.C.1
   std::set< std::string > conventions = NUHEPMC_CONVENTIONS;
 
   std::vector< std::string > convention_vec;
@@ -865,13 +905,13 @@ void genie::HepMC3Converter::PrepareRunInfo( const genie::EventRecord* gevrec )
   fRunInfo->add_attribute( "NuHepMC.Conventions",
     std::make_shared< HepMC3::VectorStringAttribute >( convention_vec ) );
 
-  // G.C.4
+  // G.R.6
   fRunInfo->add_attribute( "NuHepMC.Units.CrossSection.Unit",
     std::make_shared< HepMC3::StringAttribute >( "pb" ) );
   fRunInfo->add_attribute( "NuHepMC.Units.CrossSection.TargetScale",
-    std::make_shared< HepMC3::StringAttribute >( "PerTargetAtom" ) );
+    std::make_shared< HepMC3::StringAttribute >( "PerAtom" ) );
 
-  //// G.C.2
+  //// G.C.1
   //fRunInfo->add_attribute("NuHepMC.Exposure.NEvents",
   // std::make_shared<HepMC3::IntAttribute>(3));
 
@@ -893,6 +933,9 @@ std::shared_ptr< genie::EventRecord > genie::HepMC3Converter::RetrieveGHEP(
   const auto& part_vec = evt.particles();
   for ( const auto& part : part_vec ) {
     int pdg = part->pid();
+    // We use the special NuHepMC code for the "hadronic blob" defined in
+    // P.C.2, so convert back to the special GENIE code if it shows up
+    if ( pdg == NUHEPMC_PDG_NUCLEAR_REMNANT ) pdg = kPdgHadronicBlob;
     genie::GHepStatus_t status = this->GetGHepParticleStatus( part->status() );
     const HepMC3::FourVector& p4 = part->momentum();
 
@@ -1091,7 +1134,9 @@ genie::GHepStatus_t genie::HepMC3Converter::GetGHepParticleStatus(
 {
   // Both the NuHepMC "beam" and "target" particle status codes correspond to
   // the initial state status used by GENIE
-  if ( nuhepmc_status == 4 || nuhepmc_status == 20 ) {
+  if ( nuhepmc_status == NUHEPMC_PARTICLE_STATUS_BEAM
+    || nuhepmc_status == NUHEPMC_PARTICLE_STATUS_TARGET )
+  {
     return genie::EGHepStatus::kIStInitialState;
   }
 
@@ -1116,9 +1161,9 @@ genie::GHepStatus_t genie::HepMC3Converter::GetGHepParticleStatus(
 void genie::HepMC3Converter::StoreInteraction( const genie::Interaction& inter,
   HepMC3::GenEvent& evt )
 {
-  // E.R.2
+  // E.R.3
   int proc_id_code = GetNuHepMCProcessID( inter );
-  evt.add_attribute( "ProcID",
+  evt.add_attribute( "signal_process_id",
     std::make_shared< HepMC3::IntAttribute >(proc_id_code) );
 
   const genie::InitialState& istate = inter.InitState();
