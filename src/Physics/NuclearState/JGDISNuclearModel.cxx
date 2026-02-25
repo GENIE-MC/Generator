@@ -52,8 +52,8 @@ double JGDISNuclearModel::DISACorrection (const Interaction * interaction) const
   double xv6    = xv5 * xv;
   double xv7    = xv6 * xv;
   double xv8    = xv7 * xv;
-  double alpha = -0.070 + 2.189 * xv - 24.667 * xv2 + 145.291 * xv3 - 497.237 * xv4 + 1013.129 * xv5 - 1208.393 * xv6 +775.767 * xv7 - 205.872 * xv8; 
-  double lnC   = 0.017 +0.018 * TMath::Log(xv) + 0.005 * pow( TMath::Log(xv),2 );
+  double alpha = fAa0 + fAa1 * xv + fAa2 * xv2 + fAa3 * xv3 + fAa4 * xv4 + fAa5 * xv5 + fAa6 * xv6 + fAa7 * xv7 + fAa8 * xv8; 
+  double lnC   = fAc0 + fAc1 * TMath::Log(xv) + fAc2 * pow( TMath::Log(xv),2 );
   double C = TMath::Exp( lnC ) ;
   f *= C * pow( A, alpha ) ;
     
@@ -85,7 +85,16 @@ void JGDISNuclearModel::Configure(string config)
 
 void JGDISNuclearModel::LoadConfig(void)
 {
- //this->GetParam("SetName",  fSetName );
- // this->GetParam("MemberID", fMemberID);
+  GetParam( "JG-NuclModel-c0", fAc0 ) ;
+  GetParam( "JG-NuclModel-c1", fAc1 ) ;
+  GetParam( "JG-NuclModel-c2", fAc2 ) ;
 
+  GetParam( "JG-NuclModel-a0", fAa0 ) ;
+  GetParam( "JG-NuclModel-a1", fAa1 ) ;
+  GetParam( "JG-NuclModel-a2", fAa2 ) ;
+  GetParam( "JG-NuclModel-a3", fAa3 ) ;
+  GetParam( "JG-NuclModel-a4", fAa4 ) ;
+  GetParam( "JG-NuclModel-a5", fAa5 ) ;
+  GetParam( "JG-NuclModel-a6", fAa6 ) ;
+  GetParam( "JG-NuclModel-a7", fAa7 ) ;
 }

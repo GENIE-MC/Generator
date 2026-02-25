@@ -38,6 +38,19 @@ public:
 
 private:
   void LoadConfig (void);
+
+  double fAc0; //> JG-NuclModel-c0
+  double fAc1; //> JG-NuclModel-c1
+  double fAc2; //> JG-NuclModel-c2
+
+  double fAa0; //> JG-NuclModel-a0
+  double fAa1; //> JG-NuclModel-a1
+  double fAa2; //> JG-NuclModel-a2
+  double fAa3; //> JG-NuclModel-a3
+  double fAa4; //> JG-NuclModel-a4
+  double fAa5; //> JG-NuclModel-a5
+  double fAa6; //> JG-NuclModel-a6
+  double fAa7; //> JG-NuclModel-a7
 };
 
 }         // genie namespace
