@@ -51,6 +51,7 @@ private:
   double fAa5; //> JG-NuclModel-a5
   double fAa6; //> JG-NuclModel-a6
   double fAa7; //> JG-NuclModel-a7
+  double fAa8; //> JG-NuclModel-a8
 };
 
 }         // genie namespace

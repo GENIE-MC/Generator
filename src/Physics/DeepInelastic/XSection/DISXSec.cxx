@@ -126,6 +126,7 @@ double DISXSec::Integrate(
      return xsec;
   }
   else {
+
     // Just go ahead and integrate the input differential cross section for the
     // specified interaction.
     //

@@ -356,7 +356,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double f     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
-    
+  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;

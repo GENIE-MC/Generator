@@ -97,4 +97,5 @@ void JGDISNuclearModel::LoadConfig(void)
   GetParam( "JG-NuclModel-a5", fAa5 ) ;
   GetParam( "JG-NuclModel-a6", fAa6 ) ;
   GetParam( "JG-NuclModel-a7", fAa7 ) ;
+  GetParam( "JG-NuclModel-a8", fAa8 ) ;
 }

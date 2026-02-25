@@ -126,7 +126,6 @@ void BY21DISNuclearModel::LoadConfig(void)
   GetParam( "BY21-NuclModel-C-f3",    fCf3 ) ;
   GetParam( "BY21-NuclModel-C-f4",    fCf4 ) ;
   GetParam( "BY21-NuclModel-C-f5",    fCf5 ) ;
-  GetParam( "BY21-NuclModel-C-f6",    fCf6 ) ;
 
   GetParam( "BY21-NuclModel-Au-f0",    fAuf0 ) ;
   GetParam( "BY21-NuclModel-Au-f1",    fAuf1 ) ;
