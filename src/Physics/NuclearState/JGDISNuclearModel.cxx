@@ -44,7 +44,7 @@ double JGDISNuclearModel::DISACorrection (const Interaction * interaction) const
   double x = kinematics.x();
   int    A = tgt.A();
   
-  double xv     = TMath::Min(0.75, TMath::Max(0.05, x));
+  double xv     = TMath::Min(0.65, TMath::Max(0.05, x));
   double xv2    = xv  * xv;
   double xv3    = xv2 * xv;
   double xv4    = xv3 * xv;
