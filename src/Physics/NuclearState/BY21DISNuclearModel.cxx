@@ -12,24 +12,24 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/NuclearState/BYDISNuclearModel21.h"
+#include "Physics/NuclearState/BY21DISNuclearModel.h"
 
 using std::ostringstream;
 using namespace genie;
 
 //____________________________________________________________________________
 
-BYDISNuclearModel21::BYDISNuclearModel21() :
-  DISNuclearModelI("genie::BYDISNuclearModel21"){}
+BY21DISNuclearModel::BY21DISNuclearModel() :
+  DISNuclearModelI("genie::BY21DISNuclearModel"){}
 
 //____________________________________________________________________________
 
-BYDISNuclearModel21::BYDISNuclearModel21(string config) :
-  DISNuclearModelI("genie::BYDISNuclearModel21"){}
+BY21DISNuclearModel::BY21DISNuclearModel(string config) :
+  DISNuclearModelI("genie::BY21DISNuclearModel"){}
 
 //____________________________________________________________________________
 
-double BYDISNuclearModel21::DISACorrection (const Interaction * interaction) const {
+double BY21DISNuclearModel::DISACorrection (const Interaction * interaction) const {
   if ( !interaction ) return 0; 
   double f = 1.;
   
@@ -52,7 +52,7 @@ double BYDISNuclearModel21::DISACorrection (const Interaction * interaction) con
   
   // first factor goes from free nucleons to deuterium
   if(A >= 2) {
-    f*= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
+    f*= f2HScale*( f2Hf0 + f2Hf1*xv + f2Hf2*xv2 + f2Hf3*xv3 + f2Hf4*xv4 + f2Hf5*xv5);
   }
   
   // Computing target-mass-corrected scaling variable
@@ -66,15 +66,15 @@ double BYDISNuclearModel21::DISACorrection (const Interaction * interaction) con
   
   // 2nd factor goes from deuterium to iso-scalar iron
   if(A > 2) {
-    f *= (1.096 - 0.38*chiTM - 0.3 * TMath::Exp(-23*chiTM) + 8 * pow(chiTM,15) ) ;								
+    f *= ( fFef0 + fFef1 * chiTM + fFef2 * TMath::Exp( fFef3*chiTM ) + fFef4 * pow(chiTM,15) ) ;				
   }
   
   if( A == 197 || A == 208 ) { // Gold nd Lead F2(Au,Pb)/F2(Fe)
-    f *= (0.932 + 2.461 * chiTM - 24.23*pow(chiTM,2) + 101.03*pow(chiTM,3) - 203.47*pow(chiTM,4) + 193.85*pow(chiTM,5) - 69.82*pow(chiTM,6)); 
+    f *= ( fAuf0 + fAuf1 * chiTM + fAuf2 *pow(chiTM,2) + fAuf3*pow(chiTM,3) + fAuf4*pow(chiTM,4) + fAuf5*pow(chiTM,5) + fAuf6*pow(chiTM,6)); 
   }
   
   if( A == 12 ) { // F2(Fe)/F2(C)
-    f /= ( 0.919 + 1.844*chiTM - 12.73*pow(chiTM,2) + 36.89*pow(chiTM,3) - 46.77*pow(chiTM,4) + 21.22*pow(chiTM,5));
+    f /= ( fCf0 + fCf1*chiTM + fCf2*pow(chiTM,2) + fCf3*pow(chiTM,3) + fCf4*pow(chiTM,4) + fCf5*pow(chiTM,5));
   }
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -87,7 +87,7 @@ double BYDISNuclearModel21::DISACorrection (const Interaction * interaction) con
 
 //____________________________________________________________________________
 
-void BYDISNuclearModel21::Configure(const Registry & config)
+void BY21DISNuclearModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
@@ -95,7 +95,7 @@ void BYDISNuclearModel21::Configure(const Registry & config)
 
 //____________________________________________________________________________
 
-void BYDISNuclearModel21::Configure(string config)
+void BY21DISNuclearModel::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
@@ -103,9 +103,37 @@ void BYDISNuclearModel21::Configure(string config)
 
 //____________________________________________________________________________
 
-void BYDISNuclearModel21::LoadConfig(void)
+void BY21DISNuclearModel::LoadConfig(void)
 {
- //this->GetParam("SetName",  fSetName );
- // this->GetParam("MemberID", fMemberID);
 
+  GetParam( "BY21-NuclModel-2H-Scale", f2HScale ) ;
+  GetParam( "BY21-NuclModel-2H-f0",    f2Hf0 ) ;
+  GetParam( "BY21-NuclModel-2H-f1",    f2Hf1 ) ;
+  GetParam( "BY21-NuclModel-2H-f2",    f2Hf2 ) ;
+  GetParam( "BY21-NuclModel-2H-f3",    f2Hf3 ) ;
+  GetParam( "BY21-NuclModel-2H-f4",    f2Hf4 ) ;
+  GetParam( "BY21-NuclModel-2H-f5",    f2Hf5 ) ;
+
+  GetParam( "BY21-NuclModel-Fe-f0",    fFef0 ) ;
+  GetParam( "BY21-NuclModel-Fe-f1",    fFef1 ) ;
+  GetParam( "BY21-NuclModel-Fe-f2",    fFef2 ) ;
+  GetParam( "BY21-NuclModel-Fe-f3",    fFef3 ) ;
+  GetParam( "BY21-NuclModel-Fe-f4",    fFef4 ) ;
+  
+  GetParam( "BY21-NuclModel-C-f0",    fCf0 ) ;
+  GetParam( "BY21-NuclModel-C-f1",    fCf1 ) ;
+  GetParam( "BY21-NuclModel-C-f2",    fCf2 ) ;
+  GetParam( "BY21-NuclModel-C-f3",    fCf3 ) ;
+  GetParam( "BY21-NuclModel-C-f4",    fCf4 ) ;
+  GetParam( "BY21-NuclModel-C-f5",    fCf5 ) ;
+  GetParam( "BY21-NuclModel-C-f6",    fCf6 ) ;
+
+  GetParam( "BY21-NuclModel-Au-f0",    fAuf0 ) ;
+  GetParam( "BY21-NuclModel-Au-f1",    fAuf1 ) ;
+  GetParam( "BY21-NuclModel-Au-f2",    fAuf2 ) ;
+  GetParam( "BY21-NuclModel-Au-f3",    fAuf3 ) ;
+  GetParam( "BY21-NuclModel-Au-f4",    fAuf4 ) ;
+  GetParam( "BY21-NuclModel-Au-f5",    fAuf5 ) ;
+  GetParam( "BY21-NuclModel-Au-f6",    fAuf6 ) ;
+	        
 }

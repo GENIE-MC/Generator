@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BYDISNuclearModel
+\class    genie::BY00DISNuclearModel
 
 \brief    Uses DIS Nuclear Model Correction from Bodek-Yang 
 
@@ -15,8 +15,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BY_DIS_NUCLEAR_MODEL_H_
-#define _BY_DIS_NUCLEAR_MODEL_H_
+#ifndef _BY00_DIS_NUCLEAR_MODEL_H_
+#define _BY00_DIS_NUCLEAR_MODEL_H_
 
 #include <string>
 
@@ -24,12 +24,12 @@
 
 namespace genie {
 
-class BYDISNuclearModel : public DISNuclearModelI {
+class BY00DISNuclearModel : public DISNuclearModelI {
 
 public:
-  BYDISNuclearModel();
-  BYDISNuclearModel(string config);
-  virtual ~BYDISNuclearModel() {};
+  BY00DISNuclearModel();
+  BY00DISNuclearModel(string config);
+  virtual ~BY00DISNuclearModel() {};
 
   double DISACorrection (const Interaction * interaction) const ;
   void Configure (const Registry & config);

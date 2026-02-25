@@ -12,7 +12,7 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/NuclearState/BYDISNuclearModel.h"
+#include "Physics/NuclearState/BY00DISNuclearModel.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 
 using std::ostringstream;
@@ -20,17 +20,17 @@ using namespace genie;
 
 //____________________________________________________________________________
 
-BYDISNuclearModel::BYDISNuclearModel() :
-  DISNuclearModelI("genie::BYDISNuclearModel"){}
+BY00DISNuclearModel::BY00DISNuclearModel() :
+  DISNuclearModelI("genie::BY00DISNuclearModel"){}
 
 //____________________________________________________________________________
 
-BYDISNuclearModel::BYDISNuclearModel(string config) :
-  DISNuclearModelI("genie::BYDISNuclearModel"){}
+BY00DISNuclearModel::BY00DISNuclearModel(string config) :
+  DISNuclearModelI("genie::BY00DISNuclearModel"){}
 
 //____________________________________________________________________________
 
-double BYDISNuclearModel::DISACorrection (const Interaction * interaction) const {
+double BY00DISNuclearModel::DISACorrection (const Interaction * interaction) const {
   if ( !interaction ) return 0; 
   double f = 1.;
   
@@ -61,7 +61,7 @@ double BYDISNuclearModel::DISACorrection (const Interaction * interaction) const
 
 //____________________________________________________________________________
 
-void BYDISNuclearModel::Configure(const Registry & config)
+void BY00DISNuclearModel::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
@@ -69,7 +69,7 @@ void BYDISNuclearModel::Configure(const Registry & config)
 
 //____________________________________________________________________________
 
-void BYDISNuclearModel::Configure(string config)
+void BY00DISNuclearModel::Configure(string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
@@ -77,9 +77,9 @@ void BYDISNuclearModel::Configure(string config)
 
 //____________________________________________________________________________
 
-void BYDISNuclearModel::LoadConfig(void)
+void BY00DISNuclearModel::LoadConfig(void)
 {
- //this->GetParam("SetName",  fSetName );
- // this->GetParam("MemberID", fMemberID);
-
+  // In this version, parameters are hardcoded.
+  // This model is not advised, as a new version of this parameterization is available
+  // in BY21DISNuclearModel
 }
