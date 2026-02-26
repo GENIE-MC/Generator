@@ -247,8 +247,8 @@
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
-   <config alg="genie::BYDISNuclearModel">           BYDISNuclearModel.xml           </config>
-   <config alg="genie::BYDISNuclearModel21">         BYDISNuclearModel21.xml         </config>
+   <config alg="genie::BY00DISNuclearModel">         BY00DISNuclearModel.xml         </config>
+   <config alg="genie::BY21DISNuclearModel">         BY21DISNuclearModel.xml         </config>
    <config alg="genie::JGDISNuclearModel">           JGDISNuclearModel.xml           </config>
    
 
