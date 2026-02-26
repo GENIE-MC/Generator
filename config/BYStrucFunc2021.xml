@@ -85,12 +85,12 @@ WeinbergAngle              double  No                                           
     <param type="alg" name="DISNuclModel">  genie::JGDISNuclearModel/Default </param>
   </param_set>
 
-  <param_set name="GRV982021">
-    <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel21/Default </param>
+  <param_set name="GRV98_2021">
+    <param type="alg" name="DISNuclModel">  genie::BY21DISNuclearModel/Default </param>
   </param_set>
 
-  <param_set name="GRV982000">
-    <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel/Default </param>
+  <param_set name="GRV98_2000">
+    <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
   </param_set>
 </alg_conf>
 
