@@ -168,6 +168,14 @@ double DISXSec::Integrate(
 
     double abstol = 1; //We mostly care about relative tolerance.
     ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+
+    if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+      ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+	dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+      assert(cast);
+      cast->SetMinPts(fGSLMinEval);
+    }
+    
     double kine_min[2] = { Wl.min, Q2l.min };
     double kine_max[2] = { Wl.max, Q2l.max };
     xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
