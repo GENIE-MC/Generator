@@ -43,7 +43,7 @@ double BY21DISNuclearModel::DISACorrection (const Interaction * interaction) con
   const Kinematics & kinematics = interaction->Kine();
   double x = kinematics.x();
   int    A = tgt.A();
-  
+
   double xv     = TMath::Min(0.75, TMath::Max(0.05, x));
   double xv2    = xv  * xv;
   double xv3    = xv2 * xv;

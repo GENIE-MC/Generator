@@ -43,20 +43,22 @@ double JGDISNuclearModel::DISACorrection (const Interaction * interaction) const
   const Kinematics & kinematics = interaction->Kine();
   double x = kinematics.x();
   int    A = tgt.A();
+
+  if ( A >= 2 ) { 
+    double xv     = TMath::Min(0.65, TMath::Max(0.05, x));
+    double xv2    = xv  * xv;
+    double xv3    = xv2 * xv;
+    double xv4    = xv3 * xv;
+    double xv5    = xv4 * xv;
+    double xv6    = xv5 * xv;
+    double xv7    = xv6 * xv;
+    double xv8    = xv7 * xv;
+    double alpha = fAa0 + fAa1 * xv + fAa2 * xv2 + fAa3 * xv3 + fAa4 * xv4 + fAa5 * xv5 + fAa6 * xv6 + fAa7 * xv7 + fAa8 * xv8; 
+    double lnC   = fAc0 + fAc1 * TMath::Log(xv) + fAc2 * pow( TMath::Log(xv),2 );
+    double C = TMath::Exp( lnC ) ;
+    f *= C * pow( A, alpha ) ;
+  }
   
-  double xv     = TMath::Min(0.65, TMath::Max(0.05, x));
-  double xv2    = xv  * xv;
-  double xv3    = xv2 * xv;
-  double xv4    = xv3 * xv;
-  double xv5    = xv4 * xv;
-  double xv6    = xv5 * xv;
-  double xv7    = xv6 * xv;
-  double xv8    = xv7 * xv;
-  double alpha = fAa0 + fAa1 * xv + fAa2 * xv2 + fAa3 * xv3 + fAa4 * xv4 + fAa5 * xv5 + fAa6 * xv6 + fAa7 * xv7 + fAa8 * xv8; 
-  double lnC   = fAc0 + fAc1 * TMath::Log(xv) + fAc2 * pow( TMath::Log(xv),2 );
-  double C = TMath::Exp( lnC ) ;
-  f *= C * pow( A, alpha ) ;
-    
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "J. Gomez et. al. Nuclear factor for x of " << x << "  = " << f;
 #endif
