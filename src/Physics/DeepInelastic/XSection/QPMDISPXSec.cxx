@@ -147,6 +147,12 @@ double QPMDISPXSec::XSec(
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
 
+  
+  // Apply scaling / if required to reach well known asymmptotic value
+  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
+  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
+  else if( proc_info.IsEM() )  xsec *= fEMScale;
+  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pINFO)
         << "d2xsec/dxdy[FreeN] (E= " << E
@@ -169,12 +175,7 @@ double QPMDISPXSec::XSec(
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec *= NNucl;
-
-  // Apply scaling / if required to reach well known asymmptotic value
-  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
-  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
-  else if( proc_info.IsEM() )  xsec *= fEMScale;
-
+  
   // Subtract the inclusive charm production cross section
   interaction->ExclTagPtr()->SetCharm();
   double xsec_charm = fCharmProdModel->XSec(interaction,kps);
