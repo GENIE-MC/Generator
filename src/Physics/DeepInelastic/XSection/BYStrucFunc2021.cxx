@@ -132,8 +132,8 @@ double BYStrucFunc2021::ScalingVar(const Interaction * interaction, double Mf ) 
   return xw;
 }
 //____________________________________________________________________________
-void BYStrucFunc2021::KFactors(const Interaction * interaction,
-			       double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
+void BYStrucFunc2021::KVectorFactors(const Interaction * interaction,
+				     double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
   // Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
   // u(valence), d(valence), u(sea), d(sea), s(sea);
@@ -159,11 +159,13 @@ void BYStrucFunc2021::KFactors(const Interaction * interaction,
   kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
 }
 //____________________________________________________________________________
-void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & ksea, double & kvalance ) const {
+void BYStrucFunc2021::KAxialFactors(const Interaction * interaction,
+				    double & kuv, double & kdv, double & kus, double & kds, double & kss ) const {
+  
   // https://arxiv.org/pdf/2108.09240 Sec 11.2 
   double myQ2  = this->Q2(interaction);
-  ksea = ( myQ2 + fPsA*fCsA ) / ( myQ2 + fCsA ) ;
-  kvalance = ( myQ2 + fPvA * 0.18 ) / ( myQ2 + 0.18 ) ; 
+  double ksea = ( myQ2 + fPsA*fCsA ) / ( myQ2 + fCsA ) ;
+  double kvalance = ( myQ2 + fPvA * 0.18 ) / ( myQ2 + 0.18 ) ; 
 
   // Compute Low-q0 modificaion factor for neutrinos and anti-neutrinos
   double q0 = this->q0(interaction);
@@ -188,6 +190,13 @@ void BYStrucFunc2021::KAxialFactors (const Interaction * interaction, double & k
     // double check it only affects valance factors:
     //kvalance *= KLW ; 
     */
+  // The 2021 BY model uses the same factors for up and down valance quarks, and for u, d, s sea quarks.
+  kuv = kvalance;
+  kdv = kvalance;
+  kus = ksea;
+  kds = ksea;
+  kss = ksea;
+
 }
 
 //____________________________________________________________________________

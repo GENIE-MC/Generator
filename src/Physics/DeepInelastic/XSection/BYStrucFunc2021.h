@@ -1,4 +1,3 @@
-//____________________________________________________________________________
 /*!
 
 \class    genie::BYStrucFunc2021
@@ -49,8 +48,9 @@ protected:
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
   double ScalingVar (const Interaction * i, double Mf = 0 ) const;
-  void   KFactors   (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const;
-  void   KAxialFactors (const Interaction * i, double & ksea, double & kvalance ) const;
+  void   KVectorFactors (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const;
+  void   KAxialFactors(const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const ;
+  
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double NuclMod(const Interaction * interaction) const;

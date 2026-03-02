@@ -1,4 +1,3 @@
-//____________________________________________________________________________
 /*!
 
 \class    genie::QPMDISStrucFuncBase
@@ -69,8 +68,10 @@ protected:
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
   virtual double H          (const Interaction * i) const;
-  virtual void   KFactors   (const Interaction * i, double & kuv,
-                                     double & kdv, double & kus, double & kds, double & kss ) const;
+  virtual void   KVectorFactors (const Interaction * i, double & kuv,
+				 double & kdv, double & kus, double & kds, double & kss ) const;
+  virtual void   KAxialFactors (const Interaction * i, double & kuv,
+				 double & kdv, double & kus, double & kds, double & kss ) const;
   // configuration
   //
   double fQ2min;             ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)

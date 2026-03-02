@@ -99,12 +99,14 @@ double BYStrucFunc::ScalingVar(const Interaction * interaction, double Mf ) cons
   return xw;
 }
 //____________________________________________________________________________
-void BYStrucFunc::KFactors(const Interaction * interaction,
+void BYStrucFunc::KVectorFactors(const Interaction * interaction,
 	         double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
-// Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
+  
+// Overrides QPMDISStrucFuncBase::KVectorFactors() to compute the BY K factors for
 // u(valence), d(valence), u(sea), d(sea);
-
+// In this version, Vector K-Factors are used for the axial component
+  
   double myQ2  = this->Q2(interaction);
   double GD  = 1. / TMath::Power(1.+myQ2/0.71, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
@@ -114,4 +116,11 @@ void BYStrucFunc::KFactors(const Interaction * interaction,
   kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
   kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
 }
+//____________________________________________________________________________
+void BYStrucFunc::KAxialFactors(const Interaction * interaction,
+					double & kuv, double & kdv, double & kus, double & kds, double & kss ) const {
+  // In this version, Vector K-Factors are used for the axial component
+  KVectorFactors( interaction, kuv, kdv, kus, kds, kss );
+}
+
 //____________________________________________________________________________

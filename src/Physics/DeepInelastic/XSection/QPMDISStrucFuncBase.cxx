@@ -460,8 +460,23 @@ double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction, double Mf
   return interaction->Kine().x();
 }
 //____________________________________________________________________________
-void QPMDISStrucFuncBase::KFactors(const Interaction *,
-				   double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
+void QPMDISStrucFuncBase::KVectorFactors(const Interaction *,
+					 double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
+{
+  // This is an abstract class: no model-specific correction
+  // The PDF scaling variables are set to 1
+  // Override this method to compute model-dependent corrections
+
+  kuv = 1.;
+  kdv = 1.;
+  kus = 1.;
+  kds = 1.;
+  kss = 1.;
+}
+
+//____________________________________________________________________________
+void QPMDISStrucFuncBase::KAxialFactors(const Interaction *,
+					double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
   // This is an abstract class: no model-specific correction
   // The PDF scaling variables are set to 1
@@ -559,7 +574,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   double ksea_d = 1.;
   double ksea_s = 1.;
   
-  this->KFactors(interaction, kval_u, kval_d, ksea_u, ksea_d, ksea_s);
+  this->KVectorFactors(interaction, kval_u, kval_d, ksea_u, ksea_d, ksea_s);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
