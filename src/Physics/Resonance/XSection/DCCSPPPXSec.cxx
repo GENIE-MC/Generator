@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2022, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -38,6 +38,7 @@
 
 #include <fstream>
 #include <limits>
+#include <algorithm>
 
 using namespace genie;
 using namespace genie::constants;
@@ -67,7 +68,14 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
 
     // dimension of kine phase space
     std::string s = KinePhaseSpace::AsString(kps);
-    int kpsdim = s!="<|E>"?1 + std::count(s.begin(), s.begin()+s.find('}'), ','):0;
+    
+    int kpsdim = 0;
+    if (s != "<|E>") 
+    {
+        std::string::size_type r = s.find('}');
+        if (r != std::string::npos) 
+            kpsdim = 1 + std::count(s.begin(), s.begin() + r, ',');
+    }
     if (kpsdim < 2 || kpsdim > 4) return 0.;
     // TODO: check 3d-case by integration 4d-case
 
