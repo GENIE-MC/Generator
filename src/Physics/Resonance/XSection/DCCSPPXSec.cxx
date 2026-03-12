@@ -89,6 +89,7 @@ double DCCSPPXSec::Integrate(
   int probe_helicity      = init_state.ProbeHelicity();
   
   bool is_EM     = proc_info.IsEM();
+  // electromagnetic processes with massless charged leptons
   bool is_EM0    = is_EM && (probe_helicity != 0);
   
   if (Enu < kps.Threshold_SPP_iso(is_EM0)) return 0.;

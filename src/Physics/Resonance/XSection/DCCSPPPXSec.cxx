@@ -1078,6 +1078,7 @@ bool DCCSPPPXSec::ValidKinematics(const Interaction * interaction) const
     
     bool is_EM     = proc_info.IsEM();
     int  helicity  = init_state.ProbeHelicity();
+    // electromagnetic processes with massless charged leptons
     bool is_EM0    = is_EM && (helicity != 0);
     
     double Enu  = init_state.ProbeE(kRfHitNucRest);

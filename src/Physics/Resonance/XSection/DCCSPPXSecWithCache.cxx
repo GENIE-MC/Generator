@@ -102,7 +102,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
   int nuc_code        = in->InitState().Tgt().HitNucPdg();
   int tgt_code        = (nuc_code==kPdgProton) ? kPdgTgtFreeP : kPdgTgtFreeN;
   int probe_helicity  = in->InitState().ProbeHelicity();
-  
+  // electromagnetic processes with massless charged leptons
   bool is_EM0    = is_EM && (probe_helicity != 0);
 
   Interaction local_interaction(*in);
