@@ -323,8 +323,11 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	return;
       }
 
-    F2val  = 2*(q+qbar);
-    xF3val = 2*(q-qbar);
+    F2val  = (q+qbar);
+    xF3val = (q-qbar);
+    // Removing factor 2, at low Q2 we have the split between axial and vector
+    //    F2val  = 2*(q+qbar);
+    //    xF3val = 2*(q-qbar);
   }
 
   // ***  ELECTROMAGNETIC
@@ -567,14 +570,30 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
       << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
 
-  // Compute the K factors
-  double kval_u = 1.;
-  double kval_d = 1.;
-  double ksea_u = 1.;
-  double ksea_d = 1.;
-  double ksea_s = 1.;
-  
-  this->KVectorFactors(interaction, kval_u, kval_d, ksea_u, ksea_d, ksea_s);
+  // for vector K Factors
+  double kval_u_V = 1.;
+  double kval_d_V = 1.;
+  double ksea_u_V = 1.;
+  double ksea_d_V = 1.;
+  double ksea_s_V = 1.;
+
+  this->KVectorFactors(interaction, kval_u_V, kval_d_V, ksea_u_V, ksea_d_V, ksea_s_V);
+
+  // For axial K factors
+  double kval_u_A = 1.;
+  double kval_d_A = 1.;
+  double ksea_u_A = 1.;
+  double ksea_d_A = 1.;
+  double ksea_s_A = 1.;
+
+  this->KAxialFactors(interaction, kval_u_A, kval_d_A, ksea_u_A, ksea_d_A, ksea_s_A);
+
+  // Compute the final (V+A) K factors
+  double kval_u = kval_u_V + kval_u_A ; 
+  double kval_d = kval_d_V + kval_d_A ;
+  double ksea_u = ksea_u_V + ksea_u_A ;
+  double ksea_d = ksea_d_V + ksea_d_A ;
+  double ksea_s = ksea_s_V + ksea_s_A ;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
