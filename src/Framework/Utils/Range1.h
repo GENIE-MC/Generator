@@ -31,7 +31,7 @@ public:
   Range1F_t  (void);
   Range1F_t  (float _min, float _max);
   Range1F_t  (const Range1F_t & r);
-  Range1F_t &operator=(const Range1F_t &r);
+  Range1F_t& operator=(const Range1F_t&) = default;
   ~Range1F_t (void);
 
   void Copy  (const Range1F_t & r);
@@ -46,8 +46,7 @@ public:
   Range1D_t  (void);
   Range1D_t  (double _min, double _max);
   Range1D_t  (const Range1D_t & r);
-  Range1D_t &operator=(const Range1D_t &r);
-  
+  Range1D_t& operator=(const Range1D_t&) = default;
   ~Range1D_t (void);
 
   void Copy  (const Range1D_t & r);
@@ -62,7 +61,7 @@ public:
   Range1I_t  (void);
   Range1I_t  (int _min, int _max);
   Range1I_t  (const Range1I_t & r);
-  Range1I_t &operator=(const Range1I_t &r);
+  Range1I_t& operator=(const Range1I_t&) = default;
   ~Range1I_t (void);
 
   void Copy  (const Range1I_t & r);

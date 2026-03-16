@@ -50,7 +50,6 @@ NormGenerator::~NormGenerator()
 void NormGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   Interaction * interaction = evrec->Summary();
-  
   // Access cross section algorithm for running thread
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
   const EventGeneratorI * evg = rtinfo->RunningThread();

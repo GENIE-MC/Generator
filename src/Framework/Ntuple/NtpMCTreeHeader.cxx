@@ -97,17 +97,14 @@ void NtpMCTreeHeader::Init(void)
     gvinp.close();
   }
 
-  string tunename("unknown");
-  string tuneDir("unknown");
-  string customDirs("");
 
   this->format = kNFUndefined;
   this->cvstag.SetString(version.c_str());
   this->datime.Now();
   this->runnu   = 0;
   this->runseed = 0;
-  this->tune.SetString(tunename.c_str());
-  this->tuneDir.SetString(tuneDir.c_str());
-  this->customDirs.SetString(customDirs.c_str());
+  this->tune.SetString("unknown");
+  this->tuneDir.SetString("unknown");
+  this->customDirs.SetString("");
 }
 //____________________________________________________________________________

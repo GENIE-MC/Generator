@@ -52,7 +52,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
   int A_request = pdg::IonPdgCodeToA(target_pdg);
-//  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;

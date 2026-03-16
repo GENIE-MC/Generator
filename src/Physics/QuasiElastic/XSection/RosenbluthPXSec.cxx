@@ -202,7 +202,7 @@ void RosenbluthPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-const TVector3 & RosenbluthPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+const TVector3 & RosenbluthPXSec::FinalLeptonPolarization (const Interaction* /*interaction*/) const
 {    
      LOG("Rosenbluth", pWARN) << "For EM processes doesn't work yet.";
      fFinalLeptonPolarization.SetBit(kPolarizationUndef);

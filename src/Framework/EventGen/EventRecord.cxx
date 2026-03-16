@@ -62,7 +62,7 @@ void EventRecord::Copy(const EventRecord & record)
 
     GHepRecord::Copy(ghep);
 
-  } catch( std::bad_cast ) {
+  } catch( const std::bad_cast& ) {
     LOG("EventRecord", pERROR) 
           << "Bad casting to 'const GHepRecord &'. Can not copy EventRecord";
   }
