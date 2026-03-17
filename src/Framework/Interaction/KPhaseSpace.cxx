@@ -213,7 +213,7 @@ double KPhaseSpace::Threshold(void) const
     return TMath::Max(0.,Ethr);
   }
   if(pi.IsPhotonCoherent()) {
-    double ml = 0;
+    ml = 0;
     if      (pdg::IsNuE  (TMath::Abs(init_state.ProbePdg()))) ml = kElectronMass;
     else if (pdg::IsNuMu (TMath::Abs(init_state.ProbePdg()))) ml = kMuonMass;
     else if (pdg::IsNuTau(TMath::Abs(init_state.ProbePdg()))) ml = kTauMass;
@@ -1030,13 +1030,13 @@ Range1D_t KPhaseSpace::WLim_SPP(bool isMassless) const
   SppChannel_t spp_channel  = SppChannel::FromInteraction(fInteraction);
   PDGLibrary * pdglib = PDGLibrary::Instance();
   double mpi  = pdglib->Find( SppChannel::FinStatePion    (spp_channel) )->Mass();
-  double mNi   = pdglib->Find( SppChannel::InitStateNucleon(spp_channel) )->Mass();
+  //double mNi   = pdglib->Find( SppChannel::InitStateNucleon(spp_channel) )->Mass();
   double mNf   = pdglib->Find( SppChannel::FinStateNucleon (spp_channel) )->Mass();
   
-  double mli = 0, mfi = 0;
+  double mfi = 0;
   if (!isMassless)
   {
-      mli = PDGLibrary::Instance()->Find( init_state.ProbePdg() )->Mass();
+      //mli = PDGLibrary::Instance()->Find( init_state.ProbePdg() )->Mass();
       mfi = fInteraction->FSPrimLepton()->Mass();
   }
   
@@ -1068,10 +1068,10 @@ Range1D_t KPhaseSpace::WLim_SPP_iso(bool isMassless) const
   double M    = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
   double mpi  = (pdglib->Find(kPdgPiP)->Mass() + pdglib->Find(kPdgPi0)->Mass() + pdglib->Find(kPdgPiM)->Mass())/3;
   
-  double mli = 0, mfi = 0;
+  double mfi = 0;
   if (!isMassless)
   {
-      mli = PDGLibrary::Instance()->Find( init_state.ProbePdg() )->Mass();
+      //mli = PDGLibrary::Instance()->Find( init_state.ProbePdg() )->Mass();
       mfi = fInteraction->FSPrimLepton()->Mass();
   }
   

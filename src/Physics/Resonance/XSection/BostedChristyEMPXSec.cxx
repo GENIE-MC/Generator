@@ -466,7 +466,7 @@ double BostedChristyEMPXSec::XSec(
   // Cross section for proton or neutron
   if (A<2 && Wsq>1.155)
   {
-     double xb = Q2/(Wsq+Q2-Mp2);
+     //double xb = Q2/(Wsq+Q2-Mp2);
      sigmaT = sigmaR(0, Q2, W) + sigmaNR(0, Q2, W);
      sigmaL = sigmaR(1, Q2, W) + sigmaNR(1, Q2, W); 
      F1p = sigmaT*(Wsq-Mp2)/8./kPi2/kAem;

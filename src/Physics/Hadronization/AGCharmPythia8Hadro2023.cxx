@@ -269,6 +269,9 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
   return true;
 
 #else
+  (void) p4R;
+  (void) rpos;
+  (void) particle_list;
   LOG("AGCharmPythia8Hadro2023", pFATAL)
     << "calling GENIE/PYTHIA8 charm hadronization without enabling PYTHIA8"
     << " qrkSyst " << qrkSyst1 << "," << qrkSyst2 << " WR " << WR;

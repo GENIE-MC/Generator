@@ -234,6 +234,8 @@ bool Pythia8Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
 
   return true;
 #else
+  (void) decay_particle_id;
+  (void) event;
   LOG("Pythia8Decay", pFATAL)
     << "calling GENIE/PYTHIA8 decay without enabling PYTHIA8";
   gAbortingInErr = true;
@@ -355,6 +357,7 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
   //gPythia->particleData.list(pdg_code);
 
 #else
+  (void) dc;
   LOG("Pythia8Decay", pFATAL)
     << "calling GENIE/PYTHIA8 decay without enabling PYTHIA8";
   gAbortingInErr = true;
@@ -426,6 +429,7 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
   //gPythia->particleData.list(pdg_code);
 
 #else
+  (void) dc;
   LOG("Pythia8Decay", pFATAL)
     << "calling GENIE/PYTHIA8 decay without enabling PYTHIA8";
   gAbortingInErr = true;

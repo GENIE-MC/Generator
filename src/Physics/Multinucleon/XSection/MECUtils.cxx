@@ -208,7 +208,7 @@ double genie::utils::mec::Qvalue(int targetpdg, int nupdg)
 double genie::utils::mec::OldTensorContraction(
   int nupdg, int targetpdg,
   double Enu, double Ml, double Tl, double costhl,
-  int tensorpdg,
+  int /*tensorpdg*/,
   HadronTensorType_t tensor_type,
   char* tensor_model)
 {

@@ -582,7 +582,7 @@ bool Registry::DeleteEntry(RgKey key)
 int Registry::NEntries(void) const
 {
   RgIMapSizeType reg_size = fRegistry.size();
-  return (const int) reg_size;
+  return static_cast<int>(reg_size);
 }
 //____________________________________________________________________________
 void Registry::SetName(string name)
