@@ -24,7 +24,6 @@
 #include "Physics/QuasiElastic/XSection/SmithMonizUtils.h"
 #include "Physics/QuasiElastic/XSection/NievesQELCCPXSec.h"
 
-#include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
 #include <Math/AdaptiveIntegratorMultiDim.h>
 
@@ -39,21 +38,6 @@ public:
   /// XSecIntegratorI interface implementation
   double Integrate(const XSecAlgorithmI* model, const Interaction* i) const;
   
-  std::string Get1DimIntgType() const
-  {
-      return fGSL1DimIntgType;
-  }
-  
-  unsigned int Get1DimMaxEval() const
-  {
-      return fGSL1DimMaxEval;
-  }
-  
-  double Get1DimRelTol() const
-  {
-      return fGSL1DimRelTol;
-  }
-
   /// Overload the Algorithm::Configure() methods to load private data
   /// members from configuration options
   void Configure(const Registry& config);
@@ -67,11 +51,6 @@ private:
   std::string fGSLIntgType;
   double fGSLRelTol;
   unsigned int fGSLMaxEval;
-  
-  std::string fGSL1DimIntgType;
-  double fGSL1DimRelTol;
-  unsigned int fGSL1DimMaxEval;
-
 };
 
 class XSecAlgorithmI;

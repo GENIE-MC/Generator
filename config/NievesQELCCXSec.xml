@@ -14,10 +14,6 @@ gsl-integration-type          string    Yes       name of GSL numerical integrat
 gsl-max-eval                  int       Yes       GSL maximal number of function calls         1000000
 gsl-min-eval                  int       Yes       GSL minimal number of function calls         7500
 gsl-relative-tolerance        double    Yes       relative tolerance of integration            1e-4
-                            
-gsl-1dim-integration-type     string    Yes       name of GSL numerical integrator             adaptive
-gsl-1dim-max-eval             int       Yes       GSL maximal number of function calls         1000000
-gsl-1dim-relative-tolerance   double    Yes       relative tolerance of integration            1e-4
 .....................................................................................................
 -->
 
@@ -26,11 +22,6 @@ gsl-1dim-relative-tolerance   double    Yes       relative tolerance of integrat
     <param type="double" name = "gsl-relative-tolerance"> 1e-4 </param>
     <param type="int"    name = "gsl-min-eval"> 7500 </param>
     <param type="int"    name = "gsl-max-eval"> 1000000 </param>
-    
-    <param type="string" name = "gsl-1dim-integration-type"> adaptive </param>
-    <param type="double" name = "gsl-1dim-relative-tolerance"> 1e-4 </param>
-    <param type="int"    name = "gsl-1dim-max-eval"> 1000000 </param>
-    
   </param_set>
 
 

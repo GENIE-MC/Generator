@@ -84,11 +84,6 @@ void NievesQELCCXSec::LoadConfig(void)
   int min;
   GetParamDef( "gsl-min-eval", min, 7500 ) ;
   fGSLMinEval  = static_cast<unsigned int>( min );
-  
-  GetParamDef( "gsl-1dim-integration-type", fGSL1DimIntgType, std::string("adaptive") );
-  GetParamDef( "gsl-1dim-relative-tolerance", fGSL1DimRelTol, 1e-4 );
-  GetParamDef( "gsl-1dim-max-eval", max, 1000000 );
-  fGSL1DimMaxEval  = static_cast<unsigned int>( max );
 }
 //____________________________________________________________________________
 // GSL wrappers
@@ -150,7 +145,7 @@ double genie::utils::gsl::d3XSec_dQ2dvdR_E::DoEval(const double * xin) const
   double sinTl = TMath::Sqrt(1 - cosTl*cosTl);
   fKinematics->SetFSLeptonP4(Pl*sinTl, 0, Pl*cosTl, El);
   
-  double xsec = fXsec_model->IntegratedOverMomentum(fInteraction, R, 0);
+  double xsec = fXsec_model->IntegratedOverMomentumAll(fInteraction, R);
   
   // Jacobian for transformation d/dEldcosT->d/dQ2dv
   double J      = (rQ2.max - rQ2.min)*(rv.max - rv.min)*fRmax/2/fEnu/Pl; 

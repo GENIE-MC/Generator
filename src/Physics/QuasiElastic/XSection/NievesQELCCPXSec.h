@@ -32,7 +32,6 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
-#include <Math/IFunction.h>
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/PauliBlocker.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
@@ -40,11 +39,6 @@
 
 #include <vector>
 #include <complex>
-
-
-#include <chrono>
-#include <fstream>
-#include <iomanip>
 
 namespace genie {
 
@@ -72,12 +66,15 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
+  double IntegratedOverMomentumAll(const Interaction*, double,
+                                   double* RPL = nullptr,
+                                   double* RPP = nullptr,
+                                   double* R   = nullptr) const;
   void ModelNuclParams(const Interaction* interaction, double r, double & kFi, double & kFf) const;
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
-  double IntegratedOverMomentum (const Interaction* i, double r, int mod) const;
 
 private:
   void LoadConfig (void);
@@ -87,10 +84,7 @@ private:
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
   
-  string                       f1DimIntgType;      ///< Type of 1D integrator from NievesQELCCXSec config
-  double                       f1DimRelTol;        ///< Relative tolerance for 1D integrator from NievesQELCCXSec config
-  unsigned int                 f1DimMaxEval;       ///< Number of max evaluations for 1D integrator from NievesQELCCXSec config              
-
+  
   double                       fXSecCCScale;        ///< external xsec scaling factor for CC
   double                       fXSecNCScale;        ///< external xsec scaling factor for NC
   double                       fXSecEMScale;        ///< external xsec scaling factor for EM
@@ -135,10 +129,6 @@ private:
 
   //Functions needed to calculate XSec:
   void InitGaussLegendre(int n, std::vector<double>& x, std::vector<double>& w);
-  double IntegratedOverMomentumAll(const Interaction*, double,
-                                   double* RPL = nullptr,
-                                   double* RPP = nullptr,
-                                   double* R   = nullptr) const;
 
   // Calculates values of CN, CT, CL, and imU, and stores them in the provided
   // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
@@ -174,74 +164,7 @@ private:
     const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
     const TLorentzVector outNucleonMom, double M, bool is_neutrino,
     const Target& target, bool assumeFreeNucleon) const;
-    
-    
-    // ----------------------------------------
-    // вспомогательная функция времени
-    // ----------------------------------------
-    double Now() const
-    {
-        using namespace std::chrono;
-        return duration<double>(high_resolution_clock::now().time_since_epoch()).count();
-    }
-    
-
 };
 }       // genie namespace
-
-//____________________________________________________________________________
-/*!
-\class    genie::utils::gsl::wrap::NievesQELIntegrand
-
-\brief    Auxiliary scalar function for integration over the nuclear density
-          when calculaing the Coulomb correction in the Nieves QEL xsec model
-
-\author   Joe Johnston, University of Pittsburgh
-          Steven Dytman, University of Pittsburgh
-
-\created  June 03, 2016
-*/
-//____________________________________________________________________________
-
-namespace genie {
- namespace utils {
-  namespace gsl   {
-   namespace wrap   {
-
-    class NievesQELvcrIntegrand : public ROOT::Math::IBaseFunctionOneDim
-    {
-     public:
-      NievesQELvcrIntegrand(double Rcurr, int A, int Z);
-      ~NievesQELvcrIntegrand();
-       // ROOT::Math::IBaseFunctionOneDim interface
-       unsigned int                      NDim   (void)       const;
-       double                            DoEval (double rin) const;
-       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
-     private:
-       double fRcurr;
-       double fA;
-       double fZ;
-    };
-    
-    class NievesQELSmithMonizIntegrand : public ROOT::Math::IBaseFunctionOneDim
-    {
-     public:
-      NievesQELSmithMonizIntegrand(const NievesQELCCPXSec* alg_, const Interaction* interaction_, int mod_);
-      ~NievesQELSmithMonizIntegrand();
-       // ROOT::Math::IBaseFunctionOneDim interface
-       unsigned int                      NDim   (void)       const;
-       double                            DoEval (double rin) const;
-       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
-     private:
-        const NievesQELCCPXSec* alg;
-        const Interaction* interaction;
-        int mod;
-    };
-
-   } // wrap namespace
-  } // gsl namespace
- } // utils namespace
-} // genie namespace
-
 
 #endif
