@@ -32,12 +32,19 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
-#include <complex>
 #include <Math/IFunction.h>
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/PauliBlocker.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Physics/Common/QvalueShifter.h"
+
+#include <vector>
+#include <complex>
+
+
+#include <chrono>
+#include <fstream>
+#include <iomanip>
 
 namespace genie {
 
@@ -65,12 +72,12 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
-  double IntegratedOverMomentum (const Interaction* i, double r, int mod) const;
   void ModelNuclParams(const Interaction* interaction, double r, double & kFi, double & kFf) const;
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
+  double IntegratedOverMomentum (const Interaction* i, double r, int mod) const;
 
 private:
   void LoadConfig (void);
@@ -90,17 +97,15 @@ private:
   const QvalueShifter *        fQvalueShifter ;   ///< Optional algorithm to retrieve the qvalue shift for a given target
 
   double                       fhbarc;            ///< hbar*c in GeV*fm
-
+  
+  std::vector<double> fGLPoints;
+  std::vector<double> fGLWeights;
+  int                 fNumGLPoints;
+  
   // mutable for testing purposes only!
   mutable bool                 fRPA;              ///< use RPA corrections
   bool                         fCoulomb;          ///< use Coulomb corrections
 
-  const NuclearModelI*         fNuclModel;        ///< Nuclear Model for integration
-  // Detect whether the nuclear model is local Fermi gas, and store
-  // the relativistic Fermi momentum table if not
-  bool                         fLFG;
-  const FermiMomentumTable *   fKFTable;
-  string                       fKFTableName;
   string                       fLindhardFunction;
 
   /// Enum specifying the method to use when calculating the binding energy of
@@ -129,6 +134,11 @@ private:
   Nieves_Coulomb_Rmax_t fCoulombRmaxMode;
 
   //Functions needed to calculate XSec:
+  void InitGaussLegendre(int n, std::vector<double>& x, std::vector<double>& w);
+  double IntegratedOverMomentumAll(const Interaction*, double,
+                                   double* RPL = nullptr,
+                                   double* RPP = nullptr,
+                                   double* R   = nullptr) const;
 
   // Calculates values of CN, CT, CL, and imU, and stores them in the provided
   // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
@@ -164,6 +174,16 @@ private:
     const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
     const TLorentzVector outNucleonMom, double M, bool is_neutrino,
     const Target& target, bool assumeFreeNucleon) const;
+    
+    
+    // ----------------------------------------
+    // вспомогательная функция времени
+    // ----------------------------------------
+    double Now() const
+    {
+        using namespace std::chrono;
+        return duration<double>(high_resolution_clock::now().time_since_epoch()).count();
+    }
     
 
 };

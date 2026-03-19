@@ -3,13 +3,15 @@
 
 \class   genie::exceptions::NievesQELException
 
-\brief   An exception thrown by NievesQELCCPXSec for kinematics problems.
-         When failure occurs, set xsec = 0.
+\brief   An exception thrown by NievesQELCCPXSec for kinematics problems
+         or invalid model configurations (e.g. incompatible nuclear model).
+         In case of kinematic failure, xsec is set to 0. Configuration errors
+         may prevent further calculation.
 
 \author  Steve Dytman <dytman \at pitt.edu>
 	       Univ. of Pittsburgh
 
-      	 Joe Johnston <jpj13 \at pitt.edu>
+         Joe Johnston <jpj13 \at pitt.edu>
 	       Univ. of Pittsburgh
 
 \created June 2015
@@ -25,8 +27,6 @@
 #include <string>
 #include <ostream>
 
-#include <TMath.h>
-
 using std::string;
 using std::ostream;
 
@@ -40,9 +40,11 @@ public :
   NievesQELException(const NievesQELException & exception);
  ~NievesQELException();
 
-  void SetReason(string reason) { fReason = reason; }
+  void SetReason(const string & reason) { fReason = reason; }
 
   string ShowReason(void) const { return fReason; }
+  void SetIsConfigError(bool v = true) { fIsConfigError = v; }
+  bool IsConfigError() const { return fIsConfigError; }
 
   void Init  (void);
   void Copy  (const NievesQELException & exception);
@@ -54,6 +56,7 @@ public :
 private:
 
   string fReason;
+  bool fIsConfigError = false;
 };
 
 }      // exceptions namespace
