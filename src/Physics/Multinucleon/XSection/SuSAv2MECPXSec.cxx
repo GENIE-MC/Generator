@@ -597,10 +597,5 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
                                         is_neutrino, 
                                         M, W1,W2,W3,W4,W5,0);
 
- 
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-//  std::cout << "SU@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-    
     return fFinalLeptonPolarization;
 }

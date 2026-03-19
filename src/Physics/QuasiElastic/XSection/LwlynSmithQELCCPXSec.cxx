@@ -630,10 +630,5 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
                 is_neutrino, 
                 W1,W2,W3,W4,W5,0);
    
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  fFinalLeptonPolarization.Print();
-//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-//  std::cout << "LW@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-  
   return fFinalLeptonPolarization;
 }

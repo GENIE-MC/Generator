@@ -755,10 +755,5 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
                                             is_neutrino, 
                                             M, W1,W2,W3,W4,W5,0);
 
- 
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-//  std::cout << "NVMEC@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
-
   return fFinalLeptonPolarization;
 }

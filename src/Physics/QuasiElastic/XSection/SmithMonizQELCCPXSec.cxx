@@ -669,11 +669,6 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
                         leptonMom,
                         is_neutrino, 
                         m_tar, T1,T2,T3,T4,T5,0);
-  
- 
-//  std::cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n";
-//  std::cout << fFinalLeptonPolarization.Mag() << "\n";
-//  std::cout << "SM@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n" << std::endl;
 
   return fFinalLeptonPolarization;
 }
