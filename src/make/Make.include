@@ -610,6 +610,12 @@ CXXFLAGS := $(ENV_CXXFLAGS) $(CXXFLAGS)
 CPPFLAGS  = $(CPP_INCLUDES)
 CCFLAGS   = $(ROOT_DICT_GEN_INCLUDES)
 CFLAGS    = -g
+# --- AddressSanitizer ---
+ifeq ($(strip $(GOPT_ENABLE_ASAN)),YES)
+  CXXFLAGS += $(GOPT_WITH_SANITIZER_FLAG)
+  LDFLAGS  += $(GOPT_WITH_SANITIZER_FLAG)
+  LIBRARIES += $(GOPT_WITH_SANITIZER_FLAG)
+endif
 
 #-------------------------------------------------------------------
 # MAKE RULES
