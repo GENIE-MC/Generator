@@ -165,6 +165,12 @@ public:
   static Interaction * DMDI      (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
   static Interaction * HNL       (int probe, double E=0, int decayed_mode=-1);
+  static Interaction * SPPCC     (int tgt, int nuc, int probe, double E=0);
+  static Interaction * SPPCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * SPPNC     (int tgt, int nuc, int probe, double E=0);
+  static Interaction * SPPNC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
+  static Interaction * SPPEM     (int tgt, int nuc, int probe, double E=0);
+  static Interaction * SPPEM     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
 
 private:
 

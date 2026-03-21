@@ -34,7 +34,6 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
-#include "Physics/Resonance/XSection/DCCSPPPXSec.h"
 
 #include <fstream>
 #include <limits>
