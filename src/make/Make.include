@@ -614,7 +614,7 @@ CFLAGS    = -g
 ifeq ($(strip $(GOPT_ENABLE_ASAN)),YES)
   CXXFLAGS += $(GOPT_WITH_SANITIZER_FLAG)
   LDFLAGS  += $(GOPT_WITH_SANITIZER_FLAG)
-  LIBRARIES += $(GOPT_WITH_SANITIZER_FLAG)
+  SOCMD    := $(SOCMD) $(GOPT_WITH_SANITIZER_FLAG)
 endif
 
 #-------------------------------------------------------------------
