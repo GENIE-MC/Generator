@@ -284,7 +284,7 @@ genie::utils::gsl::d2XSecSPP_dWQ2_E::d2XSecSPP_dWQ2_E(
   }
   // model restrictions
   Wl.min  = TMath::Max (Wl.min,  1.077);
-  Wl.max  = TMath::Min (Wl.max,  2.00);
+  Wl.max  = TMath::Min (Wl.max,  2.10);
 
   if (fWcut >= Wl.min)
     Wl.max = TMath::Min(fWcut,Wl.max);
