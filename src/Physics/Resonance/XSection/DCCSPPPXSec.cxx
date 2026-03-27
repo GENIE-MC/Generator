@@ -638,47 +638,75 @@ std::string DCCSPPPXSec::FindDataTableFile(const std::string &basename, bool &ok
 //____________________________________________________________________________
 void DCCSPPPXSec::ReadMultipoleTable(void)
 {
-
     bool table_ok;
     std::string full_file_name = FindDataTableFile(fDataFileName, table_ok);
 
-    if ( table_ok )
+    if (table_ok)
     {
-        LOG("DCCSPPPXSec", pINFO) <<
-            "Loading the table with ANL-Osaka multipole amplitudes from file " << full_file_name;
+        LOG("DCCSPPPXSec", pINFO)
+            << "Loading the table with ANL-Osaka multipole amplitudes from file " << full_file_name;
 
         std::ifstream file(full_file_name);
         char cdum[20];
         int mxw, mxq, mxl;
         file >> mxw >> mxq >> mxl >> cdum;
+
         for (int iW = 0; iW < maxW; iW++)
+        {
             for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
             {
                 file >> Wnodes[iW] >> Q2nodes[iQ2] >> cdum >> cdum;
+
+                // iso 0..2
                 for (int imu = 0; imu < maxmu; imu++)
+                {
                     for (int iso = 0; iso < 3; iso++)
                     {
                         file.ignore(11);
                         for (int il = 0; il < maxl; il++)
-                            file >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 0, iQ2, 0, iW)] >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 1, iQ2, 0, iW)];
+                        {
+                            double re, im;
+                            file >> re >> im;
+
+                            int idx_re = MultipoleTblIndxNew(imu, il, iso, 0, iW, iQ2, 0);
+                            int idx_im = MultipoleTblIndxNew(imu, il, iso, 1, iW, iQ2, 0);
+
+                            MultipoleTbl[idx_re] = re;
+                            MultipoleTbl[idx_im] = im;
+                        }
                     }
+                }
+
+                // iso 3..4
                 for (int imu = 0; imu < maxmu; imu++)
+                {
                     for (int iso = 3; iso < maxiso; iso++)
                     {
                         file.ignore(11);
                         for (int il = 0; il < maxl; il++)
-                            file >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 0, iQ2, 0, iW)] >> MultipoleTbl[MultipoleTblIndx(imu, il, iso, 1, iQ2, 0, iW)];
+                        {
+                            double re, im;
+                            file >> re >> im;
+
+                            int idx_re = MultipoleTblIndxNew(imu, il, iso, 0, iW, iQ2, 0);
+                            int idx_im = MultipoleTblIndxNew(imu, il, iso, 1, iW, iQ2, 0);
+
+                            MultipoleTbl[idx_re] = re;
+                            MultipoleTbl[idx_im] = im;
+                        }
                     }
+                }
             }
+        }
+
         file.close();
     }
     else
     {
-        LOG("DCCSPPPXSec", pERROR) <<
-            "Couldn't load the table with ANL-Osaka multipole amplitudes from file " << full_file_name;
+        LOG("DCCSPPPXSec", pERROR)
+            << "Couldn't load the table with ANL-Osaka multipole amplitudes from file " << full_file_name;
         std::exit(EXIT_FAILURE);
     }
-
 }
 //____________________________________________________________________________
 void DCCSPPPXSec::Spline (const int n, const double * x, const double * y, double * b, double * c, double * d) const
@@ -741,31 +769,37 @@ void DCCSPPPXSec::Spline (const int n, const double * x, const double * y, doubl
 //____________________________________________________________________________
 void DCCSPPPXSec::InitializeSplineCoefficients()
 {
+    double y[maxW];
+    double b[maxW];
+    double c[maxW];
+    double d[maxW];
+
     for (int imu = 0; imu < maxmu; imu++)
-        for (int il = 0; il < maxl; il++)
-            for (int iso = 0; iso < maxiso; iso++)
-                for (int izp = 0; izp < maxzp; izp++)
-                    for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
-                        Spline (maxW, &Wnodes[0],
-                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 0, 0)],
-                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 1, 0)],
-                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 2, 0)],
-                                        &MultipoleTbl[MultipoleTblIndx(imu, il, iso, izp, iQ2, 3, 0)]);
-}
-//____________________________________________________________________________
-int DCCSPPPXSec::MultipoleTblIndx (int imu, int il, int iso, int izpart, int iQ2, int icf, int iW) const
-// Calculate position in table with ANL-Osaka multipole amplitudes
-/*!
-    @param[in] imu    - multipole index: 0 -\f$E_{l+}\f$, 1 -\f$E_{l-}\f$, 2 -\f$M_{l+}\f$, 3 -\f$M_{l-}\f$, 4 -\f$S_{l+}\f$, 5 -\f$S_{l-}\f$, 6 -\f$L_{l+}\f$, 7 -\f$L_{l-}\f$
-    @param[in] il     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl - 1)
-    @param[in] iso    - isospin index: 0 -\f$a^V_{\frac{3}{2}}\f$, 1 -\f$a^V_{\frac{1}{2}}\f$, 2 -\f$a^V_{0}\f$, 3 -\f$a^A_{\frac{3}{2}}\f$, 4 -\f$a^A_{\frac{1}{2}}\f$
-    @param[in] izpart - 0 - Re, 1 - Im
-    @param[in] iQ2    - index of \f$Q^2\f$-node
-    @param[in] icf    - cubic spline (\f$S_\textrm{iW}(W) = y_\textrm{iW}+b_\textrm{iW}(W-W_\textrm{iW})+{c_\textrm{iW}}(W-W_\textrm{iW})^2+d_\textrm{iW}(W-W_\textrm{iW})^3\f$) coefficient for <b>iW</b>-node: 0 -\f$y_\textrm{iW}\f$, 1 -\f$b_\textrm{iW}\f$, 2 -\f$c_\textrm{iW}\f$, 3 -\f$d_\textrm{iW}\f$
-    @param[in] iW     - index of \f$W\f$-node
-*/
-{
-    return (((((imu*maxl + il)*maxiso + iso)*maxzp + izpart)*maxQ2 + iQ2)*maxcf + icf)*maxW + iW;
+    for (int il = 0; il < maxl; il++)
+    for (int iso = 0; iso < maxiso; iso++)
+    for (int izp = 0; izp < maxzp; izp++)
+    for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+    {
+        // 1. собрать значения по W
+        for (int iW = 0; iW < maxW; iW++)
+        {
+            y[iW] = MultipoleTbl[
+                MultipoleTblIndxNew(imu, il, iso, izp, iW, iQ2, 0)
+            ];
+        }
+
+        // 2. spline
+        Spline(maxW, &Wnodes[0], y, b, c, d);
+
+        // 3. записать коэффициенты обратно
+        for (int iW = 0; iW < maxW; iW++)
+        {
+            MultipoleTbl[MultipoleTblIndxNew(imu, il, iso, izp, iW, iQ2, 0)] = y[iW];
+            MultipoleTbl[MultipoleTblIndxNew(imu, il, iso, izp, iW, iQ2, 1)] = b[iW];
+            MultipoleTbl[MultipoleTblIndxNew(imu, il, iso, izp, iW, iQ2, 2)] = c[iW];
+            MultipoleTbl[MultipoleTblIndxNew(imu, il, iso, izp, iW, iQ2, 3)] = d[iW];
+        }
+    }
 }
 //____________________________________________________________________________
 int DCCSPPPXSec::Wnode (double W) const
@@ -950,16 +984,14 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
     @param[in] l     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl)
 */
 {
-    const int stride_cf = maxW;
-    const int stride_Q2 = maxcf * maxW;
-    const int stride_zp = maxQ2 * stride_Q2;
+    const int stride_Q2  = maxcf;
+    const int stride_W   = maxQ2 * maxcf;
+    const int stride_zp  = maxW * stride_W;
     const int stride_iso = maxzp * stride_zp;
-    const int stride_l = maxiso * stride_iso;
-    const int stride_mu = maxl * stride_l;
-        
-    if (l < 0 || l >= maxl)
-        return std::complex<double>(0, 0);
+    const int stride_l   = maxiso * stride_iso;
+    const int stride_mu  = maxl * stride_l;
 
+    if (l < 0 || l >= maxl) return {0,0};
     // Get kinematical parameters
     const Kinematics & kinematics = interaction->Kine();
     double Q2 = kinematics.Q2();
@@ -967,51 +999,46 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
 
     int iW = Wnode(W);
     double dW = W - Wnodes[iW];
-
     // cache isospin amplitudes
     double iso_amp[3];
     for (int iso = 0; iso < 3; iso++)
         iso_amp[iso] = IsospinAmplitude(interaction, iso);
-
     // arrays for spline (Re/Im separately)
     double arQ2_re[4][maxQ2] = {};
     double arQ2_im[4][maxQ2] = {};
 
-    // fill arrays (sum over iso)
     int base0 = mult * stride_mu + l * stride_l;
+    // fill arrays (sum over iso)
     for (int iso = 0; iso < 3; iso++)
     {
-        // базовый индекс без izpart/iQ2/icf/iW
         int base = base0 + iso * stride_iso;
-        // добавляем izpart и iW
-        int base_re = base + 0 * stride_zp + iW;
-        int base_im = base + 1 * stride_zp + iW;
+        int base_re = base + 0 * stride_zp + iW * stride_W;
+        int base_im = base + 1 * stride_zp + iW * stride_W;
+
         double w = iso_amp[iso];
 
         for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
         {
             int off = iQ2 * stride_Q2;
             // --- REAL ---
-            double a = MultipoleTbl[base_re + off + 0 * stride_cf];
-            double b = MultipoleTbl[base_re + off + 1 * stride_cf];
-            double c = MultipoleTbl[base_re + off + 2 * stride_cf];
-            double d = MultipoleTbl[base_re + off + 3 * stride_cf];
+            double a = MultipoleTbl[base_re + off + 0];
+            double b = MultipoleTbl[base_re + off + 1];
+            double c = MultipoleTbl[base_re + off + 2];
+            double d = MultipoleTbl[base_re + off + 3];
 
-            double val_re = a + ( b + ( c + d*dW )*dW )*dW;
+            double val_re = a + (b + (c + d*dW)*dW)*dW;
             arQ2_re[0][iQ2] += val_re * w;
-
             // --- IMAG ---
-            a = MultipoleTbl[base_im + off + 0 * stride_cf];
-            b = MultipoleTbl[base_im + off + 1 * stride_cf];
-            c = MultipoleTbl[base_im + off + 2 * stride_cf];
-            d = MultipoleTbl[base_im + off + 3 * stride_cf];
+            a = MultipoleTbl[base_im + off + 0];
+            b = MultipoleTbl[base_im + off + 1];
+            c = MultipoleTbl[base_im + off + 2];
+            d = MultipoleTbl[base_im + off + 3];
 
-            double val_im = a + ( b + ( c + d*dW )*dW )*dW;
+            double val_im = a + (b + (c + d*dW)*dW)*dW;
             arQ2_im[0][iQ2] += val_im * w;
         }
     }
-
-    // spline по Q2
+    // spline Q2
     Spline(maxQ2, &Q2nodes[0], &arQ2_re[0][0], &arQ2_re[1][0], &arQ2_re[2][0], &arQ2_re[3][0]);
     Spline(maxQ2, &Q2nodes[0], &arQ2_im[0][0], &arQ2_im[1][0], &arQ2_im[2][0], &arQ2_im[3][0]);
 
@@ -1019,14 +1046,14 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
     double dQ2 = Q2 - Q2nodes[iQ2];
 
     double re = arQ2_re[0][iQ2] +
-                ( arQ2_re[1][iQ2] +
-                ( arQ2_re[2][iQ2] + arQ2_re[3][iQ2]*dQ2 )*dQ2 )*dQ2;
+                (arQ2_re[1][iQ2] +
+                (arQ2_re[2][iQ2] + arQ2_re[3][iQ2]*dQ2)*dQ2)*dQ2;
 
     double im = arQ2_im[0][iQ2] +
-                ( arQ2_im[1][iQ2] +
-                ( arQ2_im[2][iQ2] + arQ2_im[3][iQ2]*dQ2 )*dQ2 )*dQ2;
+                (arQ2_im[1][iQ2] +
+                (arQ2_im[2][iQ2] + arQ2_im[3][iQ2]*dQ2)*dQ2)*dQ2;
 
-    return std::complex<double>(re, im);
+    return {re, im};
 }
 //____________________________________________________________________________
 std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, int mult, int l) const
@@ -1035,15 +1062,15 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
     @param[in] l     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl)
 */
 {
-    const int stride_cf = maxW;
-    const int stride_Q2 = maxcf * maxW;
-    const int stride_zp = maxQ2 * stride_Q2;
+    const int stride_Q2  = maxcf;
+    const int stride_W   = maxQ2 * maxcf;
+    const int stride_zp  = maxW * stride_W;
     const int stride_iso = maxzp * stride_zp;
-    const int stride_l = maxiso * stride_iso;
-    const int stride_mu = maxl * stride_l;
-    if (l < 0 || l >= maxl)
-        return std::complex<double>(0, 0);
+    const int stride_l   = maxiso * stride_iso;
+    const int stride_mu  = maxl * stride_l;
 
+    if (l < 0 || l >= maxl)
+        return {0,0};
     // Get kinematical parameters
     const Kinematics & kinematics = interaction->Kine();
     double Q2 = kinematics.Q2();
@@ -1052,66 +1079,68 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
     int iW = Wnode(W);
     double dW = W - Wnodes[iW];
 
-    // cache isospin amplitudes
+    // cache isospin amplitudes 3 and 4
     double iso_amp[2];
     for (int i = 0; i < 2; i++)
         iso_amp[i] = IsospinAmplitude(interaction, 3 + i);
-
     // arrays for spline (Re/Im separately)
     double arQ2_re[4][maxQ2] = {};
     double arQ2_im[4][maxQ2] = {};
 
-    // fill arrays (sum over iso)
     int base0 = mult * stride_mu + l * stride_l;
+    // fill arrays (sum over iso)
     for (int i = 0; i < 2; i++)
     {
         int iso = 3 + i;
-        // базовый индекс без izpart/iQ2/icf/iW
         int base = base0 + iso * stride_iso;
-        // добавляем izpart и iW
-        int base_re = base + 0 * stride_zp + iW;
-        int base_im = base + 1 * stride_zp + iW;
+        int base_re = base + 0 * stride_zp + iW * stride_W;
+        int base_im = base + 1 * stride_zp + iW * stride_W;
+
         double w = iso_amp[i];
 
         for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
         {
             int off = iQ2 * stride_Q2;
-            // --- REAL ---
-            double a = MultipoleTbl[base_re + off + 0 * stride_cf];
-            double b = MultipoleTbl[base_re + off + 1 * stride_cf];
-            double c = MultipoleTbl[base_re + off + 2 * stride_cf];
-            double d = MultipoleTbl[base_re + off + 3 * stride_cf];
 
-            double val_re = a + ( b + ( c + d*dW )*dW )*dW;
+            // --- REAL ---
+            double a = MultipoleTbl[base_re + off + 0];
+            double b = MultipoleTbl[base_re + off + 1];
+            double c = MultipoleTbl[base_re + off + 2];
+            double d = MultipoleTbl[base_re + off + 3];
+
+            double val_re = a + (b + (c + d*dW)*dW)*dW;
             arQ2_re[0][iQ2] += val_re * w;
 
             // --- IMAG ---
-            a = MultipoleTbl[base_im + off + 0 * stride_cf];
-            b = MultipoleTbl[base_im + off + 1 * stride_cf];
-            c = MultipoleTbl[base_im + off + 2 * stride_cf];
-            d = MultipoleTbl[base_im + off + 3 * stride_cf];
+            a = MultipoleTbl[base_im + off + 0];
+            b = MultipoleTbl[base_im + off + 1];
+            c = MultipoleTbl[base_im + off + 2];
+            d = MultipoleTbl[base_im + off + 3];
 
-            double val_im = a + ( b + ( c + d*dW )*dW )*dW;
+            double val_im = a + (b + (c + d*dW)*dW)*dW;
             arQ2_im[0][iQ2] += val_im * w;
         }
     }
 
-    // spline по Q2
-    Spline(maxQ2, &Q2nodes[0], &arQ2_re[0][0], &arQ2_re[1][0], &arQ2_re[2][0], &arQ2_re[3][0]);
-    Spline(maxQ2, &Q2nodes[0], &arQ2_im[0][0], &arQ2_im[1][0], &arQ2_im[2][0], &arQ2_im[3][0]);
+    // spline Q2
+    Spline(maxQ2, &Q2nodes[0],
+           &arQ2_re[0][0], &arQ2_re[1][0], &arQ2_re[2][0], &arQ2_re[3][0]);
+
+    Spline(maxQ2, &Q2nodes[0],
+           &arQ2_im[0][0], &arQ2_im[1][0], &arQ2_im[2][0], &arQ2_im[3][0]);
 
     int iQ2 = Q2node(Q2);
     double dQ2 = Q2 - Q2nodes[iQ2];
 
     double re = arQ2_re[0][iQ2] +
-                ( arQ2_re[1][iQ2] +
-                ( arQ2_re[2][iQ2] + arQ2_re[3][iQ2]*dQ2 )*dQ2 )*dQ2;
+                (arQ2_re[1][iQ2] +
+                (arQ2_re[2][iQ2] + arQ2_re[3][iQ2]*dQ2)*dQ2)*dQ2;
 
     double im = arQ2_im[0][iQ2] +
-                ( arQ2_im[1][iQ2] +
-                ( arQ2_im[2][iQ2] + arQ2_im[3][iQ2]*dQ2 )*dQ2 )*dQ2;
+                (arQ2_im[1][iQ2] +
+                (arQ2_im[2][iQ2] + arQ2_im[3][iQ2]*dQ2)*dQ2)*dQ2;
 
-    return std::complex<double>(re, im);
+    return {re, im};
 }
 //____________________________________________________________________________
 double DCCSPPPXSec::Integral(const Interaction * interaction) const
