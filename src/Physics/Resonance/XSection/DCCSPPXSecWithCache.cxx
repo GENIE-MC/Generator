@@ -191,7 +191,7 @@ void DCCSPPXSecWithCache::CacheResExcitationXSec(const Interaction * in) const
     
     SLOG("DCCSPPCache", pNOTICE)
       << "ResSPP XSec (Ch:" << SppChannel::AsString(spp_channel) << nc_nuc
-      << ", E="<< Ev << ") = "<< xsec << " x 1E-38 cm^2";
+      << ", E="<< Ev << ") = "<< xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
   }//spline knots
   
   // Build the spline

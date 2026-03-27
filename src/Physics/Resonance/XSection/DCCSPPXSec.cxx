@@ -207,7 +207,7 @@ double DCCSPPXSec::Integrate(
       
     SLOG("DCCSPPXSec", pNOTICE)
       << "XSec[Channel: " << SppChannel::AsString(spp_channel) << nc_nuc
-      << "]  (E="<< Enu << " GeV) = " << xsec << " x 1E-38 cm^2";
+      << "]  (E="<< Enu << " GeV) = " << xsec/(1E-38 *genie::units::cm2) << " x 1E-38 cm^2";
     
     return xsec;
   }
