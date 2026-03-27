@@ -140,6 +140,21 @@ namespace genie {
         int Q2node (double Q2) const;
         /// Calculate legendre polynomials and their first two derivatives
         void CalculateLegendre(double x, double l[3][maxl+1]) const;
+        
+        inline double norm2(const std::complex<double>& z) const
+        {
+            return z.real()*z.real() + z.imag()*z.imag();
+        }
+        
+        inline double dotc(const std::complex<double>& a, const std::complex<double>& b) const
+        {
+            return a.real()*b.real() + a.imag()*b.imag();
+        }
+        
+        inline double imag_dotc(const std::complex<double>& a, const std::complex<double>& b) const
+        {
+            return a.imag()*b.real() - a.real()*b.imag();
+        }
 
 
         /// Table with complex values of ANL-Osaka multipole amplitudes: \f$E_{l\pm}(W, Q^2), M_{l\pm}(W, Q^2), S_{l\pm}(W, Q^2), L_{l\pm}(W, Q^2)\f$, the layout of table is determined by DCCSPPPXSec::MultipoleTblIndx

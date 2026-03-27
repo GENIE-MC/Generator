@@ -38,6 +38,7 @@
 #include <fstream>
 #include <limits>
 #include <algorithm>
+#include <cmath>
 
 using namespace genie;
 using namespace genie::constants;
@@ -132,30 +133,30 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     // vec{qc}^2 - square of momentum transfer in the frame of center of mass \piN
     double qc2sp    = Q2 + omegc*omegc;
     // |vec{qc}|
-    double qgamc    = TMath::Sqrt(qc2sp);
+    double qgamc    = std::sqrt(qc2sp);
     // vec{q} - momentum transfer in the LAB-frame
     // |vec{q}|
     double qgam     = qgamc*W/fnuc;
     // vec{q}^2 - square of momentum transfer in the LAB-frame
     double q2sp     = qgam*qgam;
     // energy transfer in the LAB-frame
-    double omeg     = TMath::Sqrt(q2sp - Q2);
+    double omeg     = std::sqrt(q2sp - Q2);
 
     // energy of pion in the frame of center of mass \piN
     double epioc    = (Wsq - fnuc2 + fpio*fpio)/2/W;
     //  vec{k} - momentum of pion in the frame of center of mass \piN
     // |vec{k}|
-    double qpioc    = TMath::Sqrt(TMath::Max(epioc*epioc - fpio*fpio, 0.));
+    double qpioc    = std::sqrt(TMath::Max(epioc*epioc - fpio*fpio, 0.));
 
 
     // energy of initial lepton
     double elepi    = init_state.ProbeE(kRfHitNucRest);
     // magnitude of momentum of initial lepton
-    double plepi    = TMath::Sqrt(elepi*elepi - flepi2);
+    double plepi    = std::sqrt(elepi*elepi - flepi2);
     // energy of final lepton
     double elepf    = elepi - omeg;
     // magnitude of momentum of final lepton
-    double plepf    = TMath::Sqrt(elepf*elepf - flepf2);
+    double plepf    = std::sqrt(elepf*elepf - flepf2);
     // theta - scattering angle of final lepton
     // cos(theta)
     double costhl   = (2*elepi*elepf - Q2 - flepi2 - flepf2)/2/plepi/plepf;
@@ -223,37 +224,44 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         double rt = 0, rl = 0, rtp = 0, rrh = 0, rrh0 = 0, rrh0i = 0;
         for (int il = 0; il < maxl; il++)
         {
-            double l = static_cast<double>(il);
             // vector current
-            zvep  = MultipoleV(interaction, 0, l-1);  // E^+_{l-1}
-            zvem  = MultipoleV(interaction, 1, l+1);  // E^-_{l+1}
-            zvmp  = MultipoleV(interaction, 2, l  );  // M^+_{l}
-            zvmm  = MultipoleV(interaction, 3, l  );  // M^-_{l}
-            zvsp  = MultipoleV(interaction, 6, l-1);  // S^+_{l-1}
-            zvsm  = MultipoleV(interaction, 7, l+1);  // S^-_{l+1}
+            zvep  = MultipoleV(interaction, 0, il-1);  // E^+_{l-1}
+            zvem  = MultipoleV(interaction, 1, il+1);  // E^-_{l+1}
+            zvmp  = MultipoleV(interaction, 2, il  );  // M^+_{l}
+            zvmm  = MultipoleV(interaction, 3, il  );  // M^-_{l}
+            zvsp  = MultipoleV(interaction, 6, il-1);  // S^+_{l-1}
+            zvsm  = MultipoleV(interaction, 7, il+1);  // S^-_{l+1}
 
             // axial vector current
-            zaep  = MultipoleA(interaction, 0, l  );  // E^+_{l}
-            zaem  = MultipoleA(interaction, 1, l  );  // E^-_{l}
-            zamp  = MultipoleA(interaction, 2, l-1);  // M^+_{l-1}
-            zamm  = MultipoleA(interaction, 3, l+1);  // M^-_{l+1}
-            zalp  = MultipoleA(interaction, 4, l  );  // L^+_{l}
-            zalm  = MultipoleA(interaction, 5, l  );  // L^-_{l}
-            zasp  = MultipoleA(interaction, 6, l  );  // S^+_{l}
-            zasm  = MultipoleA(interaction, 7, l  );  // S^-_{l}
+            zaep  = MultipoleA(interaction, 0, il  );  // E^+_{l}
+            zaem  = MultipoleA(interaction, 1, il  );  // E^-_{l}
+            zamp  = MultipoleA(interaction, 2, il-1);  // M^+_{l-1}
+            zamm  = MultipoleA(interaction, 3, il+1);  // M^-_{l+1}
+            zalp  = MultipoleA(interaction, 4, il  );  // L^+_{l}
+            zalm  = MultipoleA(interaction, 5, il  );  // L^-_{l}
+            zasp  = MultipoleA(interaction, 6, il  );  // S^+_{l}
+            zasm  = MultipoleA(interaction, 7, il  );  // S^-_{l}
 
             zrhp  = omegc*zasp - qgamc*zalp;
             zrhm  = omegc*zasm - qgamc*zalm;
             zaxp  = zasp + zrhp*omegc/Q2;
             zaxm  = zasm + zrhm*omegc/Q2;
+            
+            double lp1 = il + 1;
+            double l2  = il * il;
+            double l3  = l2 * il;
+            double lp12 = lp1  * lp1;
+            double lp13 = lp12 * lp1;
+            double c1 = lp12 * il;
+            double c2 = lp1 * l2;
 
-            rt    += std::real((l+1)*(l+1)*l*(zvmp*std::conj(zvmp) + zvem*std::conj(zvem) + zamm*std::conj(zamm) + zaep*std::conj(zaep)) +
-                               (l+1)*l*l*    (zvmm*std::conj(zvmm) + zvep*std::conj(zvep) + zamp*std::conj(zamp) + zaem*std::conj(zaem)));
-            rl    += std::real((l+1)*(l+1)*(l+1)*(zvsm*std::conj(zvsm) + zaxp*std::conj(zaxp)) + l*l*l*(zvsp*std::conj(zvsp) + zaxm*std::conj(zaxm)));
-            rtp   -= std::real((l+1)*(l+1)*l*(zvmp*std::conj(zaep) + zvem*std::conj(zamm)) - l*l*(l+1)*(zvmm*std::conj(zaem) + zvep*std::conj(zamp)));
-            rrh   += std::real((l+1)*(l+1)*(l+1)*zrhp*std::conj(zrhp) + l*l*l*zrhm*std::conj(zrhm));
-            rrh0  += std::real((l+1)*(l+1)*(l+1)*zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
-            rrh0i += std::imag((l+1)*(l+1)*(l+1)*zaxp*std::conj(zrhp) + l*l*l*zaxm*std::conj(zrhm));
+            rt    += c1*(norm2(zvmp) + norm2(zvem) + norm2(zamm) + norm2(zaep)) +
+                     c2*(norm2(zvmm) + norm2(zvep) + norm2(zamp) + norm2(zaem));
+            rl    += lp13*(norm2(zvsm) + norm2(zaxp)) + l3*(norm2(zvsp) + norm2(zaxm));
+            rtp   -= c1*(dotc(zvmp, zaep) + dotc(zvem, zamm)) - c2*(dotc(zvmm, zaem) + dotc(zvep, zamp));
+            rrh   += lp13*norm2(zrhp) + l3*norm2(zrhm);
+            rrh0  += lp13*dotc(zaxp, zrhp) + l3*dotc(zaxm, zrhm);
+            rrh0i += lp13*imag_dotc(zaxp, zrhp) + l3*imag_dotc(zaxm, zrhm);
         }
 
         double W1  =  rt*fact/2;
@@ -280,10 +288,10 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     else
     {
         double conv    = omegc/qgamc;
-        std::complex<double> zv1 = 0, zv2 = 0, zv3 = 0, zv4 = 0;
-        std::complex<double> zv5 = 0, zv6 = 0, zv7 = 0, zv8 = 0;
-        std::complex<double> za1 = 0, za2 = 0, za3 = 0, za4 = 0;
-        std::complex<double> za5 = 0, za6 = 0, za7 = 0, za8 = 0;
+        std::complex<double> zv1(0., 0.), zv2(0., 0.), zv3(0., 0.), zv4(0., 0.);
+        std::complex<double> zv5(0., 0.), zv6(0., 0.), zv7(0., 0.), zv8(0., 0.);
+        std::complex<double> za1(0., 0.), za2(0., 0.), za3(0., 0.), za4(0., 0.);
+        std::complex<double> za5(0., 0.), za6(0., 0.), za7(0., 0.), za8(0., 0.);
         std::complex<double> zelp, zelm, zmlp, zmlm, zllp, zllm, zslp, zslm;
 
         double leg[3][maxl+1];
@@ -347,7 +355,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             }
         }
 
-        double sinthpi   = TMath::Sqrt(1 - costhpi*costhpi);
+        double sinthpi   = std::sqrt(1 - costhpi*costhpi);
         std::complex<double> zff[4][4];
         zff[0][1] = -sinthpi*za8;
         zff[0][3] = -1i*(costhpi*za8 + za7);
@@ -377,10 +385,10 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
                 ztr[i][j] = zsum;
             }
 
-        double sinthl  = TMath::Sqrt(1 - costhl*costhl);
+        double sinthl  = std::sqrt(1 - costhl*costhl);
         double ch      = (fnuc + omeg)/W;
         double sh      = qgam/W;
-        double q       = TMath::Sqrt(plepi*plepi + plepf*plepf - 2*plepf*plepi*costhl);
+        double q       = std::sqrt(plepi*plepi + plepf*plepf - 2*plepf*plepi*costhl);
         double plkv0   = (elepi + elepf)/2;
         double plkv3   = (plepi*plepi - plepf*plepf)/2/q;
         
@@ -395,7 +403,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         
         double xbj0j0 = 0, xqjqj = 0, xkjkj = 0;
         std::complex<double> zqj, zbqj, zbj0, zkj;
-        std::complex<double> zkjjx = 0, zkjjy  = 0, zbqjjx = 0, zbj0jx = 0, zbqjjy = 0;
+        std::complex<double> zkjjx(0., 0.), zkjjy (0., 0.), zbqjjx(0., 0.), zbj0jx(0., 0.), zbqjjy(0., 0.);
         for (int i = 0; i < 4; i++)
         {
             zqj      = omegc*zff[0][i] - qgamc*zff[3][i];
@@ -403,9 +411,9 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             zkj      = xk0c* zff[0][i] - xkzc *zff[3][i];
             zbj0     = zff[0][i] + omegc*zqj/Q2; 
             
-            xbj0j0  += std::real(zbj0*std::conj(zbj0));
-            xqjqj   += std::real(zqj*std::conj(zqj));
-            xkjkj   += std::real(zkj*std::conj(zkj));
+            xbj0j0  += norm2(zbj0);
+            xqjqj   += norm2(zqj);
+            xkjkj   += norm2(zkj);
             if (kpsdim == 4)
             {
                 zbqjjx  += zbqj*std::conj(zff[1][i]);
@@ -472,12 +480,12 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             double rr8    = std::real(ztr[1][1] - ztr[2][2])/2;
             if (is_EM0)
             {
-                double facl = TMath::Sqrt(Q2)/qgamc;
+                double facl = std::sqrt(Q2)/qgamc;
                 double rr4  = facl*std::real(zbj0jx);
                 double rr7  = facl*std::imag(zbj0jx);
-                       rc1  = -TMath::Sqrt(2*eps*(1 + eps))*rr4;
+                       rc1  = -std::sqrt(2*eps*(1 + eps))*rr4;
                        rc2  =  eps*rr8;
-                       rs1  = -helicity*TMath::Sqrt(2*eps*(1 - eps))*rr7;
+                       rs1  = -helicity*std::sqrt(2*eps*(1 - eps))*rr7;
             }
             else
             {
@@ -828,16 +836,16 @@ double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) c
             case kSpp_ln_em_10001:  // ich = 4
             case kSpp_vn_nc_10001:  // ich = 4
             case kSpp_vbn_nc_10001: // ich = 4
-                val = TMath::Sqrt(2)/3;
+                val = std::sqrt(2)/3;
                 break;
             // CC
             case kSpp_vp_cc_10100:   // ich = 1
             case kSpp_vbn_cc_01001:  // ich = 1
-                val = TMath::Sqrt(2);
+                val = std::sqrt(2);
                 break;
             case kSpp_vn_cc_01100:   // ich = 2
             case kSpp_vbp_cc_10001:  // ich = 2
-                val = TMath::Sqrt(2)/3;
+                val = std::sqrt(2)/3;
                 break;
             case kSpp_vn_cc_10010:   // ich = 3
             case kSpp_vbp_cc_01010:  // ich = 3
@@ -864,12 +872,12 @@ double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) c
             case kSpp_ln_em_10001:  // ich = 4
             case kSpp_vn_nc_10001:  // ich = 4
             case kSpp_vbn_nc_10001: // ich = 4
-                val = -TMath::Sqrt(2)/3;
+                val = -std::sqrt(2)/3;
                 break;
             // CC
             case kSpp_vn_cc_01100:   // ich = 2
             case kSpp_vbp_cc_10001:  // ich = 2
-                val = 2*TMath::Sqrt(2)/3;
+                val = 2*std::sqrt(2)/3;
                 break;
             case kSpp_vn_cc_10010:   // ich = 3
             case kSpp_vbp_cc_01010:  // ich = 3
@@ -890,7 +898,7 @@ double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) c
             case kSpp_lp_em_01100:  // ich = 2
             case kSpp_vp_nc_01100:  // ich = 2
             case kSpp_vbp_nc_01100: // ich = 2
-                val = -TMath::Sqrt(2);
+                val = -std::sqrt(2);
                 break;
             case kSpp_ln_em_01010:  // ich = 3
             case kSpp_vn_nc_01010:  // ich = 3
@@ -900,7 +908,7 @@ double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) c
             case kSpp_ln_em_10001:  // ich = 4
             case kSpp_vn_nc_10001:  // ich = 4
             case kSpp_vbn_nc_10001: // ich = 4
-                val = TMath::Sqrt(2);
+                val = std::sqrt(2);
                 break;
             default:
                 val = 0;
@@ -942,49 +950,81 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
     @param[in] l     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl)
 */
 {
+    const int stride_cf = maxW;
+    const int stride_Q2 = maxcf * maxW;
+    const int stride_zp = maxQ2 * stride_Q2;
+    const int stride_iso = maxzp * stride_zp;
+    const int stride_l = maxiso * stride_iso;
+    const int stride_mu = maxl * stride_l;
+        
     if (l < 0 || l >= maxl)
         return std::complex<double>(0, 0);
 
     // Get kinematical parameters
-    const Kinematics & kinematics = interaction -> Kine();
-    double Q2    = kinematics.Q2();
-    double W     = kinematics.W();
+    const Kinematics & kinematics = interaction->Kine();
+    double Q2 = kinematics.Q2();
+    double W  = kinematics.W();
 
     int iW = Wnode(W);
+    double dW = W - Wnodes[iW];
 
-    double re = 0, im = 0;
-    for (int iso = 0; iso < 3;iso++)
+    // cache isospin amplitudes
+    double iso_amp[3];
+    for (int iso = 0; iso < 3; iso++)
+        iso_amp[iso] = IsospinAmplitude(interaction, iso);
+
+    // arrays for spline (Re/Im separately)
+    double arQ2_re[4][maxQ2] = {};
+    double arQ2_im[4][maxQ2] = {};
+
+    // fill arrays (sum over iso)
+    int base0 = mult * stride_mu + l * stride_l;
+    for (int iso = 0; iso < 3; iso++)
     {
-        double arQ2[4][maxQ2];
+        // базовый индекс без izpart/iQ2/icf/iW
+        int base = base0 + iso * stride_iso;
+        // добавляем izpart и iW
+        int base_re = base + 0 * stride_zp + iW;
+        int base_im = base + 1 * stride_zp + iW;
+        double w = iso_amp[iso];
+
         for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
         {
-            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 0, iW)];
-            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 1, iW)];
-            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 2, iW)];
-            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 3, iW)];
-            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
+            int off = iQ2 * stride_Q2;
+            // --- REAL ---
+            double a = MultipoleTbl[base_re + off + 0 * stride_cf];
+            double b = MultipoleTbl[base_re + off + 1 * stride_cf];
+            double c = MultipoleTbl[base_re + off + 2 * stride_cf];
+            double d = MultipoleTbl[base_re + off + 3 * stride_cf];
+
+            double val_re = a + ( b + ( c + d*dW )*dW )*dW;
+            arQ2_re[0][iQ2] += val_re * w;
+
+            // --- IMAG ---
+            a = MultipoleTbl[base_im + off + 0 * stride_cf];
+            b = MultipoleTbl[base_im + off + 1 * stride_cf];
+            c = MultipoleTbl[base_im + off + 2 * stride_cf];
+            d = MultipoleTbl[base_im + off + 3 * stride_cf];
+
+            double val_im = a + ( b + ( c + d*dW )*dW )*dW;
+            arQ2_im[0][iQ2] += val_im * w;
         }
-        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
-        int iQ2 = Q2node(Q2);
-        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
-        re += val*IsospinAmplitude(interaction, iso);
     }
-    for (int iso = 0; iso < 3;iso++)
-    {
-        double arQ2[4][maxQ2];
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
-        {
-            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 0, iW)];
-            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 1, iW)];
-            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 2, iW)];
-            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 3, iW)];
-            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
-        }
-        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
-        int iQ2 = Q2node(Q2);
-        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
-        im += val*IsospinAmplitude(interaction, iso);
-    }
+
+    // spline по Q2
+    Spline(maxQ2, &Q2nodes[0], &arQ2_re[0][0], &arQ2_re[1][0], &arQ2_re[2][0], &arQ2_re[3][0]);
+    Spline(maxQ2, &Q2nodes[0], &arQ2_im[0][0], &arQ2_im[1][0], &arQ2_im[2][0], &arQ2_im[3][0]);
+
+    int iQ2 = Q2node(Q2);
+    double dQ2 = Q2 - Q2nodes[iQ2];
+
+    double re = arQ2_re[0][iQ2] +
+                ( arQ2_re[1][iQ2] +
+                ( arQ2_re[2][iQ2] + arQ2_re[3][iQ2]*dQ2 )*dQ2 )*dQ2;
+
+    double im = arQ2_im[0][iQ2] +
+                ( arQ2_im[1][iQ2] +
+                ( arQ2_im[2][iQ2] + arQ2_im[3][iQ2]*dQ2 )*dQ2 )*dQ2;
 
     return std::complex<double>(re, im);
 }
@@ -995,49 +1035,81 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
     @param[in] l     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl)
 */
 {
+    const int stride_cf = maxW;
+    const int stride_Q2 = maxcf * maxW;
+    const int stride_zp = maxQ2 * stride_Q2;
+    const int stride_iso = maxzp * stride_zp;
+    const int stride_l = maxiso * stride_iso;
+    const int stride_mu = maxl * stride_l;
     if (l < 0 || l >= maxl)
         return std::complex<double>(0, 0);
 
     // Get kinematical parameters
-    const Kinematics & kinematics = interaction -> Kine();
-    double Q2    = kinematics.Q2();
-    double W     = kinematics.W();
+    const Kinematics & kinematics = interaction->Kine();
+    double Q2 = kinematics.Q2();
+    double W  = kinematics.W();
 
     int iW = Wnode(W);
+    double dW = W - Wnodes[iW];
 
-    double re = 0, im = 0;
-    for (int iso = 3; iso < maxiso;iso++)
+    // cache isospin amplitudes
+    double iso_amp[2];
+    for (int i = 0; i < 2; i++)
+        iso_amp[i] = IsospinAmplitude(interaction, 3 + i);
+
+    // arrays for spline (Re/Im separately)
+    double arQ2_re[4][maxQ2] = {};
+    double arQ2_im[4][maxQ2] = {};
+
+    // fill arrays (sum over iso)
+    int base0 = mult * stride_mu + l * stride_l;
+    for (int i = 0; i < 2; i++)
     {
-        double arQ2[4][maxQ2];
+        int iso = 3 + i;
+        // базовый индекс без izpart/iQ2/icf/iW
+        int base = base0 + iso * stride_iso;
+        // добавляем izpart и iW
+        int base_re = base + 0 * stride_zp + iW;
+        int base_im = base + 1 * stride_zp + iW;
+        double w = iso_amp[i];
+
         for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
         {
-            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 0, iW)];
-            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 1, iW)];
-            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 2, iW)];
-            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 0, iQ2, 3, iW)];
-            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
+            int off = iQ2 * stride_Q2;
+            // --- REAL ---
+            double a = MultipoleTbl[base_re + off + 0 * stride_cf];
+            double b = MultipoleTbl[base_re + off + 1 * stride_cf];
+            double c = MultipoleTbl[base_re + off + 2 * stride_cf];
+            double d = MultipoleTbl[base_re + off + 3 * stride_cf];
+
+            double val_re = a + ( b + ( c + d*dW )*dW )*dW;
+            arQ2_re[0][iQ2] += val_re * w;
+
+            // --- IMAG ---
+            a = MultipoleTbl[base_im + off + 0 * stride_cf];
+            b = MultipoleTbl[base_im + off + 1 * stride_cf];
+            c = MultipoleTbl[base_im + off + 2 * stride_cf];
+            d = MultipoleTbl[base_im + off + 3 * stride_cf];
+
+            double val_im = a + ( b + ( c + d*dW )*dW )*dW;
+            arQ2_im[0][iQ2] += val_im * w;
         }
-        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
-        int iQ2 = Q2node(Q2);
-        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
-        re += val*IsospinAmplitude(interaction, iso);
     }
-    for (int iso = 3; iso < maxiso;iso++)
-    {
-        double arQ2[4][maxQ2];
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
-        {
-            double a = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 0, iW)];
-            double b = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 1, iW)];
-            double c = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 2, iW)];
-            double d = MultipoleTbl[MultipoleTblIndx(mult, l, iso, 1, iQ2, 3, iW)];
-            arQ2[0][iQ2] = a + ( b + ( c + d*(W - Wnodes[iW]) )*(W - Wnodes[iW]) )*(W - Wnodes[iW]);
-        }
-        Spline (maxQ2, &Q2nodes[0], &arQ2[0][0], &arQ2[1][0], &arQ2[2][0], &arQ2[3][0]);
-        int iQ2 = Q2node(Q2);
-        double val = arQ2[0][iQ2] + ( arQ2[1][iQ2] + ( arQ2[2][iQ2] + arQ2[3][iQ2]*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]) )*(Q2 - Q2nodes[iQ2]);
-        im += val*IsospinAmplitude(interaction, iso);
-    }
+
+    // spline по Q2
+    Spline(maxQ2, &Q2nodes[0], &arQ2_re[0][0], &arQ2_re[1][0], &arQ2_re[2][0], &arQ2_re[3][0]);
+    Spline(maxQ2, &Q2nodes[0], &arQ2_im[0][0], &arQ2_im[1][0], &arQ2_im[2][0], &arQ2_im[3][0]);
+
+    int iQ2 = Q2node(Q2);
+    double dQ2 = Q2 - Q2nodes[iQ2];
+
+    double re = arQ2_re[0][iQ2] +
+                ( arQ2_re[1][iQ2] +
+                ( arQ2_re[2][iQ2] + arQ2_re[3][iQ2]*dQ2 )*dQ2 )*dQ2;
+
+    double im = arQ2_im[0][iQ2] +
+                ( arQ2_im[1][iQ2] +
+                ( arQ2_im[2][iQ2] + arQ2_im[3][iQ2]*dQ2 )*dQ2 )*dQ2;
 
     return std::complex<double>(re, im);
 }
