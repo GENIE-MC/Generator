@@ -1048,20 +1048,30 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
         }
     }
 
-    // spline-Q2
-    double b[maxQ2], c[maxQ2], d[maxQ2];
+    double re, im;
 
-    Spline(maxQ2, &Q2nodes[0], arQ2_re, b, c, d);
+    if (fUseFastQ2Interpolation)
+    {
+        re = QuadInterp(&Q2nodes[0], arQ2_re, maxQ2, Q2);
+        im = QuadInterp(&Q2nodes[0], arQ2_im, maxQ2, Q2);
+    }
+    else
+    {
+        double b[maxQ2], c[maxQ2], d[maxQ2];
+    
+        Spline(maxQ2, &Q2nodes[0], arQ2_re, b, c, d);
+    
+        int iQ2 = Q2node(Q2);
+        double dQ2 = Q2 - Q2nodes[iQ2];
+    
+        re = arQ2_re[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
+    
+        Spline(maxQ2, &Q2nodes[0], arQ2_im, b, c, d);
+    
+        im = arQ2_im[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
+    }
 
-    int iQ2 = Q2node(Q2);
-    double dQ2 = Q2 - Q2nodes[iQ2];
-
-    double re = arQ2_re[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
-
-    Spline(maxQ2, &Q2nodes[0], arQ2_im, b, c, d);
-
-    double im = arQ2_im[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
-
+   
     return {re, im};
 }
 //____________________________________________________________________________
@@ -1162,19 +1172,29 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
         }
     }
 
-    double b[maxQ2], c[maxQ2], d[maxQ2];
-    // spline-Q2
-    Spline(maxQ2, &Q2nodes[0], arQ2_re, b, c, d);
-
-    int iQ2 = Q2node(Q2);
-    double dQ2 = Q2 - Q2nodes[iQ2];
-
-    double re = arQ2_re[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
-
-    Spline(maxQ2, &Q2nodes[0], arQ2_im, b, c, d);
-
-    double im = arQ2_im[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
-
+    double re, im;
+    
+    if (fUseFastQ2Interpolation)
+    {
+        re = QuadInterp(&Q2nodes[0], arQ2_re, maxQ2, Q2);
+        im = QuadInterp(&Q2nodes[0], arQ2_im, maxQ2, Q2);
+    }
+    else
+    {
+        double b[maxQ2], c[maxQ2], d[maxQ2];
+    
+        Spline(maxQ2, &Q2nodes[0], arQ2_re, b, c, d);
+    
+        int iQ2 = Q2node(Q2);
+        double dQ2 = Q2 - Q2nodes[iQ2];
+    
+        re = arQ2_re[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
+    
+        Spline(maxQ2, &Q2nodes[0], arQ2_im, b, c, d);
+    
+        im = arQ2_im[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
+    }
+    
     return {re, im};
 }
 //____________________________________________________________________________
@@ -1292,6 +1312,7 @@ void DCCSPPPXSec::LoadConfig(void)
     GetParam("FermiMomentumTable", fKFTable);
     GetParam("RFG-UseParametrization", fUseRFGParametrization);
     GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
+    GetParam("UseFastQ2Interpolation", fUseFastQ2Interpolation);
 
     // Load the differential cross section integrator
     fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));

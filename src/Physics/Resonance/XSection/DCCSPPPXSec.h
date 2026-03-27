@@ -168,6 +168,31 @@ namespace genie {
         {
             return a.imag()*b.real() - a.real()*b.imag();
         }
+        
+        inline double QuadInterp(const double *x, const double *y, int n, double x0) const
+        {
+            // find the nearest index
+            int i = 0;
+            while (i < n-1 && x[i+1] < x0) i++;
+        
+            // take the central point
+            int i0 = std::max(0, std::min(n-3, i-1));
+        
+            double x1 = x[i0];
+            double x2 = x[i0+1];
+            double x3 = x[i0+2];
+        
+            double y1 = y[i0];
+            double y2 = y[i0+1];
+            double y3 = y[i0+2];
+        
+            // Lagrange (quadratic interpolation)
+            double L1 = (x0-x2)*(x0-x3)/((x1-x2)*(x1-x3));
+            double L2 = (x0-x1)*(x0-x3)/((x2-x1)*(x2-x3));
+            double L3 = (x0-x1)*(x0-x2)/((x3-x1)*(x3-x2));
+        
+            return y1*L1 + y2*L2 + y3*L3;
+        }
 
 
         /// Table with complex values of ANL-Osaka multipole amplitudes: \f$E_{l\pm}(W, Q^2), M_{l\pm}(W, Q^2), S_{l\pm}(W, Q^2), L_{l\pm}(W, Q^2)\f$, the layout of table is determined by DCCSPPPXSec::MultipoleTblIndx
@@ -196,6 +221,9 @@ namespace genie {
         double   fSin2Wein;
         /// |Vud| (magnitude ud-element of CKM-matrix)
         double   fVud;
+        /// Enable fast Q2 interpolation (quadratic) to replace cubic spline for performance
+        /// (small loss in accuracy, significant speedup)
+        bool fUseFastQ2Interpolation;
 
         const XSecIntegratorI * fXSecIntegrator;
 

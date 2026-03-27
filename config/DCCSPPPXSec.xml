@@ -21,6 +21,8 @@ DataPath                    string  No    Folder in which to look for the table 
 DataPathType                string  Yes   Whether the specified path is relative absolute or relative     relative
                                           to the root GENIE folder
 DataFileName                string  No    Name of file with amplitudes
+UseFastQ2Interpolation      bool    Yes   Enable fast Q2 interpolation (quadratic) to replace cubic       false
+                                          spline for performance
 -->
 
   <param_set name="Default">
