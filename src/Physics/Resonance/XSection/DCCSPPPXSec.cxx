@@ -807,10 +807,10 @@ int DCCSPPPXSec::Wnode (double W) const
     const int N = 11;
     double pos[N][2] = { {1.07701, 0}, {1.08, 1}, {1.16, 9}, {1.21, 19}, {1.22, 23}, {1.225, 24},
                          {1.2255, 25}, {1.23, 26}, {1.24, 28}, {2.0, 104}, {2.1, 109} };
-    if (W < pos[0][0])   return pos[0][1];
-    if (W > pos[N-1][0]) return pos[N-1][1];
+    if (W < pos[0][0])   return 0;
+    if (W > pos[N-1][0]) return maxW - 2;
     int low = 0;
-    int up = N;
+    int up = N - 1;
     while (up-low > 1)
     {
         int inx = (low + up)/2;
@@ -826,10 +826,10 @@ int DCCSPPPXSec::Q2node (double Q2) const
 {
     const int N = 6;
     double pos[N][2] = { {1E-7, 0}, {0.02, 1}, {0.2, 10}, {1.0, 18}, {2.0, 23}, {3.0, 27}};
-    if (Q2 < pos[0][0])   return pos[0][1];
-    if (Q2 > pos[N-1][0]) return pos[N-1][1];
+    if (Q2 < pos[0][0])   return 0;
+    if (Q2 > pos[N-1][0]) return maxQ2 - 2;
     int low = 0;
-    int up = N;
+    int up = N - 1;
     while (up-low > 1)
     {
         int inx = (low + up)/2;
