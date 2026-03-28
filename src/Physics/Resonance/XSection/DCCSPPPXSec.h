@@ -131,7 +131,20 @@ namespace genie {
         /// Precalculate cubic spline coefficients using W-nodes and table with ANL-Osaka multipole amplitudes to speed up computations
         void InitializeSplineCoefficients(void);
         /// Calculate position in table with ANL-Osaka multipole amplitudes
-        int MultipoleTblIndx (int imu, int il, int iso, int izpart, int iq2, int icf, int iw) const;
+        inline int MultipoleTblIndxNew(int imu, int il, int iso, int izpart, int iW, int iQ2, int icf) const
+        /*!
+            @param[in] imu    - multipole index: 0 -\f$E_{l+}\f$, 1 -\f$E_{l-}\f$, 2 -\f$M_{l+}\f$, 3 -\f$M_{l-}\f$, 4 -\f$S_{l+}\f$, 5 -\f$S_{l-}\f$, 6 -\f$L_{l+}\f$, 7 -\f$L_{l-}\f$
+            @param[in] il     - \f$l\f$ (orbital momentum from 0 to DCCSPPPXSec::maxl - 1)
+            @param[in] iso    - isospin index: 0 -\f$a^V_{\frac{3}{2}}\f$, 1 -\f$a^V_{\frac{1}{2}}\f$, 2 -\f$a^V_{0}\f$, 3 -\f$a^A_{\frac{3}{2}}\f$, 4 -\f$a^A_{\frac{1}{2}}\f$
+            @param[in] izpart - 0 - Re, 1 - Im
+            @param[in] iQ2    - index of \f$Q^2\f$-node
+            @param[in] icf    - cubic spline (\f$S_\textrm{iW}(W) = y_\textrm{iW}+b_\textrm{iW}(W-W_\textrm{iW})+{c_\textrm{iW}}(W-W_\textrm{iW})^2+d_\textrm{iW}(W-W_\textrm{iW})^3\f$) coefficient for <b>iW</b>-node: 0 -\f$y_\textrm{iW}\f$, 1 -\f$b_\textrm{iW}\f$, 2 -\f$c_\textrm{iW}\f$, 3 -\f$d_\textrm{iW}\f$
+            @param[in] iW     - index of \f$W\f$-node
+        */
+        {
+            
+            return (((((imu*maxl + il)*maxiso + iso)*maxzp + izpart)*maxW + iW)*maxQ2 + iQ2)*maxcf + icf;
+        }
         /// Calculate coefficients \f$b_i, c_i, d_i\f$ for cubic spline \f$S_i(x) = y_i + b_i(x - x_i) + {c_i}(x-x_i)^2 + {d_i}(x - x_i)^3\f$ for a function given in points \f$x_i, y_i\f$
         void Spline (int n, const double * x, const double * y, double * b, double * c, double * d) const;
         /// Return the nearest node to the value \f$W\f$ in the table DCCSPPPXSec::Wnodes
@@ -140,8 +153,21 @@ namespace genie {
         int Q2node (double Q2) const;
         /// Calculate legendre polynomials and their first two derivatives
         void CalculateLegendre(double x, double l[3][maxl+1]) const;
-
-
+        /// Quadratic interpolation
+        double QuadInterp(const double *x, const double *y, double x0) const;
+        /// Squared norm of complex number
+        inline double norm2(const std::complex<double>& z) const
+        {
+            return z.real()*z.real() + z.imag()*z.imag();
+        }
+        inline double dotc(const std::complex<double>& a, const std::complex<double>& b) const
+        {
+            return a.real()*b.real() + a.imag()*b.imag();
+        }
+        inline double imag_dotc(const std::complex<double>& a, const std::complex<double>& b) const
+        {
+            return a.imag()*b.real() - a.real()*b.imag();
+        }
         /// Table with complex values of ANL-Osaka multipole amplitudes: \f$E_{l\pm}(W, Q^2), M_{l\pm}(W, Q^2), S_{l\pm}(W, Q^2), L_{l\pm}(W, Q^2)\f$, the layout of table is determined by DCCSPPPXSec::MultipoleTblIndx
         std::vector<double> MultipoleTbl = std::vector<double>(maxmu*maxl*maxiso*maxzp*maxQ2*maxcf*maxW);
         /// Table with \f$W\f$-nodes
@@ -168,6 +194,9 @@ namespace genie {
         double   fSin2Wein;
         /// |Vud| (magnitude ud-element of CKM-matrix)
         double   fVud;
+        /// Enable fast Q2 interpolation (quadratic) to replace cubic spline for performance
+        /// (small loss in accuracy, significant speedup)
+        bool fUseFastQ2Interpolation;
 
         const XSecIntegratorI * fXSecIntegrator;
 
