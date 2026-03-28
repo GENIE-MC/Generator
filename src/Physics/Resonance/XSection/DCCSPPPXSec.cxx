@@ -1351,7 +1351,8 @@ void DCCSPPPXSec::LoadConfig(void)
     GetParam("FermiMomentumTable", fKFTable);
     GetParam("RFG-UseParametrization", fUseRFGParametrization);
     GetParam("UsePauliBlockingForRES", fUsePauliBlocking);
-    GetParam("UseFastQ2Interpolation", fUseFastQ2Interpolation);
+    
+    GetParamDef("UseFastQ2Interpolation", fUseFastQ2Interpolation, false);
 
     // Load the differential cross section integrator
     fXSecIntegrator = dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
