@@ -1030,6 +1030,16 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
     // arrays for spline (Re/Im separately)
     double arQ2_re[maxQ2] = {};
     double arQ2_im[maxQ2] = {};
+    
+    int iQ2s = 0;
+    int iQ2f = maxQ2;
+    int iQ20 = Q2node(Q2);
+    if (fUseFastQ2Interpolation)
+    {
+       iQ2s = iQ20 - 1;
+       if (iQ2s < 0) iQ2s = 0;
+       iQ2f = iQ2s + 3; 
+    }
 
     int base0 = mult * stride_mu + l * stride_l;
     // fill arrays (sum over iso)
@@ -1042,7 +1052,7 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
         double w = iso_amp[iso];
 
         // --- REAL ---
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        for (int iQ2 = iQ2s; iQ2 < iQ2f; iQ2++)
         {
             const double* ptr = &MultipoleTbl[base_re + iQ2 * stride_Q2];
 
@@ -1051,11 +1061,11 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
                        + ptr[2]*dw2
                        + ptr[3]*dw3;
 
-            arQ2_re[iQ2] += val * w;
+            arQ2_re[iQ2 - iQ2s] += val * w;
         }
 
         // --- IMAG ---
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        for (int iQ2 = iQ2s; iQ2 < iQ2f; iQ2++)
         {
             const double* ptr = &MultipoleTbl[base_im + iQ2 * stride_Q2];
 
@@ -1064,31 +1074,24 @@ std::complex<double> DCCSPPPXSec::MultipoleV(const Interaction * interaction, in
                        + ptr[2]*dw2
                        + ptr[3]*dw3;
 
-            arQ2_im[iQ2] += val * w;
+            arQ2_im[iQ2 - iQ2s] += val * w;
         }
     }
 
     double re, im;
-
     if (fUseFastQ2Interpolation)
     {
-        re = QuadInterp(&Q2nodes[0], arQ2_re, maxQ2, Q2);
-        im = QuadInterp(&Q2nodes[0], arQ2_im, maxQ2, Q2);
+        re = QuadInterp(&Q2nodes[iQ2s], arQ2_re, Q2);
+        im = QuadInterp(&Q2nodes[iQ2s], arQ2_im, Q2);
     }
     else
     {
         double b[maxQ2], c[maxQ2], d[maxQ2];
-    
+        double dQ2 = Q2 - Q2nodes[iQ20];
         Spline(maxQ2, &Q2nodes[0], arQ2_re, b, c, d);
-    
-        int iQ2 = Q2node(Q2);
-        double dQ2 = Q2 - Q2nodes[iQ2];
-    
-        re = arQ2_re[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
-    
+        re = arQ2_re[iQ20] + (b[iQ20] + (c[iQ20] + d[iQ20]*dQ2)*dQ2)*dQ2;
         Spline(maxQ2, &Q2nodes[0], arQ2_im, b, c, d);
-    
-        im = arQ2_im[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
+        im = arQ2_im[iQ20] + (b[iQ20] + (c[iQ20] + d[iQ20]*dQ2)*dQ2)*dQ2;
     }
 
    
@@ -1127,16 +1130,25 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
     // arrays for spline (Re/Im separately)
     double arQ2_re[maxQ2] = {};
     double arQ2_im[maxQ2] = {};
+    
+    int iQ2s = 0;
+    int iQ2f = maxQ2;
+    int iQ20 = Q2node(Q2);
+    if (fUseFastQ2Interpolation)
+    {
+       iQ2s = iQ20 - 1;
+       if (iQ2s < 0) iQ2s = 0;
+       iQ2f = iQ2s + 3; 
+    }
 
     int base0 = mult * stride_mu + l * stride_l;
-
     // ===== iso = 3 =====
     {
         int base = base0 + 3 * stride_iso;
         int base_re = base + 0 * stride_zp + iW * stride_W;
         int base_im = base + 1 * stride_zp + iW * stride_W;
         // --- REAL ---
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        for (int iQ2 = iQ2s; iQ2 < iQ2f; iQ2++)
         {
             const double* ptr = &MultipoleTbl[base_re + iQ2 * stride_Q2];
 
@@ -1145,10 +1157,10 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
                        + ptr[2]*dw2
                        + ptr[3]*dw3;
 
-            arQ2_re[iQ2] += val * iso3;
+            arQ2_re[iQ2 - iQ2s] += val * iso3;
         }
         // --- IMAG ---
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        for (int iQ2 = iQ2s; iQ2 < iQ2f; iQ2++)
         {
             const double* ptr = &MultipoleTbl[base_im + iQ2 * stride_Q2];
 
@@ -1157,7 +1169,7 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
                        + ptr[2]*dw2
                        + ptr[3]*dw3;
 
-            arQ2_im[iQ2] += val * iso3;
+            arQ2_im[iQ2 - iQ2s] += val * iso3;
         }
     }
 
@@ -1167,7 +1179,7 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
         int base_re = base + 0 * stride_zp + iW * stride_W;
         int base_im = base + 1 * stride_zp + iW * stride_W;
         // --- REAL ---
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+        for (int iQ2 = iQ2s; iQ2 < iQ2f; iQ2++)
         {
             const double* ptr = &MultipoleTbl[base_re + iQ2 * stride_Q2];
 
@@ -1176,10 +1188,10 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
                        + ptr[2]*dw2
                        + ptr[3]*dw3;
 
-            arQ2_re[iQ2] += val * iso4;
+            arQ2_re[iQ2 - iQ2s] += val * iso4;
         }
         // --- IMAG ---
-        for (int iQ2 = 0; iQ2 < maxQ2; iQ2++)
+       for (int iQ2 = iQ2s; iQ2 < iQ2f; iQ2++)
         {
             const double* ptr = &MultipoleTbl[base_im + iQ2 * stride_Q2];
 
@@ -1188,34 +1200,41 @@ std::complex<double> DCCSPPPXSec::MultipoleA(const Interaction * interaction, in
                        + ptr[2]*dw2
                        + ptr[3]*dw3;
 
-            arQ2_im[iQ2] += val * iso4;
+            arQ2_im[iQ2 - iQ2s] += val * iso4;
         }
     }
 
     double re, im;
-    
     if (fUseFastQ2Interpolation)
     {
-        re = QuadInterp(&Q2nodes[0], arQ2_re, maxQ2, Q2);
-        im = QuadInterp(&Q2nodes[0], arQ2_im, maxQ2, Q2);
+        re = QuadInterp(&Q2nodes[iQ2s], arQ2_re, Q2);
+        im = QuadInterp(&Q2nodes[iQ2s], arQ2_im, Q2);
     }
     else
     {
         double b[maxQ2], c[maxQ2], d[maxQ2];
-    
+        double dQ2 = Q2 - Q2nodes[iQ20];
         Spline(maxQ2, &Q2nodes[0], arQ2_re, b, c, d);
-    
-        int iQ2 = Q2node(Q2);
-        double dQ2 = Q2 - Q2nodes[iQ2];
-    
-        re = arQ2_re[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
-    
+        re = arQ2_re[iQ20] + (b[iQ20] + (c[iQ20] + d[iQ20]*dQ2)*dQ2)*dQ2;
         Spline(maxQ2, &Q2nodes[0], arQ2_im, b, c, d);
-    
-        im = arQ2_im[iQ2] + (b[iQ2] + (c[iQ2] + d[iQ2]*dQ2)*dQ2)*dQ2;
+        im = arQ2_im[iQ20] + (b[iQ20] + (c[iQ20] + d[iQ20]*dQ2)*dQ2)*dQ2;
     }
     
     return {re, im};
+}
+//____________________________________________________________________________
+double DCCSPPPXSec::QuadInterp(const double *x, const double *y, double x0) const
+{
+
+    double x1 = x[0], x2 = x[1], x3 = x[2];
+    double y1 = y[0], y2 = y[1], y3 = y[2];
+
+    double L1 = (x0-x2)*(x0-x3)/((x1-x2)*(x1-x3));
+    double L2 = (x0-x1)*(x0-x3)/((x2-x1)*(x2-x3));
+    double L3 = (x0-x1)*(x0-x2)/((x3-x1)*(x3-x2));
+
+    return y1*L1 + y2*L2 + y3*L3;
+
 }
 //____________________________________________________________________________
 double DCCSPPPXSec::Integral(const Interaction * interaction) const

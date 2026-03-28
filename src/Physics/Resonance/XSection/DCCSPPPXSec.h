@@ -153,48 +153,21 @@ namespace genie {
         int Q2node (double Q2) const;
         /// Calculate legendre polynomials and their first two derivatives
         void CalculateLegendre(double x, double l[3][maxl+1]) const;
-        
+        /// Quadratic interpolation
+        double QuadInterp(const double *x, const double *y, double x0) const;
+        /// Squared norm of complex number
         inline double norm2(const std::complex<double>& z) const
         {
             return z.real()*z.real() + z.imag()*z.imag();
         }
-        
         inline double dotc(const std::complex<double>& a, const std::complex<double>& b) const
         {
             return a.real()*b.real() + a.imag()*b.imag();
         }
-        
         inline double imag_dotc(const std::complex<double>& a, const std::complex<double>& b) const
         {
             return a.imag()*b.real() - a.real()*b.imag();
         }
-        
-        inline double QuadInterp(const double *x, const double *y, int n, double x0) const
-        {
-            // find the nearest index
-            int i = 0;
-            while (i < n-1 && x[i+1] < x0) i++;
-        
-            // take the central point
-            int i0 = std::max(0, std::min(n-3, i-1));
-        
-            double x1 = x[i0];
-            double x2 = x[i0+1];
-            double x3 = x[i0+2];
-        
-            double y1 = y[i0];
-            double y2 = y[i0+1];
-            double y3 = y[i0+2];
-        
-            // Lagrange (quadratic interpolation)
-            double L1 = (x0-x2)*(x0-x3)/((x1-x2)*(x1-x3));
-            double L2 = (x0-x1)*(x0-x3)/((x2-x1)*(x2-x3));
-            double L3 = (x0-x1)*(x0-x2)/((x3-x1)*(x3-x2));
-        
-            return y1*L1 + y2*L2 + y3*L3;
-        }
-
-
         /// Table with complex values of ANL-Osaka multipole amplitudes: \f$E_{l\pm}(W, Q^2), M_{l\pm}(W, Q^2), S_{l\pm}(W, Q^2), L_{l\pm}(W, Q^2)\f$, the layout of table is determined by DCCSPPPXSec::MultipoleTblIndx
         std::vector<double> MultipoleTbl = std::vector<double>(maxmu*maxl*maxiso*maxzp*maxQ2*maxcf*maxW);
         /// Table with \f$W\f$-nodes
