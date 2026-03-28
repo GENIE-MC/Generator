@@ -805,40 +805,60 @@ void DCCSPPPXSec::InitializeSplineCoefficients()
 int DCCSPPPXSec::Wnode (double W) const
 {
     const int N = 11;
-    double pos[N][2] = { {1.07701, 0}, {1.08, 1}, {1.16, 9}, {1.21, 19}, {1.22, 23}, {1.225, 24},
+    double pos[N][2] = { {1.07701, 0}, {1.08, 1} , {1.16, 9} , {1.21, 19}, {1.22, 23}, {1.225, 24},
                          {1.2255, 25}, {1.23, 26}, {1.24, 28}, {2.0, 104}, {2.1, 109} };
-    if (W < pos[0][0])   return pos[0][1];
-    if (W > pos[N-1][0]) return pos[N-1][1];
-    int low = 0;
-    int up = N;
-    while (up-low > 1)
+    if (W < pos[0][0])   return 0;
+    if (W > pos[N-1][0]) return maxW - 2;
+    int low = 0, up = N-1;
+   
+    while (up - low > 1) 
     {
-        int inx = (low + up)/2;
-        if (W<=pos[inx][0])
-            up = inx;
-        else
-            low =inx;
+        int mid = (low + up) / 2;
+        if (W < pos[mid][0]) up = mid;
+        else                 low = mid;
     }
-    return TMath::FloorNint(pos[low][1] + (W-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0]));
+    // --- rough estimate of the index ---
+    double t = (W - pos[low][0]) / (pos[up][0] - pos[low][0]);
+    int iW = int(pos[low][1] + t * (pos[up][1] - pos[low][1]));
+    
+    // --- clamp ---
+    if (iW < 0)        iW = 0;
+    if (iW > maxW - 2) iW = maxW - 2;
+    
+    // --- local correction ---
+    while (iW > 0 && W < Wnodes[iW]) --iW;
+    while (iW < pos[N-1][1]-1 && W >= Wnodes[iW + 1]) ++iW;
+
+    return iW;
 }
 //____________________________________________________________________________
 int DCCSPPPXSec::Q2node (double Q2) const
 {
     const int N = 6;
     double pos[N][2] = { {1E-7, 0}, {0.02, 1}, {0.2, 10}, {1.0, 18}, {2.0, 23}, {3.0, 27}};
-    if (Q2 < pos[0][0])   return pos[0][1];
-    if (Q2 > pos[N-1][0]) return pos[N-1][1];
-    int low = 0;
-    int up = N;
-    while (up-low > 1)
-    {
-        int inx = (low + up)/2;
-        if (Q2<=pos[inx][0])
-            up = inx;
-        else
-            low =inx;
+    if (Q2 < pos[0][0])   return 0;
+    if (Q2 > pos[N-1][0]) return maxQ2 - 2;
+    int low = 0, up = N-1;
+    
+    while (up - low > 1) {
+        int mid = (low + up) / 2;
+        if (Q2 < pos[mid][0]) up = mid;
+        else                 low = mid;
+
     }
-    return TMath::FloorNint(pos[low][1] + (Q2-pos[low][0])*(pos[up][1]-pos[low][1])/(pos[up][0]-pos[low][0]));
+    // --- rough estimate of the index ---
+    double t = (Q2 - pos[low][0]) / (pos[up][0] - pos[low][0]);
+    int iQ2 = int(pos[low][1] + t * (pos[up][1] - pos[low][1]));
+    
+    // --- clamp ---
+    if (iQ2 < 0 )         iQ2 = 0;
+    if (iQ2 > maxQ2 - 2 ) iQ2 = maxQ2 - 2;
+    
+    // --- local correction ---
+    while (iQ2 > 0 && Q2 < Q2nodes[iQ2]) --iQ2;
+    while (iQ2 < pos[N-1][1]-1 && Q2 >= Q2nodes[iQ2 + 1]) ++iQ2;
+    
+    return iQ2;
 }
 //____________________________________________________________________________
 double DCCSPPPXSec::IsospinAmplitude(const Interaction * interaction, int iso) const
