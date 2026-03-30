@@ -197,26 +197,28 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         // cos(chi)->cos(theta), when mf_0->0
         // ss2=sin^2(chi/2)-mi*mf/Ei/Ef
         // cc2=cos^2(chi/2)+mi*mf/Ei/Ef
-
+        
         // for EM scattering
         if(is_EM)
         {
             ss2 = (1 - betai*betaf*costhl)/2 - flepf2/elepi/elepf;
             cc2 = (1 + betai*betaf*costhl)/2 + flepf2/elepi/elepf/2;
         }
-
         // for CC scattering
-        if(is_CC)
+        else if(is_CC)
         {
             ss2 = (1 - betaf*costhl)/2;
             cc2 = (1 + betaf*costhl)/2;
         }
-
         // for NC scattering
-        if(is_NC)
+        else if(is_NC)
         {
             ss2 = (1 - costhl)/2;
             cc2 = (1 + costhl)/2;
+        }
+        else
+        {
+            throw std::logic_error("Unknown interaction type");
         }
         std::complex<double> zvep, zvem, zvmp, zvmm, zvsp, zvsm, zaep, zaem, zamp, zamm, zalp, zalm, zasp, zasm, zrhp, zrhm, zaxp, zaxm;
         double fact   = 4*W*qpioc/fnuc;
