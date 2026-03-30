@@ -1170,7 +1170,9 @@ double NievesQELCCPXSec::IntegratedOverMomentumAll(const Interaction* interactio
   // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
   // struck nucleon rest frame, so we have to explicitly ask for the lab frame
   // here
-  TLorentzVector neutrinoMom = *init_state.GetProbeP4(kRfLab);
+  TLorentzVector* tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
   TLorentzVector leptonMom = kinematics.FSLeptonP4();
   double ml = interaction->FSPrimLepton()->Mass();
   double ml2 = ml*ml;
