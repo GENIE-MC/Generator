@@ -1282,7 +1282,8 @@ void MECGenerator::SelectMartiniLeptonKinematics(GHepRecord* event) const
 
         // Find out if we should use a pn initial state
         double myrand_pn = rnd->RndKine().Rndm();
-        double pnFraction = 1.;
+        double pnFraction = dynamic_cast< const MartiniEricsonChanfrayMarteauMECPXSec2024* >( fXSecModel )
+          ->PairRatio( interaction );
 
         LOG("MEC", pINFO) << "Test for pn: "
           << "; xsec = " << XSec << "; pn_fraction = " << pnFraction
