@@ -51,7 +51,7 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
       << "Doesn't support transformation from "
       << KinePhaseSpace::AsString(kPSTlctl) << " to "
       << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
+    return 0.;
   }
 
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
@@ -250,16 +250,16 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* i
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
   const LabFrameHadronTensorI* tensor
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+        fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, tensor_type) );
 
   const LabFrameHadronTensorI* tensor_pn
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    pn_tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+        fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, pn_tensor_type) );
 
   const LabFrameHadronTensorI* tensor_pp
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    pp_tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>( 
+      fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, pp_tensor_type) );
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
@@ -308,6 +308,10 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* i
   // Compute the cross section using the hadron tensor
   double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
 
+  if (xsec_all <= 0.) {
+    return 0.8;  // default pn fraction when SuSAv2 tensor has no coverage
+  } 
+
   double ratio = 0.;
 
   if (final_state_ratio == "pnFraction") { // pnFraction will be calculated by default
@@ -331,7 +335,6 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* i
     ratio = pp_ratio;
 
   }
-
   return ratio;
 }
 //_________________________________________________________________________
@@ -466,6 +469,13 @@ void MartiniEricsonChanfrayMarteauMECPXSec2024::LoadConfig(void)
   if( !fHadronTensorModel ) {
     good_config = false ;
     LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required HadronTensorAlg does not exist. AlgoID is : " << SubAlg("HadronTensorAlg")->Id();
+  }
+
+  // Load SuSAv2 hadron tensor model for pair ratio calculation
+  fPairRatioHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("PairRatioHadronTensorAlg") );
+  if( !fPairRatioHadronTensorModel ) {
+    good_config = false ;
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required PairRatioHadronTensorAlg does not exist. AlgoID is : " << SubAlg("PairRatioHadronTensorAlg")->Id();
   }
 
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (this->SubAlg("NumericalIntegrationAlg"));

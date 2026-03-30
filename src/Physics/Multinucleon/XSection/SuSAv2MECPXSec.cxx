@@ -50,7 +50,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
       << "Doesn't support transformation from "
       << KinePhaseSpace::AsString(kPSTlctl) << " to "
       << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
+    return 0.;
   }
 
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
