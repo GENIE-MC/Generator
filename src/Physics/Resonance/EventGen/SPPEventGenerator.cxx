@@ -93,7 +93,9 @@ void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ml2  = ml*ml;
   
   // 4-momentum of neutrino in lab frame
-  TLorentzVector k1(*(init_state.GetProbeP4(kRfLab)));
+  TLorentzVector* tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector k1 = *tempNeutrino;
+  delete tempNeutrino;
   // 4-momentum of hit nucleon in lab frame
   TLorentzVector p1(*(evrec->HitNucleon())->P4());
   TLorentzVector p1_copy(p1);
