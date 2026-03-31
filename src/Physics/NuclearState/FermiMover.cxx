@@ -145,9 +145,7 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   FermiMoverInteractionType_t interaction_type = fNuclModel->GetFermiMoverInteractionType();
 
   // EffectiveSF treatment or momentum-dependent removal energy
-  if (interaction_type == kFermiMoveEffectiveSF1p1h ||
-      interaction_type == kFermiMoveSpectralFunc    || 
-      fMomDepErmv ) {
+  if (interaction_type == kFermiMoveEffectiveSF1p1h || fMomDepErmv ) {
     EN = nucleon->Mass() - w - pF2 / (2 * (nucleus->Mass() - nucleon->Mass()));
   } else if (interaction_type == kFermiMoveEffectiveSF2p2h_eject ||
              interaction_type == kFermiMoveEffectiveSF2p2h_noeject) {
