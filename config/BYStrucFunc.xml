@@ -64,7 +64,7 @@ WeinbergAngle              double  No                                           
     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
 
     <!-- Specify DIS nuclear correction to use-->
-    <param type="alg" name="DISNuclModel">  genie::BYDISNuclearModel/Default </param>
+    <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
   </param_set>
 
 </alg_conf>
