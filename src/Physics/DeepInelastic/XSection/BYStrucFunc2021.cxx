@@ -237,8 +237,7 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
   const double a6 = -0.0285;
   
   double Ra = (a1 * Theta / TMath::Log(Q2/0.04) ) ;
-  Ra += a2 * ( 1 + a4 * x + a5 * x2 ) * pow( x, a6 ) ;
-  Ra /= pow( Q8 + pow(a3,4), 1./4. ) ;
+  Ra += a2 * ( 1 + a4 * x + a5 * x2 ) * pow( x, a6 ) / pow( Q8 + pow(a3,4), 1./4. ) ;
 
   const double b1 = 0.0481;
   const double b2 = 0.6114;
@@ -248,7 +247,7 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
   const double b6 = -0.0317;
 
   double Rb = b1 * Theta / TMath::Log(Q2/0.04) ;
-  Rb += (b2 / Q2 + b3 / (Q4 + pow(0.3,2)) ) * (1+b4*x+b5*x2) * pow(x,b6);
+  Rb += (b2 / Q2 + b3 / (Q4 + 0.09) ) * (1 + b4*x + b5*x2) * pow(x,b6);
 	 
   const double c1 = 0.0577;
   const double c2 = 0.4644;
@@ -258,7 +257,7 @@ double BYStrucFunc2021::R(const Interaction * interaction) const {
   const double c6 = 41.7415;
   double Q2thr = c4*x + c5*x2 + c6*x3;
   double Rc = c1 * Theta / TMath::Log( Q2/0.04 ) ;
-  Rc += c2 * sqrt( pow(Q2 - Q2thr,2) + pow(c3,2));
+  Rc += c2 / sqrt( pow(Q2 - Q2thr,2) + pow(c3,2));
   
   double R1998 = (Ra + Rb + Rc) / 3. ;
 
