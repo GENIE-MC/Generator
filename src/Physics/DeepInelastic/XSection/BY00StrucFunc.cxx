@@ -12,7 +12,7 @@
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/DeepInelastic/XSection/BYStrucFunc.h"
+#include "Physics/DeepInelastic/XSection/BY00StrucFunc.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
 
@@ -20,24 +20,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BYStrucFunc::BYStrucFunc() :
-QPMDISStrucFuncBase("genie::BYStrucFunc")
+BY00StrucFunc::BY00StrucFunc() :
+QPMDISStrucFuncBase("genie::BY00StrucFunc")
 {
   this->Init();
 }
 //____________________________________________________________________________
-BYStrucFunc::BYStrucFunc(string config):
-QPMDISStrucFuncBase("genie::BYStrucFunc", config)
+BY00StrucFunc::BY00StrucFunc(string config):
+QPMDISStrucFuncBase("genie::BY00StrucFunc", config)
 {
   this->Init();
 }
 //____________________________________________________________________________
-BYStrucFunc::~BYStrucFunc()
+BY00StrucFunc::~BY00StrucFunc()
 {
 
 }
 //____________________________________________________________________________
-void BYStrucFunc::Configure(const Registry & config)
+void BY00StrucFunc::Configure(const Registry & config)
 {
 // Overload Algorithm::Configure() to read the config. registry and set
 // private data members.
@@ -49,13 +49,13 @@ void BYStrucFunc::Configure(const Registry & config)
   this->ReadBYParams();
 }
 //____________________________________________________________________________
-void BYStrucFunc::Configure(string param_set)
+void BY00StrucFunc::Configure(string param_set)
 {
   QPMDISStrucFuncBase::Configure(param_set);
   this->ReadBYParams();
 }
 //____________________________________________________________________________
-void BYStrucFunc::ReadBYParams(void)
+void BY00StrucFunc::ReadBYParams(void)
 {
 // Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
 // registry and set some private data members so as not to accessing the
@@ -72,7 +72,7 @@ void BYStrucFunc::ReadBYParams(void)
 
 }
 //____________________________________________________________________________
-void BYStrucFunc::Init(void)
+void BY00StrucFunc::Init(void)
 {
   fA    = 0;
   fB    = 0;
@@ -84,7 +84,7 @@ void BYStrucFunc::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double BYStrucFunc::ScalingVar(const Interaction * interaction, double Mf ) const
+double BY00StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) const
 {
 // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
@@ -99,7 +99,7 @@ double BYStrucFunc::ScalingVar(const Interaction * interaction, double Mf ) cons
   return xw;
 }
 //____________________________________________________________________________
-void BYStrucFunc::KVectorFactors(const Interaction * interaction,
+void BY00StrucFunc::KVectorFactors(const Interaction * interaction,
 	         double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
 {
   
@@ -117,7 +117,7 @@ void BYStrucFunc::KVectorFactors(const Interaction * interaction,
   kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
 }
 //____________________________________________________________________________
-void BYStrucFunc::KAxialFactors(const Interaction * interaction,
+void BY00StrucFunc::KAxialFactors(const Interaction * interaction,
 					double & kuv, double & kdv, double & kus, double & kds, double & kss ) const {
   // In this version, Vector K-Factors are used for the axial component
   KVectorFactors( interaction, kuv, kdv, kus, kds, kss );
