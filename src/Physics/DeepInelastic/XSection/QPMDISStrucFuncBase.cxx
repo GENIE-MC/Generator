@@ -235,13 +235,12 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   }
 
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
-  // Applying all PDF K-factors abd scaling variable corrections
-
   this -> CalcPDFs (interaction);
 
   //
   // Compute K factors which effectively modify the coupling to the boson at low Q2
   // The same K factors are used for neutron and proton hit nucleons
+  // The modification enters differently the calculations of CC, NC F2 and F3. 
   //
   
   // Vector K Factors
@@ -311,13 +310,17 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double gad2 = TMath::Power(gad, 2.);
 
     // NC IS UNFINISHED DO NOT USE YET!! 
-    double q2   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu2+gau2) + (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd2+gad2);
-    double qb2  = (switch_ubar * fus + switch_cbar * fc)  * (gvu2+gau2) + (switch_dbar * fds + switch_sbar * fs)  * (gvd2+gad2);
-    
-    double q3   = (switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv + switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus + switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc ) * (2*gvu*gau) + (switch_dv * kV_val_d * kA_val_d * fdv + switch_ds * sqrt( kV_sea_d * kA_sea_d )  * fds + switch_s * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (2*gvd*gad);
+    double q2   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (kV_val_u * gvu2 + kA_val_u * gau2);
+    q2         += (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * ( kV_sea_s * gvd2+ kA_sea_s * gad2);
 
-    double qb3  = (switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus + switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc)  * (2*gvu*gau) +
-      (switch_dbar * sqrt( kV_sea_d * kA_sea_d ) * fds + switch_sbar * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (2*gvd*gad);
+    double qb2  = (switch_ubar * fus + switch_cbar * fc)  * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += (switch_dbar * fds + switch_sbar * fs)  * ( kV_sea_d * gvd2 + kA_sea_d * gad2);
+    
+    double q3   = (switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv + switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus + switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc ) * (2*gvu*gau);
+    q3         += (switch_dv * kV_val_d * kA_val_d * fdv + switch_ds * sqrt( kV_sea_d * kA_sea_d )  * fds + switch_s * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (2*gvd*gad);
+
+    double qb3  = (switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus + switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc)  * (gvu*gau) ;
+    qb3        += (switch_dbar * sqrt( kV_sea_d * kA_sea_d ) * fds + switch_sbar * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (gvd*gad);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
@@ -325,7 +328,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 #endif
 
     F2val  = q2+qb2;
-    xF3val = q3-qb3;
+    xF3val = 2(q3-qb3);
   }
 
   // ***  CHARGED CURRENT
