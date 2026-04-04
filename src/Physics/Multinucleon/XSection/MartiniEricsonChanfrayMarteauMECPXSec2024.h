@@ -63,6 +63,10 @@ private:
 
   const genie::HadronTensorModelI* fHadronTensorModel;
 
+  ///< SuSAv2 tensors for pair ratios
+  const genie::HadronTensorModelI* fPairRatioHadronTensorModel;
+
+
   // Fermi momentum table used for scaling
   string fKFTable;
 

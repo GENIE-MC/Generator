@@ -164,7 +164,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
       << "Doesn't support transformation from "
       << KinePhaseSpace::AsString(kPSTlctl) << " to "
       << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
+    return 0.;
   }
 
   return xsec;
