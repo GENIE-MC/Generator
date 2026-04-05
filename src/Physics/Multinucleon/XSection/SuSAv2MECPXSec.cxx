@@ -434,18 +434,18 @@ void SuSAv2MECPXSec::LoadConfig(void)
   this->GetParam( "FermiMomentumTable", fKFTable);
 
   //binding energy lookups for scaling
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000020040", fEbHe );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000030060", fEbLi );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000060120", fEbC  );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000080160", fEbO  );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000120240", fEbMg );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000180400", fEbAr );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000200400", fEbCa );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000260560", fEbFe );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000280580", fEbNi );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000501190", fEbSn );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000791970", fEbAu );
-  this->GetParam( "RFG-NucRemovalE@Pdg=1000822080", fEbPb );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000020040", fEbHe, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000030060", fEbLi, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000060120", fEbC,  0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000080160", fEbO,  0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000120240", fEbMg, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000180400", fEbAr, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000200400", fEbCa, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000260560", fEbFe, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000280580", fEbNi, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000501190", fEbSn, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000791970", fEbAu, 0.0 );
+  GetParamDef( "RFG-NucRemovalE@Pdg=1000822080", fEbPb, 0.0 );
 
   // Read optional MECScaleVsW:
   fMECScaleAlg = nullptr;
