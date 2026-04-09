@@ -65,7 +65,7 @@ public:
   double d2XSec_dEldCosTheta (const Interaction * i) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-  const  TVector3 & FinalLeptonPolarization (const Interaction* i) const;
+  TVector3 FinalLeptonPolarization (const Interaction* i) const;
   double IntegratedOverMomentumAll(const Interaction*, double,
                                    double* RPL = nullptr,
                                    double* RPP = nullptr,

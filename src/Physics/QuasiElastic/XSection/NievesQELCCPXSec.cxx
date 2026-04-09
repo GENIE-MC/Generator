@@ -1087,17 +1087,19 @@ const Target& target, bool assumeFreeNucleon) const
   return real(sum);
 }
 //____________________________________________________________________________
-const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3  NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
-  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
   // Get kinematics and init-state parameters
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const Target & target = init_state.Tgt();
   
   double Rmax = MaximalRadius(&target);
-  if (Rmax <= 0) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  if (Rmax <= 0) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
   
   double RPL, RPP, R;
   double IRPL = 0, IRPP = 0, IR = 0;
@@ -1121,8 +1123,8 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   }  
   if (IR == 0)
   {
-      fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-      return fFinalLeptonPolarization;
+      pol.SetBit(kPolarizationUndef);
+      return pol;
   }
   double PL = IRPL/IR;
   double PP = IRPP/IR;
@@ -1137,9 +1139,9 @@ const TVector3 & NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* i
   TVector3 Pz = leptonMom3.Unit();
   TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
   TVector3 Py = Pz.Cross(Px);
-  fFinalLeptonPolarization = PP*Py + PL*Pz;
+  pol = PP*Py + PL*Pz;
     
-  return fFinalLeptonPolarization;
+  return pol;
 
 }
 //___________________________________________________________________________________

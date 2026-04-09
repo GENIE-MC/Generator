@@ -479,10 +479,11 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
 }
 //____________________________________________________________________________
-const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
-  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
   const QELFormFactorsModelI* qel_ff_mod = dynamic_cast<const QELFormFactorsModelI *> (this->SubAlg("FormFactorsAlg"));
   const AlgId & qel_ff_mod_id = qel_ff_mod->Id();
   std::string qel_ff_mod_name = qel_ff_mod_id.Name();
@@ -529,8 +530,8 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
     if ( pNf < kF ) 
     {
         LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
   }
   
@@ -559,15 +560,15 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   if ( qTildeP4.E() < 0 && init_state.Tgt().IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) )
   {
      LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
-     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-     return fFinalLeptonPolarization;
+     pol.SetBit(kPolarizationUndef);
+     return pol;
   }
   double Q2tilde = -qTildeP4.Mag2();
   if ( Q2tilde < 0 )
   {
      LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
-     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-     return fFinalLeptonPolarization;
+     pol.SetBit(kPolarizationUndef);
+     return pol;
   }
 
   // Store Q2tilde in the kinematic variable representing Q2.
@@ -622,7 +623,7 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
   double W5 =  w05 + w15*r + w25*r2;
 
   CalculatePolarizationVectorWithStructureFunctions(
-                fFinalLeptonPolarization, 
+                pol, 
                 neutrinoMom, 
                 leptonMom, 
                 inNucleonMom, 
@@ -630,5 +631,5 @@ const TVector3 & LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interactio
                 is_neutrino, 
                 W1,W2,W3,W4,W5,0);
    
-  return fFinalLeptonPolarization;
+  return pol;
 }

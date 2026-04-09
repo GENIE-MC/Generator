@@ -414,10 +414,11 @@ void NievesSimoVacasMECPXSec2016::LoadConfig(void)
 
 }
 //_________________________________________________________________________
-const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Interaction* interaction) const
 { 
-  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
   const Kinematics&   kinematics = interaction -> Kine();
   const InitialState& init_state = interaction -> InitState();
   const Target& tgt = init_state.Tgt();
@@ -486,8 +487,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
         MAXLOG("NievesSimoVacasMEC", pWARN, 10)
             << "Asked to scale to deuterium through boron "
             << target_pdg << " nope, lets not do that.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
     else if (A_request >= 9 && A_request < 15) 
     {
@@ -529,8 +530,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
     else 
     {
         MAXLOG("NievesSimoVacasMEC", pWARN, 10) << "Can't calculate final lepton polarization.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
   }
 
@@ -543,8 +544,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
   {
     LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a"
     " hadronic tensor for the nuclide " << tensor_pdg;
-    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-    return fFinalLeptonPolarization;
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }
 
   // Assume for now that the range of validity for the "FullAll" hadron
@@ -557,8 +558,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
   double Q3max = tensor->qMagMax();
   if (Q0 < Q0min || Q0 > Q0max || Q3 < Q3min || Q3 > Q3max) 
   {
-    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-    return fFinalLeptonPolarization;
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }
 
   // Get the Q-value needed to calculate the cross sections using the
@@ -592,8 +593,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
     {
        LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"DeltaAll\""
            << " hadronic tensor for nuclide " << tensor_pdg;
-       fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-       return fFinalLeptonPolarization;
+       pol.SetBit(kPolarizationUndef);
+       return pol;
     }
 
     const LabFrameHadronTensorI* tensor_delta_pn
@@ -604,8 +605,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
     {
        LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Deltapn\""
            << " hadronic tensor for nuclide " << tensor_pdg;
-       fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-       return fFinalLeptonPolarization;
+       pol.SetBit(kPolarizationUndef);
+       return pol;
     }
     
     W1_all = tensor_delta_all->W1(Q0 -  Q_value, Q3, M);
@@ -629,8 +630,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
     {
         LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"FullAll\""
             << " hadronic tensor for nuclide " << tensor_pdg;
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
 
     const LabFrameHadronTensorI* tensor_full_pn
@@ -641,8 +642,8 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
     {
         LOG("NievesSimoVacasMEC", pWARN) << "Failed to load a \"Fullpn\""
             << " hadronic tensor for nuclide " << tensor_pdg;
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
     
     W1_all = tensor_full_all->W1(Q0 - Q_value,  Q3, M);
@@ -749,11 +750,11 @@ const TVector3 & NievesSimoVacasMECPXSec2016::FinalLeptonPolarization (const Int
   
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   genie::utils::CalculatePolarizationVectorInTargetRestFrame(
-                                            fFinalLeptonPolarization, 
+                                            pol, 
                                             neutrinoMom, 
                                             leptonMom,
                                             is_neutrino, 
                                             M, W1,W2,W3,W4,W5,0);
 
-  return fFinalLeptonPolarization;
+  return pol;
 }

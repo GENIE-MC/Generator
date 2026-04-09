@@ -668,17 +668,18 @@ void SuSAv2QELPXSec::LoadConfig(void)
 
 }
 //_________________________________________________________________________
-const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {    
+    TVector3 pol(0, 0, 0);
     const ProcessInfo& proc_info = interaction->ProcInfo();
     if ( proc_info.IsEM() ) 
     {
         LOG("SuSAv2QE", pWARN) << "For EM processes doesn't work yet.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
-    if (!fIsPreciseLeptonPolarization || proc_info.IsWeakNC()) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-    fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+    if (!fIsPreciseLeptonPolarization || proc_info.IsWeakNC()) 
+        return XSecAlgorithmI::FinalLeptonPolarization(interaction);
     const Kinematics&   kinematics = interaction -> Kine();
     const InitialState& init_state = interaction -> InitState();
     const Target& tgt = init_state.Tgt();
@@ -719,8 +720,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     if ( Q2 < Q2min )
     {
         LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
     
 
@@ -831,8 +832,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     else 
     {
         LOG("SuSAv2QE", pWARN) << "Doesn't work for processes other than weak ones.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
 
     double Eb_tgt=0;
@@ -937,8 +938,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if ( !tensor_susa ) 
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
 
@@ -952,8 +953,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if ( !tensor_blen ) 
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
 
@@ -965,8 +966,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if ( !tensor_crpa ) 
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
 
@@ -1014,8 +1015,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) 
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
     else if ( modelConfig == kMd_CRPA   || modelConfig == kMd_HF ||
@@ -1028,8 +1029,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if (Q0-Delta_Q_value_crpa < Q0min || Q0-Delta_Q_value_crpa > Q0max || Q3 < Q3min || Q3 > Q3max)
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
     else if ( modelConfig == kMd_SuSAv2Blend)
@@ -1041,8 +1042,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if (Q0-Delta_Q_value_blen < Q0min || Q0-Delta_Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) 
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
     else
@@ -1054,8 +1055,8 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
         if (Q0-Delta_Q_value_crpa < Q0min || Q0-Delta_Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max)
         {
             LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
-            fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-            return fFinalLeptonPolarization;
+            pol.SetBit(kPolarizationUndef);
+            return pol;
         }
     }
 
@@ -1203,11 +1204,11 @@ const TVector3 & SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* int
     }
     
     genie::utils::CalculatePolarizationVectorInTargetRestFrame(
-                                            fFinalLeptonPolarization, 
+                                            pol, 
                                             neutrinoMom, 
                                             leptonMom,
                                             is_neutrino, 
                                             M, W1,W2,W3,W4,W5,0);
 
-    return fFinalLeptonPolarization;
+    return pol;
 }

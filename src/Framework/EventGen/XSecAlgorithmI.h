@@ -35,7 +35,14 @@ public:
   //! Compute the cross section for the input interaction
   virtual double XSec (const Interaction* i, KinePhaseSpace_t k=kPSfE) const = 0;
   
-  virtual const TVector3 & FinalLeptonPolarization (const Interaction* i) const;
+  /**
+  * Returns final lepton polarization.
+  *
+  * NOTE:
+  * The returned vector may have the kPolarizationUndef bit set.
+  * The caller MUST check this flag before using the value.
+  */
+  virtual TVector3 FinalLeptonPolarization (const Interaction* i) const;
 
   //! Integrate the model over the kinematic phase space available to the
   //! input interaction (kinematical cuts can be included)
@@ -52,7 +59,6 @@ protected:
   XSecAlgorithmI(string name);
   XSecAlgorithmI(string name, string config);
   
-  mutable TVector3 fFinalLeptonPolarization;
   bool fIsPreciseLeptonPolarization;
 };
 

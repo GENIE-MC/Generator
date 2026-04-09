@@ -239,10 +239,11 @@ void PaisQELLambdaPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
-const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
-  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
   // First we need access to all of the particles in the interaction
   // The particles were stored in the lab frame
   //----- get kinematics & init state - compute auxiliary vars
@@ -299,7 +300,7 @@ const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction*
   double W3 = 2*FA*(F1V + xiF2V);
   
   CalculatePolarizationVectorWithStructureFunctions(
-                fFinalLeptonPolarization, 
+                pol, 
                 neutrinoMom, 
                 leptonMom, 
                 inNucleonMom, 
@@ -308,5 +309,5 @@ const TVector3 & PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction*
                 W1,W2,W3,0,0,0);
   
   
-  return fFinalLeptonPolarization;
+  return pol;
 }

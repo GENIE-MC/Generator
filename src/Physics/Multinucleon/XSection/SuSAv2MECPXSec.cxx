@@ -475,17 +475,18 @@ void SuSAv2MECPXSec::LoadConfig(void)
 
 }
 //_________________________________________________________________________
-const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
+  TVector3 pol(0, 0, 0);
   const ProcessInfo& proc_info = interaction->ProcInfo();
   if ( proc_info.IsEM() ) 
   {
       LOG("SuSAv2MECPXSec", pWARN) << "For EM processes doesn't work yet.";
-      fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-      return fFinalLeptonPolarization;
+      pol.SetBit(kPolarizationUndef);
+      return pol;
   }
-  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
   // electron scattering
@@ -502,8 +503,8 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   else 
   {
     LOG("SuSAv2MECPXSec", pWARN) << "Doesn't work for processes other than weak ones.";
-    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-    return fFinalLeptonPolarization;
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }
   //else 
   //{
@@ -526,8 +527,8 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   if ( !tensor ) 
   {
     LOG("SuSAv2MEC", pWARN) << "Can't calculate final lepton polarization.";
-    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-    return fFinalLeptonPolarization;
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }
 
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
@@ -561,8 +562,8 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   double Q3max = tensor->qMagMax();
   if (Q0-Delta_Q_value < Q0min || Q0-Delta_Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) 
   {
-    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-    return fFinalLeptonPolarization;
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }
 
   // *** Enforce the global Q^2 cut (important for EM scattering) ***
@@ -578,8 +579,8 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
   double Q2 = Q3*Q3 - Q0*Q0;
   if ( Q2 < Q2min )
   {
-    fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-    return fFinalLeptonPolarization;
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }
 
 
@@ -591,11 +592,11 @@ const TVector3 & SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* int
     
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   genie::utils::CalculatePolarizationVectorInTargetRestFrame(
-                                        fFinalLeptonPolarization, 
+                                        pol, 
                                         neutrinoMom, 
                                         leptonMom,
                                         is_neutrino, 
                                         M, W1,W2,W3,W4,W5,0);
 
-    return fFinalLeptonPolarization;
+    return pol;
 }

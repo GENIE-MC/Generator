@@ -18,21 +18,18 @@ using namespace genie;
 XSecAlgorithmI::XSecAlgorithmI() :
 Algorithm()
 {
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
     fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::XSecAlgorithmI(string name) :
 Algorithm(name)
 {
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
     fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::XSecAlgorithmI(string name, string config) :
 Algorithm(name, config)
 {
-    fFinalLeptonPolarization = TVector3(0, 0, 0);
     fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
@@ -61,24 +58,30 @@ bool XSecAlgorithmI::ValidKinematics(const Interaction* interaction) const
   return true;
 }
 //___________________________________________________________________________
-const TVector3 & XSecAlgorithmI::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 XSecAlgorithmI::FinalLeptonPolarization (const Interaction* interaction) const
 {
+    TVector3 pol(0, 0, 0);
     if ( interaction->ProcInfo().IsEM() ) 
     {
         LOG("XSecBase", pWARN) << "For EM processes doesn't work yet.";
-        fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-        return fFinalLeptonPolarization;
+        pol.SetBit(kPolarizationUndef);
+        return pol;
     }
-    fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
     const Kinematics &   kinematics = interaction -> Kine();
     TLorentzVector leptonMom = kinematics.FSLeptonP4();
     int pdg = interaction->FSPrimLeptonPdg();
-    fFinalLeptonPolarization = leptonMom.Vect().Unit();
+    TVector3 leptonMom3 = leptonMom.Vect();
+    if (leptonMom3.Mag2() <= 0)
+    {
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+    pol = leptonMom3.Unit();
     if ( pdg::IsNeutrino(pdg) || pdg::IsElectron(pdg) || pdg::IsMuon(pdg) || pdg::IsTau(pdg) )
     {
-        fFinalLeptonPolarization = -1.*fFinalLeptonPolarization;
+        pol *= -1.;
     }
 
-    return fFinalLeptonPolarization;
+    return pol;
 }
 //___________________________________________________________________________

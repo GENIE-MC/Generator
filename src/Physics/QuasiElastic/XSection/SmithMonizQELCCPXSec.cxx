@@ -523,10 +523,11 @@ double SmithMonizQELCCPXSec::dsQES_dQ2_SM(const Interaction * interaction) const
                   0.32516118713868835987e-1,0.32550614492363166242e-1};
  }
 //____________________________________________________________________________
-const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+TVector3 SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
 {
-  if (!fIsPreciseLeptonPolarization) return XSecAlgorithmI::FinalLeptonPolarization(interaction);
-  fFinalLeptonPolarization.ResetBit(kPolarizationUndef);
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
   // Get kinematics & init-state parameters
   const Kinematics &  kinematics = interaction -> Kine();
   sm_utils->SetInteraction(interaction);
@@ -566,8 +567,8 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   if (cosT_k < -1.0 || cosT_k > 1.0 )
   {
      LOG("SmithMoniz", pWARN) << "Can't calculate final lepton polarization.";
-     fFinalLeptonPolarization.SetBit(kPolarizationUndef);
-     return fFinalLeptonPolarization;
+     pol.SetBit(kPolarizationUndef);
+     return pol;
   }
   
   double P_Fermi = sm_utils->GetInitialFermiMomentum();
@@ -664,12 +665,12 @@ const TVector3 & SmithMonizQELCCPXSec::FinalLeptonPolarization (const Interactio
   double T5     = m_tar*(a5/qv - v*k4)*W2 + k5*W5;
   
   CalculatePolarizationVectorInTargetRestFrame(
-                        fFinalLeptonPolarization, 
+                        pol, 
                         neutrinoMom, 
                         leptonMom,
                         is_neutrino, 
                         m_tar, T1,T2,T3,T4,T5,0);
 
-  return fFinalLeptonPolarization;
+  return pol;
 }
 //____________________________________________________________________________
