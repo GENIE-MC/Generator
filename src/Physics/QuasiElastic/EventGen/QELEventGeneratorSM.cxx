@@ -462,7 +462,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
 {
     double xsec_max = -1;
     double tmp_xsec_max = -1;
-    double Q20, v0;
+    double Q20(0), v0(0);
     bool initialized = false;
     const int N_Q2 = 32;
     const InitialState & init_state = interaction -> InitState();
@@ -550,7 +550,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
      }
      double xsec_max = -1;
      double tmp_xsec_max = -1;
-     double Q20, v0;
+     double Q20(0), v0(0);
      bool initialized = false;
      const int N_Q2 = 32;
      const InitialState & init_state = interaction -> InitState();
