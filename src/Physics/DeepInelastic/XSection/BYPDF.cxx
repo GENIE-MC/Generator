@@ -102,6 +102,11 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   us *= ( 1 + fUpScale ) ;
   ds *= ( 1 + fUpScale ) ;
 
+  // compute correction factor delta(d/u)
+  double delta = this->DeltaDU(x);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
+#endif
   
   // compute u/(u+d) ratios for both valence & sea quarks
   double val = uv+dv;
@@ -109,8 +114,7 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   double rv  = (val==0) ? 0. : uv/val;
   double rs  = (sea==0) ? 0. : us/sea;
 
-  // compute correction factor delta(d/u)
-  double delta = this->DeltaDU(x);
+  // Ignore delta correction if requested
   if( !fApplyDelta ) delta = 0;
     
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__

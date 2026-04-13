@@ -218,7 +218,7 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   // We use the R1998 parameterization only at Q2>0.3 GeV2.
   // At lower Q2, we freeze the function at Q2 =0.3 GeV2
   // The parameter, fRQ2min, is setup to 0.3 in the configuration. The default value can be changed.
-  const double RQ4min = pow( fRQ2min,2 );
+  double RQ4min = pow( fRQ2min,2 );
 
   if( Q2_int < fRQ2min ) {
     // Freeze R at Q2 = 0.3 GeV2
@@ -267,12 +267,13 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   Rc += c2 / sqrt( pow(Q2 - Q2thr,2) + pow(c3,2));
   
   double R1998 = (Ra + Rb + Rc) / 3. ;
-
+      
   // At Q2 < 0.3 GeV2, we add a K factor multipying R(Q2=0.3)
   // for a smooth transtion down to Q2 = 0 (the photonproduction limit)
   if( Q2_int < fRQ2min ) {
     double Q4_int = pow(Q2_int,2);
-    R1998 *= ( (RQ4min + 1 ) / fRQ2min )  * Q2_int / ( Q4_int + 1 ) ;
+    double R0 = (RQ4min + 1 ) / fRQ2min ;
+    R1998 *= R0  * Q2_int / ( Q4_int + 1 ) ;
   }
   
   return R1998 ; 
