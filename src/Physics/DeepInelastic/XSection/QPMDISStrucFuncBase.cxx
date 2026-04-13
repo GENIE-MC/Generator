@@ -394,7 +394,6 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	return;
       }
 
-    // xF3 = 2* Sum_{ij} V_{ij}^2 [sqrt(KV_i*KA_i) q_i - sqrt(KV_j*KA_j) barq_j]
     xF3val = 2*(q-qbar);
   }
 

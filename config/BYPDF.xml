@@ -9,6 +9,7 @@ Configurable Parameters:
 ....................................................................................................
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
+BY-Delta                   bool    Yes   Apply correction to u/d valance dist.  True
 BY-X0                      double  No    Bodek-Yang param X0                    
 BY-X1                      double  No    Bodek-Yang param X1                    
 BY-X2                      double  No    Bodek-Yang param X2                    
@@ -18,8 +19,8 @@ BY-UpScale                 double  Yes   Scaling the up distribution. Default 0.
 By-DownScale               double  Yes   Scaling the down distribution. Default 0.
 -->
 
-  <param_set name="Default"> 
-
+<param_set name="Default">
+  
     <param type="double" name="BY-X0">   -0.00817 </param>
     <param type="double" name="BY-X1">    0.0506  </param>
     <param type="double" name="BY-X2">    0.0798  </param>

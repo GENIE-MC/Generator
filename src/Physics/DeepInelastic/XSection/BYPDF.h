@@ -58,6 +58,7 @@ private:
 
   const PDFModelI * fBasePDFModel; ///< base (uncorrected) PDF model
 
+  bool   fApplyDelta; ///< Apply small u/d correction to u/d valance distributions 
   double fX0;    ///< correction param X0
   double fX1;    ///< correction param X1
   double fX2;    ///< correction param X2

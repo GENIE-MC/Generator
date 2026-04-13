@@ -101,30 +101,33 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   dv -= 2 * fDownScale * uncorrected_pdfs.dval;
   us *= ( 1 + fUpScale ) ;
   ds *= ( 1 + fUpScale ) ;
-  
-  // compute correction factor delta(d/u)
-  double delta = this->DeltaDU(x);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
-#endif
 
+  
   // compute u/(u+d) ratios for both valence & sea quarks
   double val = uv+dv;
   double sea = us+ds;
   double rv  = (val==0) ? 0. : uv/val;
   double rs  = (sea==0) ? 0. : us/sea;
 
+  // compute correction factor delta(d/u)
+  double delta = this->DeltaDU(x);
+  if( !fApplyDelta ) delta = 0;
+    
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BodekYang", pDEBUG)
-   << "valence[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
+    LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
 #endif
 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("BodekYang", pDEBUG)
+      << "valence[u/(u+d)] = " << rv << ", sea[u/(u+d)] = " << rs;
+#endif
+  
   // compute the corrected valence and sea quark PDFs:
   double uv_c =       uv        / ( 1 + delta*rv);
   double dv_c = (dv + uv*delta) / ( 1 + delta*rv);
   double us_c =       us        / ( 1 + delta*rs);
   double ds_c = (ds + us*delta) / ( 1 + delta*rs);
-
+  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) << "Bodek-Yang PDF correction:";
   LOG("BodekYang", pDEBUG) << "uv: " << uv << " --> " << uv_c;
@@ -132,10 +135,10 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   LOG("BodekYang", pDEBUG) << "us: " << us << " --> " << us_c;
   LOG("BodekYang", pDEBUG) << "ds: " << ds << " --> " << ds_c;
 #endif
-
+  
   // fill in and return the corrected PDFs:
   PDF_t corrected_pdfs;
-
+  
   corrected_pdfs.uval = uv_c;
   corrected_pdfs.dval = dv_c;
   corrected_pdfs.usea = us_c;
@@ -171,7 +174,7 @@ void BYPDF::Configure(string config)
 //____________________________________________________________________________
 void BYPDF::LoadConfig(void)
 {
-
+  GetParam( "BY-Delta", fApplyDelta, true );
   GetParam( "BY-X0", fX0 ) ;
   GetParam( "BY-X1", fX1 ) ;
   GetParam( "BY-X2", fX2 ) ;
