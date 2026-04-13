@@ -174,7 +174,7 @@ void BYPDF::Configure(string config)
 //____________________________________________________________________________
 void BYPDF::LoadConfig(void)
 {
-  GetParam( "BY-Delta", fApplyDelta, true );
+  GetParamDef( "BY-Delta", fApplyDelta, true );
   GetParam( "BY-X0", fX0 ) ;
   GetParam( "BY-X1", fX1 ) ;
   GetParam( "BY-X2", fX2 ) ;
