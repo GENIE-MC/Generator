@@ -67,5 +67,12 @@ WeinbergAngle              double  No                                           
     <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
   </param_set>
 
+  <param_set name="BY2000"> 
+    <param type="bool"   name="Use2016Corrections"> true </param>
+
+    <!-- Specify DIS nuclear correction to use-->
+    <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
+  </param_set>
+
 </alg_conf>
 

@@ -106,7 +106,7 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 
   //-- include R (~FL)?
   GetParam( "IncludeR", fIncludeR ) ;
-  GetParamDef( "R-Q2min", fRQ2min, 0.3 ) ;
+  //  GetParamDef( "R-Q2min", fRQ2min, 0.3 ) ;
   
   //-- include H?
   GetParam( "IncludeH", fIncludeH, false ) ;
