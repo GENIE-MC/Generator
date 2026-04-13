@@ -13,6 +13,7 @@ Charm-Mass                 double  No    charm mass                             
 Charm-Prod-Off             bool    Yes   charm production is turned off         false
 PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
 IncludeR                   bool    No    include R factor?                      
+R-Q2min                    double  Yes   min Q2 for R factor evaluation         Default 0.3 GeV2/c4
 IncludeNuclMod             bool    No    include nuclear factor?                
 CKM-Vcd                    double  No                                           CommonParam[CKM]
 CKM-Vcs                    double  No                                           CommonParam[CKM]

@@ -74,7 +74,8 @@ protected:
 				 double & kdv, double & kus, double & kds, double & kss ) const;
   // configuration
   //
-  double fQ2min;             ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
+  double fPDFQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
+  double fRQ2min;            ///< min Q^2 allowed for R parameterization
   bool   fCharmOff;          ///< turn charm production off?
   bool   fIncludeR;          ///< include R (~FL) in DIS SF calculation?
   bool   fIncludeH;          ///< include HO QCD corrections

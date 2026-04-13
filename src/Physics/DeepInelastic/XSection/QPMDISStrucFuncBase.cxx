@@ -102,11 +102,12 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   GetParam( "Charm-Mass", fMc ) ;
 
   //-- min Q2 for PDF evaluation
-  GetParam( "PDF-Q2min", fQ2min ) ;
+  GetParam( "PDF-Q2min", fPDFQ2min ) ;
 
   //-- include R (~FL)?
   GetParam( "IncludeR", fIncludeR ) ;
-
+  GetParamDef( "R-Q2min", fRQ2min, 0.3 ) ;
+  
   //-- include H?
   GetParam( "IncludeH", fIncludeH, false ) ;
 
@@ -327,8 +328,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", bar{q} = " << qb3;
 #endif
 
-    F2val  = q2+qb2;
-    xF3val = 2(q3-qb3);
+    F2val  = q2 + qb2;
+    xF3val = 2.0 * (q3-qb3);
   }
 
   // ***  CHARGED CURRENT
@@ -599,7 +600,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   double M = tgt.HitNucP4().M();
 
   // Get the Q2 for which PDFs will be evaluated
-  double Q2pdf = TMath::Max(Q2val, fQ2min);
+  double Q2pdf = TMath::Max(Q2val, fPDFQ2min);
 
   // Compute PDFs at (x,Q2)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
