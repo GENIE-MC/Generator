@@ -223,7 +223,7 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
         std::complex<double> zvep, zvem, zvmp, zvmm, zvsp, zvsm, zaep, zaem, zamp, zamm, zalp, zalm, zasp, zasm, zrhp, zrhm, zaxp, zaxm;
         double fact   = 4*W*qpioc/fnuc;
         double facl   = Q2/qgamc/qgamc;
-        double rt = 0, rl = 0, rtp = 0, rrh = 0, rrh0 = 0, rrh0i = 0;
+        double rt = 0, rl = 0, rtp = 0, rrh = 0, rrh0 = 0;
         for (int il = 0; il < maxl; il++)
         {
             // vector current
@@ -263,7 +263,6 @@ double DCCSPPPXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
             rtp   -= c1*(dotc(zvmp, zaep) + dotc(zvem, zamm)) - c2*(dotc(zvmm, zaem) + dotc(zvep, zamp));
             rrh   += lp13*norm2(zrhp) + l3*norm2(zrhm);
             rrh0  += lp13*dotc(zaxp, zrhp) + l3*dotc(zaxm, zrhm);
-            rrh0i += lp13*imag_dotc(zaxp, zrhp) + l3*imag_dotc(zaxm, zrhm);
         }
 
         double W1  =  rt*fact/2;
