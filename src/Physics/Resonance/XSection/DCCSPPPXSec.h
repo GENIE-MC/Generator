@@ -160,10 +160,12 @@ namespace genie {
         {
             return z.real()*z.real() + z.imag()*z.imag();
         }
+        /// Real part of conjugate product: Re(conj(a)*b)
         inline double dotc(const std::complex<double>& a, const std::complex<double>& b) const
         {
             return a.real()*b.real() + a.imag()*b.imag();
         }
+        /// Imaginary part of conjugate product: Im(conj(a)*b)
         inline double imag_dotc(const std::complex<double>& a, const std::complex<double>& b) const
         {
             return a.imag()*b.real() - a.real()*b.imag();
