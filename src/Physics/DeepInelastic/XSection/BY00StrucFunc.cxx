@@ -115,6 +115,7 @@ void BY00StrucFunc::KVectorFactors(const Interaction * interaction,
   kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
   kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
   kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
+  kss = ksd ;                               // K - d(sea)
 }
 //____________________________________________________________________________
 void BY00StrucFunc::KAxialFactors(const Interaction * interaction,
