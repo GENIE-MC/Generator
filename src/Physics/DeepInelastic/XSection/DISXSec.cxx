@@ -74,8 +74,9 @@ double DISXSec::Integrate(
   // If the input interaction is off a nuclear target, then chek whether
   // the corresponding free nucleon cross section already exists at the
   // cross section spline list.
-  // If yes, calculate the nuclear cross section based on that value.
-  //
+  // If yes, calculate the nuclear cross section based on that value only
+  // when nuclear effects are turned off.
+  
   XSecSplineList * xsl = XSecSplineList::Instance();
   if( init_state.Tgt().IsNucleus() && !xsl->IsEmpty() && !fDISNuclCorr ) {
     // Computes xsec from free nucleon calculation wo nuclear effects
@@ -98,53 +99,45 @@ double DISXSec::Integrate(
     delete interaction;
   }
 
-  ///// THIS TAKES FAR TOO LONG! Removed.
   // There was no corresponding free nucleon spline saved in XSecSplineList that
-  // could be used to speed up this calculation.
+  // could be used to speed up this calculation (without nuclear effects).
   // Check whether local caching of free nucleon cross sections is allowed.
   // If yes, store free nucleon cross sections at a cache branch and use those
   // at any subsequent call.
-  // If DIS nuclear effects are used, precompute from scratch. Cannot reuse free nucleon spline.
-  /*
-    bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
-    if(precalc_bare_xsec && !fDISNuclCorr) {
-    std::cout << " ******** IN INT METHOD 2 " << std::endl;
+
+  bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
+  if(precalc_bare_xsec && ( !fDISNuclCorr || !init_state.Tgt().IsNucleus() ) ) {
+    
     Cache * cache = Cache::Instance();
     Interaction * interaction = new Interaction(*in);
     string key = this->CacheBranchName(model,interaction);
+
     LOG("DISXSec", pINFO) << "Finding cache branch with key: " << key;
     CacheBranchFx * cache_branch =
-    dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+      dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
     if(!cache_branch) {
-    this->CacheFreeNucleonXSec(model,interaction);
-    cache_branch =
-    dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
-    assert(cache_branch);
+      this->CacheFreeNucleonXSec(model,interaction);
+      cache_branch =
+	dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+      assert(cache_branch);
     }
     const CacheBranchFx & cb = (*cache_branch);
     double xsec = cb(Ev);
     if(! interaction->TestBit(kIAssumeFreeNucleon) ) { xsec *= NNucl; }
     LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+
     delete interaction;
     return xsec;
-    }
-  */
+  }
   
+
+  // If DIS nuclear effects are used, precompute from scratch. Cannot reuse free nucleon spline.
   // Just go ahead and integrate the input differential cross section for the
   // specified interaction.
-  //
+  
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
-  //   interaction->SetBit(kISkipKinematicChk);
 
-  // **Important note**
-  // Based on discussions with Hugh at the GENIE mini-workshop / RAL - July '07
-  // The DIS nuclear corrections re-distribute the strength in x,y but do not
-  // affect the total cross-section They should be disabled at this step.
-  // But they should be enabled at the DIS thread's kinematical selection.
-  // Since nuclear corrections don't need to be included at this stage, all the
-  // nuclear cross sections can be trivially built from the free nucleon ones.
-  //
   if(!fDISNuclCorr) interaction->SetBit(kINoNuclearCorrection);
 
   Range1D_t Wl  = kps.WLim();
