@@ -157,6 +157,8 @@
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
    <config alg="genie::EngelFormFactor">                         EngelFormFactor.xml                         </config>
+   <config alg="genie::KellyELFormFactorsModel">                 KellyELFormFactorsModel.xml                 </config>
+   <config alg="genie::LwlynSmithFFEM">                          LwlynSmithFFEM.xml                          </config>
 
 
    <!--  ****** CONFIGURATION GENERIC CROSS SECTION INTEGRATORS ****** -->
@@ -192,6 +194,7 @@
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
    <config alg="genie::SuSAv2QELPXSec">                     SuSAv2QELPXSec.xml                     </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
+   <config alg="genie::UnifiedQELPXSec">                    UnifiedQELPXSec.xml                    </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
    <config alg="genie::KNOTunedQPMDISPXSec">                KNOTunedQPMDISPXSec.xml                </config>
