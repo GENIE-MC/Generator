@@ -149,6 +149,7 @@
   <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            NOTICE </priority>
   <priority msgstream="LHAPDF6">               NOTICE </priority>
+  <priority msgstream="LeptonTensor">          NOTICE </priority>
   <priority msgstream="Math">                  NOTICE </priority>
   <priority msgstream="MEC">                   WARN  </priority>
   <priority msgstream="MuELoss">               NOTICE </priority>
@@ -178,6 +179,7 @@
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              WARN   </priority>
   <priority msgstream="QELXSec">               NOTICE </priority>
+  <priority msgstream="UnifiedQELPXSec">       WARN   </priority>
   <priority msgstream="QELCharmXSec">          NOTICE </priority>
   <priority msgstream="QELEvent">              NOTICE </priority>
   <priority msgstream="QELHadronicVtx">        WARN   </priority>
