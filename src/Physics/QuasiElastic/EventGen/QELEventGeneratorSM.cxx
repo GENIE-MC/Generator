@@ -458,6 +458,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
     double xsec_max = -1;
     double tmp_xsec_max = -1;
     double Q20, v0;
+    bool initialized = false;
     const int N_Q2 = 32;
     const InitialState & init_state = interaction -> InitState();
     Target * tgt = init_state.TgtPtr();
@@ -486,11 +487,12 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
           kinematics->SetKV(kKVPn, pFmax);
           // Compute the QE cross section for the current kinematics
           double xs = fXSecModel->XSec(interaction, fkps);
-          if (xs > tmp_xsec_max)
+          if (!initialized || xs > tmp_xsec_max)
           {
-             tmp_xsec_max = xs;
-             Q20 = Q2;
-             v0 =  v;
+              tmp_xsec_max = xs;
+              Q20 = Q2;
+              v0  = v;
+              initialized = true;
           }
        } // Done with v scan
     }// Done with Q2 scan
@@ -543,6 +545,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
      double xsec_max = -1;
      double tmp_xsec_max = -1;
      double Q20, v0;
+     bool initialized = false;
      const int N_Q2 = 32;
      const InitialState & init_state = interaction -> InitState();
      Target * tgt = init_state.TgtPtr();
@@ -570,11 +573,12 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
            kinematics->SetKV(kKVPn, pFmax);
            // Compute the QE cross section for the current kinematics
            double xs = fXSecModel->XSec(interaction, fkps);
-           if (xs > tmp_xsec_max)
+           if (!initialized || xs > tmp_xsec_max)
            {
-              tmp_xsec_max = xs;
-              Q20 = Q2;
-              v0 =  v;
+               tmp_xsec_max = xs;
+               Q20 = Q2;
+               v0  = v;
+               initialized = true;
            }
         } // Done with v scan
      }// Done with Q2 scan
@@ -613,15 +617,17 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
      double tmp_diffv_max = -1;
      const int N_Q2 = 100;
      double Q20;
+     bool initialized = false;
      Range1D_t rQ2 = sm_utils->Q2QES_SM_lim();
      for (int Q2_n = 0; Q2_n<=N_Q2; Q2_n++) // Scan around Q2
      {
         double Q2 = rQ2.min + 1.*Q2_n * (rQ2.max-rQ2.min)/N_Q2;
         Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
-        if (rv.max-rv.min > tmp_diffv_max)
+        if (!initialized || rv.max-rv.min > tmp_diffv_max)
         {
            tmp_diffv_max = rv.max-rv.min;
            Q20 = Q2;
+           initialized = true;
         }
      } // Done with Q2 scan
      

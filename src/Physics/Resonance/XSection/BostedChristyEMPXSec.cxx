@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 #include <TMath.h>
 #include <TDecayChannel.h>
@@ -418,13 +419,9 @@ double BostedChristyEMPXSec::MEC2009(int A, double Q2, double W) const
   if(A<=2) 
     return F1;
     
-  double p18;
-  for (const auto& kv : fMEC2009p18) 
-  {
-    p18 = kv.second;
-    if (A<=kv.first)
-      break;
-  }
+  auto it = fMEC2009p18.lower_bound(A);
+  if (it == fMEC2009p18.end()) --it;
+  double p18 = it->second;
   
   F1 = fMEC2009coef[0]*TMath::Exp(-(W - fMEC2009coef[1])*(W - fMEC2009coef[1])/fMEC2009coef[2])/
              TMath::Power(1. + TMath::Max(0.3,Q2)/fMEC2009coef[3],fMEC2009coef[4])*TMath::Power(nu, fMEC2009coef[5])*(1.0 + 
@@ -462,11 +459,11 @@ double BostedChristyEMPXSec::XSec(
   double nu = (Wsq - MN2 + Q2)/2./MN;
   double x  = Q2/2./MN/nu;
 
-  double sigmaT, sigmaL, F1p, R, W1;
+  double sigmaT, sigmaL, F1p, R, W1(0);
   // Cross section for proton or neutron
   if (A<2 && Wsq>1.155)
   {
-     double xb = Q2/(Wsq+Q2-Mp2);
+     //double xb = Q2/(Wsq+Q2-Mp2);
      sigmaT = sigmaR(0, Q2, W) + sigmaNR(0, Q2, W);
      sigmaL = sigmaR(1, Q2, W) + sigmaNR(1, Q2, W); 
      F1p = sigmaT*(Wsq-Mp2)/8./kPi2/kAem;
@@ -498,21 +495,15 @@ double BostedChristyEMPXSec::XSec(
   if (A>2)
   {
     // Modifed to use Superscaling from Ref. 3
-    double Es, pF, kF;
-    for (const auto& kv : fNucRmvE) 
-    {
-      Es = kv.second;
-      if (A<=kv.first)
-        break;
-    }
-    for (const auto& kv : fKFTable) 
-    {
-      kF = kv.second;
-      if (A<=kv.first)
-        break;
-    }
+    auto itEs = fNucRmvE.lower_bound(A);
+    if (itEs == fNucRmvE.end()) --itEs;
+    double Es = itEs->second;
+    
+    auto itKF = fKFTable.lower_bound(A);
+    if (itKF == fKFTable.end()) --itKF;
+    double kF = itKF->second;
     // adjust pf to give right width based on kf
-    pF = 0.5*kF;
+    double pF = 0.5*kF;
     double F1d;
     FermiSmearingA(Q2, W, pF, Es, F1p, F1d, sigmaT, sigmaL);
     R = 0.;
@@ -1176,6 +1167,10 @@ void BostedChristyEMPXSec::LoadConfig(void)
       fNucRmvE.insert(map<int,double>::value_type(A,eb));
     }
   }
+  if (fNucRmvE.empty()) 
+  {
+    throw std::runtime_error("Separation energy table is empty");
+  }
   
   keyStart = "BostedChristy-FermiMomentum@Pdg=";
   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
@@ -1199,6 +1194,10 @@ void BostedChristyEMPXSec::LoadConfig(void)
       fKFTable.insert(map<int,double>::value_type(A,pf));
     }
   }
+  if (fKFTable.empty()) 
+  {
+    throw std::runtime_error("Fermi momentum table is empty");
+  }
   
   keyStart = "BostedChristy-p18@Pdg=";
   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it)
@@ -1220,6 +1219,11 @@ void BostedChristyEMPXSec::LoadConfig(void)
       GetParam( rgkey, p18) ;
       fMEC2009p18.insert(map<int,double>::value_type(A,p18));
     }
+  }
+  
+  if (fMEC2009p18.empty()) 
+  {
+    throw std::runtime_error("MEC parameters table is empty");
   }
   
 }

@@ -166,10 +166,10 @@ double NievesSimoVacasMECPXSec2016::XSec(
 
   // Check that the input kinematical point is within the range
   // in which hadron tensors are known (for chosen target)
-  double Ev    = interaction->InitState().ProbeE(kRfLab);
-  double Tl    = interaction->Kine().GetKV(kKVTl);
-  double costl = interaction->Kine().GetKV(kKVctl);
-  double ml    = interaction->FSPrimLepton()->Mass();
+  //double Ev    = interaction->InitState().ProbeE(kRfLab);
+  //double Tl    = interaction->Kine().GetKV(kKVTl);
+  //double costl = interaction->Kine().GetKV(kKVctl);
+  //double ml    = interaction->FSPrimLepton()->Mass();
   double Q0    = interaction->Kine().GetKV(kKVQ0);
   double Q3    = interaction->Kine().GetKV(kKVQ3);
 

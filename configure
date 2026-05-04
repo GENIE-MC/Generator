@@ -48,6 +48,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    gfortran             Link against external libraries built with gfortran         default: disabled \n";
   print "    g2c                  Link against external libraries built with g77              default: disabled \n";
   print "    professor2           Build bundled professor2 libraries                          default: disabled \n";
+  print "    asan                 Enable AddressSanitizer (-fsanitize=address)                default: disabled \n";
   print "\n options for 3rd party software, prefix with --with- (eg --with-lhapdf5-lib=/some/path/)\n\n";
   print "    compiler          Compiler to use (any of clang,gcc)                          default: gcc \n";
   print "    optimiz-level     Compiler optimization        any of O,O2,O3,OO,Os / default: O2 \n";
@@ -181,6 +182,7 @@ my $gopt_enable_doxygen_doc          = "NO";
 my $gopt_enable_gfortran             = "NO";
 my $gopt_enable_g2c                  = "NO";
 my $gopt_enable_professor2           = "NO";
+my $gopt_enable_asan                 = "NO";
 
 # Check configure's command line arguments for non-default values
 #
@@ -219,6 +221,8 @@ if(($match = grep(/--enable-doxygen-doc/i,          @ARGV)) > 0) { $gopt_enable_
 if(($match = grep(/--enable-gfortran/i,             @ARGV)) > 0) { $gopt_enable_gfortran             = "YES"; }
 if(($match = grep(/--enable-g2c/i,                  @ARGV)) > 0) { $gopt_enable_g2c                  = "YES"; }
 if(($match = grep(/--enable-professor2/i,           @ARGV)) > 0) { $gopt_enable_professor2           = "YES"; }
+if(($match = grep(/--enable-asan/i,                 @ARGV)) > 0) { $gopt_enable_asan                 = "YES"; }
+if(($match = grep(/--disable-asan/i,                @ARGV)) > 0) { $gopt_enable_asan                 = "NO";  }
 
 # LHAPDF6 and LHAPDF5 are mutually exlusive
 if ($gopt_enable_lhapdf6 eq "YES" && $gopt_enable_lhapdf5 eq "YES") {
@@ -247,6 +251,12 @@ if($gopt_enable_flux_drivers eq "NO" || $gopt_enable_geom_drivers eq "NO") {
 # Set debug flag
 my $gopt_with_cxx_debug_flag="";
 if($gopt_enable_debug eq "YES") { $gopt_with_cxx_debug_flag = "-g"; }
+
+# Set address sanitizer flag
+my $gopt_with_sanitizer_flag="";
+if($gopt_enable_asan eq "YES") {
+  $gopt_with_sanitizer_flag = "-fsanitize=address -fno-omit-frame-pointer";
+}
 
 # Check compiler
 #
@@ -1046,6 +1056,8 @@ print MKCONF "GOPT_WITH_GEANT4_INC=$gopt_with_geant4_inc\n";
 print MKCONF "GOPT_WITH_GEANT4_LIB=$gopt_with_geant4_lib\n";
 print MKCONF "GOPT_WITH_GFORTRAN_LIB=$gopt_with_gfortran_lib\n";
 print MKCONF "GOPT_WITH_G2C_LIB=$gopt_with_g2c_lib\n";
+print MKCONF "GOPT_ENABLE_ASAN=$gopt_enable_asan\n";
+print MKCONF "GOPT_WITH_SANITIZER_FLAG=$gopt_with_sanitizer_flag\n";
 close(MKCONF);
 
 print "\nYour input configuration options were: @ARGV";

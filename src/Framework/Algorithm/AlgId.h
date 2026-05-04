@@ -38,6 +38,7 @@ public:
   AlgId();
   AlgId(string name, string config);
   AlgId(const AlgId & id);
+  AlgId& operator=(const AlgId&) = default;
   AlgId(const RgAlg & registry_item);
  ~AlgId();
 
