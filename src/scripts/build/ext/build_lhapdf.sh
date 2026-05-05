@@ -8,7 +8,7 @@
 # Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
-version=5.7.0
+version=6.5.6
 doclean=0
 refetch=0
 while [ $# -gt 0 ] ; do
