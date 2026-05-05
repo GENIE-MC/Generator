@@ -83,7 +83,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   double A      = (double) init_state.Tgt().A();   // mass number
   double A2     = TMath::Power(A, 2.);
   double A_3    = TMath::Power(A, 1./3.);
-  double M      = init_state.Tgt().Mass();
+  double M      = kNucleonMass;
   double M_pi   = pionIsCharged ? kPionMass : kPi0Mass;
   double Epi    = y*E;                             // ~pion energy
   double ma2    = TMath::Power(fMa, 2);            // "axial mass" squared
