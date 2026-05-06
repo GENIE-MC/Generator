@@ -95,8 +95,11 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   double dv = uncorrected_pdfs.dval;
   double ds = uncorrected_pdfs.dsea;
 
-  // we increase the up and down quark sea by 5%, and decrease the up and down valence quarks
-  // such that the sum of quark and antiquark distributions remain the same.
+  // The Bodek Yang model includes a parameter to scale the up and down sea quark distributions by a percentage.
+  // These are added as additional degrees of freedom in the model.
+  // The paper uses a 5% increase of the sea up and down distribution and a decrease of the valance quarks.
+  // The value was not obtained from the tune - we do not use it.
+  // We use the defalt of 0 for this implementation whilst keeping the functionality it for the user to use.
   uv -= 2 * fUpScale * uncorrected_pdfs.uval;
   dv -= 2 * fDownScale * uncorrected_pdfs.dval;
   us *= ( 1 + fUpScale ) ;
