@@ -84,14 +84,14 @@ std::complex<double> genie::LeptonTensor::LeviCivitaProduct(
   genie::TensorIndex_t mu, genie::TensorIndex_t nu) const
 {
   return std::complex<double>( 0.,
-    Rank2LorentzTensorI::LeviCivitaProduct(mu, nu, fProbeP4, fFSLepP4) );
+    Rank2LorentzTensor::LeviCivitaProduct(mu, nu, fProbeP4, fFSLepP4) );
 }
 
 std::complex<double> genie::LeptonTensor::LeviCivitaProductSF(
   genie::TensorIndex_t mu, genie::TensorIndex_t nu) const
 {
   return std::complex<double> (0., 
-    Rank2LorentzTensorI::LeviCivitaProductSF(mu, nu, fProbeP4, fFSLepP4) );
+    Rank2LorentzTensor::LeviCivitaProductSF(mu, nu, fProbeP4, fFSLepP4) );
 }
  
 

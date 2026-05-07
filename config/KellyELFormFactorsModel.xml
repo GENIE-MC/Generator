@@ -5,12 +5,46 @@
 <!--
 Configuration for the Kelly elastic form factors model
 
-Form factors based on J.J. Kelly, Phys.Rev.C 70 (2004) 068202
+    Form factors based on J.J. Kelly, Phys.Rev.C 70 (2004) 068202
+
+    G(Q^2) \propto \frac{\sum_{k=0}^{n} a_k \tau^k}{1 + \sum_{k=1}^{n+2} b_k \tau^k}
+
+    Both numerator and denominator are polynomials in tau = Q^2 / 4mp^2
+    a and b are parameters for numerator and denominator. 
+    This is just an ancient baseline for spectral function, do not use it for production.
 
 Configurable Parameters:
 .........................................................................................
-Name        Type    Optional   Comment                      Default
-.........................................................................................
+Name         Type    Optional   Comment                      Default
+    .........................................................................................
+Kelly-Gep-a0 double  No         coefficient                  -
+Kelly-Gep-a1 double  No         coefficient                  -
+Kelly-Gep-a2 double  No         coefficient                  -
+Kelly-Gep-b1 double  No         coefficient                  -
+Kelly-Gep-b2 double  No         coefficient                  -
+Kelly-Gep-b3 double  No         coefficient                  -
+Kelly-Gep-b4 double  No         coefficient                  -
+Kelly-Gmp-a0 double  No         coefficient                  -
+Kelly-Gmp-a1 double  No         coefficient                  -
+Kelly-Gmp-a2 double  No         coefficient                  -
+Kelly-Gmp-b1 double  No         coefficient                  -
+Kelly-Gmp-b2 double  No         coefficient                  -
+Kelly-Gmp-b3 double  No         coefficient                  -
+Kelly-Gmp-b4 double  No         coefficient                  -
+Kelly-Gen-a0 double  No         coefficient                  -
+Kelly-Gen-a1 double  No         coefficient                  -
+Kelly-Gen-a2 double  No         coefficient                  -
+Kelly-Gen-b1 double  No         coefficient                  -
+Kelly-Gen-b2 double  No         coefficient                  -
+Kelly-Gen-b3 double  No         coefficient                  -
+Kelly-Gen-b4 double  No         coefficient                  -
+Kelly-Gmn-a0 double  No         coefficient                  -
+Kelly-Gmn-a1 double  No         coefficient                  -
+Kelly-Gmn-a2 double  No         coefficient                  -
+Kelly-Gmn-b1 double  No         coefficient                  -
+Kelly-Gmn-b2 double  No         coefficient                  -
+Kelly-Gmn-b3 double  No         coefficient                  -
+Kelly-Gmn-b4 double  No         coefficient                  -
 -->
 
   <param_set name="Default"> 

@@ -8,11 +8,12 @@
  	  Based on J.J. Kelly, Phys.Rev.C 70 (2004) 068202
 
 \author   Noah Steinberg <nsteinbe \at fnal.gov>
+          Liang Liu <liangliu \at fnal.gov>
 	  Fermi National Accelerator Laboratory 	
 
 \created  Sept 26, 2023
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________

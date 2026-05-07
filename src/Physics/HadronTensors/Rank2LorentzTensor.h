@@ -7,18 +7,22 @@
           2 Lorentz tensor \f$A^{\mu\nu}\f$.
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
+          Liang Liu <liangliu \at fnal.gov>
           Fermi National Accelerator Laboratory
+
 
 \created  January 17, 2019
 
-\cpright  Copyright (c) 2003-2018, The GENIE Collaboration
+\updated  May 06, 2026
+
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
 //____________________________________________________________________________
 
-#ifndef RANK_2_LORENTZ_TENSORI_H
-#define RANK_2_LORENTZ_TENSORI_H
+#ifndef RANK_2_LORENTZ_TENSOR_H
+#define RANK_2_LORENTZ_TENSOR_H
 
 #include <complex>
 
@@ -35,11 +39,11 @@ typedef enum ELorentzTensorIndices {
   kTIdx_NumDimensions = 4
 } TensorIndex_t;
 
-class Rank2LorentzTensorI {
+class Rank2LorentzTensor {
 
 public:
 
-  inline virtual ~Rank2LorentzTensorI() {}
+  inline virtual ~Rank2LorentzTensor() {}
 
   /// \name Tensor elements
   /// \brief Functions that return the elements of the tensor.
@@ -101,8 +105,8 @@ public:
 
   /// \name Operations
   /// @{
-  virtual std::complex<double> Contract(const Rank2LorentzTensorI& other) const;
-  inline std::complex<double> operator*(const Rank2LorentzTensorI& other) const
+  virtual std::complex<double> Contract(const Rank2LorentzTensor& other) const;
+  inline std::complex<double> operator*(const Rank2LorentzTensor& other) const
   {
     return this->Contract( other );
   }
@@ -123,7 +127,7 @@ public:
   double LeviCivitaProductSF(genie::TensorIndex_t mu, genie::TensorIndex_t nu,
     const TLorentzVector& p1, const TLorentzVector& p2) const;
 
-}; // class Rank2LorentzTensorI
+}; // class Rank2LorentzTensor
 
 } // genie namespace
 #endif

@@ -1,11 +1,12 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Implementation based on J.J. Kelly, Phys.Rev.C 70 (2004) 068202
 
  Noah Steinberg <nsteinbe \at fnal.gov>
+ Liang Liu <liangliu \at fnal.gov>
  Fermi National Accelerator Laboratory 
 */
 //____________________________________________________________________________
@@ -130,9 +131,9 @@ void KellyELFormFactorsModel::LoadConfig(void)
 double KellyELFormFactorsModel::KellyFit(
                                       double t, const KellyFit_t & fp) const
 {
-  double t2 = TMath::Power(t, 2);
-  double t3 = TMath::Power(t, 3);
-  double t4 = TMath::Power(t2,2);
+  double t2 = t * t;
+  double t3 = t2 * t;
+  double t4 = t3 * t;
 
   double Gn = (fp.a0) + (fp.a1*t) + (fp.a2*t2);
   double Gd = 1 + (fp.b1*t) + (fp.b2*t2) + (fp.b3*t3) + (fp.b4*t4);

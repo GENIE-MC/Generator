@@ -1,32 +1,33 @@
 //____________________________________________________________________________
 /*
 
-\class    genie::HadronTensorInterfaceI
+\class    genie::NucleonTensor
 
-\brief    Pure abstract base class. Defines the HadronTensorInterfaceI interface
+\brief    Pure abstract base class. Defines the NucleonTensor interface
           to be implemented by any algorithmic class computing the hadronic 
-	  response tensor
+	        response tensor
 
 \author   Noah Steinberg <nsteinbe \at fnal.gov>
+\author   Liang Liu <liangliu \at fnal.gov>
 
 \created  Oct 20, 2023
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
 
-#ifndef _HADRON_TENSOR_INTERFACE_I_H_
-#define _HADRON_TENSOR_INTERFACE_I_H_
+#ifndef _NUCLEON_TENSOR_H_
+#define _NUCLEON_TENSOR_H_
 
-#include "Physics/HadronTensors/Rank2LorentzTensorI.h"
+#include "Physics/HadronTensors/Rank2LorentzTensor.h"
 
 namespace genie {
 
-class HadronTensorInterfaceI : public Rank2LorentzTensorI {
+class NucleonTensor : public Rank2LorentzTensor {
 
 public:
-  virtual ~HadronTensorInterfaceI() = default;
+  virtual ~NucleonTensor() = default;
 
   //! Compute individual elements of tensor
   virtual std::complex<double> operator()(genie::TensorIndex_t mu,
@@ -41,4 +42,4 @@ private:
 };
 
 }         // genie namespace
-#endif    // _HADRON_TENSOR_INTERFACE_I_H_
+#endif    // _NUCLEON_TENSOR_H_
