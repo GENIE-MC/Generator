@@ -107,6 +107,7 @@
   <priority msgstream="GIBUU">                         WARN   </priority>
   <priority msgstream="HadTransp">                     WARN   </priority>
   <priority msgstream="HadronicVtx">                   WARN   </priority>
+  <priority msgstream="HadronTensors">                 WARN   </priority>
   <priority msgstream="HybridHad">                     WARN   </priority>
   <priority msgstream="IBD">                           WARN   </priority>
   <priority msgstream="IMDXSec">                       WARN   </priority>
@@ -177,6 +178,7 @@
   <priority msgstream="QELEvent">                      WARN   </priority>
   <priority msgstream="QELHadronicVtx">                WARN   </priority>
   <priority msgstream="QELKinematics">                 WARN   </priority>
+  <priority msgstream="UnifiedQE">                     WARN   </priority>
   <priority msgstream="SPPEventGen">                   WARN </priority>
   <priority msgstream="RESXSec">                       WARN   </priority>
   <priority msgstream="RESPXSec">                      WARN   </priority>
@@ -224,6 +226,7 @@
   <priority msgstream="HEDISKinematics">               WARN   </priority>
   <priority msgstream="HEDISStrucFunc">                WARN   </priority>
   <priority msgstream="LeptoHad">                      WARN   </priority>
+  <priority msgstream="LeptonTensor">                  WARN   </priority>
 
   <priority msgstream="gevgen">                        WARN   </priority>
   <priority msgstream="gevgen_dm">                     WARN   </priority>

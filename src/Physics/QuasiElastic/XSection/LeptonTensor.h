@@ -10,7 +10,7 @@
 
 \created  January 17, 2019
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -20,13 +20,13 @@
 #define LEPTON_TENSOR_H
 
 // GENIE includes
-#include "Physics/HadronTensors/Rank2LorentzTensorI.h"
+#include "Physics/HadronTensors/Rank2LorentzTensor.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Interaction/InteractionType.h"
 
 namespace genie {
 
-class LeptonTensor : public Rank2LorentzTensorI {
+class LeptonTensor : public Rank2LorentzTensor {
 
 public:
 

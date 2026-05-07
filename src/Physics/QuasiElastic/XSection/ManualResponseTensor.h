@@ -5,7 +5,7 @@
 \author   Noah Steinberg <nsteinbe \at fnal.gov>
           Fermi National Accelerator Laboratory
 \created  Nov 23, 2021
-\cpright  Copyright (c) 2003-2021, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -16,11 +16,11 @@
 
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Interaction/InteractionType.h"
-#include "Physics/HadronTensors/Rank2LorentzTensorI.h"
+#include "Physics/HadronTensors/Rank2LorentzTensor.h"
 
 namespace genie {
 
-class ManualResponseTensor : public Rank2LorentzTensorI {
+class ManualResponseTensor : public Rank2LorentzTensor {
 
 public:
 	std::complex<double> RespTensor[4][4];

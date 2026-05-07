@@ -9,11 +9,12 @@
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
 \author   Steven Gardiner <gardiner \at fnal.gov>
+          Liang Liu <liangliu \at fnal.gov>
           Fermi National Acclerator Laboratory
 
 \created  March 25, 2019
 
-\cpright  Copyright (c) 2003-2019, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -32,9 +33,9 @@
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/PauliBlocker.h"
-#include "Physics/HadronTensors/Rank2LorentzTensorI.h"
-#include "Physics/HadronTensors/HadronTensorInterface.h"
-#include "Physics/HadronTensors/HadronTensorInterfaceI.h"
+#include "Physics/HadronTensors/Rank2LorentzTensor.h"
+#include "Physics/HadronTensors/NucleonTensor.h"
+#include "Physics/HadronTensors/IASingleNucleonTensor.h"
 #include "TVector3.h"
 namespace genie {
 

@@ -1,10 +1,11 @@
 //____________________________________________________________________________
 /*
 
-   \class    genie::HadronTensorInterface
+   \class    genie::IASingleNucleonTensor
 
-   \brief    Concrete implementation of HadronTensorInterfaceI interface
-   that calls fortran subroutines to compute response tensor/
+   \brief    Concrete implementation of HadronTensorI interface
+
+   Impulse approximation single nucleon response tensor
 
    \created  Oct 20, 2023
    \author   Noah Steinberg <nsteinbe \at fnal.gov>
@@ -21,30 +22,33 @@
 */
 //____________________________________________________________________________
 
-#ifndef _HADRON_TENSOR_FORT_INTERFACE_H
-#define _HADRON_TENSOR_FORT_INTERFACE_H
+#ifndef _IA_SINGLE_NUCLEON_TENSOR_H_
+#define _IA_SINGLE_NUCLEON_TENSOR_H_
 
 
 // GENIE includes
-#include "Physics/HadronTensors/HadronTensorInterfaceI.h"
+#include "Physics/HadronTensors/NucleonTensor.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
-#include "Physics/HadronTensors/Rank2LorentzTensorI.h"
+#include "Physics/HadronTensors/Rank2LorentzTensor.h"
 
 namespace genie {
 
-  class HadronTensorInterface : public HadronTensorInterfaceI {
+  class IASingleNucleonTensor : public NucleonTensor {
 
     public:
 
       // Constructor takes in hadron information and form factors
       // as well as name of model for interface
-      HadronTensorInterface(double w, double mNi, TLorentzVector p4Ni, TLorentzVector p4Nf, const genie::QELFormFactors& FormFactors, std::string model);
+      IASingleNucleonTensor(double w, double mNi, 
+          TLorentzVector p4Ni, TLorentzVector p4Nf, 
+          const genie::QELFormFactors& FormFactors, 
+          std::string model);
 
       // Overridden initialization function
       virtual void initialize_tensor(std::complex<double> (&hadron_tensor)[4][4]) const override;
 
-      ~HadronTensorInterface() {}
+      ~IASingleNucleonTensor() {}
 
     protected:
       TLorentzVector fp4Ni;

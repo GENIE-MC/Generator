@@ -1,11 +1,12 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
  Author: Noah Steinberg <nsteinbe \at fnal.gov>
          Steven Gardiner <gardiner \at fnal.gov>
+         Liang Liu <liangliu \at fnal.gov>
          Fermi National Acclerator Laboratory
 
  For the class documentation see the corresponding header file.
@@ -149,7 +150,7 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
     fFormFactors.SetModel( fEMFormFactorsModel );
   }
   else {
-    LOG("UnifiedQELPXSec", pERROR) << "Unrecognized process type encountered"
+    LOG("UnifiedQE", pERROR) << "Unrecognized process type encountered"
       << " in genie::UnifiedQELPXSec::XSec()";
     return 0.;
   }
@@ -181,19 +182,23 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
 
   // Make a generic Rank2LorentzTensor 
   // object for the hadronic tensor
-  std::shared_ptr<Rank2LorentzTensorI> ATilde_munu;
+  std::shared_ptr<Rank2LorentzTensor> ATilde_munu;
 
   // If we want to use fortran then
   // call the fortran interface
-  if(fTensorModel.find("Noemi") != std::string::npos) {
-    ATilde_munu = std::make_shared<HadronTensorInterface>(qP4.E(), xmn, p4Ni, p4Nf, fFormFactors, fTensorModel);
+  if(fTensorModel.find("Noemi-hadron-tensor") != std::string::npos) {
+    ATilde_munu = std::make_shared<IASingleNucleonTensor>(qP4.E(), xmn, p4Ni, p4Nf, fFormFactors, fTensorModel);
+  }
+  else{
+    LOG("UnifiedQE", pFATAL) << "Wrong setup of hadron tensor, the options should be Noemi-hadron-tensor or Noemi-hadron-tensor-cc";
+    exit(1);
   }
       
   // Contract hadron and lepton tensors
   std::complex<double> contraction = L_munu * (*ATilde_munu);
 
   if ( std::abs(contraction.imag()) > kASmallNum ) {
-    LOG("UnifiedQELPXSec", pWARN) << "Tensor contraction has nonvanishing imaginary part!";
+    LOG("UnifiedQE", pWARN) << "Tensor contraction has nonvanishing imaginary part!";
   }
   
   // Apply the tensor contraction to the cross section
