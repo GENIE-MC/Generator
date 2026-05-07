@@ -22,61 +22,58 @@
  *
  * =====================================================================================
  */
-
-#include <Eigen/Dense>
 #include <complex>
 #include <array>
 #include <cmath>
 #include <iostream>
 
 #include "Physics/HadronTensors/onebody_currents_sf.h"
+#include "Physics/HadronTensors/TensorUtil.h"
 
 namespace genie {
   namespace onebody_currents_sf {
 
-    //---------------------------------------------------------------------------
+    //===========================================================================
     // File-scope state (formerly Fortran SAVE variables) and helpers.
-    //---------------------------------------------------------------------------
+    //===========================================================================
     namespace {
 
       // Constants -----------------------------------------------------------------
-      constexpr std::complex<double> kCZero{0.0, 0.0};
-      constexpr std::complex<double> kCOne {1.0, 0.0};
-      constexpr std::complex<double> kCI   {0.0, 1.0};
+      const std::complex<double> kCZero{0.0, 0.0};
+      const std::complex<double> kCOne {1.0, 0.0};
+      const std::complex<double> kCI   {0.0, 1.0};
 
       // Pauli matrices, identities, Dirac matrices, etc. -------------------------
-      Eigen::Matrix2cd gSigma[3];           // 3 Pauli matrices
-      Eigen::Matrix2cd gId2;                // 2x2 identity
-      Eigen::Matrix4cd gId4;                // 4x4 identity
+      genie::TensorUtil::Matrix2cd gSigma[3];
+      genie::TensorUtil::Matrix2cd gId2;
+      genie::TensorUtil::Matrix4cd gId4;
 
-      Eigen::Matrix4cd gGammaMu[5];         // gamma^0..gamma^3, gamma^5
-      Eigen::Matrix4cd gMetric;             // metric diag(+1,-1,-1,-1)
-      Eigen::Matrix4cd gSigmaMuNu[4][4];    // sigma^{mu nu}, mu, nu = 0..3
+      genie::TensorUtil::Matrix4cd gGammaMu[5];          // gamma^0..gamma^3, gamma^5
+      genie::TensorUtil::Matrix4cd gMetric;              // metric diag(+1,-1,-1,-1)
+      genie::TensorUtil::Matrix4cd gSigmaMuNu[4][4];     // sigma^{mu nu}, mu, nu = 0..3
 
-      Eigen::Matrix4cd gQSlash;             // unused but kept for completeness
+      genie::TensorUtil::Matrix4cd gQSlash;              // unused but kept for completeness
 
       // Spinors (2-component and 4-component) ------------------------------------
-      Eigen::Vector2cd gUp;
-      Eigen::Vector2cd gDown;
-      std::array<Eigen::Vector4cd, 2> gUp1;       // gUp1[spin]
-      std::array<Eigen::Vector4cd, 2> gUpp1;      // gUpp1[spin]
-      std::array<Eigen::Vector4cd, 2> gUbarP1;    // gUbarP1[spin]
-      std::array<Eigen::Vector4cd, 2> gUbarPp1;   // gUbarPp1[spin]
+      genie::TensorUtil::Vector2cd gUp;
+      genie::TensorUtil::Vector2cd gDown;
+      std::array<genie::TensorUtil::Vector4cd, 2> gUp1;
+      std::array<genie::TensorUtil::Vector4cd, 2> gUpp1;
+      std::array<genie::TensorUtil::Vector4cd, 2> gUbarP1;
+      std::array<genie::TensorUtil::Vector4cd, 2> gUbarPp1;
 
       // 4-vectors and scalar -----------------------------------------------------
-      Eigen::Vector4d  gP1;
-      Eigen::Vector4d  gPp1;
-      Eigen::Vector4d  gQt;
-      double gW = 0.0;
+      genie::TensorUtil::Vector4d gP1;
+      genie::TensorUtil::Vector4d gPp1;
+      genie::TensorUtil::Vector4d gQt;
+      double          gW = 0.0;
 
       // Current tensor J_1^{mu} (4x4 matrix for each mu = 0..3) ------------------
-      Eigen::Matrix4cd gJ1[4];
+      genie::TensorUtil::Matrix4cd gJ1[4];
 
-      // Nucleon mass (was public in Fortran) -------------------------------------
+      // Nucleon mass and current-conservation flag -------------------------------
       double gXmn = 0.0;
-
-      // Current conservation flag ------------------------------------------------
-      bool gCC = false;
+      bool   gCC  = false;
 
 
       //---------------------------------------------------------------------------
@@ -95,16 +92,15 @@ namespace genie {
         gId2(0,0) = kCOne;
         gId2(1,1) = kCOne;
 
-        // Pauli matrices 
-        // sigma(1)
+        // Pauli matrices
         gSigma[0].setZero();
         gSigma[0](0,1) = kCOne;
         gSigma[0](1,0) = kCOne;
-        // sigma(2)
+
         gSigma[1].setZero();
         gSigma[1](0,1) = -kCI;
         gSigma[1](1,0) =  kCI;
-        // sigma(3)
+
         gSigma[2].setZero();
         gSigma[2](0,0) =  kCOne;
         gSigma[2](1,1) = -kCOne;
@@ -116,7 +112,6 @@ namespace genie {
         }
 
         // gamma^0: diag(I, -I)
-        gGammaMu[0].setZero();
         gGammaMu[0].block<2,2>(0,0) =  gId2;
         gGammaMu[0].block<2,2>(2,2) = -gId2;
 
@@ -128,14 +123,12 @@ namespace genie {
         // gamma^i for i = 1..3
         for(int mu = 1; mu <= 3; ++mu)
         {
-          gGammaMu[mu].setZero();
-          int s = mu - 1;  // sigma index 0..2
+          int s = mu - 1;
           gGammaMu[mu].block<2,2>(0,2) =  gSigma[s];
           gGammaMu[mu].block<2,2>(2,0) = -gSigma[s];
         }
 
         // gamma^5
-        gGammaMu[4].setZero();
         gGammaMu[4].block<2,2>(0,2) = gId2;
         gGammaMu[4].block<2,2>(2,0) = gId2;
 
@@ -146,7 +139,7 @@ namespace genie {
         gMetric(2,2) = -kCOne;
         gMetric(3,3) = -kCOne;
 
-        // sigma^{mu nu} = i/2 [gamma^mu, gamma^nu], mu, nu = 0..3
+        // sigma^{mu nu} = i/2 [gamma^mu, gamma^nu]
         for(int mu = 0; mu < 4; ++mu)
         {
           for(int nu = 0; nu < 4; ++nu)
@@ -161,7 +154,7 @@ namespace genie {
         gUp   << kCOne, kCZero;
         gDown << kCZero, kCOne;
 
-        // clear q slash just in case
+        // clear q_sl just in case
         gQSlash.setZero();
       }
 
@@ -174,10 +167,9 @@ namespace genie {
       //---------------------------------------------------------------------------
       void DefineSpinors()
       {
-        Eigen::Matrix2cd sigp1  = Eigen::Matrix2cd::Zero();
-        Eigen::Matrix2cd sigpp1 = Eigen::Matrix2cd::Zero();
+        genie::TensorUtil::Matrix2cd sigp1  = genie::TensorUtil::Matrix2cd::Zero();
+        genie::TensorUtil::Matrix2cd sigpp1 = genie::TensorUtil::Matrix2cd::Zero();
 
-        // zero spinor arrays
         for(int s = 0; s < 2; ++s)
         {
           gUp1     [s].setZero();
@@ -186,98 +178,83 @@ namespace genie {
           gUbarPp1 [s].setZero();
         }
 
-        // normalization factors
         double cp1  = std::sqrt((gP1 (0) + gXmn) / 2.0);
         double cpp1 = std::sqrt((gPp1(0) + gXmn) / 2.0);
 
-        // sigp1  = sum_i sigma_i * gP1 (i+1), i=0..2 -> gP1 (1..3)
-        // sigpp1 similarly with gPp1
         for(int i = 0; i < 3; ++i)
         {
           sigp1  += gSigma[i] * gP1 (i + 1);
           sigpp1 += gSigma[i] * gPp1(i + 1);
         }
 
-        // ---- build gUp1 (incoming quadrispinor) --------------------------------
+        // ---- gUp1 (incoming quadrispinor) --------------------------------------
         {
           double denom = gP1(0) + gXmn;
 
-          // spin up
-          gUp1[0].head<2>() = gUp;                  // components 0..1
-          Eigen::Vector2cd tmp = sigp1 * gUp;
-          gUp1[0].segment<2>(2) = tmp / denom;      // components 2..3
+          gUp1[0].head<2>() = gUp;
+          genie::TensorUtil::Vector2cd tmp = sigp1 * gUp;
+          gUp1[0].segment<2>(2) = tmp / denom;
 
-          // spin down
           gUp1[1].head<2>() = gDown;
           tmp = sigp1 * gDown;
           gUp1[1].segment<2>(2) = tmp / denom;
 
-          // overall normalization
           gUp1[0] *= cp1;
           gUp1[1] *= cp1;
         }
 
-        // ---- build gUpp1 (outgoing quadrispinor) -------------------------------
+        // ---- gUpp1 (outgoing quadrispinor) -------------------------------------
         {
           double denom = gPp1(0) + gXmn;
 
-          // spin up
           gUpp1[0].head<2>() = gUp;
-          Eigen::Vector2cd tmp = sigpp1 * gUp;
+          genie::TensorUtil::Vector2cd tmp = sigpp1 * gUp;
           gUpp1[0].segment<2>(2) = tmp / denom;
 
-          // spin down
           gUpp1[1].head<2>() = gDown;
           tmp = sigpp1 * gDown;
           gUpp1[1].segment<2>(2) = tmp / denom;
 
-          // overall normalization
           gUpp1[0] *= cpp1;
           gUpp1[1] *= cpp1;
         }
 
-        // ---- build gUbarP1 (incoming adjoint) ----------------------------------
+        // ---- gUbarP1 (incoming adjoint) ----------------------------------------
         {
           double denom = gP1(0) + gXmn;
 
-          // spin up
           gUbarP1[0].head<2>() = gUp;
-          Eigen::RowVector2cd up_row  = gUp.transpose();
-          Eigen::RowVector2cd tmp_row = up_row * sigp1;  // row * matrix
+          genie::TensorUtil::RowVector2cd up_row  = gUp.transpose();
+          genie::TensorUtil::RowVector2cd tmp_row = up_row * sigp1;
           gUbarP1[0](2) = -tmp_row(0) / denom;
           gUbarP1[0](3) = -tmp_row(1) / denom;
 
-          // spin down
           gUbarP1[1].head<2>() = gDown;
-          Eigen::RowVector2cd down_row = gDown.transpose();
+          genie::TensorUtil::RowVector2cd down_row = gDown.transpose();
           tmp_row = down_row * sigp1;
           gUbarP1[1](2) = -tmp_row(0) / denom;
           gUbarP1[1](3) = -tmp_row(1) / denom;
 
-          // overall normalization
           gUbarP1[0] *= cp1;
           gUbarP1[1] *= cp1;
         }
 
-        // ---- build gUbarPp1 (outgoing adjoint) ---------------------------------
+        // ---- gUbarPp1 (outgoing adjoint) ---------------------------------------
         {
           double denom = gPp1(0) + gXmn;
 
-          // spin up
           gUbarPp1[0].head<2>() = gUp;
-          Eigen::RowVector2cd up_row  = gUp.transpose();
-          Eigen::RowVector2cd tmp_row = up_row * sigpp1;
+          genie::TensorUtil::RowVector2cd up_row  = gUp.transpose();
+          genie::TensorUtil::RowVector2cd tmp_row = up_row * sigpp1;
           gUbarPp1[0](2) = -tmp_row(0) / denom;
           gUbarPp1[0](3) = -tmp_row(1) / denom;
 
-          // spin down
           gUbarPp1[1].head<2>() = gDown;
-          Eigen::RowVector2cd down_row = gDown.transpose();
+          genie::TensorUtil::RowVector2cd down_row = gDown.transpose();
           tmp_row = down_row * sigpp1;
           gUbarPp1[1](2) = -tmp_row(0) / denom;
           gUbarPp1[1](3) = -tmp_row(1) / denom;
 
-          // overall normalization
           gUbarPp1[0] *= cpp1;
           gUbarPp1[1] *= cpp1;
         }
@@ -290,9 +267,9 @@ namespace genie {
       // Fortran:
       //   subroutine current_init(p1_in, pp1_in, qt_in, w_in)
       //---------------------------------------------------------------------------
-      void CurrentInit(const Eigen::Vector4d & p1_in,
-          const Eigen::Vector4d & pp1_in,
-          const Eigen::Vector4d & qt_in,
+      void CurrentInit(const genie::TensorUtil::Vector4d & p1_in,
+          const genie::TensorUtil::Vector4d & pp1_in,
+          const genie::TensorUtil::Vector4d & qt_in,
           double w_in)
       {
         gP1  = p1_in;
@@ -310,8 +287,8 @@ namespace genie {
       //---------------------------------------------------------------------------
       void DetJa(double f1v, double f2v, double ffa, double ffp)
       {
-        Eigen::Matrix4cd J_1_V[4];
-        Eigen::Matrix4cd J_1_A[4];
+        genie::TensorUtil::Matrix4cd J_1_V[4];
+        genie::TensorUtil::Matrix4cd J_1_A[4];
 
         for(int mu = 0; mu < 4; ++mu)
         {
@@ -321,33 +298,28 @@ namespace genie {
           // Vector part: sum over nu
           for(int nu = 0; nu < 4; ++nu)
           {
-            std::complex<double> g      = gMetric(nu, nu);  // +1 or -1
-            double  q      = gQt(nu);
+            std::complex<double> g      = gMetric(nu, nu);
+            double               q      = gQt(nu);
             std::complex<double> factor = kCI * f2v * g * q / (2.0 * gXmn);
             J_1_V[mu] += factor * gSigmaMuNu[mu][nu];
           }
 
-          // Add f1v * gamma_mu
           J_1_V[mu] += f1v * gGammaMu[mu];
 
           // Axial part: ffa * gamma_mu(mu) * gamma5
-          Eigen::Matrix4cd tmp = gGammaMu[mu] * gGammaMu[4];  // gamma^mu * gamma^5
+          genie::TensorUtil::Matrix4cd tmp = gGammaMu[mu] * gGammaMu[4];
           J_1_A[mu] += ffa * tmp;
 
           // Pseudoscalar piece: ffp * gamma5 * q_mu / xmn
           J_1_A[mu] += ffp * (gQt(mu) / gXmn) * gGammaMu[4];
         }
 
-        // Current conservation (q0 J0 = q3 J3) when q along z
         if(gCC)
         {
-          // Fortran: J_1_V(:,:,4) = (w/qt(4))*J_1_V(:,:,1)
-          // Indices: mu=3 -> gGammaMu[3], mu=0 -> gGammaMu[0], qt(4) -> gQt(3)
           double factor = gW / gQt(3);
           J_1_V[3] = factor * J_1_V[0];
         }
 
-        // Store total currents J_1(mu)
         for(int mu = 0; mu < 4; ++mu)
         {
           gJ1[mu] = J_1_V[mu] + J_1_A[mu];
@@ -361,22 +333,18 @@ namespace genie {
       // Fortran:
       //   subroutine det_res1b(res)
       //---------------------------------------------------------------------------
-      void DetRes1b(Eigen::Matrix4cd & res)
+      void DetRes1b(genie::TensorUtil::Matrix4cd & res)
       {
-        // J_mu[f1][i1] as in Fortran: spin_out, spin_in, Lorentz component
-        std::array<std::array<Eigen::Vector4cd, 2>, 2> J_mu;
+        std::array<std::array<genie::TensorUtil::Vector4cd, 2>, 2> J_mu;
 
-        // Fill J_mu
-        for(int i1 = 0; i1 < 2; ++i1)        // initial spin
+        for(int i1 = 0; i1 < 2; ++i1)
         {
-          for(int f1 = 0; f1 < 2; ++f1)    // final spin
+          for(int f1 = 0; f1 < 2; ++f1)
           {
             for(int mu = 0; mu < 4; ++mu)
             {
-              // tmp = gJ1[mu] * gUp1[i1]
-              Eigen::Vector4cd tmp = gJ1[mu] * gUp1[i1];
+              genie::TensorUtil::Vector4cd tmp = gJ1[mu] * gUp1[i1];
 
-              // J_mu[f1][i1](mu) = sum_alpha gUbarPp1[f1](alpha) * tmp(alpha)
               // NOTE: Fortran sum(a*b) has NO implicit conjugation.
               std::complex<double> val = kCZero;
               for(int a = 0; a < 4; ++a)
@@ -395,7 +363,7 @@ namespace genie {
         {
           for(int f1 = 0; f1 < 2; ++f1)
           {
-            const Eigen::Vector4cd & Jv = J_mu[f1][i1];
+            const genie::TensorUtil::Vector4cd & Jv = J_mu[f1][i1];
             for(int i = 0; i < 4; ++i)
             {
               for(int j = 0; j < 4; ++j)
@@ -413,28 +381,26 @@ namespace genie {
       //
       // Fortran: subroutine shift(resp) bind(C, name="shift2")
       //---------------------------------------------------------------------------
-      void Shift(Eigen::Matrix4cd & resp)
+      void Shift(genie::TensorUtil::Matrix4cd & resp)
       {
-        Eigen::Matrix4cd tmp;
+        genie::TensorUtil::Matrix4cd tmp;
 
-        // CSHIFT along DIM=1 (first index, i -> i+1 with wrap)
         for(int i = 0; i < 4; ++i)
         {
-          int src_i = (i + 1 + 4) % 4;  // old(i-1, j)
+          int src_i = (i + 1 + 4) % 4;
           for(int j = 0; j < 4; ++j)
           {
-            tmp(i,j) = resp(src_i, j);
+            tmp(i, j) = resp(src_i, j);
           }
         }
         resp = tmp;
 
-        // CSHIFT along DIM=2 (second index, j -> j+1 with wrap)
         for(int j = 0; j < 4; ++j)
         {
-          int src_j = (j + 1 + 4) % 4;  // old(i, j-1)
+          int src_j = (j + 1 + 4) % 4;
           for(int i = 0; i < 4; ++i)
           {
-            tmp(i,j) = resp(i, src_j);
+            tmp(i, j) = resp(i, src_j);
           }
         }
         resp = tmp;
@@ -446,32 +412,23 @@ namespace genie {
       //
       // Fortran: subroutine sigccc(resp,...) bind(C, name="sigccc2")
       //---------------------------------------------------------------------------
-      void SigCCC(Eigen::Matrix4cd & resp,
+      void SigCCC(genie::TensorUtil::Matrix4cd & resp,
           double ff1v, double ff2v,
           double ffa,  double ffp)
       {
-        // Build current J_1
         DetJa(ff1v, ff2v, ffa, ffp);
 
-        // Compute response tensor
-        Eigen::Matrix4cd tmp;
+        genie::TensorUtil::Matrix4cd tmp;
         DetRes1b(tmp);
 
-        // Spin average (factor 1/2)
         resp = 0.5 * tmp;
-
-        // Shift (t,x,y,z) -> (x,y,z,t)
         Shift(resp);
-
-        // Transpose: inter = TRANSPOSE(resp); resp = inter
         resp.transposeInPlace();
       }
 
 
       //---------------------------------------------------------------------------
-      // Common implementation for both ComputeHadronTensorEigen entry points.
-      // Identical to the original code except that the current-conservation flag
-      // is passed in, so both wrappers share one body.
+      // Common implementation for both ComputeHadronTensor entry points.
       //---------------------------------------------------------------------------
       void ComputeHadronTensorImpl(double xmn_in, double w_in, double wt,
           double xk_x, double xk_y, double xk_z,
@@ -481,7 +438,7 @@ namespace genie {
           bool conserve_current,
           std::complex<double> HadronTensor[4][4])
       {
-        Eigen::Matrix4cd resp;
+        genie::TensorUtil::Matrix4cd resp;
         resp.setZero();
 
         // Set up Dirac matrices and module globals (xmn, cc, etc.)
@@ -497,22 +454,18 @@ namespace genie {
         double ek  = std::sqrt(gXmn*gXmn + xk*xk);
         double epf = std::sqrt(gXmn*gXmn + xp*xp);
 
-        // 4-vectors: (t,x,y,z) = (E,px,py,pz) and (wt,qx,qy,qz)
-        Eigen::Vector4d qt_4, p_4, pp_4;
+        genie::TensorUtil::Vector4d qt_4, p_4, pp_4;
         qt_4 << wt, q_x, q_y, q_z;
         p_4  << ek, xk_x, xk_y, xk_z;
 
         pp_4(0)        = epf;
         pp_4.tail<3>() = p_4.tail<3>() + qt_4.tail<3>();
 
-        // Initialize current and spinors
         CurrentInit(p_4, pp_4, qt_4, w_in);
         DefineSpinors();
 
-        // Build response tensor
         SigCCC(resp, ff1v, ff2v, ffa, ffp);
 
-        // Fill the C array
         for(int i = 0; i < 4; ++i)
         {
           for(int j = 0; j < 4; ++j)
@@ -566,4 +519,3 @@ namespace genie {
 
   }  // namespace onebody_currents_sf
 }  // namespace genie
-
