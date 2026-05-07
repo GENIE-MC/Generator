@@ -184,8 +184,7 @@ double UnifiedQELPXSec::XSec(const Interaction* interaction,
   // object for the hadronic tensor
   std::shared_ptr<Rank2LorentzTensor> ATilde_munu;
 
-  // If we want to use fortran then
-  // call the fortran interface
+  // call the hadron-tensor; now we have Noemi-hadron-tensor and Noemi-hadron-tensor-cc
   if(fTensorModel.find("Noemi-hadron-tensor") != std::string::npos) {
     ATilde_munu = std::make_shared<IASingleNucleonTensor>(qP4.E(), xmn, p4Ni, p4Nf, fFormFactors, fTensorModel);
   }

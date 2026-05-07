@@ -71,7 +71,8 @@ void genie::IASingleNucleonTensor::initialize_tensor(std::complex<double> (&hadr
   double fa   = fFormFactors.FA();
   double fp   = fFormFactors.Fp();
 
-  // Call appropriate fortran subroutine based on name of model provided
+  // *Call appropriate fortran subroutine based on name of model provided*
+  // translate fortron code to native c++ code
   if (fModel == "Noemi-hadron-tensor") {
     genie::onebody_currents_sf::ComputeNucleonTensor(mNi, w, wt, pNix, pNiy, pNiz, qtx, qty,
         qtz, f1v, xif2v, fa, fp, hadron_tensor);

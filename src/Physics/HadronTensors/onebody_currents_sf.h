@@ -23,7 +23,6 @@
 #ifndef __ONEBODY_CURRENTS_SF_H__
 #define __ONEBODY_CURRENTS_SF_H__
  
-#include <Eigen/Dense>
 #include <complex>
 #include <array>
 #include <cmath>
