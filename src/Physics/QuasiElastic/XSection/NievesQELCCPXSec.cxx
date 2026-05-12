@@ -919,22 +919,42 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
   }
 }
 //____________________________________________________________________________
-// Calculates the constraction of the leptonic and hadronic tensors. The
-// expressions used here are valid in a frame in which the
-// initial nucleus is at rest, and qTilde must be in the z direction.
-double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom1,
-const TLorentzVector inNucleonMomOnShell1, const TLorentzVector leptonMom1,
-const TLorentzVector qTildeP41, double M, bool is_neutrino,
-const Target& target, bool assumeFreeNucleon) const
+// Calculates the constraction of the leptonic and hadronic tensors. This
+// function expects the input 4-momenta to be evaluated in the laboratory
+// frame (rest frame of the target nucleus). The RPA correction factors
+// (if enabled) are evaluated using the lab-frame 4-momentum transfer according
+// to the original treatment from Nieves et al. The contraction of the
+// leptonic and hadronic tensors is evaluated using a simplified form
+// that is valid when (1) the initial *nucleon* is at rest, and (2) the adjusted
+// 3-momentum transfer qTilde points in the +z direction. Note that (1) differs
+// from the original publication, which works entirely in the laboratory frame
+// (the initial *nucleus* is at rest). This implementation difference
+// is needed because the integrals over the nuclear volume and
+// the LFG momentum distribution used to compute the nuclear tensor
+// (W^{\mu\nu} in the notation of the original paper) are replaced
+// in GENIE with Monte Carlo sampling. The expression for the contraction
+// implemented here can be used unaltered in the lab frame for the original
+// calculation because the missing terms vanish after integration. To make the
+// contraction valid event-by-event in GENIE, we first perform a boost of the
+// input 4-momenta into the rest frame of the initial nucleon. The lab-frame
+// values of the RPA correction factors are treated as Lorentz scalars in this
+// transformation to ensure proper Lorentz invariance of the contraction of the
+// leptonic and nucleon tensors.
+//   -- S. Gardiner & L. Liu, 12 May 2026
+double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector& neutrinoMomLab,
+  const TLorentzVector& inNucleonMomOnShellLab,
+  const TLorentzVector& leptonMomLab, const TLorentzVector& qTildeP4Lab,
+  double M, bool is_neutrino, const Target& target,
+  bool assumeFreeNucleon) const
 {
 
-  // copy the const value to do the transfermation
-  TLorentzVector neutrinoMom = neutrinoMom1;
-  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShell1;
-  TLorentzVector qTildeP4 = qTildeP41;
-  TLorentzVector leptonMom = leptonMom1;
+  // Copy the const lab-frame values to do the boost
+  TLorentzVector neutrinoMom = neutrinoMomLab;
+  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShellLab;
+  TLorentzVector qTildeP4 = qTildeP4Lab;
+  TLorentzVector leptonMom = leptonMomLab;
 
-  // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
+  // Boost to nucleon rest frame before evaluating the tensor contraction
   TVector3 beta = -1.0 * inNucleonMomOnShell.BoostVector(); // boost from lab to nucRest
   neutrinoMom.Boost(beta);
   leptonMom.Boost(beta);
@@ -996,9 +1016,18 @@ const Target& target, bool assumeFreeNucleon) const
   double dq2     = TMath::Power(dq,    2);
   double q4      = TMath::Power(q2,    2);
 
-  double t0,r00;
+  // Quantities used in testing code only (fCompareNievesTensors == true)
+  double t0, r00;
+
+  // Initialize the RPA correction factors to their "RPA off" values
   double CN=1.,CT=1.,CL=1.,imU=0;
-  CNCTCLimUcalc(qTildeP4, M, r, is_neutrino, tgtIsNucleus,
+
+  // Evaluate the RPA correction factors using the *lab-frame* 4-momentum
+  // transfer. The factors are defined in this frame and treated as
+  // Lorentz scalars when moving to a different frame. This preserves the
+  // Lorentz invariance of the contraction of the leptonic and hadronic
+  // tensors.
+  CNCTCLimUcalc(qTildeP4Lab, M, r, is_neutrino, tgtIsNucleus,
     tgt_pdgc, A, Z, N, hitNucIsProton, CN, CT, CL, imU,
     t0, r00, assumeFreeNucleon);
 
