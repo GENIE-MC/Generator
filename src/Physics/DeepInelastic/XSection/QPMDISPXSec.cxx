@@ -130,7 +130,7 @@ double QPMDISPXSec::XSec(
   double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
   double term3 = sign * (x*y*(1-y/2) - y*ml2/(4*Mnuc*E));
   double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
-  double term5 = -1.*ml2/(2*Mnuc*E);
+  double term5 = -1.*ml2/(Mnuc*E);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG)
@@ -146,18 +146,19 @@ double QPMDISPXSec::XSec(
 
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
-
-  
-  // Apply scaling / if required to reach well known asymmptotic value
-  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
-  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
-  else if( proc_info.IsEM() )  xsec *= fEMScale;
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pINFO)
         << "d2xsec/dxdy[FreeN] (E= " << E
                       << ", x= " << x << ", y= " << y << ") = " << xsec;
 #endif
+
+
+    
+  // Apply scaling / if required to reach well known asymmptotic value
+  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
+  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
+  else if( proc_info.IsEM() )  xsec *= fEMScale;
 
    // The algorithm computes d^2xsec/dxdy
   // Check whether variable tranformation is needed

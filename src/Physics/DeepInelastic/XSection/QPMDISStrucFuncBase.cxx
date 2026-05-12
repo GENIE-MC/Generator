@@ -426,7 +426,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double f     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
-
+  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
@@ -450,8 +450,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF3 = f * H * xF3val / bjx;
     fF2 = f * F2val;
     fF1 = fF2 * 0.5 * c / bjx;
-    fF5 = fF2/bjx;           // Albright-Jarlskog relation
-    fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
+    fF5 = fF2 * 0.5 /bjx;           // Albright-Jarlskog relation
+    fF4 = 0.;                       // Nucl.Phys.B 84, 467 (1975)
   }
   else {
     double a = TMath::Power(x,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
@@ -460,8 +460,19 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF3 = f * H * xF3val / x;
     fF2 = f * F2val;
     fF1 = fF2 * 0.5 * c / x;
-    fF5 = fF2 / x;         // Albright-Jarlskog relation
-    fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
+    fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
+    fF4 = 0.;                    // Nucl.Phys.B 84, 467 (1975)
+  }
+
+  if( fF2 != 0 ) { 
+    std::cout << "Nucl. mod   = " << f<<std::endl;
+    std::cout << "R(=FL/2xF1) = " << r<<std::endl;
+    std::cout << "H = " << H<<std::endl;
+    std::cout
+      << std::setprecision(17)
+      << std::defaultfloat
+      << "F1-F5 = "
+      << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5<<std::endl;
   }
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__

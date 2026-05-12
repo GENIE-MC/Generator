@@ -104,7 +104,7 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const
   dv -= 2 * fDownScale * uncorrected_pdfs.dval;
   us *= ( 1 + fUpScale ) ;
   ds *= ( 1 + fUpScale ) ;
-
+  
   // compute correction factor delta(d/u)
   double delta = this->DeltaDU(x);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
