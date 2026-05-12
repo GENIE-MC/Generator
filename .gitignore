@@ -17,3 +17,5 @@ src/Framework/Conventions/GVersion.h
 .vscode
 AGENTS.md
 CLAUDE.md
+build/
+src/scripts/build/ext/
