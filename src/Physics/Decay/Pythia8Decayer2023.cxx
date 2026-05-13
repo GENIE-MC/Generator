@@ -599,6 +599,7 @@ void Pythia8Decayer2023::PrintDecayChannelInfo(int pdgc) const
   std::ostringstream ss;
   ss << "\n";
   double brsum=0.0, brsum_py8=0.0;
+  std::set<int> py8matches;
   for (int ic=0; ic < p->NDecayChannels(); ++ic) {
     TDecayChannel * dch = p->DecayChannel(ic);
     double br     = dch->BranchingRatio();
@@ -618,6 +619,7 @@ void Pythia8Decayer2023::PrintDecayChannelInfo(int pdgc) const
     if (ic_py8<0) {
       ss << "-- - ----------";
     } else {
+      py8matches.insert(ic_py8);
       ss << std::setw(2) << ic_py8 << " "
          << std::setw(1) << onMode_py8 << " "
          << std::setprecision(8) << br_py8;
@@ -632,7 +634,18 @@ void Pythia8Decayer2023::PrintDecayChannelInfo(int pdgc) const
     ss << "\n";
   }
   ss << " BRsum " << std::setprecision(8) << brsum
-     << " BRsum_py8 " << std::setprecision(8) << brsum_py8;
+     << " BRsum_py8 " << std::setprecision(8) << brsum_py8 << "\n";
+  ss <<    "The following pythia channels are not accessible from InhibitDecay/Particle:" << "\n";
+  //std::set<int> py8missing;
+  int npy8chan = py8_p->sizeChannels();
+  for (int ic_py8=0; ic_py8 < npy8chan; ++ic_py8) {
+    //c++20 if ( ! py8matches.contains(ic_py8) ) {
+    if ( py8matches.find(ic_py8) == py8matches.end() ) {
+      //py8missing.insert(ic_py8);
+      ss << " " << ic_py8;
+    }
+  }
+
   LOG("Pythia8Decay",pNOTICE)
     << "\n PDGLibrary decay channels for " <<  p->GetName() << "(" << pdgc << ")"
     << "\n iChan BRatio [ pythia8chan onMode BRatio ] "
