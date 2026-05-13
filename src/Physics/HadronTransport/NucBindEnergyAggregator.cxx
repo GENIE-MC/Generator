@@ -185,7 +185,7 @@ GHepParticle * NucBindEnergyAggregator::FindMotherNucleus(
   //-- get its mothet
   int mother_pos = p->FirstMother();
 
-  //-- if mother is set
+  //-- in case mother is set
   if(mother_pos != -1) {
      GHepParticle * mother = evrec->Particle(mother_pos);
 

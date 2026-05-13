@@ -94,6 +94,7 @@ void INukeDeltaPropg::ProcessEventRecord(GHepRecord * event) const
         
     // Set clone's mom to be the hadron that was cloned
     sp->SetFirstMother(icurr);
+    sp->SetLastMother(-1);  // in case mother had 2 mothers
 
     // Start stepping particle out of the nucleus
     bool has_interacted = false;
