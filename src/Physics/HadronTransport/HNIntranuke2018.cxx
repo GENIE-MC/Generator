@@ -936,6 +936,7 @@ int HNIntranuke2018::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
                 << "*** Nothing left to interact with, escaping.";
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
+              sp->SetLastMother(-1);
               sp->SetStatus(kIStStableFinalState);
               ev->AddParticle(*sp);
               delete sp;
