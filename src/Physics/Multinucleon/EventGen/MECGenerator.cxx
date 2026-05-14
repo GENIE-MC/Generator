@@ -95,13 +95,9 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
       // for this...
       this -> DecayNucleonCluster(event);
   }  else if (fXSecModel->Id().Name() == "genie::SuSAv2MECPXSec") {
-      event->Print();
       this -> SelectSuSALeptonKinematics(event);
-      event->Print();
       this -> AddTargetRemnant(event);
-      event->Print();
       this -> GenerateNSVInitialHadrons(event);
-      event->Print();
       // Note: this method in `MECTensor/MECTensorGenerator.cxx` appeared to be a straight
       // copy of an earlier version of the `DecayNucleonCluster` method here - but, watch
       // for this...
