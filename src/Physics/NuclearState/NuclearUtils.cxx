@@ -84,6 +84,7 @@ double genie::utils::nuclear::BindEnergy(int nucA, int nucZ)
      return 28.4e-3;
    return 0.;
   }
+  if(nucA == 3 && nucZ == 1) return (1e-3 * 2.827); // GeV binding energy for tritium
 
   double a =  15.835;
   double b =  18.33;

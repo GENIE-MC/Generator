@@ -26,6 +26,7 @@
 #include "Framework/Interaction/Kinematics.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Physics/NuclearState/NucleusGenI.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 
 
@@ -172,9 +173,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   lepton.Boost(beta);
   outNucleon.Boost(beta);
 
-  // Check if event is at a low angle - if so return 0 and stop wasting time
-  if (180 * lepton.Theta() / genie::constants::kPi < min_angle_EM && interaction->ProcInfo().IsEM()) {
-    return 0;
+  // For electromagnetic interactions, check if the event has a lepton
+  // scattering angle below the cutoff. If it does, just return zero.
+  if ( interaction->ProcInfo().IsEM() ) {
+    if ( 180. * lepton.Theta() / genie::constants::kPi < min_angle_EM ) {
+      return 0;
+    }
   }
 
   TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
@@ -449,6 +453,128 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   p4Ni->SetE( ENi );
 
 }
+
+// over load the genie::utils::ComputeFullQELPXSec with NucleusGenI
+double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
+  const genie::NucleusGenI* nucl_gen, const genie::XSecAlgorithmI* xsec_model,
+  double cos_theta_0, double phi_0, double& Eb,
+  genie::QELEvGen_BindingMode_t hitNucleonBindingMode, double min_angle_EM,
+  bool bind_nucleon)
+{
+  // If requested, set the initial hit nucleon 4-momentum to be off-shell
+  // according to the binding mode specified in the function call
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+  if ( bind_nucleon ) {
+    nucl_gen->BindHitNucleon(*interaction, Eb, hitNucleonBindingMode);
+  }
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
+
+  // Mass of the outgoing lepton
+  double lepMass = interaction->FSPrimLepton()->Mass();
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+
+  // Look up the (on-shell) mass of the final nucleon
+  TDatabasePDG *tb = TDatabasePDG::Instance();
+  double mNf = tb->GetParticle( interaction->RecoilNucleonPdg() )->Mass();
+
+  // Mandelstam s for the probe/hit nucleon system
+  double s = std::pow( interaction->InitState().CMEnergy(), 2 );
+
+  // Return a differential cross section of zero if we're below threshold (and
+  // therefore need to sample a new event)
+  if ( std::sqrt(s) < lepMass + mNf ) return 0.;
+
+  double outLeptonEnergy = ( s - mNf*mNf + lepMass*lepMass ) / (2 * std::sqrt(s));
+
+  if (outLeptonEnergy*outLeptonEnergy - lepMass*lepMass < 0.) return 0.;
+  double outMomentum = TMath::Sqrt(outLeptonEnergy*outLeptonEnergy - lepMass*lepMass);
+
+  // Compute the boost vector for moving from the COM frame to the
+  // lab frame, i.e., the velocity of the COM frame as measured
+  // in the lab frame.
+  TVector3 beta = COMframe2Lab( interaction->InitState() );
+
+  // FullDifferentialXSec depends on theta_0 and phi_0, the lepton COM
+  // frame angles with respect to the direction of the COM frame velocity
+  // as measured in the lab frame. To generate the correct dependence
+  // here, first set the lepton COM frame angles with respect to +z
+  // (via TVector3::SetTheta() and TVector3::SetPhi()).
+  TVector3 lepton3Mom(0., 0., outMomentum);
+  lepton3Mom.SetTheta( TMath::ACos(cos_theta_0) );
+  lepton3Mom.SetPhi( phi_0 );
+
+  // Then rotate the lepton 3-momentum so that the old +z direction now
+  // points along the COM frame velocity (beta)
+  TVector3 zvec(0., 0., 1.);
+  TVector3 rot = ( zvec.Cross(beta) ).Unit();
+  double angle = beta.Angle( zvec );
+
+  // Handle the edge case where beta is along -z, so the
+  // cross product above vanishes
+  if ( beta.Perp() == 0. && beta.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = genie::constants::kPi;
+  }
+
+  // Rotate if the rotation vector is not 0
+  if ( rot.Mag() >= genie::controls::kASmallNum ) {
+    lepton3Mom.Rotate(angle, rot);
+  }
+
+  // Construct the lepton 4-momentum in the COM frame
+  TLorentzVector lepton(lepton3Mom, outLeptonEnergy);
+
+  // The final state nucleon will have an equal and opposite 3-momentum
+  // in the COM frame and will be on the mass shell
+  TLorentzVector outNucleon(-1*lepton.Px(),-1*lepton.Py(),-1*lepton.Pz(),
+    TMath::Sqrt(outMomentum*outMomentum + mNf*mNf));
+
+  // Boost the 4-momenta for both particles into the lab frame
+  lepton.Boost(beta);
+  outNucleon.Boost(beta);
+
+  // For electromagnetic interactions, check if the event has a lepton
+  // scattering angle below the cutoff. If it does, just return zero.
+  if ( interaction->ProcInfo().IsEM() ) {
+    if ( 180. * lepton.Theta() / genie::constants::kPi < min_angle_EM ) {
+      return 0;
+    }
+  }
+
+
+
+
+  TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
+  TLorentzVector qP4 = *nuP4 - lepton;
+  delete nuP4;
+  double Q2 = -1 * qP4.Mag2();
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+
+  interaction->KinePtr()->SetFSLeptonP4( lepton );
+  interaction->KinePtr()->SetHadSystP4( outNucleon );
+  interaction->KinePtr()->SetQ2( Q2 );
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+
+  // Check the Q2 range. If we're outside of it, don't bother
+  // with the rest of the calculation.
+  Range1D_t Q2lim = interaction->PhaseSpace().Q2Lim();
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+  if (Q2 < Q2lim.min || Q2 > Q2lim.max) return 0.;
+
+  // Compute the QE cross section for the current kinematics
+  double xsec = xsec_model->XSec(interaction, genie::kPSQELEvGen);
+  // std::cout << "DEBUG: " << __FILE__ <<  ":" << __LINE__ << " : " << "check point!" << std::endl; 
+
+  return xsec;
+}
+
+
 
 // Function takes ingoing and outgoing lepton and
 // std::vector<> of other 4 momenta

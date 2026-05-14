@@ -38,7 +38,7 @@ class MECGenerator : public EventRecordVisitorI {
 public :
   MECGenerator();
   MECGenerator(string config);
- ~MECGenerator();
+  virtual ~MECGenerator();
 
   // implement the EventRecordVisitorI interface
   void ProcessEventRecord (GHepRecord * event) const;
@@ -48,19 +48,26 @@ public :
   void Configure(const Registry & config);
   void Configure(string config);
 
-private:
+protected:
 
-  void    LoadConfig                        (void);
+  // Protected constructor for derived classes (e.g. MECGeneratorINCL) to register
+  // under their own algorithm name while reusing this base initialization.
+  MECGenerator(string name, string config);
+
+  virtual void    LoadConfig                        (void);
   void    AddNucleonCluster                 (GHepRecord * event) const;
   void    AddTargetRemnant                  (GHepRecord * event) const;
-  void    GenerateFermiMomentum             (GHepRecord * event) const;
+  virtual void    GenerateFermiMomentum             (GHepRecord * event) const;
   void    SelectEmpiricalKinematics         (GHepRecord * event) const;
   void    AddFinalStateLepton               (GHepRecord * event) const;
   void    RecoilNucleonCluster              (GHepRecord * event) const;
   void    DecayNucleonCluster               (GHepRecord * event) const;
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
   void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
-  void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
+ #ifdef MARTINI_MEC
+  void    SelectMartiniLeptonKinematics     (GHepRecord * event) const;
+ #endif
+  virtual void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
 
   // Helper function that computes the maximum differential cross section
