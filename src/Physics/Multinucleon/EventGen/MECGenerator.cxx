@@ -104,13 +104,9 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
       this -> DecayNucleonCluster(event);
   }
   else if (fXSecModel->Id().Name() == "genie::MartiniEricsonChanfrayMarteauMECPXSec2024") {
-      event->Print();
       this -> SelectMartiniLeptonKinematics(event);
-      event->Print();
       this -> AddTargetRemnant(event);
-      event->Print();
       this -> GenerateNSVInitialHadrons(event);
-      event->Print();
       // Note: this method in `MECTensor/MECTensorGenerator.cxx` appeared to be a straight
       // copy of an earlier version of the `DecayNucleonCluster` method here - but, watch
       // for this...
