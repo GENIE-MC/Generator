@@ -14,7 +14,6 @@
           Other minor changes / additions and fixes were installed by:
           Andy Furmanski (Univ. of Manchester)
           Joe Johnston (Univ of Pittsburgh)
-	  John Plows (Univ. of Liverpool)
 
 \created  May 02, 2004
 
