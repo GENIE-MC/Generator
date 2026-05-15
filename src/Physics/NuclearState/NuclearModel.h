@@ -31,8 +31,7 @@ typedef enum ENuclearModel {
    kNucmFermiGas,
    kNucmLocalFermiGas,
    kNucmSpectralFunc,
-   kNucmEffSpectralFunc,
-   kNucmPhaseSpaceIterator
+   kNucmEffSpectralFunc
 
 } NuclearModel_t; 
 
