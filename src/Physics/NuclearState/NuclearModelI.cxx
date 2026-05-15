@@ -51,6 +51,20 @@ double NuclearModelI::Prob(double p, double w, const Target & tgt,
 
 //____________________________________________________________________________
 
+bool NuclearModelI::GenerateNucleon(const double /* pN */, const double /* Eb */,
+				    const Target & tgt) const
+  {
+    return GenerateNucleon(tgt);
+  }
+
+double NuclearModelI::Prob(const double /* pN */, const double /* Eb */,
+			   const Target & tgt) const
+  {
+    return Prob(0., 0., tgt);
+  }
+
+//____________________________________________________________________________
+
 double NuclearModelI::FermiMomentum( const Target & t, int nucleon_pdg ) const {
 
   if ( ! fKFTable ) return 0. ; 

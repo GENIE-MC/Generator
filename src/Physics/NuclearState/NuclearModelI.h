@@ -26,6 +26,13 @@
  @ Jul 2020 - Marco Roda
    Added fooks for FermiMomentum and LocalFermiMomentum
 
+ @ Jan 2026 - John Plows
+   Added option for GenerateNucleon() to be called with a single choice of nucleon momentum,
+   nuclear binding energy, and a vector of polar angle cosines.
+   Currently used by PhaseSpaceIteratorModel.
+   Calls GenerateNucleon() at radius = 0 for the free proton target
+   for all other NuclearModelI implementations.
+
 */
 //____________________________________________________________________________
 
@@ -51,6 +58,8 @@ public:
   virtual bool           GenerateNucleon (const Target &) const = 0;
   virtual bool           GenerateNucleon (const Target & tgt,
                                           double hitNucleonRadius) const;
+  virtual bool           GenerateNucleon (const double pN, const double Eb,
+					  const Target & tgt) const;
 
   virtual double         Prob            (double p, double w, const Target &) const = 0;
   virtual double         Prob            (double p, double w, const Target & tgt,
