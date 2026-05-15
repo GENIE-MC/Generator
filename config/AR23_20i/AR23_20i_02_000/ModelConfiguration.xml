@@ -68,7 +68,7 @@ University of Liverpool
 <!-- New Nieves QE model   -->
 
 
-  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/ZExp         </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/ZExp_lqcd     </param>
 
   <!-- <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Dipole   </param> -->
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>

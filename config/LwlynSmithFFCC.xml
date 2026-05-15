@@ -28,7 +28,10 @@ SU3-F                         double   No                                     Co
 	 Axial form factors used for QEL CC cross section calculation.
 	 Options are:
 	 - genie::DipoleAxialFormFactorModel
-	 - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
+	 - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006
+	   + Added additional configurations, `minerva` and `lqcd`
+             Meyer et al (MINERvA), arXiv: 2512.14097
+	   + Added `minervaNature` configuration, Cai et al (MINERvA), Nature 614 (2023) 48-53
 	 - genie::MArunAxialFormFactorModel, Kakorin,Kuzmin,Naumov, Eur.Phys.J.C 81 (2021) 1142
 	 <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
     -->
@@ -36,17 +39,26 @@ SU3-F                         double   No                                     Co
 
   <param_set name="Dipole"> 
      <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
-
   </param_set>
 
   <param_set name="ZExp"> 
      <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+  </param_set>
 
+  <param_set name="ZExp_minerva">
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/minerva </param>
+  </param_set>
+
+  <param_set name="ZExp_minervaNature">
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/minervaNature </param>
+  </param_set>
+
+  <param_set name="ZExp_lqcd">
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/lqcd </param>
   </param_set>
 
   <param_set name="RunningMA"> 
      <param type="alg" name="AxialFormFactorModel"> genie::MArunAxialFormFactorModel/Default </param>
-
   </param_set>
 </alg_conf>
 
