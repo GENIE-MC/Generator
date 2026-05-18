@@ -7,22 +7,17 @@ Configuration for the CBF spectral function QEL differential xsec algorithm.
 
 Configurable Parameters:
 .....................................................................................................
-Name                 Type     Optional   Comment                          Default
+Name               Type     Optional   Comment                          Default
 .....................................................................................................
-QEL-CC-XSecScale     double   Yes        Scaling factor                   GPL value
-CCFormFactorsAlg     alg      No         QEL-CC form factors algorithm
-NCFormFactorsAlg     alg      No         QEL-NC form factors algorithm
-EMFormFactorsAlg     alg      No         QEL-EM form factors algorithm
-XSec-Integrator      alg      No
-IntegralNuclearModel alg
-IntegralNucleonBindingMode string
-TensorModel          string   No         Type of hadron tensor           Noemi-hadron-tensor
-                                         Options:
-                                            - Noemi-hadron-tensor
-                                            - Noemi-hadron-tensor-cc
-PauliBlockerAlg      alg      No         PauliBlocking algorithm
-DoPauliBlocking      bool     Yes        Do Pauli blocking               true
-DoRotate_qAlong_z    bool     Yes        Rotates system so q is along z
+CCFormFactorsAlg   alg      No         QEL-CC form factors algorithm
+NCFormFactorsAlg   alg      No         QEL-NC form factors algorithm
+EMFormFactorsAlg   alg      No         QEL-EM form factors algorithm
+XSec-Integrator    alg      No
+CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
+PauliBlockerAlg    alg      No         PauliBlocking algorithm
+FortranTensorModel string   No         Specifies which fortran model to use
+DoRotate_qAlong_z  bool     Yes        Rotates system so q is along z
+QEL-CC-XSecScale   double   Yes        Scaling factor                   GPL value
 
 
 .....................................................................................................
@@ -40,6 +35,8 @@ IntegralNucleonBindingMode           alg      No
 
     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
     <param type="double" name="IntegralNuclearInfluenceCutoffEnergy"> 100.0 </param>
+
+
 
     <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::SpectralFunc/Default </param>
@@ -64,6 +61,35 @@ IntegralNucleonBindingMode           alg      No
 
   <param_set name="ZExp">
      <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
-  </param_set>
+ </param_set>
+  <param_set name="ZExp_minerva">
+    <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp_minerva </param>
+  </param_set>   
+  <param_set name="ZExp_lqcd">
+    <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp_lqcd </param>
+  </param_set>      
+
+
+  <param_set name="ZExp_incl">
+
+    <param type="alg"  name="XSec-Integrator"> genie::INCLQELXSec/Default </param>
+    <param type="alg"  name="IntegralNucleusGen"> genie::NucleusGenHybridStruck/Default </param>
+    <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
+     <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
+ </param_set>
+  <param_set name="ZExp_minerva_incl">
+    <param type="alg"  name="XSec-Integrator"> genie::INCLQELXSec/Default </param>
+    <param type="alg"  name="IntegralNucleusGen"> genie::NucleusGenHybridStruck/Default </param>
+    <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
+    <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp_minerva </param>
+  </param_set>   
+  <param_set name="ZExp_lqcd_incl">
+    <param type="alg"  name="XSec-Integrator"> genie::INCLQELXSec/Default </param>
+    <param type="alg"  name="IntegralNucleusGen"> genie::NucleusGenHybridStruck/Default </param>
+    <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
+    <param type="alg"  name="CCFormFactorsAlg"> genie::LwlynSmithFFCC/ZExp_lqcd </param>
+  </param_set>      
+
+
 
 </alg_conf>

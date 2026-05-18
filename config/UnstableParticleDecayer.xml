@@ -12,9 +12,10 @@ Name             Type     Optional   Comment               Default
 -->
 
   <param_set name="BeforeHadronTransport">
-     <param type="int" name="NDecayers">  2                                                    </param>
+     <param type="int" name="NDecayers">  3                                                    </param>
      <param type="alg" name="Decayer-0">  genie::Pythia6Decayer2023/BeforeHadronTransport      </param>
      <param type="alg" name="Decayer-1">  genie::BaryonResonanceDecayer/BeforeHadronTransport  </param>
+     <param type="alg" name="Decayer-2">  genie::Pythia6Decayer2023/BeforeHadronTransport      </param>
   </param_set>
 
   <param_set name="AfterHadronTransport">

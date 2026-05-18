@@ -245,11 +245,11 @@ const EventRecordVisitorI * GetIntranuke(void)
   } else if ( gOptMode.compare("hN") == 0 ) {
      sname = "genie::HNIntranuke";
      sconf = "Default";
-  } else if ( gOptMode.compare("hA2019") == 0 ) {
-     sname = "genie::HAIntranuke2019";
+  } else if ( gOptMode.compare("hA2025") == 0 ) {
+     sname = "genie::HAIntranuke2025";
      sconf = "Default";
-  } else if ( gOptMode.compare("hN2019") == 0 ) {
-     sname = "genie::HNIntranuke2019";
+  } else if ( gOptMode.compare("hN2025") == 0 ) {
+     sname = "genie::HNIntranuke2025";
      sconf = "Default";
   } else if ( gOptMode.compare("hA2018") == 0 ) {
      sname = "genie::HAIntranuke2018";

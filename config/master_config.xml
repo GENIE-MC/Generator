@@ -9,8 +9,6 @@
    <config alg="genie::HAIntranuke">                     HAIntranuke.xml                     </config>
    <config alg="genie::HAIntranuke2018">                 HAIntranuke2018.xml                 </config>
    <config alg="genie::HNIntranuke2018">                 HNIntranuke2018.xml                 </config>
-   <config alg="genie::HAIntranuke2025">                 HAIntranuke2025.xml                 </config>
-   <config alg="genie::HNIntranuke2025">                 HNIntranuke2025.xml                 </config>
    <config alg="genie::HINCLCascadeIntranuke">           HINCLCascadeIntranuke.xml           </config>
    <config alg="genie::HG4BertCascIntranuke">            HG4BertCascIntranuke.xml            </config>
    <config alg="genie::CascadeReweight">                 CascadeReweight.xml                 </config>
@@ -68,6 +66,7 @@
    <config alg="genie::CEvNSEventGenerator">             CEvNSEventGenerator.xml             </config>
    <config alg="genie::COHDNuEventGenerator">            COHDNuEventGenerator.xml            </config>
    <config alg="genie::QELEventGeneratorSuSA">           QELEventGeneratorSuSA.xml           </config>
+   <config alg="genie::QELEventGeneratorMartini">        QELEventGeneratorMartini.xml           </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
@@ -193,6 +192,7 @@
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
    <config alg="genie::SuSAv2QELPXSec">                     SuSAv2QELPXSec.xml                     </config>
+   <config alg="genie::MartiniQELPXSec">                    MartiniQELPXSec.xml                     </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
    <config alg="genie::UnifiedQELPXSec">                    UnifiedQELPXSec.xml                    </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>
@@ -230,6 +230,7 @@
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
    <config alg="genie::SuSAv2MECPXSec">                     SuSAv2MECPXSec.xml                     </config>
+   <config alg="genie::MartiniEricsonChanfrayMarteauMECPXSec2024"> MartiniEricsonChanfrayMarteauMECPXSec2024.xml </config>
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
@@ -269,8 +270,11 @@
 
    <!-- ****** CONFIGURATION FOR HADRON TENSOR MODELS ****** -->
    <config alg="genie::NievesMECHadronTensorModel">     NievesMECHadronTensorModel.xml   </config>
+   <config alg="genie::MartiniQELHadronTensorModel">    MartiniQELHadronTensorModel.xml  </config>
    <config alg="genie::SuSAv2QELHadronTensorModel">     SuSAv2QELHadronTensorModel.xml   </config>
+   <config alg="genie::MartiniMECHadronTensorModel">    MartiniMECHadronTensorModel.xml  </config>
    <config alg="genie::SuSAv2MECHadronTensorModel">     SuSAv2MECHadronTensorModel.xml   </config>
+   
 
  <!-- ****** EvtLib / EventLibraryInterface ****** -->
    <config alg="genie::evtlib::EventLibraryInterface">          EventLibraryInterface.xml          </config>
@@ -281,6 +285,19 @@
    <config alg="genie::NormXSec">                            NormXSec.xml                       </config>
    <config alg="genie::NormInteractionListGenerator">        NormInteractionListGenerator.xml   </config>
 
+   <config alg="genie::NucleusGenerator">                    NucleusGenerator.xml                      </config>
+   <config alg="genie::NucleusGenINCL">                      NucleusGenINCL.xml                        </config>
+   <config alg="genie::NucleusGenHybridStruck">              NucleusGenHybridStruck.xml                </config>
+   <config alg="genie::INCLCascadeIntranuke">                INCLCascadeIntranuke.xml                  </config>
+   <config alg="genie::INCLNuclearModel">                    INCLNuclearModel.xml                  </config>
+   <config alg="genie::QELEventGeneratorINCL">               QELEventGeneratorINCL.xml               </config>
+   <config alg="genie::INCLQELXSec">               INCLQELXSec.xml               </config>
+   <config alg="genie::MECGeneratorINCL">               MECGeneratorINCL.xml               </config>
+   <config alg="genie::QELEventGeneratorSuSAINCL">           QELEventGeneratorSuSAINCL.xml           </config>
+   <config alg="genie::UnifiedQELPXSec">                    UnifiedQELPXSec.xml                    </config>
+   <config alg="genie::LwlynSmithFFEM">                          LwlynSmithFFEM.xml                          </config>
+
+
    <!-- ****** CONFIGURATION FOR HELEPTON W DECAY ALGORITHMS ****** -->
    <config alg="genie::GLRESWdecPythia6">         GLRESGenerator.xml          </config>
    <config alg="genie::GLRESWdecPythia8">         GLRESGenerator.xml          </config>
@@ -288,5 +305,6 @@
    <config alg="genie::PhotonCOHWdecPythia8">     PhotonCOHGenerator.xml      </config>
    <config alg="genie::PhotonRESWdecPythia6">     PhotonRESGenerator.xml      </config>
    <config alg="genie::PhotonRESWdecPythia8">     PhotonRESGenerator.xml      </config>
+
 
 </genie_config>

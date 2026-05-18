@@ -9,15 +9,22 @@ Configurable Parameters:
 .......................................................................................................
 Name             Type     Optional   Comment               Default
 .......................................................................................................
+DecayResonance   bool     Yes        Ture off for INCL     true
 Decayer          alg      No
 -->
 
   <param_set name="Default"> 
+     <param type="bool" name="DecayResonance"> true </param>
      <param type="alg" name="Decayer">             genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
 <!--
      <param type="alg" name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
 -->
   </param_set>
+
+  <param_set name="DisableDecay">
+     <param type="bool" name="DecayResonance"> false </param>
+  </param_set>
+
 
 </alg_conf>
 
