@@ -7,18 +7,22 @@ Configuration for the CBF spectral function QEL differential xsec algorithm.
 
 Configurable Parameters:
 .....................................................................................................
-Name               Type     Optional   Comment                          Default
+Name                 Type     Optional   Comment                          Default
 .....................................................................................................
-CCFormFactorsAlg   alg      No         QEL-CC form factors algorithm
-NCFormFactorsAlg   alg      No         QEL-NC form factors algorithm
-EMFormFactorsAlg   alg      No         QEL-EM form factors algorithm
-XSec-Integrator    alg      No
-CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
-PauliBlockerAlg    alg      No         PauliBlocking algorithm
-FortranTensorModel string   No         Specifies which fortran model to use
-DoRotate_qAlong_z  bool     Yes        Rotates system so q is along z
-QEL-CC-XSecScale   double   Yes        Scaling factor                   GPL value
-
+QEL-CC-XSecScale     double   Yes        Scaling factor                   GPL value
+CCFormFactorsAlg     alg      No         QEL-CC form factors algorithm
+NCFormFactorsAlg     alg      No         QEL-NC form factors algorithm
+EMFormFactorsAlg     alg      No         QEL-EM form factors algorithm
+XSec-Integrator      alg      No
+IntegralNuclearModel alg
+IntegralNucleonBindingMode string
+TensorModel          string   No         Type of hadron tensor           Noemi-hadron-tensor
+                                         Options:
+                                            - Noemi-hadron-tensor
+                                            - Noemi-hadron-tensor-cc
+PauliBlockerAlg      alg      No         PauliBlocking algorithm
+DoPauliBlocking      bool     Yes        Do Pauli blocking               true
+DoRotate_qAlong_z    bool     Yes        Rotates system so q is along z
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
