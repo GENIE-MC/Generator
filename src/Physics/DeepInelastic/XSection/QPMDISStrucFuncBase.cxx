@@ -463,17 +463,6 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
     fF4 = 0.;                    // Nucl.Phys.B 84, 467 (1975)
   }
-
-  if( fF2 != 0 ) { 
-    std::cout << "Nucl. mod   = " << f<<std::endl;
-    std::cout << "R(=FL/2xF1) = " << r<<std::endl;
-    std::cout << "H = " << H<<std::endl;
-    std::cout
-      << std::setprecision(17)
-      << std::defaultfloat
-      << "F1-F5 = "
-      << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5<<std::endl;
-  }
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG)
