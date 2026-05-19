@@ -316,8 +316,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double qb2  = (switch_ubar * fus + switch_cbar * fc)  * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
     qb2        += (switch_dbar * fds + switch_sbar * fs)  * ( kV_sea_d * gvd2 + kA_sea_d * gad2);
     
-    double q3   = (switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv + switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus + switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc ) * (2*gvu*gau);
-    q3         += (switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv + switch_ds * sqrt( kV_sea_d * kA_sea_d )  * fds + switch_s * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (2*gvd*gad);
+    double q3   = (switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv + switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus + switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc ) * (gvu*gau);
+    q3         += (switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv + switch_ds * sqrt( kV_sea_d * kA_sea_d )  * fds + switch_s * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (gvd*gad);
 
     double qb3  = (switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus + switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc)  * (gvu*gau) ;
     qb3        += (switch_dbar * sqrt( kV_sea_d * kA_sea_d ) * fds + switch_sbar * sqrt( kV_sea_d * kA_sea_d ) * fs)  * (gvd*gad);
@@ -363,7 +363,6 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	return;
       }
     
-    // F2 = Sum_{ij} V_{ij}^2 [(KV_i+KA_i) q_i + (KV_j+KA_j) barq_j]
     F2val  = (q+qbar);
     
     if (is_nu) {
