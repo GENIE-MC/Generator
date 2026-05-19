@@ -368,10 +368,10 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     F2val  = (q+qbar);
     
     if (is_nu) {
-      q    = ( switch_dv * fdv * kV_val_d * kA_val_d + switch_ds * fds * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2 +
-	( switch_s  * fs * kV_sea_s * kA_sea_s ) * fVus2 +
-	( switch_dv * fdv_c * kV_val_d * kA_val_d + switch_ds * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2 +
-	( switch_s  * fs_c  * kV_sea_s * kA_sea_s ) * fVcs2;
+      q    = ( switch_dv * fdv * sqrt( kV_val_d * kA_val_d ) + switch_ds * fds * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2 +
+	( switch_s  * fs * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2 +
+	( switch_dv * fdv_c * sqrt( kV_val_d * kA_val_d ) + switch_ds * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2 +
+	( switch_s  * fs_c  * sqrt( kV_sea_s * kA_sea_s ) ) * fVcs2;
       
       qbar = ( switch_ubar * fus * sqrt( kV_sea_u * kA_sea_u )  ) * fVud2 +
 	( switch_ubar * fus * sqrt( kV_sea_u * kA_sea_u )  ) * fVus2 +
@@ -387,8 +387,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
 	qbar = ( switch_dbar * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2 +
 	  ( switch_dbar * fds * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2 +
-	  ( switch_sbar * fs  * kV_sea_s * kA_sea_s ) * fVus2 +
-	  ( switch_sbar * fs_c * kV_sea_s * kA_sea_s ) * fVcs2;
+	  ( switch_sbar * fs  * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2 +
+	  ( switch_sbar * fs_c * sqrt( kV_sea_s * kA_sea_s ) ) * fVcs2;
       }
       else {
 	return;
