@@ -310,7 +310,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double gvd2 = TMath::Power(gvd, 2.);
     double gad2 = TMath::Power(gad, 2.);
 
-    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2)
+    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2) ;
     q2         += ( switch_us * fus + switch_c * fc )  * (kV_sea_u * gvu2 + kA_sea_u * gau2) ;
     q2         += switch_dv   * fdv * ( kV_val_d * gvd2+ kA_val_d * gad2);
     q2         += switch_ds   * fds * ( kV_sea_d * gvd2+ kA_sea_d * gad2);
