@@ -310,16 +310,16 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double gvd2 = TMath::Power(gvd, 2.);
     double gad2 = TMath::Power(gad, 2.);
 
-    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2) ;
-    q2         += ( switch_us * fus + switch_c * fc )  * (kV_sea_u * gvu2 + kA_sea_u * gau2) ;
+    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2);
+    q2         += ( switch_us * fus + switch_c * fc )  * (kV_sea_u * gvu2 + kA_sea_u * gau2);
     q2         += switch_dv   * fdv * ( kV_val_d * gvd2+ kA_val_d * gad2);
     q2         += switch_ds   * fds * ( kV_sea_d * gvd2+ kA_sea_d * gad2);
     q2         += switch_s    * fs  * ( kV_sea_s * gvd2+ kA_sea_s * gad2);
 
-    double qb2  = switch_ubar * fus * ( kV_sea_u * gvu2 + kA_sea_u * gau2) ;
-    qb2        += switch_cbar * fc  * ( kV_sea_u * gvu2 + kA_sea_u * gau2) ;
-    qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2) ;
-    qb2        += switch_sbar * fs  * ( kV_sea_s * gvd2 + kA_sea_s * gad2) ;
+    double qb2  = switch_ubar * fus * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += switch_cbar * fc  * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2);
+    qb2        += switch_sbar * fs  * ( kV_sea_s * gvd2 + kA_sea_s * gad2);
     
     double q3   = switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv * (gvu*gau);
     q3         += switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus * (gvu*gau);
@@ -329,8 +329,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     q3         += switch_s  * sqrt( kV_sea_s * kA_sea_s ) * fs  * (gvd*gad);
    
 
-    double qb3  = switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus * (gvu*gau) ;
-    qb3        += switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau) ;
+    double qb3  = switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus * (gvu*gau);
+    qb3        += switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
     qb3        += switch_dbar * sqrt( kV_sea_d * kA_sea_d )  * fds * (gvd*gad);
     qb3        += switch_sbar * sqrt( kV_sea_s * kA_sea_s )  * fs  * (gvd*gad);
 
@@ -349,27 +349,27 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double q=0, qbar=0;
 
     if (is_nu) {
-      q    = ( switch_dv * fdv * ( kV_val_d + kA_val_d ) + switch_ds * fds * ( kV_sea_d + kA_sea_d ) ) * fVud2 +
-	( switch_s  * fs * ( kV_sea_s + kA_sea_s ) ) * fVus2 +
-	( switch_dv * fdv_c * ( kV_val_d + kA_val_d ) + switch_ds * fds_c * ( kV_sea_d + kA_sea_d ) ) * fVcd2 +
-	( switch_s  * fs_c  * ( kV_sea_s + kA_sea_s ) ) * fVcs2;
+      q    = ( switch_dv * fdv * ( kV_val_d + kA_val_d ) + switch_ds * fds * ( kV_sea_d + kA_sea_d ) ) * fVud2 ;
+      q   +=   switch_s  * fs  * ( kV_sea_s + kA_sea_s ) * fVus2 ;
+      q   += ( switch_dv * fdv_c * ( kV_val_d + kA_val_d ) + switch_ds * fds_c * ( kV_sea_d + kA_sea_d ) ) * fVcd2 ;
+      q   +=   switch_s  * fs_c  * ( kV_sea_s + kA_sea_s ) * fVcs2;
 
-      qbar = ( switch_ubar * fus * ( kV_sea_u + kA_sea_u ) ) * fVud2 +
-	( switch_ubar * fus * ( kV_sea_u + kA_sea_u ) ) * fVus2 +
-	( switch_cbar * fc_c * ( kV_sea_u + kA_sea_u ) ) * fVcd2 +
-	( switch_cbar * fc_c * ( kV_sea_u + kA_sea_u ) ) * fVcs2;
+      qbar  = switch_ubar * fus * ( kV_sea_u + kA_sea_u )  * fVud2;
+      qbar += switch_ubar * fus * ( kV_sea_u + kA_sea_u )  * fVus2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kA_sea_u ) * fVcd2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kA_sea_u ) * fVcs2;
     }
     else
       if (is_nubar) {
-	q    = ( switch_uv * fuv * ( kV_val_u + kA_val_u ) + switch_us * fus * ( kV_sea_u + kA_sea_u ) ) * fVud2 +
-	  ( switch_uv * fuv * ( kV_val_u + kA_val_u ) + switch_us * fus * ( kV_sea_u + kA_sea_u ) ) * fVus2 +
-	  ( switch_c  * fc_c * ( kV_sea_u + kA_sea_u ) ) * fVcd2 +
-	  ( switch_c  * fc_c * ( kV_sea_u + kA_sea_u ) ) * fVcs2;
+	q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) + switch_us * fus * ( kV_sea_u + kA_sea_u ) ) * fVud2 ;
+	q   += ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) + switch_us * fus * ( kV_sea_u + kA_sea_u ) ) * fVus2 ;
+	q   +=   switch_c  * fc_c * ( kV_sea_u + kA_sea_u ) * fVcd2;
+	q   +=   switch_c  * fc_c * ( kV_sea_u + kA_sea_u ) * fVcs2;
 	
-	qbar = ( switch_dbar * fds_c * ( kV_sea_d + kA_sea_d ) ) * fVcd2 +
-	  ( switch_dbar * fds * ( kV_sea_d + kA_sea_d ) ) * fVud2 +
-	  ( switch_sbar * fs  * ( kV_sea_s + kA_sea_s ) ) * fVus2 +
-	  ( switch_sbar * fs_c * ( kV_sea_s + kA_sea_s ) ) * fVcs2;
+	qbar  = switch_dbar * fds_c * ( kV_sea_d + kA_sea_d ) * fVcd2;
+	qbar += switch_dbar * fds   * ( kV_sea_d + kA_sea_d ) * fVud2;
+	qbar += switch_sbar * fs    * ( kV_sea_s + kA_sea_s ) * fVus2;
+	qbar += switch_sbar * fs_c  * ( kV_sea_s + kA_sea_s ) * fVcs2;
       }
       else {
 	return;
@@ -378,27 +378,27 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     F2val  = (q+qbar);
     
     if (is_nu) {
-      q    = ( switch_dv * fdv * sqrt( kV_val_d * kA_val_d ) + switch_ds * fds * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2 +
-	( switch_s  * fs * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2 +
-	( switch_dv * fdv_c * sqrt( kV_val_d * kA_val_d ) + switch_ds * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2 +
-	( switch_s  * fs_c  * sqrt( kV_sea_s * kA_sea_s ) ) * fVcs2;
+      q    = ( switch_dv * fdv * sqrt( kV_val_d * kA_val_d ) + switch_ds * fds * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+      q   +=   switch_s  * fs  * sqrt( kV_sea_s * kA_sea_s ) * fVus2;
+      q   += ( switch_dv * fdv_c * sqrt( kV_val_d * kA_val_d ) + switch_ds * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2;
+      q   +=   switch_s  * fs_c  * sqrt( kV_sea_s * kA_sea_s ) * fVcs2;
       
-      qbar = ( switch_ubar * fus * sqrt( kV_sea_u * kA_sea_u )  ) * fVud2 +
-	( switch_ubar * fus * sqrt( kV_sea_u * kA_sea_u )  ) * fVus2 +
-	( switch_cbar * fc_c * sqrt( kV_sea_u * kA_sea_u )  ) * fVcd2 +
-	( switch_cbar * fc_c * sqrt( kV_sea_u * kA_sea_u )  ) * fVcs2;
+      qbar  = switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kA_sea_u ) * fVcd2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kA_sea_u ) * fVcs2;
     }
     else
       if (is_nubar) {
-	q    = ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u )  + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVud2 +
-	  ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVus2 +
-	  ( switch_c  * fc_c * sqrt( kV_sea_u * kA_sea_u ) ) * fVcd2 +
-	  ( switch_c  * fc_c * sqrt( kV_sea_u * kA_sea_u ) ) * fVcs2;
+	q    = ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u )  + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVud2;
+	q   += ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) )  * fVus2;
+	q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kA_sea_u ) ) * fVcd2;
+	q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kA_sea_u ) ) * fVcs2;
 
-	qbar = ( switch_dbar * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2 +
-	  ( switch_dbar * fds * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2 +
-	  ( switch_sbar * fs  * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2 +
-	  ( switch_sbar * fs_c * sqrt( kV_sea_s * kA_sea_s ) ) * fVcs2;
+	qbar  = ( switch_dbar * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2;
+	qbar += ( switch_dbar * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+	qbar += ( switch_sbar * fs    * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2;
+	qbar += ( switch_sbar * fs_c  * sqrt( kV_sea_s * kA_sea_s ) ) * fVcs2;
       }
       else {
 	return;
