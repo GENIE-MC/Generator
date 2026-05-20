@@ -310,17 +310,29 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double gvd2 = TMath::Power(gvd, 2.);
     double gad2 = TMath::Power(gad, 2.);
 
-    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2) + ( switch_us * fus + switch_c * fc )  * (kV_sea_u * gvu2 + kA_sea_u * gau2) ;
-    q2         += switch_dv   * fdv * ( kV_val_d * gvd2+ kA_val_d * gad2) + switch_ds * fds * ( kV_sea_d * gvd2+ kA_sea_d * gad2) + switch_s * fs * ( kV_sea_s * gvd2+ kA_sea_s * gad2);
+    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2)
+    q2         += ( switch_us * fus + switch_c * fc )  * (kV_sea_u * gvu2 + kA_sea_u * gau2) ;
+    q2         += switch_dv   * fdv * ( kV_val_d * gvd2+ kA_val_d * gad2);
+    q2         += switch_ds   * fds * ( kV_sea_d * gvd2+ kA_sea_d * gad2);
+    q2         += switch_s    * fs  * ( kV_sea_s * gvd2+ kA_sea_s * gad2);
 
-    double qb2  = switch_ubar * fus * ( kV_sea_u * gvu2 + kA_sea_u * gau2) + switch_cbar * fc * ( kV_sea_u * gvu2 + kA_sea_u * gau2) ;
-    qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2) + switch_sbar * fs * ( kV_sea_s * gvd2 + kA_sea_s * gad2) );
+    double qb2  = switch_ubar * fus * ( kV_sea_u * gvu2 + kA_sea_u * gau2) ;
+    qb2        += switch_cbar * fc  * ( kV_sea_u * gvu2 + kA_sea_u * gau2) ;
+    qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2) ;
+    qb2        += switch_sbar * fs  * ( kV_sea_s * gvd2 + kA_sea_s * gad2) ;
     
-    double q3   = (switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv + switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus + switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc ) * (gvu*gau);
-    q3         += (switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv + switch_ds * sqrt( kV_sea_d * kA_sea_d )  * fds + switch_s * sqrt( kV_sea_s * kA_sea_s ) * fs)  * (gvd*gad);
+    double q3   = switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv * (gvu*gau);
+    q3         += switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus * (gvu*gau);
+    q3         += switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
+    q3         += switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv * (gvd*gad);
+    q3         += switch_ds * sqrt( kV_sea_d * kA_sea_d ) * fds * (gvd*gad);
+    q3         += switch_s  * sqrt( kV_sea_s * kA_sea_s ) * fs  * (gvd*gad);
+   
 
-    double qb3  = (switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus + switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc)  * (gvu*gau) ;
-    qb3        += (switch_dbar * sqrt( kV_sea_d * kA_sea_d ) * fds + switch_sbar * sqrt( kV_sea_s * kA_sea_s ) * fs)  * (gvd*gad);
+    double qb3  = switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus * (gvu*gau) ;
+    qb3        += switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau) ;
+    qb3        += switch_dbar * sqrt( kV_sea_d * kA_sea_d )  * fds * (gvd*gad);
+    qb3        += switch_sbar * sqrt( kV_sea_s * kA_sea_s )  * fs  * (gvd*gad);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
