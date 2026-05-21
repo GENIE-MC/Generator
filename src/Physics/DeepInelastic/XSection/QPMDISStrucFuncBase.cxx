@@ -351,9 +351,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     if (is_nu) {
       q    = ( switch_dv * fdv   * ( kV_val_d + kA_val_d ) 
              + switch_ds * fds   * ( kV_sea_d + kA_sea_d ) ) * fVud2 ;
-      q   +=   switch_s  * fs    * ( kV_sea_s + kA_sea_s )   * fVus2 ;
       q   += ( switch_dv * fdv_c * ( kV_val_d + kA_val_d ) 
              + switch_ds * fds_c * ( kV_sea_d + kA_sea_d ) ) * fVcd2 ;
+      q   +=   switch_s  * fs    * ( kV_sea_s + kA_sea_s )   * fVus2 ;
       q   +=   switch_s  * fs_c  * ( kV_sea_s + kA_sea_s )   * fVcs2;
 
       qbar  = switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVud2;
@@ -602,7 +602,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   fPDFc -> Reset();
 
   // Get the kinematical variables x,Q2 (could include corrections)
-  double x     = this->ScalingVar(interaction);
+  double x     = this->ScalingVar(interaction, 0);
   double Q2val = this->Q2(interaction);
 
   // Get the hit nucleon mass (could be off-shell)

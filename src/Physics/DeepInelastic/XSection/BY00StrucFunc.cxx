@@ -15,6 +15,7 @@
 #include "Physics/DeepInelastic/XSection/BY00StrucFunc.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -91,13 +92,18 @@ double BY00StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
+  if (Mf > 0){// For Charm production only 
+    const Target & tgt = interaction->InitState().Tgt();
+    double M = tgt.HitNucP4().M();
+    return utils::kinematics::SlowRescalingVar(x, myQ2, M, Mf);
+  }
   //myQ2 = TMath::Max(Q2,fQ2min);
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
-
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
   return xw;
-}
+
+  }
 //____________________________________________________________________________
 void BY00StrucFunc::KVectorFactors(const Interaction * interaction,
 	         double & kuv, double & kdv, double & kus, double & kds, double & kss ) const
@@ -115,7 +121,7 @@ void BY00StrucFunc::KVectorFactors(const Interaction * interaction,
   kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
   kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
   kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
-  kss = kds ;                               // K - d(sea)
+  kss = myQ2/(myQ2+fCsD);                   // K - d(sea)
 }
 //____________________________________________________________________________
 void BY00StrucFunc::KAxialFactors(const Interaction * interaction,
