@@ -102,8 +102,8 @@ namespace kinematics
 
   namespace electromagnetic
   {
-   // Default Q2 threshold for em scattering events (GeV^2)
-   // This value can be overridden via the EM-Q2-min parameter in CommonParam.xml [Kinematics]
+   // Legacy default Q2 threshold for em scattering events (GeV^2).
+   // Configurable phase-space cuts are managed by KPhaseSpaceCuts.
    static const double kMinQ2Limit   = 0.02;  // GeV^2
 
    Range1D_t  InelWLim    (double El, double ml, double M);

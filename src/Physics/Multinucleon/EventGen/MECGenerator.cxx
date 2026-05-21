@@ -21,7 +21,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/EventGen/EVGThreadException.h"
-#include "Framework/Interaction/KPhaseSpace.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/EventGen/RunningThreadInfo.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/GHEP/GHepStatus.h"
@@ -864,8 +864,9 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = KPhaseSpace::GetQ2MinEM(); // EM limit from config
+  double Q2min = KPhaseSpaceCuts::Instance()->Q2MinCut(
+    interaction, interaction->ProcInfo().IsEM() ?
+    0. : genie::controls::kMinQ2Limit);
 
   LOG("MEC", pDEBUG) << "Q2min = " << Q2min;
 

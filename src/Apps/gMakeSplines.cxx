@@ -19,7 +19,7 @@
                   [--no-copy]
                   [--seed seed_number]
                   [--input-cross-sections xml_file]
-                  [--em-q2-min q2_value]
+                  [--q2-min q2_value]
 
                   // command line args handled by RunOpt:
                   [--event-generator-list list_name] // default "Default"
@@ -60,10 +60,9 @@
               Name (incl. full path) of an XML file with pre-computed
               free-nucleon cross-section values. If loaded, it can speed-up
               cross-section calculation for nuclear targets.
-           --em-q2-min
-              Override the minimum Q^2 threshold for electromagnetic scattering
-              events (in GeV^2). This overrides the EM-Q2-min value from
-              CommonParam.xml [Kinematics].
+           --q2-min
+              Override the minimum Q^2 phase-space cut (in GeV^2). For weak
+              interactions, this explicitly opts the run into the Q2 cut.
 
            --event-generator-list
               List of event generators to load in event generation drivers.
@@ -92,6 +91,7 @@
 //____________________________________________________________________________
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -105,6 +105,7 @@
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/EventGen/GEVGDriver.h"
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodeList.h"
@@ -115,7 +116,6 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Utils/CmdLnArgParser.h"
-#include "Framework/Algorithm/AlgConfigPool.h"
 
 #ifdef __GENIE_GEOM_DRIVERS_ENABLED__
 #include "Tools/Geometry/ROOTGeomAnalyzer.h"
@@ -146,8 +146,8 @@ bool     gOptNoCopy         = false;
 long int gOptRanSeed        = -1;   // random number seed
 string   gOptInpXSecFile    = "";   // input cross-section file
 string   gOptOutXSecFile    = "";   // output cross-section file
-double   gOptEMQ2Min;               // EM Q2 minimum override value
-bool     gOptEMQ2MinSet     = false; // whether --em-q2-min was specified
+double   gOptQ2Min;                 // Q2 minimum override value
+bool     gOptQ2MinSet       = false; // whether --q2-min was specified
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -161,22 +161,12 @@ int main(int argc, char ** argv)
   }
   RunOpt::Instance()->BuildTune();
 
-  // Apply EM Q2 min override if specified on command line
-  // This must be done after BuildTune() loads XML configs but before
-  // any physics code calls KPhaseSpace::GetQ2MinEM()
-  if(gOptEMQ2MinSet) {
-    AlgConfigPool * confp = AlgConfigPool::Instance();
-    Registry * r = confp->CommonList("Param", "Kinematics");
-    if(r) {
-      r->UnLock();
-      r->Set("EM-Q2-min", gOptEMQ2Min);
-      r->Lock();
-      LOG("gmkspl", pNOTICE)
-        << "Overriding EM-Q2-min from command line: " << gOptEMQ2Min << " GeV^2";
-    } else {
-      LOG("gmkspl", pWARN)
-        << "Could not find Kinematics registry to override EM-Q2-min";
-    }
+  // Apply Q2 minimum override before physics code queries phase-space cuts.
+  if(gOptQ2MinSet) {
+    KPhaseSpaceCuts::Instance()->SetQ2MinOverride(gOptQ2Min);
+    LOG("gmkspl", pNOTICE)
+      << "Overriding Q2 minimum phase-space cut from command line: "
+      << gOptQ2Min << " GeV^2";
   }
 
   // throw on NaNs and Infs...
@@ -228,6 +218,31 @@ int main(int argc, char ** argv)
 
   // Save the splines at the requested XML file
   XSecSplineList * xspl = XSecSplineList::Instance();
+  KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+  bool has_q2_metadata = false;
+  double q2_metadata = -1.;
+  string q2_metadata_source = "";
+  for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
+    int nupdgc = *nuiter;
+    if(!cuts->HasSplineQ2MinCutForProbe(nupdgc)) continue;
+
+    double probe_q2_metadata = cuts->SplineQ2MinCutForProbe(nupdgc);
+    string probe_q2_metadata_source =
+      cuts->SplineQ2MinCutSourceForProbe(nupdgc);
+    if(!has_q2_metadata) {
+      has_q2_metadata = true;
+      q2_metadata = probe_q2_metadata;
+      q2_metadata_source = probe_q2_metadata_source;
+    } else if(std::fabs(q2_metadata - probe_q2_metadata) > 1E-12) {
+      LOG("gmkspl", pFATAL)
+        << "Cannot write one spline Q2 metadata value for mixed probes "
+        << "with different configured Q2 cuts.";
+      exit(1);
+    }
+  }
+  if(has_q2_metadata) {
+    xspl->SetCurrentTuneQ2MinKinematics(q2_metadata, q2_metadata_source);
+  }
   bool save_init = !gOptNoCopy;
   xspl->SaveAsXml(gOptOutXSecFile, save_init);
 
@@ -355,12 +370,12 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
-  // EM Q2 minimum override
-  gOptEMQ2MinSet = false;
-  if( parser.OptionExists("em-q2-min") ) {
-    LOG("gmkspl", pINFO) << "Reading EM Q2 minimum cut override";
-    gOptEMQ2Min = parser.ArgAsDouble("em-q2-min");
-    gOptEMQ2MinSet = true;
+  // Q2 minimum override
+  gOptQ2MinSet = false;
+  if(parser.OptionExists("q2-min")) {
+    LOG("gmkspl", pINFO) << "Reading Q2 minimum cut override";
+    gOptQ2Min = parser.ArgAsDouble("q2-min");
+    gOptQ2MinSet = true;
   }
 
   //
@@ -375,9 +390,9 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n Output cross-section file : " << gOptOutXSecFile
      << "\n Input cross-section file : " << gOptInpXSecFile
      << "\n Random number seed : " << gOptRanSeed;
-  if(gOptEMQ2MinSet) {
+  if(gOptQ2MinSet) {
      LOG("gmkspl", pNOTICE)
-       << "\n EM Q2 minimum override : " << gOptEMQ2Min << " GeV^2";
+       << "\n Q2 minimum override : " << gOptQ2Min << " GeV^2";
   }
   LOG("gmkspl", pNOTICE) << "\n";
 
@@ -396,7 +411,7 @@ void PrintSyntax(void)
     << "\n    [--no-copy]"
     << "\n    [--seed seed_number]"
     << "\n    [--input-cross-sections xml_file]"
-    << "\n    [--em-q2-min q2_value]"
+    << "\n    [--q2-min q2_value]"
     << RunOpt::RunOptSyntaxString(false)
     << "\n";
 

@@ -19,7 +19,7 @@
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/GHEP/GHepParticle.h"
-#include "Framework/Interaction/KPhaseSpace.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/Multinucleon/XSection/EmpiricalMECPXSec2015.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -125,8 +125,11 @@ double EmpiricalMECPXSec2015::XSec(
     {double xsec = 0.;
       return xsec;
     }
-  //use proper Q2 limit - EM uses configurable value from CommonParam.xml [Kinematics]
-  Range1D_t Q2lim = isem ? genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W, KPhaseSpace::GetQ2MinEM()) : genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, kMinQ2Limit);
+  double Q2min = KPhaseSpaceCuts::Instance()->Q2MinCut(
+    interaction, isem ? 0. : kMinQ2Limit);
+  Range1D_t Q2lim = isem ?
+    genie::utils::kinematics::electromagnetic::InelQ2Lim_W(Ev, ml, M2n, W, Q2min) :
+    genie::utils::kinematics::InelQ2Lim_W (Ev, M2n, ml, W, Q2min);
 
   //LOG("MEC", pINFO) << "Q2lim= " << Q2lim.min << "  " <<Q2lim.max ;
   if(Q2 < Q2lim.min || Q2 > Q2lim.max)

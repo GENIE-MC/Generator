@@ -71,7 +71,7 @@ public:
   Range1D_t  Q2Lim_W_SPP_iso (void) const;  ///< Q2 limits @ fixed W for resonance single pion production on isoscalar nucleon
 
   static double GetTMaxDFR();
-  static double GetQ2MinEM();  ///< Minimum Q2 for EM interactions from config
+  static double GetQ2MinEM();  ///< Deprecated; use KPhaseSpaceCuts instead.
 
 private:
   void Init(void);

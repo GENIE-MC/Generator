@@ -329,16 +329,4 @@ University of Liverpool
     <param type="double" name="GVLD-Emax"> 1000.000  </param>
 
   </param_set>
-
-
-  <param_set name="Kinematics">
-    <!--
-   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   Kinematic limits for electromagnetic interactions
-   EM-Q2-min is the minimum Q^2 threshold for electromagnetic scattering events (in GeV^2)
-    -->
-    <param type="double" name="EM-Q2-min"> 0.02 </param>
-
-  </param_set>
-
 </common_Param_list>

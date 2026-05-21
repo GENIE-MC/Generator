@@ -23,6 +23,7 @@
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Framework/Interaction/InteractionException.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
@@ -37,6 +38,22 @@ using namespace genie::utils;
 using namespace genie::constants;
 
 ClassImp(KPhaseSpace)
+
+namespace {
+  void ApplyQ2MinCut(const Interaction * interaction, Range1D_t & q2lim, double default_q2min)
+  {
+    KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+    bool has_cut = cuts->HasQ2MinCut(interaction);
+    if(q2lim.min < 0. || q2lim.max < 0. || !has_cut) return;
+
+    double q2min = cuts->Q2MinCut(interaction, default_q2min);
+    if(q2lim.min < q2min) q2lim.min = q2min;
+    if(q2lim.max < q2lim.min) {
+      q2lim.min = -1.;
+      q2lim.max = -1.;
+    }
+  }
+}
 
 //____________________________________________________________________________
 KPhaseSpace::KPhaseSpace(void) :
@@ -76,25 +93,7 @@ double KPhaseSpace::GetTMaxDFR()
 //___________________________________________________________________________
 double KPhaseSpace::GetQ2MinEM()
 {
-  static bool q2MinLoaded = false;
-  static double EM_Q2Min = -1;
-
-  if (!q2MinLoaded)
-  {
-    AlgConfigPool * confp = AlgConfigPool::Instance();
-    const Registry * r = confp->CommonList( "Param", "Kinematics" ) ;
-    if(r) {
-      EM_Q2Min = r->GetDouble("EM-Q2-min");
-    } else {
-      LOG("KPhaseSpace", pWARN)
-        << "No Kinematics common list found, using default EM-Q2-min = 0.02 GeV^2";
-      EM_Q2Min = 0.02;  // default from base CommonParam.xml
-    }
-    q2MinLoaded = true;
-  }
-
-  return EM_Q2Min;
-
+  return KPhaseSpaceCuts::Instance()->EMQ2MinCut();
 }
 //___________________________________________________________________________
 void KPhaseSpace::UseInteraction(const Interaction * in)
@@ -575,8 +574,10 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   } else if (is_dme || is_dmdis) {
     Q2l = kinematics::DarkQ2Lim_W(Ev,M,ml,W);
   } else {
-     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,GetQ2MinEM()) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,0.) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
   }
+  ApplyQ2MinCut(fInteraction, Q2l,
+    pi.IsInverseBetaDecay() ? controls::kMinQ2Limit_VLE : (is_em ? 0. : controls::kMinQ2Limit));
 
   return Q2l;
 }
@@ -622,6 +623,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   if(is_cevns) {
      double Ev_lab  = init_state.ProbeE(kRfLab);
      Q2l = kinematics::CEvNSQ2Lim(Ev_lab);
+     ApplyQ2MinCut(fInteraction, Q2l, is_em ? 0. : controls::kMinQ2Limit);
      return Q2l;
   }
 
@@ -639,6 +641,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
     }
 
     Q2l = kinematics::CohQ2Lim(M, m_other, ml, Ev);
+    ApplyQ2MinCut(fInteraction, Q2l, is_em ? 0. : controls::kMinQ2Limit);
     return Q2l;
   }
 
@@ -655,8 +658,10 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
     if (pi.IsInverseBetaDecay()) {
       Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W,controls::kMinQ2Limit_VLE);
     } else {
-     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,GetQ2MinEM()) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
+     Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,0.) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
     }
+    ApplyQ2MinCut(fInteraction, Q2l,
+      pi.IsInverseBetaDecay() ? controls::kMinQ2Limit_VLE : (is_em ? 0. : controls::kMinQ2Limit));
 
     return Q2l;
   }
@@ -685,9 +690,10 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   // TODO: Q2maxConfig
   if (pi.IsMEC()){
     double W = fInteraction->RecoilNucleon()->Mass();
-    Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,GetQ2MinEM()) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
+    Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W,0.) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
     double Q2maxConfig = 1.44; // need to pull from config file somehow?
     if (Q2l.max > Q2maxConfig) Q2l.max = Q2maxConfig;
+    ApplyQ2MinCut(fInteraction, Q2l, is_em ? 0. : controls::kMinQ2Limit);
     return Q2l;
   }
 
@@ -697,7 +703,8 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   }
 
   // inelastic
-  Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim(Ev,ml,M,GetQ2MinEM()) : kinematics::InelQ2Lim(Ev,M,ml);
+  Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim(Ev,ml,M,0.) : kinematics::InelQ2Lim(Ev,M,ml);
+  ApplyQ2MinCut(fInteraction, Q2l, is_em ? 0. : controls::kMinQ2Limit);
   return Q2l;
 }
 //____________________________________________________________________________
@@ -1170,4 +1177,3 @@ Range1D_t KPhaseSpace::Q2Lim_W_SPP_iso(void) const
   return Q2l;
 }
 //____________________________________________________________________________
-

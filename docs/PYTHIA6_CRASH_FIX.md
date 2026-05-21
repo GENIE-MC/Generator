@@ -37,10 +37,11 @@ genie-dev crashed with a segmentation violation during event generation, typical
 
 ## Resolution
 
-Create a symlink in genie-dev to use the correct Pythia6 library:
+Create symlinks in genie-dev to use the correct Pythia6 libraries:
 
 ```bash
 ln -sf /Users/pbarham/opt/ROOTEGPythia6/lib/libPythia6.dylib ~/opt/genie-dev/lib/libPythia6.dylib
+ln -sf /Users/pbarham/opt/ROOTEGPythia6/lib/libEGPythia6.dylib ~/opt/genie-dev/lib/libEGPythia6.dylib
 ```
 
 ## Why This Works
@@ -51,18 +52,19 @@ The `genie_setup.sh` script sets `DYLD_LIBRARY_PATH` with `$GENIE/lib` before `$
 export DYLD_LIBRARY_PATH="$GENIE/lib:$PYTHIA6:$ROOTSYS/lib:$DYLD_LIBRARY_PATH"
 ```
 
-With the symlink in place, macOS loads the correct library from `$GENIE/lib` first.
+With the symlinks in place, macOS loads the correct libraries from `$GENIE/lib` first. `libPythia6.dylib` provides the Fortran PYTHIA6 routines, while `libEGPythia6.dylib` provides ROOT's `TPythia6` wrapper library that rebuilt GENIE binaries may reference directly as `@rpath/libEGPythia6.dylib`.
 
 ## Prevention
 
-When setting up a new GENIE development environment, ensure the Pythia6 library symlink exists:
+When setting up a new GENIE development environment, ensure both Pythia6 library symlinks exist:
 
 ```bash
-# Check if symlink exists
-ls -la $GENIE/lib/libPythia6.dylib
+# Check if symlinks exist
+ls -la $GENIE/lib/libPythia6.dylib $GENIE/lib/libEGPythia6.dylib
 
-# If missing, create it (adjust path as needed for your system)
+# If missing, create them (adjust path as needed for your system)
 ln -sf /Users/pbarham/opt/ROOTEGPythia6/lib/libPythia6.dylib $GENIE/lib/libPythia6.dylib
+ln -sf /Users/pbarham/opt/ROOTEGPythia6/lib/libEGPythia6.dylib $GENIE/lib/libEGPythia6.dylib
 ```
 
 ## Date

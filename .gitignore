@@ -14,8 +14,14 @@ src/Framework/Conventions/GVersion.h
 *.rootmap
 *_ROOT_DICT_*
 *.swp
+.DS_Store
 .vscode
 AGENTS.md
 CLAUDE.md
+IMPLEMENTATION_REPORT.md
+PYTHIA_6_CRASH_FIX
 build/
 src/scripts/build/ext/
+src/scripts/build/ext/**/inc/*.inc
+config/G18_10a/G18_10a_m0_r30/
+validation/**
