@@ -441,7 +441,7 @@ Range1D_t KPhaseSpace::WLim(void) const
   bool is_em = pi.IsEM();
   bool is_qel  = pi.IsQuasiElastic()  || pi.IsInverseBetaDecay() || pi.IsDarkMatterElastic();
   bool is_inel = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
-  bool is_dmdis = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
+  bool is_dminel = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
 
   if(is_qel) {
     double MR = fInteraction->RecoilNucleon()->Mass();
@@ -472,7 +472,7 @@ Range1D_t KPhaseSpace::WLim(void) const
 
     return Wl;
   }
-  if(is_dmdis) {
+  if(is_dminel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev = init_state.ProbeE(kRfHitNucRest);
     double M  = init_state.Tgt().HitNucP4Ptr()->M(); //can be off m/shell
@@ -517,9 +517,9 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
   bool is_inel  = pi.IsDeepInelastic() || pi.IsResonant() || pi.IsDiffractive();
   bool is_coh   = pi.IsCoherentProduction();
   bool is_dme   = pi.IsDarkMatterElastic();
-  bool is_dmdis = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
+  bool is_dminel = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
 
-  if(!is_qel && !is_inel && !is_coh && !is_dme && !is_dmdis) return Q2l;
+  if(!is_qel && !is_inel && !is_coh && !is_dme && !is_dminel) return Q2l;
 
   if(is_coh) {
     return Q2Lim();
@@ -536,7 +536,7 @@ Range1D_t KPhaseSpace::Q2Lim_W(void) const
 
   if (pi.IsInverseBetaDecay()) {
      Q2l = kinematics::InelQ2Lim_W(Ev,M,ml,W, controls::kMinQ2Limit_VLE);
-  } else if (is_dme || is_dmdis) {
+  } else if (is_dme || is_dminel) {
     Q2l = kinematics::DarkQ2Lim_W(Ev,M,ml,W);
   } else {
      Q2l = is_em ? kinematics::electromagnetic::InelQ2Lim_W(Ev,ml,M,W) : kinematics::InelQ2Lim_W(Ev,M,ml,W);
@@ -574,9 +574,9 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
   bool is_coh   = pi.IsCoherentProduction();
   bool is_cevns = pi.IsCoherentElastic();
   bool is_dme   = pi.IsDarkMatterElastic();
-  bool is_dmdis = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
+  bool is_dminel = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
 
-  if(!is_qel && !is_inel && !is_coh && !is_cevns && !is_dme && !is_dmdis) return Q2l;
+  if(!is_qel && !is_inel && !is_coh && !is_cevns && !is_dme && !is_dminel) return Q2l;
 
   const InitialState & init_state = fInteraction->InitState();
   double Ev  = init_state.ProbeE(kRfHitNucRest);
@@ -655,7 +655,7 @@ Range1D_t KPhaseSpace::Q2Lim(void) const
     return Q2l;
   }
 
-  if (is_dmdis) {
+  if (is_dminel) {
     Q2l = kinematics::DarkQ2Lim(Ev,M,ml);
     return Q2l;
   }
@@ -698,8 +698,8 @@ Range1D_t KPhaseSpace::XLim(void) const
     return xl;
   }
   //DMDIS
-  bool is_dmdis = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
-  if(is_dmdis) {
+  bool is_dminel = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
+  if(is_dminel) {
     const InitialState & init_state  = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
@@ -750,8 +750,8 @@ Range1D_t KPhaseSpace::YLim(void) const
     return yl;
   }
   //DMDIS
-  bool is_dmdis = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
-  if(is_dmdis) {
+  bool is_dminel = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
+  if(is_dminel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
@@ -823,8 +823,8 @@ Range1D_t KPhaseSpace::YLim_X(void) const
     return yl;
   }
   //DMDIS
-  bool is_dmdis = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
-  if(is_dmdis) {
+  bool is_dminel = pi.IsDarkMatterDeepInelastic() || pi.IsDarkMatterResonant();
+  if(is_dminel) {
     const InitialState & init_state = fInteraction->InitState();
     double Ev  = init_state.ProbeE(kRfHitNucRest);
     double M   = init_state.Tgt().HitNucP4Ptr()->M(); // can be off m/shell
