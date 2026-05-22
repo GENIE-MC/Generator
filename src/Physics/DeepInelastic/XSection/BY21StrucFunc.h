@@ -77,6 +77,7 @@ protected:
   double fH1;
   double fH2;
   double fH3;
+  double RQ2min;
 };
 
 }         // genie namespace

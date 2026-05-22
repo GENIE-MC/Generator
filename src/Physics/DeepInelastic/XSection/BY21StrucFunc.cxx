@@ -89,6 +89,7 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
   GetParam( "BY-H3" , fH3  ) ;
+  GetParam( "BY-RQ2min", RQ2min);
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -218,7 +219,6 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   // We use the R1998 parameterization only at Q2>0.3 GeV2.
   // At lower Q2, we freeze the function at Q2 =0.3 GeV2
   // The parameter, fRQ2min, is setup to 0.3 in the configuration. The default value can be changed.
-  double RQ2min = 0.3 ; // ! Need to make configurable
 
   if( Q2_int < RQ2min ) {
     // Freeze R at Q2 = 0.3 GeV2
