@@ -102,7 +102,7 @@ double QPMDISPXSec::XSec(
   // Compute the differential cross section
   //
 
-  double g2 = kGF2;
+  
   // For EM interaction replace  G_{Fermi} with :
   // a_{em} * pi / ( sqrt(2) * sin^2(theta_weinberg) * Mass_{W}^2 }
   // See C.Quigg, Gauge Theories of the Strong, Weak and E/M Interactions,
@@ -115,13 +115,13 @@ double QPMDISPXSec::XSec(
   //
   double Q2 = utils::kinematics::XYtoQ2(E,Mnuc,x,y);
   double Q4 = Q2*Q2;
+  double g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
   if(proc_info.IsEM()) {
     g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4);
-  }
-  if (proc_info.IsWeakCC()) {
+  } else if (proc_info.IsWeakCC()) {
     g2 = kGF2 * kMw2 * kMw2 / TMath::Power((Q2 + kMw2), 2);
-  } else if (proc_info.IsWeakNC()) {
-    g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
+  //} else if (proc_info.IsWeakNC()) {
+  //  g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
   }
   double front_factor = (g2*Mnuc*E) / kPi;
 
@@ -154,18 +154,12 @@ double QPMDISPXSec::XSec(
 #endif
 
 
-    
-  // Apply scaling / if required to reach well known asymmptotic value
-  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
-  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
-  else if( proc_info.IsEM() )  xsec *= fEMScale;
-
-   // The algorithm computes d^2xsec/dxdy
+     // The algorithm computes d^2xsec/dxdy
   // Check whether variable tranformation is needed
   if(kps!=kPSxyfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSxyfE,kps);
     xsec *= J;
-  }
+  }  
 
   // If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
@@ -177,6 +171,11 @@ double QPMDISPXSec::XSec(
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec *= NNucl;
   
+  // Apply scaling / if required to reach well known asymmptotic value
+  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
+  else if( proc_info.IsWeakNC() )  xsec *= fNCScale;
+  else if( proc_info.IsEM() )  xsec *= fEMScale;
+
   // Subtract the inclusive charm production cross section
   interaction->ExclTagPtr()->SetCharm();
   double xsec_charm = fCharmProdModel->XSec(interaction,kps);
