@@ -77,7 +77,8 @@ protected:
   double fH1;
   double fH2;
   double fH3;
-  double RQ2min;
+  double fRQ2min;
+  bool   fIncludeH; ///< Include H correction 
 };
 
 }         // genie namespace

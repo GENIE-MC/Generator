@@ -89,7 +89,8 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
   GetParam( "BY-H3" , fH3  ) ;
-  GetParam( "BY-RQ2min", RQ2min);
+  GetParam( "BY-RQ2min", fRQ2min);
+  GetParamDef( "BY-IncludeH", fIncludeH, true );
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -129,7 +130,7 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
 
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double Mf2 = TMath::Power( Mf, 2 ) ; 
-  double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
+  double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) + 2*fA*x);
   return xw;
 }
 //____________________________________________________________________________
@@ -148,9 +149,9 @@ void BY21StrucFunc::KVectorFactors(const Interaction * interaction,
   // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out. 
   kuv = (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
   kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
-  kus = myQ2/(myQ2+fCsU);    // K - u(sea)
-  kds = myQ2/(myQ2+fCsD);    // K - d(sea)
-  kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
+  kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
+  kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
+  kss = myQ2/(myQ2+fCsS);                   // K - s(sea)	
 }
 //____________________________________________________________________________
 void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
@@ -166,8 +167,8 @@ void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const InitialState & init_state = interaction->InitState();
   int  probe_pdgc  = init_state.ProbePdg();
-  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
-  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
+  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc );
+  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc );
 
   kuv = kvalance;
   kdv = kvalance;
@@ -179,6 +180,8 @@ void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
 
 //____________________________________________________________________________
 double BY21StrucFunc::H(const Interaction * interaction) const {
+  if( !fIncludeH ) return 1;
+  
   // Overrides QPMDISStrucFuncBase::H() function to compute the correction of the BY 2021 update
   // The correction is given by Eq. 34 of https://arxiv.org/pdf/2108.09240
   const Kinematics & kinematics = interaction->Kine();
@@ -197,9 +200,9 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   // At lower Q2, we freeze the function at Q2 =0.3 GeV2
   // The parameter, fRQ2min, is setup to 0.3 in the configuration. The default value can be changed.
 
-  if( Q2_int < RQ2min ) {
+  if( Q2_int < fRQ2min ) {
     // Freeze R at Q2 = 0.3 GeV2
-    Q2 = RQ2min ;
+    Q2 = fRQ2min ;
   }
   double Q4 = pow(Q2,2);
   double Q8 = pow(Q4,2);
@@ -247,9 +250,9 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
       
   // At Q2 < 0.3 GeV2, we add a K factor multipying R(Q2=0.3)
   // for a smooth transtion down to Q2 = 0 (the photonproduction limit)
-  if( Q2_int < RQ2min ) {
+  if( Q2_int < fRQ2min ) {
     double Q4_int = pow(Q2_int,2);
-    double R0 = (pow(RQ2min,2) + 1 ) / RQ2min ;
+    double R0 = (pow(fRQ2min,2) + 1 ) / fRQ2min ;
     R1998 *= R0  * Q2_int / ( Q4_int + 1 ) ;
   }
   
