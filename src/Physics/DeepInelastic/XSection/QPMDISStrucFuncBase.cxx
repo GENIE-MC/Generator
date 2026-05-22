@@ -284,28 +284,45 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double gvd2 = TMath::Power(gvd, 2.);
     double gad2 = TMath::Power(gad, 2.);
 
-    double q2   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu2+gau2) +
-                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd2+gad2);
-    double q3   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu*gau) * 2+
-                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd*gad) * 2;
+    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2);
+    q2         += (switch_us  * fus + switch_c * fc )  * (kV_sea_u * gvu2 + kA_sea_u * gau2);
+    q2         += switch_dv   * fdv * ( kV_val_d * gvd2+ kA_val_d * gad2);
+    q2         += switch_ds   * fds * ( kV_sea_d * gvd2+ kA_sea_d * gad2);
+    q2         += switch_s    * fs  * ( kV_sea_s * gvd2+ kA_sea_s * gad2);
 
-    double qb2  = (switch_ubar * fus + switch_cbar * fc)  * (gvu2+gau2) +
-                  (switch_dbar * fds + switch_sbar * fs)  * (gvd2+gad2);
-    double qb3  = (switch_ubar * fus + switch_cbar * fc)  * (gvu*gau) * 2 +
-                  (switch_dbar * fds + switch_sbar * fs)  * (gvd*gad) * 2;
+    double qb2  = switch_ubar * fus * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += switch_cbar * fc  * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2);
+    qb2        += switch_sbar * fs  * ( kV_sea_s * gvd2 + kA_sea_s * gad2);
+    
+    double q3   = switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv * (gvu*gau);
+    q3         += switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus * (gvu*gau);
+    q3         += switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
+    q3         += switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv * (gvd*gad);
+    q3         += switch_ds * sqrt( kV_sea_d * kA_sea_d ) * fds * (gvd*gad);
+    q3         += switch_s  * sqrt( kV_sea_s * kA_sea_s ) * fs  * (gvd*gad);
+   
+
+    double qb3  = switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus * (gvu*gau);
+    qb3        += switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
+    qb3        += switch_dbar * sqrt( kV_sea_d * kA_sea_d )  * fds * (gvd*gad);
+    qb3        += switch_sbar * sqrt( kV_sea_s * kA_sea_s )  * fs  * (gvd*gad);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
     LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", bar{q} = " << qb3;
 #endif
 
-    F2val  = q2+qb2;
-    xF3val = q3-qb3;
+    F2val  = q2 + qb2;
+    xF3val = 2.0 * (q3-qb3);
   }
 
   // ***  CHARGED CURRENT
 
   if(is_CC) {
+    // (fds_c > 0) = 1 if above charm threshold
+    // KCH = 1 if below charm threshold
+    //double KCH = KCharm(interaction, fMc * (fds_c > 0));
     double q=0, qbar=0;
 
     if (is_nu) {
@@ -377,17 +394,17 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double sq23 = TMath::Power(2./3., 2.);
     double sq13 = TMath::Power(1./3., 2.);
 
-    double qu   = sq23 * ( switch_uv   * fuv + switch_us * fus );
-    double qd   = sq13 * ( switch_dv   * fdv + switch_ds * fds );
-    double qs   = sq13 * ( switch_s    * fs  );
-    double qbu  = sq23 * ( switch_ubar * fus );
-    double qbd  = sq13 * ( switch_dbar * fds );
-    double qbs  = sq13 * ( switch_sbar * fs  );
+    double qu   = sq23 * ( switch_uv   * fuv * kV_val_u + switch_us * fus * kV_sea_u ) ;
+    double qd   = sq13 * ( switch_dv   * fdv * kV_val_d + switch_ds * fds * kV_sea_d ) ;
+    double qs   = sq13 * ( switch_s    * fs  * kV_sea_s ) ;
+    double qbu  = sq23 * ( switch_ubar * fus * kV_sea_u );
+    double qbd  = sq13 * ( switch_dbar * fds * kV_sea_d );
+    double qbs  = sq13 * ( switch_sbar * fs  * kV_sea_s );
 
     double q    = qu  + qd  + qs;
     double qbar = qbu + qbd + qbs;
 
-    F2val  = q + qbar;;
+    F2val  = q + qbar;
     xF3val = 0.;
 
   }
@@ -469,7 +486,7 @@ double QPMDISStrucFuncBase::Q2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
+double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction, double Mf) const
 {
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections

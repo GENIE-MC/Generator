@@ -84,7 +84,7 @@ void BY00StrucFunc::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double BY00StrucFunc::ScalingVar(const Interaction * interaction) const
+double BY00StrucFunc::ScalingVar(const Interaction * interaction, double /*Mf*/) const
 {
 // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
