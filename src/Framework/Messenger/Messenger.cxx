@@ -66,7 +66,7 @@ Messenger * Messenger::Instance()
     if ( layoutstr == "SIMPLE" )
       appender->setLayout(new log4cpp::SimpleLayout());
     else if (layoutstr == "FANCY"){
-        auto *layout = new log4cpp::PatternLayout();
+        log4cpp::PatternLayout *layout = new log4cpp::PatternLayout();
         layout->setConversionPattern("%d{%Y-%m-%d %H:%M:%S} [%p] %c: %m%n");
         appender->setLayout(layout);
     } else
