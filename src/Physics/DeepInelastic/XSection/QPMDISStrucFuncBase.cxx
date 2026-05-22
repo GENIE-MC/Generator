@@ -119,6 +119,9 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   //-- turn charm production off?
   GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
 
+  //-- include H?
+  GetParam( "IncludeH", fIncludeH, false ) ;
+
   //-- weinberg angle
   double thw ;
   GetParam( "WeinbergAngle", thw ) ;
@@ -322,7 +325,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   if(is_CC) {
     // (fds_c > 0) = 1 if above charm threshold
     // KCH = 1 if below charm threshold
-    //double KCH = KCharm(interaction, fMc * (fds_c > 0));
+    double KCH = KCharm(interaction, fMc * (fds_c > 0));
     double q=0, qbar=0;
 
     if (is_nu) {
@@ -353,7 +356,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	    return;
     }
     
-    F2val  = (q+qbar);
+    F2val  = (q+qbar) * KCH;
     
     if (is_nu) {
       q    = ( switch_dv * fdv   * sqrt( kV_val_d * kA_val_d ) 
@@ -382,7 +385,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	    return;
     }
 
-    xF3val = 2*(q-qbar);
+    xF3val = 2*(q-qbar) * KCH;
   }
 
   // ***  ELECTROMAGNETIC
@@ -413,6 +416,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double x     = this->ScalingVar(interaction);
   double f     = this->NuclMod   (interaction); // nuclear modification
   double r     = this->R         (interaction); // R ~ FL
+  double H     = fIncludeH ? this->H(interaction) : 1;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
@@ -433,9 +437,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double a = TMath::Power(bjx,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
 
-    fF3 = f * xF3val/bjx;
+    fF3 = f * H * xF3val/bjx;
     fF2 = f * F2val;
-    fF1 = fF2 * 0.5*c/bjx;
+    fF1 = fF2 * 0.5 * c / bjx;
     fF5 = fF2/bjx;           // Albright-Jarlskog relation
     fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
   }
@@ -445,7 +449,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     //double a = TMath::Power(x,2.) / Q2val;
     //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
 
-    fF3 = f * xF3val / x;
+    fF3 = f * H * xF3val / x;
     fF2 = f * F2val;
     fF1 = fF2 * 0.5 * c / x;
     fF5 = fF2 / x;         // Albright-Jarlskog relation
@@ -522,6 +526,15 @@ void QPMDISStrucFuncBase::KAxialFactors(const Interaction *,
   ks = 1.;
 }
 
+double QPMDISStrucFuncBase::KCharm(const Interaction * interaction, double Mf) const {
+  // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  return 1;
+}
+
+double QPMDISStrucFuncBase::H(const Interaction * interaction) const {
+  // The correction corresponds to Sec ??? eq ??? of https://arxiv.org/pdf/2108.09240
+  return 1;
+}
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
 {
