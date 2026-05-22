@@ -18,7 +18,7 @@ WeinbergAngle               double  No                                          
   <param_set name="Default">
     <param type="string" name="CommonParam"> WeakInt  </param>
 
-     <param type="alg" name="SFAlg">           genie::BYStrucFunc/Default      </param>
+     <param type="alg" name="SFAlg">           genie::BY00StrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
 
      <param type="double" name="DIS-CC-XSecScale">    1.032 </param>

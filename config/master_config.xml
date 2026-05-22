@@ -140,7 +140,7 @@
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::DipoleAxialFormFactorModel">              DipoleAxialFormFactorModel.xml              </config>
    <config alg="genie::ZExpAxialFormFactorModel">                ZExpAxialFormFactorModel.xml                </config>
-   <config alg="genie::ZExpELFormFactorModel">                      ZExpELFormFactorModel.xml                </config>
+   <config alg="genie::ZExpELFormFactorModel">                   ZExpELFormFactorModel.xml                   </config>
    <config alg="genie::MArunAxialFormFactorModel">               MArunAxialFormFactorModel.xml               </config>
    <config alg="genie::LwlynSmithFFCC">                          LwlynSmithFFCC.xml                          </config>
    <config alg="genie::MKFFEM">                                  MKFFEM.xml                                  </config>
@@ -150,7 +150,7 @@
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::QPMDISStrucFunc">                         QPMDISStrucFunc.xml                         </config>
-   <config alg="genie::BYStrucFunc">                             BYStrucFunc.xml                             </config>
+   <config alg="genie::BY00StrucFunc">                           BY00StrucFunc.xml                           </config>
    <config alg="genie::RSHelicityAmplModelCC">                   RSHelicityAmplModelCC.xml                   </config>
    <config alg="genie::RSHelicityAmplModelNCp">                  RSHelicityAmplModelNCp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>

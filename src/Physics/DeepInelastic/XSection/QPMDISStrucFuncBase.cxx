@@ -234,6 +234,23 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   this -> CalcPDFs (interaction);
 
+    // Compute the K factors
+  double kV_val_u = 1.;
+  double kV_val_d = 1.;
+  double kV_sea_u = 1.;
+  double kV_sea_d = 1.;
+  double kV_sea_s = 1.;
+
+  this->KVectorFactors(interaction, kV_val_u, kV_val_d, kV_sea_u, kV_sea_d, kV_sea_s);
+  // Axial Factors
+  double kA_val_u = 1.;
+  double kA_val_d = 1.;
+  double kA_sea_u = 1.;
+  double kA_sea_d = 1.;
+  double kA_sea_s = 1.;
+
+  this->KAxialFactors(interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d, kA_sea_s);
+
   //
   // Compute structure functions for the EM, NC and CC cases
   //
@@ -269,13 +286,13 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
     double q2   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu2+gau2) +
                   (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd2+gad2);
-    double q3   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (2*gvu*gau) +
-                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (2*gvd*gad);
+    double q3   = (switch_uv   * fuv + switch_us   * fus + switch_c    * fc)  * (gvu*gau) * 2+
+                  (switch_dv   * fdv + switch_ds   * fds + switch_s    * fs)  * (gvd*gad) * 2;
 
     double qb2  = (switch_ubar * fus + switch_cbar * fc)  * (gvu2+gau2) +
                   (switch_dbar * fds + switch_sbar * fs)  * (gvd2+gad2);
-    double qb3  = (switch_ubar * fus + switch_cbar * fc)  * (2*gvu*gau) +
-                  (switch_dbar * fds + switch_sbar * fs)  * (2*gvd*gad);
+    double qb3  = (switch_ubar * fus + switch_cbar * fc)  * (gvu*gau) * 2 +
+                  (switch_dbar * fds + switch_sbar * fs)  * (gvd*gad) * 2;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
@@ -292,33 +309,62 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double q=0, qbar=0;
 
     if (is_nu) {
-      q    = ( switch_dv * fdv   + switch_ds * fds   ) * fVud2 +
-             ( switch_s  * fs                        ) * fVus2 +
-             ( switch_dv * fdv_c + switch_ds * fds_c ) * fVcd2 +
-             ( switch_s  * fs_c                      ) * fVcs2;
+      q    = ( switch_dv * fdv   * ( kV_val_d + kA_val_d ) 
+             + switch_ds * fds   * ( kV_sea_d + kA_sea_d ) ) * fVud2 ;
+      q   += ( switch_dv * fdv_c * ( kV_val_d + kA_val_d ) 
+             + switch_ds * fds_c * ( kV_sea_d + kA_sea_d ) ) * fVcd2 ;
+      q   +=   switch_s  * fs    * ( kV_sea_s + kA_sea_s )   * fVus2 ;
+      q   +=   switch_s  * fs_c  * ( kV_sea_s + kA_sea_s )   * fVcs2;
 
-      qbar = ( switch_ubar * fus  ) * fVud2 +
-             ( switch_ubar * fus  ) * fVus2 +
-             ( switch_cbar * fc_c ) * fVcd2 +
-             ( switch_cbar * fc_c ) * fVcs2;
-    }
-    else
-    if (is_nubar) {
-      q    = ( switch_uv * fuv + switch_us * fus    ) * fVud2 +
-             ( switch_uv * fuv + switch_us * fus    ) * fVus2 +
-             ( switch_c  * fc_c                     ) * fVcd2 +
-             ( switch_c  * fc_c                     ) * fVcs2;
+      qbar  = switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kA_sea_u ) * fVcd2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kA_sea_u ) * fVcs2;
+    } else if (is_nubar) {
+	    q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
+             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVud2 ;
+	    q   += ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
+             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVus2 ;
+	    q   +=   switch_c  * fc_c * ( kV_sea_u + kA_sea_u )   * fVcd2;
+	    q   +=   switch_c  * fc_c * ( kV_sea_u + kA_sea_u )   * fVcs2;
 
-      qbar = ( switch_dbar * fds_c ) * fVcd2 +
-             ( switch_dbar * fds   ) * fVud2 +
-             ( switch_sbar * fs    ) * fVus2 +
-             ( switch_sbar * fs_c  ) * fVcs2;
+	    qbar  = switch_dbar * fds_c * ( kV_sea_d + kA_sea_d ) * fVcd2;
+	    qbar += switch_dbar * fds   * ( kV_sea_d + kA_sea_d ) * fVud2;
+	    qbar += switch_sbar * fs    * ( kV_sea_s + kA_sea_s ) * fVus2;
+	    qbar += switch_sbar * fs_c  * ( kV_sea_s + kA_sea_s ) * fVcs2;
+    } else {
+	    return;
     }
-    else {
-      return;
+    
+    F2val  = (q+qbar);
+    
+    if (is_nu) {
+      q    = ( switch_dv * fdv   * sqrt( kV_val_d * kA_val_d ) 
+             + switch_ds * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+      q   +=   switch_s  * fs    * sqrt( kV_sea_s * kA_sea_s )   * fVus2;
+      q   += ( switch_dv * fdv_c * sqrt( kV_val_d * kA_val_d ) 
+             + switch_ds * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2;
+      q   +=   switch_s  * fs_c  * sqrt( kV_sea_s * kA_sea_s )   * fVcs2;
+      
+      qbar  = switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kA_sea_u ) * fVcd2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kA_sea_u ) * fVcs2;
+    }
+    else if (is_nubar) {
+	    q    = ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVud2;
+	    q   += ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVus2;
+	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kA_sea_u ) ) * fVcd2;
+	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kA_sea_u ) ) * fVcs2;
+
+	    qbar  = ( switch_dbar * fds_c * sqrt( kV_sea_d * kA_sea_d ) ) * fVcd2;
+	    qbar += ( switch_dbar * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+	    qbar += ( switch_sbar * fs    * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2;
+	    qbar += ( switch_sbar * fs_c  * sqrt( kV_sea_s * kA_sea_s ) ) * fVcs2;
+    } else {
+	    return;
     }
 
-    F2val  = 2*(q+qbar);
     xF3val = 2*(q-qbar);
   }
 
@@ -431,8 +477,8 @@ double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
   return interaction->Kine().x();
 }
 //____________________________________________________________________________
-void QPMDISStrucFuncBase::KFactors(const Interaction *,
-                 double & kuv, double & kdv, double & kus, double & kds) const
+void QPMDISStrucFuncBase::KVectorFactors(const Interaction *,
+                 double & kuv, double & kdv, double & kus, double & kds, double & ks) const
 {
 // This is an abstract class: no model-specific correction
 // The PDF scaling variables are set to 1
@@ -442,7 +488,23 @@ void QPMDISStrucFuncBase::KFactors(const Interaction *,
   kdv = 1.;
   kus = 1.;
   kds = 1.;
+  ks = 1.;
 }
+
+void QPMDISStrucFuncBase::KAxialFactors(const Interaction *,
+                 double & kuv, double & kdv, double & kus, double & kds, double & ks) const
+{
+// This is an abstract class: no model-specific correction
+// The PDF scaling variables are set to 1
+// Override this method to compute model-dependent corrections
+
+  kuv = 1.;
+  kdv = 1.;
+  kus = 1.;
+  kds = 1.;
+  ks = 1.;
+}
+
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
 {
@@ -545,13 +607,6 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
      << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
 
-  // Compute the K factors
-  double kval_u = 1.;
-  double kval_d = 1.;
-  double ksea_u = 1.;
-  double ksea_d = 1.;
-
-  this->KFactors(interaction, kval_u, kval_d, ksea_u, ksea_d);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
@@ -566,20 +621,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   // Debdatta & Donna noted (Sep.2006) that a similar swap in the neugen
   // implementation was the cause of the difference in nu and nubar F2
   //
-  fPDF->ScaleUpValence   (kval_u);
-  fPDF->ScaleDownValence (kval_d);
-  fPDF->ScaleUpSea       (ksea_u);
-  fPDF->ScaleDownSea     (ksea_d);
-  fPDF->ScaleStrange     (ksea_d);
-  fPDF->ScaleCharm       (ksea_u);
-  if(above_charm) {
-     fPDFc->ScaleUpValence   (kval_u);
-     fPDFc->ScaleDownValence (kval_d);
-     fPDFc->ScaleUpSea       (ksea_u);
-     fPDFc->ScaleDownSea     (ksea_d);
-     fPDFc->ScaleStrange     (ksea_d);
-     fPDFc->ScaleCharm       (ksea_u);
-  }
+
 
   // Rules of thumb
   // ---------------------------------------
