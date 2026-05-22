@@ -112,6 +112,7 @@ void BY21StrucFunc::Init(void)
   fCsA  = 0;
   fCaLW_nu = 0;
   fCaLW_nubar = 0;
+  fIncludeH = true;
   fH0   = 0;
   fH1   = 0;
   fH2   = 0;
@@ -125,7 +126,6 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
-  //myQ2 = TMath::Max(Q2,fQ2min);
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
 
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;

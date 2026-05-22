@@ -106,7 +106,6 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 
   //-- include R (~FL)?
   GetParam( "IncludeR", fIncludeR ) ;
-  //  GetParamDef( "R-Q2min", fRQ2min, 0.3 ) ;
   
   //-- include H?
   GetParam( "IncludeH", fIncludeH, false ) ;
@@ -434,16 +433,14 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   double Q2val = this->Q2        (interaction);
   double x     = this->ScalingVar(interaction);
-  double f     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
   
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
   LOG("DISSF", pDEBUG) << "H = " << H;
 #endif
-
+  
   if(fUse2016Corrections) {
     //It was confirmed by A.Bodek that the modified scaling variable
     //should just be used to compute the strucure functions F2 and xF3,
@@ -458,8 +455,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double a = TMath::Power(bjx,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
 
-    fF3 = f * H * xF3val / bjx;
-    fF2 = f * F2val;
+    fF3 = H * xF3val / bjx;
+    fF2 = F2val;
     fF1 = fF2 * 0.5 * c / bjx;
     fF5 = fF2 * 0.5 /bjx;           // Albright-Jarlskog relation
     fF4 = 0.;                       // Nucl.Phys.B 84, 467 (1975)
@@ -468,8 +465,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double a = TMath::Power(x,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
     
-    fF3 = f * H * xF3val / x;
-    fF2 = f * F2val;
+    fF3 = H * xF3val / x;
+    fF2 = F2val;
     fF1 = fF2 * 0.5 * c / x;
     fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
     fF4 = 0.;                    // Nucl.Phys.B 84, 467 (1975)
@@ -583,7 +580,6 @@ double QPMDISStrucFuncBase::R(const Interaction * interaction) const
   if(fIncludeR) {
     const Kinematics & kine  = interaction->Kine();
     double x  = kine.x();
-    //    double x  = this->ScalingVar(interaction);
     double Q2val = this->Q2(interaction);
     double Rval  = utils::phys::RWhitlow(x, Q2val);
     return Rval;
@@ -646,6 +642,31 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   else {
     LOG("DISSF", pDEBUG)
       << "The event is below the charm threshold (mcharm = " << fMc << ")";
+  }
+
+
+  // We apply the nuclear correction directly to the quark's pdfs
+  // This is equivalent to the original logic, where the nuclear modification
+  // was applied to the structure functions (F2, F3 and subsequently F1 and F5)
+  double NuclCorr  = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("DISSF", pDEBUG) << "Nucl. mod   = " << NuclCorr ;
+#endif
+
+  fPDF->ScaleUpValence   (NuclCorr);
+  fPDF->ScaleDownValence (NuclCorr);
+  fPDF->ScaleUpSea       (NuclCorr);
+  fPDF->ScaleDownSea     (NuclCorr);
+  fPDF->ScaleStrange     (NuclCorr);
+  fPDF->ScaleCharm       (NuclCorr);
+  if(above_charm) {
+     fPDFc->ScaleUpValence   (NuclCorr);
+     fPDFc->ScaleDownValence (NuclCorr);
+     fPDFc->ScaleUpSea       (NuclCorr);
+     fPDFc->ScaleDownSea     (NuclCorr);
+     fPDFc->ScaleStrange     (NuclCorr);
+     fPDFc->ScaleCharm       (NuclCorr);
   }
   
   // Rules of thumb
