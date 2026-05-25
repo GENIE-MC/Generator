@@ -49,7 +49,25 @@ double BY00DISNuclearModel::DISACorrection (const Interaction * interaction) con
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   int    A = tgt.A();
-  f = utils::nuclear::DISNuclFactor(x,A);
+
+  // Adapted from NeuGEN's nuc_factor(). Kept original comments from Hugh.
+
+  double xv     = TMath::Min(0.75, x);
+  double xv2    = xv  * xv;
+  double xv3    = xv2 * xv;
+  double xv4    = xv3 * xv;
+  double xv5    = xv4 * xv;
+  double xvp    = TMath::Power(xv, 14.417);
+  double expaxv = TMath::Exp(fFef3*xv);
+
+  // first factor goes from free nucleons to deuterium
+  if(A >= 2) {
+    f= f2HScale*( f2Hf0 + f2Hf1*xv + f2Hf2*xv2 + f2Hf3*xv3 + f2Hf4*xv4 + f2Hf5*xv5);
+  }
+  // 2nd factor goes from deuterium to iso-scalar iron
+  if(A > 2) {
+    f *= ( fFef0 + fFef1 * xv + fFef2 * expaxv + fFef4 * xvp ) ;
+  }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
@@ -79,7 +97,17 @@ void BY00DISNuclearModel::Configure(string config)
 
 void BY00DISNuclearModel::LoadConfig(void)
 {
-  // In this version, parameters are hardcoded.
-  // This model is not advised, as a new version of this parameterization is available
-  // in BY21DISNuclearModel
+  GetParam( "BY00-NuclModel-2H-Scale", f2HScale ) ;
+  GetParam( "BY00-NuclModel-2H-f0",    f2Hf0 ) ;
+  GetParam( "BY00-NuclModel-2H-f1",    f2Hf1 ) ;
+  GetParam( "BY00-NuclModel-2H-f2",    f2Hf2 ) ;
+  GetParam( "BY00-NuclModel-2H-f3",    f2Hf3 ) ;
+  GetParam( "BY00-NuclModel-2H-f4",    f2Hf4 ) ;
+  GetParam( "BY00-NuclModel-2H-f5",    f2Hf5 ) ;
+
+  GetParam( "BY00-NuclModel-Fe-f0",    fFef0 ) ;
+  GetParam( "BY00-NuclModel-Fe-f1",    fFef1 ) ;
+  GetParam( "BY00-NuclModel-Fe-f2",    fFef2 ) ;
+  GetParam( "BY00-NuclModel-Fe-f3",    fFef3 ) ;
+  GetParam( "BY00-NuclModel-Fe-f4",    fFef4 ) ;
 }

@@ -89,7 +89,8 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
   GetParam( "BY-H3" , fH3  ) ;
-  GetParam( "BY-RQ2min", fRQ2min);
+  GetParam( "BY-RQ2min", ffRQ2min);
+  GetParamDef( "BY-IncludeH", fIncludeH, true );
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -111,6 +112,7 @@ void BY21StrucFunc::Init(void)
   fCsA  = 0;
   fCaLW_nu = 0;
   fCaLW_nubar = 0;
+  fIncludeH = true;
   fH0   = 0;
   fH1   = 0;
   fH2   = 0;
@@ -131,7 +133,7 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
 #endif
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double Mf2 = TMath::Power( Mf, 2 ) ; 
-  double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
+  double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) + 2*fA*x);
   return xw;
 }
 //____________________________________________________________________________
@@ -145,55 +147,32 @@ void BY21StrucFunc::KVectorFactors(const Interaction * interaction,
   double GD  = 1. / TMath::Power(1.+myQ2/fMv2, 2); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
 
-
+  // We include the BY21 K factors. The arxiv.org/pdf/2108.09240 publicatio also accounts for a low energy transfer correction (KLW)
   // The KLW is only important in the SIS region (W<2GeV). As we scale it altogether with the RES region, we do not need this factor.
   // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out. 
-  // The K factor blows up at q0 = 0. A. Bodek recomends to use it until W = 1.1 GeV
-  double KLW = 1. ;
-  //double q0 = this->q0(interaction);
-  //double q02 = TMath::Power(q0,2);
-  // double W = interaction->Kine().W();      
-  // if ( W > 1.1 )  KLW = ( q02 + fCvLW ) / q02;
-
-  kuv = KLW * (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
-  kdv = KLW * (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
-  kus = myQ2/(myQ2+fCsU);    // K - u(sea)
-  kds = myQ2/(myQ2+fCsD);    // K - d(sea)
-  kss = myQ2/(myQ2+fCsS);    // K - s(sea)	
+  kuv = (1.-GD2)*(myQ2+fCv2U)/(myQ2+fCv1U); // K - u(valence)
+  kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
+  kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
+  kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
+  kss = myQ2/(myQ2+fCsS);                   // K - s(sea)	
 }
 //____________________________________________________________________________
 void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
 				    double & kuv, double & kdv, double & kus, double & kds, double & kss ) const {
   
   // https://arxiv.org/pdf/2108.09240 Sec 11.2 
+  // We apply a different K factor for axial contribtions, as given in Eq. 49-50.
+  // There is a single correction for valance quarks, and a different single correction for sea quarks.
   double myQ2  = this->Q2(interaction);
   double ksea = ( myQ2 + fPsA*fCsA ) / ( myQ2 + fCsA ) ;
-  double kvalance = ( myQ2 + fPvA * 0.18 ) / ( myQ2 + 0.18 ) ; 
+  double kvalance = ( myQ2 + fPvA * fMv2/4. ) / ( myQ2 + fMv2/4. ) ; 
 
-  // Compute Low-q0 modificaion factor for neutrinos and anti-neutrinos
-  double q0 = this->q0(interaction);
-  double q02 = TMath::Power(q0,2);
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const InitialState & init_state = interaction->InitState();
   int  probe_pdgc  = init_state.ProbePdg();
-  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
-  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
-  double KLW = 1;
-  // The KLW is only important in the SIS region (W<2GeV). As we scale it altogether with the RES region, we do not need this factor.                            
-  // It also causes issues at low-W. After discussing with A. Bodek, we agreed to comment this part out.
-  /*
-    if( q02 > 0 ) {
-    // TO DECIDE ! It breaks the e- implementation
-    if( is_nu ) {
-    KLW = ( q02 + fCaLW_nu ) / q02 ;
-    } else if( is_nubar ) {
-    KLW = ( q02 + fCaLW_nubar ) / q02 ;
-    }
-    }
-    // double check it only affects valance factors:
-    //kvalance *= KLW ; 
-    */
-  // The 2021 BY model uses the same factors for up and down valance quarks, and for u, d, s sea quarks.
+  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc );
+  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc );
+
   kuv = kvalance;
   kdv = kvalance;
   kus = ksea;
@@ -204,6 +183,8 @@ void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
 
 //____________________________________________________________________________
 double BY21StrucFunc::H(const Interaction * interaction) const {
+  if( !fIncludeH ) return 1;
+  
   // Overrides QPMDISStrucFuncBase::H() function to compute the correction of the BY 2021 update
   // The correction is given by Eq. 34 of https://arxiv.org/pdf/2108.09240
   const Kinematics & kinematics = interaction->Kine();
@@ -229,9 +210,9 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   // At lower Q2, we freeze the function at Q2 =0.3 GeV2
   // The parameter, fRQ2min, is setup to 0.3 in the configuration. The default value can be changed.
 
-  if( Q2_int < fRQ2min ) {
+  if( Q2_int < ffRQ2min ) {
     // Freeze R at Q2 = 0.3 GeV2
-    Q2 = fRQ2min ;
+    Q2 = ffRQ2min ;
   }
   double Q4 = pow(Q2,2);
   double Q8 = pow(Q4,2);

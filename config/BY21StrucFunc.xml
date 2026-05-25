@@ -24,8 +24,9 @@ BY-H0                      double  No    Bodek-Yang high order QCD parameter
 BY-H1                      double  No    Bodek-Yang high order QCD parameter
 BY-H2                      double  No    Bodek-Yang high order QCD parameter
 BY-H3                      double  No    Bodek-Yang high order QCD parameter
-BY-RQ2min                  double  NO    Bodek-Yang Q2 below corrections are applied
-
+BY-RQ2min                  double  No    Bodek-Yang Q2 below corrections are applied
+BY-IncludeH                bool    Yes   Bodek-Yang H(x,Q2) correction applied to F3(x,Q2)    True 
+ 
 +++ This model inherits from QPMDISStrucFunc and calls its configure
 +++ The following parameters have to be the same as in QPMDISStrucFunc.xml
 
