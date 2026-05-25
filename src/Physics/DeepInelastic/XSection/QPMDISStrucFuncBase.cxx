@@ -127,6 +127,9 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   GetParam( "WeinbergAngle", thw ) ;
   fSin2thw = TMath::Power(TMath::Sin(thw), 2);
 
+
+  fDISNuclCorr = dynamic_cast<const DISNuclearModelI*>(this->SubAlg("DISNuclModel"));
+
   LOG("DISSF", pDEBUG) << "Done loading configuration";
 }
 //____________________________________________________________________________
@@ -414,9 +417,10 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   double Q2val = this->Q2        (interaction);
   double x     = this->ScalingVar(interaction);
-  double f     = this->NuclMod   (interaction); // nuclear modification
+  double f     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
+
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
@@ -440,7 +444,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF3 = f * H * xF3val/bjx;
     fF2 = f * F2val;
     fF1 = fF2 * 0.5 * c / bjx;
-    fF5 = fF2/bjx;           // Albright-Jarlskog relation
+    fF5 = fF2 * 0.5 / bjx;           // Albright-Jarlskog relation
     fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
   }
   else {
@@ -452,7 +456,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF3 = f * H * xF3val / x;
     fF2 = f * F2val;
     fF1 = fF2 * 0.5 * c / x;
-    fF5 = fF2 / x;         // Albright-Jarlskog relation
+    fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   }
 

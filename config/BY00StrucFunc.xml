@@ -62,6 +62,7 @@ WeinbergAngle              double  No                                           
      <param type="bool"   name="IncludeNuclMod">     true  </param>
      <param type="bool"   name="Use2016Corrections"> false </param>
      <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
+     <param type="alg" name="DISNuclModel"> genie::BY00DISNuclearModel/Default </param>
      
   </param_set>
 

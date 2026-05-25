@@ -30,6 +30,7 @@
 #include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDF.h"
+#include "Physics/NuclearState/DISNuclearModelI.h"
 
 namespace genie {
 
@@ -94,6 +95,7 @@ protected:
   bool   fUse2016Corrections;///< Use 2016 SF relation corrections
   double fLowQ2CutoffF1F2;   ///< Set min for relation between 2xF1 and F2
   bool fIncludeH;
+  const DISNuclearModelI * fDISNuclCorr ; ///< model for nuclear factors (shadowing, anti-shadowing,...)
 
   mutable double fF1;
   mutable double fF2;

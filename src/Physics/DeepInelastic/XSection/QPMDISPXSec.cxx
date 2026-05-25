@@ -122,6 +122,8 @@ double QPMDISPXSec::XSec(
     g2 = kGF2 * kMw2 * kMw2 / TMath::Power((Q2 + kMw2), 2);
   } else if (proc_info.IsWeakNC()) {
     g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
+  } else {
+    LOG("DISPXSec", pWARN) << "Requesting cross section for neither CC nor NC nor EM!";
   }
   double front_factor = (g2*Mnuc*E) / kPi;
 
@@ -130,7 +132,7 @@ double QPMDISPXSec::XSec(
   double term2 = 1 - y - Mnuc*x*y/(2*E) - ml2/(4*E2);
   double term3 = sign * (x*y*(1-y/2) - y*ml2/(4*Mnuc*E));
   double term4 = x*y*ml2/(2*Mnuc*E) + ml4/(4*Mnuc2*E2);
-  double term5 = -1.*ml2/(2*Mnuc*E);
+  double term5 = -1.*ml2/(Mnuc*E);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pDEBUG)
@@ -172,7 +174,7 @@ double QPMDISPXSec::XSec(
 
   // Apply scaling / if required to reach well known asymmptotic value
   if( proc_info.IsWeakCC() )  xsec *= fCCScale;
-  else if( proc_info.IsWeakNC() )  xsec *= fEMScale;
+  else if( proc_info.IsWeakNC() )  xsec *= fNCScale;
   else if( proc_info.IsEM() )  xsec *= fEMScale;
 
   // Subtract the inclusive charm production cross section

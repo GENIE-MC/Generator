@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the BY DIS Nuclear model 2000. 
+In this version, parameters are hardcoded. This model is kept for historical reasons.                                                                        
+This model is not advised, as a new version of this parameterization is available in BY21DISNuclearModel 
+-->
+
+ <param_set name="Default"> 
+    
+    
+ </param_set>
+
+</alg_conf>
