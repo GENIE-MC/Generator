@@ -2,6 +2,7 @@ bin/
 lib/
 doxygen/
 build-env.log
+install/
 src/make/Make.config
 src/make/Make.config_no_paths
 src/Framework/Conventions/GBuild.h

@@ -85,25 +85,21 @@ void BY00StrucFunc::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double BY00StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) const
+double BY00StrucFunc::ScalingVar(const Interaction * interaction, double /*Mf*/) const
 {
 // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
-  if (Mf > 0){// For Charm production only 
-    const Target & tgt = interaction->InitState().Tgt();
-    double M = tgt.HitNucP4().M();
-    return utils::kinematics::SlowRescalingVar(x, myQ2, M, Mf);
-  }
   //myQ2 = TMath::Max(Q2,fQ2min);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
+#endif
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
   return xw;
-
-  }
+}
 //____________________________________________________________________________
 void BY00StrucFunc::KVectorFactors(const Interaction * interaction,
 	         double & kuv, double & kdv, double & kus, double & kds, double & kss ) const

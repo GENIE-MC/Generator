@@ -346,6 +346,10 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   // ***  CHARGED CURRENT
 
   if(is_CC) {
+    // (fds_c > 0) = 1 if above charm threshold
+    // KCH = 1 if below charm threshold
+    // only relevant for BY2021 model
+    double KCH = KCharm(interaction, fMc * (fds_c > 0));
     double q=0, qbar=0;
 
     if (is_nu) {
@@ -376,7 +380,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	    return;
     }
     
-    F2val  = (q+qbar);
+    F2val  = (q+qbar) * KCH;
     
     if (is_nu) {
       q    = ( switch_dv * fdv   * sqrt( kV_val_d * kA_val_d ) 
@@ -405,7 +409,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	    return;
     }
 
-    xF3val = 2*(q-qbar);
+    xF3val = 2*(q-qbar) * KCH;
   }
 
   // ***  ELECTROMAGNETIC
@@ -529,15 +533,6 @@ double QPMDISStrucFuncBase::q0(const Interaction * interaction) const
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::ScalingVar(const Interaction* interaction, double Mf ) const
 {
-  // The scaling variable is set to the normal Bjorken x.
-  // Override DISStructureFuncModel::ScalingVar() to compute corrections
-  if( Mf != 0 ) { // For Charm production only 
-    const Target & tgt = interaction->InitState().Tgt();
-    double x     = this->ScalingVar(interaction);
-    double Q2val = this->Q2(interaction);
-    double M = tgt.HitNucP4().M();
-    return utils::kinematics::SlowRescalingVar(x, Q2val, M, fMc);
-  }
   return interaction->Kine().x();
 }
 //____________________________________________________________________________
@@ -590,10 +585,7 @@ double QPMDISStrucFuncBase::R(const Interaction * interaction) const
   }
   return 0;
 }
-//____________________________________________________________________________
-double QPMDISStrucFuncBase::H(const Interaction * interaction) const {
-  return 1 ; 
-}
+
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
 {
@@ -643,11 +635,12 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
       }
     }// charm off?
   }//above charm thr?
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ //speeding up 
   else {
     LOG("DISSF", pDEBUG)
       << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
-  
+#endif
   // Rules of thumb
   // ---------------------------------------
   // - For W+ exchange use: -1/3|e| quarks and -2/3|e| antiquarks
@@ -691,3 +684,13 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
 
 }
 //____________________________________________________________________________
+
+double QPMDISStrucFuncBase::KCharm(const Interaction * interaction, double Mf) const {
+  // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  return 1;
+}
+
+double QPMDISStrucFuncBase::H(const Interaction * interaction) const {
+  // The correction corresponds to Sec ??? eq ??? of https://arxiv.org/pdf/2108.09240
+  return 1;
+}

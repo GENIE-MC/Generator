@@ -53,6 +53,7 @@ protected:
   
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
+  double KCharm(const Interaction * i, double Mf = 0) const; // overrides QPMDISStrucFuncBase implementation
   double NuclMod(const Interaction * interaction) const;
   // Bodek-Yang model-specific parameters
 
@@ -73,11 +74,11 @@ protected:
   double fCsA;   ///< C-axial sea parameter
   double fCaLW_nubar; ///< C-axial neutrino LW parameter
   double fCaLW_nu; ///< C-axial anti-neutrino LW parameter
-  double fH0;
-  double fH1;
-  double fH2;
-  double fH3;
-  double RQ2min;
+  double fH0;      /// high order QCD parameter
+  double fH1;      /// high order QCD parameter
+  double fH2;      /// high order QCD parameter
+  double fH3;      /// high order QCD parameter
+  double fRQ2min;    /// Q2 below corrections are applied  
 };
 
 }         // genie namespace

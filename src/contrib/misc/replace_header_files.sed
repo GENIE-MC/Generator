@@ -119,7 +119,7 @@ s/include \"DIS\/DISKinematicsGenerator.h\"/include \"Physics\/DeepInelastic\/Ev
 s/include \"DIS\/DISPrimaryLeptonGenerator.h\"/include \"Physics\/DeepInelastic\/EventGen\/DISPrimaryLeptonGenerator.h\"/ 
 s/include \"DIS\/LinkDef.h\"/include \"Physics\/DeepInelastic\/EventGen\/LinkDef.h\"/ 
 s/include \"BodekYang\/BYPDF.h\"/include \"Physics\/DeepInelastic\/XSection\/BYPDF.h\"/ 
-s/include \"BodekYang\/BYStrucFunc.h\"/include \"Physics\/DeepInelastic\/XSection\/BYStrucFunc.h\"/ 
+s/include \"BodekYang\/BY00StrucFunc.h\"/include \"Physics\/DeepInelastic\/XSection\/BY00StrucFunc.h\"/ 
 s/include \"PartonModel\/LinkDef.h\"/include \"Physics\/DeepInelastic\/XSection\/LinkDef.h\"/ 
 s/include \"PartonModel\/QPMDISPXSec.h\"/include \"Physics\/DeepInelastic\/XSection\/QPMDISPXSec.h\"/ 
 s/include \"PartonModel\/QPMDISStrucFunc.h\"/include \"Physics\/DeepInelastic\/XSection\/QPMDISStrucFunc.h\"/ 

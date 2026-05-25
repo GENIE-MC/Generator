@@ -89,7 +89,7 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
   GetParam( "BY-H3" , fH3  ) ;
-  GetParam( "BY-RQ2min", RQ2min);
+  GetParam( "BY-RQ2min", fRQ2min);
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -115,6 +115,7 @@ void BY21StrucFunc::Init(void)
   fH1   = 0;
   fH2   = 0;
   fH3   = 0;
+  fRQ2min = 0;
 }
 //____________________________________________________________________________
 double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) const
@@ -125,8 +126,9 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
   //myQ2 = TMath::Max(Q2,fQ2min);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
-
+#endif
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double Mf2 = TMath::Power( Mf, 2 ) ; 
   double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
@@ -208,6 +210,13 @@ double BY21StrucFunc::H(const Interaction * interaction) const {
   double bjx = kinematics.x();
   return fH0 + fH1 * bjx + fH2 * pow(bjx,2) + fH3 * pow(bjx,3);
 }
+
+double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
+  // Overrides QPMDISStrucFuncBase::KCharm() function to compute the correction of the BY 2021 update
+  // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  double Q2 = this->Q2(interaction);
+  return Q2/(Q2 + Mf * Mf);
+}
 //____________________________________________________________________________
 double BY21StrucFunc::R(const Interaction * interaction) const {
   if(!fIncludeR) return 0;
@@ -220,9 +229,9 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   // At lower Q2, we freeze the function at Q2 =0.3 GeV2
   // The parameter, fRQ2min, is setup to 0.3 in the configuration. The default value can be changed.
 
-  if( Q2_int < RQ2min ) {
+  if( Q2_int < fRQ2min ) {
     // Freeze R at Q2 = 0.3 GeV2
-    Q2 = RQ2min ;
+    Q2 = fRQ2min ;
   }
   double Q4 = pow(Q2,2);
   double Q8 = pow(Q4,2);
@@ -270,9 +279,9 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
       
   // At Q2 < 0.3 GeV2, we add a K factor multipying R(Q2=0.3)
   // for a smooth transtion down to Q2 = 0 (the photonproduction limit)
-  if( Q2_int < RQ2min ) {
+  if( Q2_int < fRQ2min ) {
     double Q4_int = pow(Q2_int,2);
-    double R0 = (pow(RQ2min,2) + 1 ) / RQ2min ;
+    double R0 = (pow(fRQ2min,2) + 1 ) / fRQ2min ;
     R1998 *= R0  * Q2_int / ( Q4_int + 1 ) ;
   }
   

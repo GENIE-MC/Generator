@@ -68,6 +68,7 @@ protected:
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
   virtual double H          (const Interaction * i) const;
+  virtual double KCharm     (const Interaction * i, double Mf = 0) const;
   virtual void   KVectorFactors (const Interaction * i, double & kuv,
 				 double & kdv, double & kus, double & kds, double & kss ) const;
   virtual void   KAxialFactors (const Interaction * i, double & kuv,
