@@ -246,16 +246,24 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double kV_sea_u = 1.;
   double kV_sea_d = 1.;
   double kV_sea_s = 1.;
-
-  this->KVectorFactors(interaction, kV_val_u, kV_val_d, kV_sea_u, kV_sea_d, kV_sea_s);
-  // Axial Factors
+ // Axial Factors
   double kA_val_u = 1.;
   double kA_val_d = 1.;
   double kA_sea_u = 1.;
   double kA_sea_d = 1.;
   double kA_sea_s = 1.;
 
-  this->KAxialFactors(interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d, kA_sea_s);
+  bool isN = pdg::IsNeutron (nuc_pdgc);
+  if (isN){ 
+    // if target is neutron swap u <-> d
+    // like in this->calc
+    this->KVectorFactors(interaction, kV_val_d, kV_val_u, kV_sea_d, kV_sea_u, kV_sea_s);
+    this->KAxialFactors (interaction, kA_val_d, kA_val_u, kA_sea_d, kA_sea_u, kA_sea_s);
+  } else {
+    this->KVectorFactors(interaction, kV_val_u, kV_val_d, kV_sea_u, kV_sea_d, kV_sea_s);
+    this->KAxialFactors (interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d, kA_sea_s);
+  }
+
 
   //
   // Compute structure functions for the EM, NC and CC cases
@@ -539,34 +547,7 @@ double QPMDISStrucFuncBase::H(const Interaction * interaction) const {
   // The correction corresponds to Sec ??? eq ??? of https://arxiv.org/pdf/2108.09240
   return 1;
 }
-//____________________________________________________________________________
-double QPMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
-{
-// Nuclear modification to Fi
-// The scaling variable can be overwritten to include corrections
 
-  if( interaction->TestBit(kIAssumeFreeNucleon)   ) return 1.0;
-  if( interaction->TestBit(kINoNuclearCorrection) ) return 1.0;
-
-  double f = 1.;
-  if(fIncludeNuclMod) {
-     const Target & tgt  = interaction->InitState().Tgt();
-
-//   The x used for computing the DIS Nuclear correction factor should be the
-//   experimental x, not the rescaled x or off-shell-rest-frame version of x
-//   (i.e. selected x).  Since we do not have access to experimental x at this
-//   point in the calculation, just use selected x.
-     const Kinematics & kine  = interaction->Kine();
-     double x  = kine.x();
-     int    A = tgt.A();
-     f = utils::nuclear::DISNuclFactor(x,A);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-     LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
-#endif
-  }
-
-  return f;
-}
 //____________________________________________________________________________
 double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 {
@@ -636,13 +617,13 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
        }
     }// charm off?
   }//above charm thr?
+
+  
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   else {
     LOG("DISSF", pDEBUG)
      << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
-
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
   LOG("DISSF", pDEBUG) << "U: Kval = " << kval_u << ", Ksea = " << ksea_u;
   LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;

@@ -66,7 +66,6 @@ protected:
   virtual double Q2         (const Interaction * i) const;
   virtual double ScalingVar (const Interaction * i, double Mf = 0) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
-  virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
   virtual double KCharm     (const Interaction * i, double Mf = 0) const;
   virtual double H          (const Interaction * i) const;
