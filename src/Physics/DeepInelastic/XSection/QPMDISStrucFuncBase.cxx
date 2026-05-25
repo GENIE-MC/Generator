@@ -425,7 +425,6 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   double Q2val = this->Q2        (interaction);
   double x     = this->ScalingVar(interaction);
-  double f     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
 
@@ -449,8 +448,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double a = TMath::Power(bjx,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
 
-    fF3 = f * H * xF3val/bjx;
-    fF2 = f * F2val;
+    fF3 = H * xF3val/bjx;
+    fF2 = F2val;
     fF1 = fF2 * 0.5 * c / bjx;
     fF5 = fF2 * 0.5 / bjx;           // Albright-Jarlskog relation
     fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
@@ -461,8 +460,8 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     //double a = TMath::Power(x,2.) / Q2val;
     //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
 
-    fF3 = f * H * xF3val / x;
-    fF2 = f * F2val;
+    fF3 = H * xF3val / x;
+    fF2 = F2val;
     fF1 = fF2 * 0.5 * c / x;
     fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
@@ -649,19 +648,19 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   // - Use u = usea + uvalence. Same for d
   // - For s,c use q=qbar
   // - For t,b use q=qbar=0
-
-  fuv   = fPDF  -> UpValence();
-  fus   = fPDF  -> UpSea();
-  fdv   = fPDF  -> DownValence();
-  fds   = fPDF  -> DownSea();
-  fs    = fPDF  -> Strange();
-  fc    = 0.;
-  fuv_c = fPDFc -> UpValence();   // will be 0 if < charm threshold
-  fus_c = fPDFc -> UpSea();       // ...
-  fdv_c = fPDFc -> DownValence(); // ...
-  fds_c = fPDFc -> DownSea();     // ...
-  fs_c  = fPDFc -> Strange();     // ...
-  fc_c  = fPDFc -> Charm();       // ...
+  double nucScale     = fIncludeNuclMod ? fDISNuclCorr->DISACorrection(interaction) : 1 ;
+  fuv   = nucScale * fPDF  -> UpValence();
+  fus   = nucScale * fPDF  -> UpSea();
+  fdv   = nucScale * fPDF  -> DownValence();
+  fds   = nucScale * fPDF  -> DownSea();
+  fs    = nucScale * fPDF  -> Strange();
+  fc    = nucScale * 0.;
+  fuv_c = nucScale * fPDFc -> UpValence();   // will be 0 if < charm threshold
+  fus_c = nucScale * fPDFc -> UpSea();       // ...
+  fdv_c = nucScale * fPDFc -> DownValence(); // ...
+  fds_c = nucScale * fPDFc -> DownSea();     // ...
+  fs_c  = nucScale * fPDFc -> Strange();     // ...
+  fc_c  = nucScale * fPDFc -> Charm();       // ...
 
   // The above are the proton parton density function. Get the PDFs for the
   // hit nucleon (p or n) by swapping u<->d if necessary
