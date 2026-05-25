@@ -46,6 +46,7 @@ private:
 
   double fVldEmin;
   double fVldEmax;
+  bool   fDISNuclCorr; 
 };
 
 }       // genie namespace

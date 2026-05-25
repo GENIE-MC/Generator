@@ -77,7 +77,7 @@ double DISXSec::Integrate(
   // If yes, calculate the nuclear cross section based on that value.
   //
   XSecSplineList * xsl = XSecSplineList::Instance();
-  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() && !fDISNuclCorr ) {
     Interaction * interaction = new Interaction(*in);
     Target * target = interaction->InitStatePtr()->TgtPtr();
     if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
@@ -104,7 +104,7 @@ double DISXSec::Integrate(
   // at any subsequent call.
   //
   bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
-  if(precalc_bare_xsec) {
+  if(precalc_bare_xsec && ( !fDISNuclCorr || !init_state.Tgt().IsNucleus() )) {
      Cache * cache = Cache::Instance();
      Interaction * interaction = new Interaction(*in);
      string key = this->CacheBranchName(model,interaction);
@@ -144,11 +144,12 @@ double DISXSec::Integrate(
 
      Range1D_t Wl  = kps.WLim();
      Range1D_t Q2l = kps.Q2Lim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__     
      LOG("DISXSec", pINFO)
             << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
      LOG("DISXSec", pINFO)
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
-
+#endif
      bool phsp_ok =
           (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
             Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
@@ -163,6 +164,15 @@ double DISXSec::Integrate(
 
        double abstol = 1; //We mostly care about relative tolerance.
        ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+
+      if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+          ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+	        dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() 
+        );
+        assert(cast);
+        cast->SetMinPts(fGSLMinEval);
+      }
+
        double kine_min[2] = { Wl.min, Q2l.min };
        double kine_max[2] = { Wl.max, Q2l.max };
        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
@@ -206,6 +216,7 @@ void DISXSec::LoadConfig(void)
   // Energy range for cached splines
   GetParam( "GVLD-Emin", fVldEmin) ;
   GetParam( "GVLD-Emax", fVldEmax) ;
+  GetParamDef("DIS-NuclCorr", fDISNuclCorr, false);
 
 }
 //____________________________________________________________________________
@@ -272,11 +283,12 @@ void DISXSec::CacheFreeNucleonXSec(
     if(Ev>Ethr+kASmallNum) {
        Range1D_t Wl  = kps.WLim();
        Range1D_t Q2l = kps.Q2Lim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("DISXSec", pINFO)
             << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
        LOG("DISXSec", pINFO)
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
-
+#endif
        bool phsp_ok =
           (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
             Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
