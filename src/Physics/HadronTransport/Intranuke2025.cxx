@@ -284,6 +284,7 @@ void Intranuke2025::TransportHadrons(GHepRecord * evrec) const
 
     // Set clone's mom to be the hadron that was cloned
     sp->SetFirstMother(icurr);
+    sp->SetLastMother(-1);  // in case mother had 2 mothers
 
     // Check whether the particle can be rescattered
     if(!this->CanRescatter(sp)) {
@@ -292,6 +293,7 @@ void Intranuke2025::TransportHadrons(GHepRecord * evrec) const
        LOG("Intranuke2025", pNOTICE)
               << "... Current version can't rescatter a " << sp->Name();
        sp->SetFirstMother(icurr);
+       sp->SetLastMother(-1);  // in case mother had 2 mothers
        sp->SetStatus(kIStStableFinalState);
        evrec->AddParticle(*sp);
        delete sp;
