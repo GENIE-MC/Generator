@@ -31,6 +31,7 @@ WeinbergAngle               double  No                                          
      <param type="double" name="DIS-NC-XSecScale">    1.032 </param>
      <param type="double" name="DIS-EM-XSecScale">    1.032 </param>
   </param_set>
+  
   <param_set name="Velocity2"> 
     <param type="string" name="CommonParam"> NonResBackground,WeakInt,BoostedDarkMatter  </param>
 

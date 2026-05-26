@@ -8,10 +8,12 @@ Algorithm Configurable Parameters:
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
 PDF-Set                    alg     No    PDF model
+DISNuclModel               alg     No    DIS Nuclear Model 
 Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
 Charm-Prod-Off             bool    Yes   charm production is turned off         false
 PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
 IncludeR                   bool    No    include R factor?                      
+R-Q2min                    double  Yes   min Q2 for R factor evaluation         Default 0.3 GeV2/c4
 IncludeNuclMod             bool    No    include nuclear factor?                
 CKM-Vcd                    double  No                                           CommonParam[CKM]
 CKM-Vcs                    double  No                                           CommonParam[CKM]
@@ -28,8 +30,7 @@ WeinbergAngle              double  No                                           
 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
 
-     <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
-
+    <param type="alg" name="PDF-Set">  genie::GRV98LO/Default </param>
      <!-- 
 	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	  Switches controlling the DIS structure function calculation. Those switches specify whether to:
