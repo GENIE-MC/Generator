@@ -118,7 +118,7 @@ EventRecord * PhysInteractionSelector::SelectInteraction
      bool eval = fUseSplines && spline_computed;
      if (eval) {
            const InitialState & init = interaction->InitState();
-           const ProcessInfo & proc  = interaction->ProcInfo();
+           //const ProcessInfo & proc  = interaction->ProcInfo();
            double E = init.ProbeE(kRfLab);
            if(TMath::IsNaN(E)) {
     		 BLOG("IntSel", pFATAL) << *interaction;

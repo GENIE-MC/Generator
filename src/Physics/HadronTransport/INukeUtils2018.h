@@ -3,7 +3,11 @@
 
 \namespace genie::intranuke
 
-\brief     INTRANUKE utilities
+\brief     INTRANUKE utilities:
+           mean free path methods used to determine where hadron interactions happen
+	   2-body scattering and pion production kinematics.
+	   Phase space 'decay' of pseudostates, e.g. multinucleon, used in pion absorption and nucleon knowckout
+	   Reweighting methods
 
 \author    Jim Dobson <j.dobson07 \at imperial.ac.uk>
            Imperial College London
