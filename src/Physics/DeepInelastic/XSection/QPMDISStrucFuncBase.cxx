@@ -631,12 +631,10 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
       }
     }// charm off?
   }//above charm thr?
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ //speeding up 
   else {
     LOG("DISSF", pDEBUG)
       << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
-
 
   // We apply the nuclear correction directly to the quark's pdfs
   // This is equivalent to the original logic, where the nuclear modification

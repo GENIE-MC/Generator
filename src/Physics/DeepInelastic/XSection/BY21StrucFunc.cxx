@@ -89,7 +89,7 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H1" , fH1  ) ;
   GetParam( "BY-H2" , fH2  ) ;
   GetParam( "BY-H3" , fH3  ) ;
-  GetParam( "BY-RQ2min", ffRQ2min);
+  GetParam( "BY-RQ2min", fRQ2min);
   GetParamDef( "BY-IncludeH", fIncludeH, true );
 }
 //____________________________________________________________________________
@@ -210,9 +210,9 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   // At lower Q2, we freeze the function at Q2 =0.3 GeV2
   // The parameter, fRQ2min, is setup to 0.3 in the configuration. The default value can be changed.
 
-  if( Q2_int < ffRQ2min ) {
+  if( Q2_int < fRQ2min ) {
     // Freeze R at Q2 = 0.3 GeV2
-    Q2 = ffRQ2min ;
+    Q2 = fRQ2min ;
   }
   double Q4 = pow(Q2,2);
   double Q8 = pow(Q4,2);

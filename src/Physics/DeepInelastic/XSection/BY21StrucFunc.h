@@ -78,7 +78,7 @@ protected:
   double fH1;      /// high order QCD parameter
   double fH2;      /// high order QCD parameter
   double fH3;      /// high order QCD parameter
-  double ffRQ2min;    /// Q2 below corrections are applied  
+  double fRQ2min;   /// Q2 below corrections are applied  
   bool   fIncludeH; ///< Include H correction 
 };
 
