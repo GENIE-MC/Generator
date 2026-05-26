@@ -117,13 +117,12 @@ double QPMDISPXSec::XSec(
   double Q4 = Q2*Q2;
   if(proc_info.IsEM()) {
     g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4);
-  }
-  if (proc_info.IsWeakCC()) {
+  } else if (proc_info.IsWeakCC()) {
     g2 = kGF2 * kMw2 * kMw2 / TMath::Power((Q2 + kMw2), 2);
   } else if (proc_info.IsWeakNC()) {
     g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
   } else {
-    LOG("DISPXSec", pWARN) << "Requesting cross section for neither CC nor NC nor EM!";
+    LOG("DISPXSec", pWARN) << "Requesting cross section for neither CC nor NC nor EM " << proc_info.InteractionTypeAsString() <<  "!";
   }
   double front_factor = (g2*Mnuc*E) / kPi;
 
