@@ -13,26 +13,12 @@
 using namespace genie;
 
 //____________________________________________________________________________
-DISStructureFuncModelI::DISStructureFuncModelI() :
-Algorithm()
-{
-
-}
+DISStructureFuncModelI::DISStructureFuncModelI() : Algorithm() {}
 //____________________________________________________________________________
-DISStructureFuncModelI::DISStructureFuncModelI(string name):
-Algorithm(name)
-{
-
-}
+DISStructureFuncModelI::DISStructureFuncModelI(string name) : Algorithm(name) {}
 //____________________________________________________________________________
-DISStructureFuncModelI::DISStructureFuncModelI(string name, string config):
-Algorithm(name, config)
-{
-
-}
+DISStructureFuncModelI::DISStructureFuncModelI(string name, string config)
+    : Algorithm(name, config) {}
 //____________________________________________________________________________
-DISStructureFuncModelI::~DISStructureFuncModelI()
-{
-
-}
+DISStructureFuncModelI::~DISStructureFuncModelI() {}
 //____________________________________________________________________________
