@@ -365,14 +365,13 @@ void QPMDISStrucFuncBase::Calculate(const Interaction *interaction) const {
     F2val = q2 + qb2;
     xF3val = 2.0 * (q3 - qb3);
   }
-
-  // ***  CHARGED CURRENT
-
-  if (is_CC) {
     // (fds_c > 0) = 1 if above charm threshold
     // KCH = 1 if below charm threshold
+    // 1 - fCharmOff = 1 if charm is on
     // only relevant for BY2021 model
-    double KCH = KCharm(interaction, fMc * (fds_c > 0));
+  // ***  CHARGED CURRENT
+  double KCH = (fds_c > 0) && (!fCharmOff) && is_CC ? KCharm(interaction, fMc) : 1;
+  if (is_CC) {
     double q = 0, qbar = 0;
 
     if (is_nu) {
@@ -407,7 +406,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction *interaction) const {
       return;
     }
 
-    F2val = (q + qbar) * KCH;
+    F2val = (q + qbar);
 
     if (is_nu) {
       q = (switch_dv * fdv * sqrt(kV_val_d * kA_val_d) +
@@ -441,7 +440,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction *interaction) const {
       return;
     }
 
-    xF3val = 2 * (q - qbar) * KCH;
+    xF3val = 2 * (q - qbar);
   }
 
   // ***  ELECTROMAGNETIC
@@ -495,7 +494,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction *interaction) const {
     double a = TMath::Power(bjx, 2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1. + r);
 
-    fF3 = H * xF3val / bjx;
+    fF3 = H * xF3val * bjx;
     fF2 = F2val;
     fF1 = fF2 * 0.5 * c / bjx;
     fF5 = fF2 * 0.5 / bjx; // Albright-Jarlskog relation

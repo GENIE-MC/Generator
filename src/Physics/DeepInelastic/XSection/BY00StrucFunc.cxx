@@ -75,7 +75,7 @@ void BY00StrucFunc::Init(void) {
 }
 //____________________________________________________________________________
 double BY00StrucFunc::ScalingVar(const Interaction *interaction,
-                                 double /*Mf*/) const {
+                                 double Mf) const {
   // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
   const Kinematics &kine = interaction->Kine();
@@ -88,7 +88,13 @@ double BY00StrucFunc::ScalingVar(const Interaction *interaction,
   double a = TMath::Power(2 * kProtonMass * x, 2) / myQ2;
   double xw =
       2 * x * (myQ2 + fB) / (myQ2 * (1. + TMath::Sqrt(1 + a)) + 2 * fA * x);
-  return xw;
+  if (Mf == 0){
+    return xw;
+  }
+  // slow rescaling factor 
+  // for reference see https://arxiv.org/abs/0709.1775 page 15/16
+  return xw * (1 + Mf * Mf / myQ2);
+  
 }
 //____________________________________________________________________________
 void BY00StrucFunc::KVectorFactors(const Interaction *interaction, double &kuv,

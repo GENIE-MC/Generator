@@ -113,7 +113,7 @@ void BY21StrucFunc::Init(void) {
 double BY21StrucFunc::ScalingVar(const Interaction *interaction,
                                  double Mf) const {
   // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
-
+  // eq 14 in arxiv.org/pdf/2108.09240
   const Kinematics &kine = interaction->Kine();
   double x = kine.x();
   double myQ2 = this->Q2(interaction);
