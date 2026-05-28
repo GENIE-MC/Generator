@@ -248,225 +248,190 @@ void QPMDISStrucFuncBase::Calculate(const Interaction *interaction) const {
       return;
   }
 
-  // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
-  this->CalcPDFs(interaction);
+  this -> CalcPDFs (interaction);
 
-  //
-  // Compute K factors which effectively modify the coupling to the boson at low
-  // Q2 The same K factors are used for neutron and proton hit nucleons The
-  // modification enters differently the calculations of CC, NC F2 and F3.
-  //
-
-  // Vector K Factors
+    // Compute the K factors
   double kV_val_u = 1.;
   double kV_val_d = 1.;
   double kV_sea_u = 1.;
   double kV_sea_d = 1.;
   double kV_sea_s = 1.;
-
-  this->KVectorFactors(interaction, kV_val_u, kV_val_d, kV_sea_u, kV_sea_d,
-                       kV_sea_s);
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISSF", pDEBUG) << "K-Factors:";
-  LOG("DISSF", pDEBUG) << "U: KV_Val = " << kV_val_u
-                       << ", KV_Sea = " << kV_sea_u;
-  LOG("DISSF", pDEBUG) << "D: KV_Val = " << kV_val_d
-                       << ", KV_Sea = " << kV_sea_d;
-  LOG("DISSF", pDEBUG) << "S: KV_Sea = " << kV_sea_s;
-#endif
-
-  // Axial Factors
+ // Axial Factors
   double kA_val_u = 1.;
   double kA_val_d = 1.;
   double kA_sea_u = 1.;
   double kA_sea_d = 1.;
   double kA_sea_s = 1.;
 
-  this->KAxialFactors(interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d,
-                      kA_sea_s);
+  bool isN = pdg::IsNeutron (nuc_pdgc);
+  if (isN){ 
+    // if target is neutron swap u <-> d
+    // like in this->calc
+    this->KVectorFactors(interaction, kV_val_d, kV_val_u, kV_sea_d, kV_sea_u, kV_sea_s);
+    this->KAxialFactors (interaction, kA_val_d, kA_val_u, kA_sea_d, kA_sea_u, kA_sea_s);
+  } else {
+    this->KVectorFactors(interaction, kV_val_u, kV_val_d, kV_sea_u, kV_sea_d, kV_sea_s);
+    this->KAxialFactors (interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d, kA_sea_s);
+  }
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISSF", pDEBUG) << "K-Factors:";
-  LOG("DISSF", pDEBUG) << "U: KA_Val = " << kA_val_u
-                       << ", KA_Sea = " << kA_sea_u;
-  LOG("DISSF", pDEBUG) << "D: KA_Val = " << kA_val_d
-                       << ", KA_Sea = " << kA_sea_d;
-  LOG("DISSF", pDEBUG) << "S: KA_Sea = " << kA_sea_s;
-#endif
+  // KCH = 1 if below charm threshold
+  double KCH = (fds_c > 0) && is_CC && (!fCharmOff) ? (interaction, fMc) : 1;
 
   //
   // Compute structure functions for the EM, NC and CC cases
   //
 
-  double F2val = 0, xF3val = 0;
+  double F2val=0, xF3val=0;
 
   // ***  NEUTRAL CURRENT
 
   // Include DM in NC
-  if (is_NC || is_dmi) {
+  if(is_NC || is_dmi) {
 
-    if (!is_nu && !is_nubar && !is_dm)
-      return;
+    if(!is_nu && !is_nubar && !is_dm) return;
 
-    double GL =
-        (is_nu) ? (0.5 - (2. / 3.) * fSin2thw) : (-(2. / 3.) * fSin2thw); // clu
-    double GR =
-        (is_nu) ? (-(2. / 3.) * fSin2thw) : (0.5 - (2. / 3.) * fSin2thw); // cru
-    double GLp =
-        (is_nu) ? (-0.5 + (1. / 3.) * fSin2thw) : ((1. / 3.) * fSin2thw); // cld
-    double GRp =
-        (is_nu) ? ((1. / 3.) * fSin2thw) : (-0.5 + (1. / 3.) * fSin2thw); // crd
+    double GL   = (is_nu) ? ( 0.5 - (2./3.)*fSin2thw) : (     - (2./3.)*fSin2thw); // clu
+    double GR   = (is_nu) ? (     - (2./3.)*fSin2thw) : ( 0.5 - (2./3.)*fSin2thw); // cru
+    double GLp  = (is_nu) ? (-0.5 + (1./3.)*fSin2thw) : (       (1./3.)*fSin2thw); // cld
+    double GRp  = (is_nu) ? (       (1./3.)*fSin2thw) : (-0.5 + (1./3.)*fSin2thw); // crd
     // Set the couplings to up and down quarks to be axial for DM
     if (is_dm) {
-      GL = -1.;
-      GR = 1.;
+      GL  = -1.;
+      GR  =  1.;
       GLp = -1.;
-      GRp = 1.;
+      GRp =  1.;
     }
-    double gvu = GL + GR;
-    double gau = GL - GR;
-    double gvd = GLp + GRp;
-    double gad = GLp - GRp;
+    double gvu  = GL  + GR;
+    double gau  = GL  - GR;
+    double gvd  = GLp + GRp;
+    double gad  = GLp - GRp;
     double gvu2 = TMath::Power(gvu, 2.);
     double gau2 = TMath::Power(gau, 2.);
     double gvd2 = TMath::Power(gvd, 2.);
     double gad2 = TMath::Power(gad, 2.);
 
-    double q2 = switch_uv * fuv * (kV_val_u * gvu2 + kA_val_u * gau2);
-    q2 +=
-        (switch_us * fus + switch_c * fc) * (kV_sea_u * gvu2 + kA_sea_u * gau2);
-    q2 += switch_dv * fdv * (kV_val_d * gvd2 + kA_val_d * gad2);
-    q2 += switch_ds * fds * (kV_sea_d * gvd2 + kA_sea_d * gad2);
-    q2 += switch_s * fs * (kV_sea_s * gvd2 + kA_sea_s * gad2);
+    double q2   = switch_uv   * fuv * (kV_val_u * gvu2 + kA_val_u * gau2);
+    q2         += (switch_us  * fus + switch_c * fc )  
+                                    * (kV_sea_u * gvu2 + kA_sea_u * gau2);
+    q2         += switch_dv   * fdv * ( kV_val_d * gvd2+ kA_val_d * gad2);
+    q2         += switch_ds   * fds * ( kV_sea_d * gvd2+ kA_sea_d * gad2);
+    q2         += switch_s    * fs  * ( kV_sea_s * gvd2+ kA_sea_s * gad2);
 
-    double qb2 = switch_ubar * fus * (kV_sea_u * gvu2 + kA_sea_u * gau2);
-    qb2 += switch_cbar * fc * (kV_sea_u * gvu2 + kA_sea_u * gau2);
-    qb2 += switch_dbar * fds * (kV_sea_d * gvd2 + kA_sea_d * gad2);
-    qb2 += switch_sbar * fs * (kV_sea_s * gvd2 + kA_sea_s * gad2);
+    double qb2  = switch_ubar * fus * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += switch_cbar * fc  * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
+    qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2);
+    qb2        += switch_sbar * fs  * ( kV_sea_s * gvd2 + kA_sea_s * gad2);
+    
+    double q3   = switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv * (gvu*gau);
+    q3         += switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus * (gvu*gau);
+    q3         += switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
+    q3         += switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv * (gvd*gad);
+    q3         += switch_ds * sqrt( kV_sea_d * kA_sea_d ) * fds * (gvd*gad);
+    q3         += switch_s  * sqrt( kV_sea_s * kA_sea_s ) * fs  * (gvd*gad);
+   
 
-    double q3 = switch_uv * sqrt(kV_val_u * kA_val_u) * fuv * (gvu * gau);
-    q3 += switch_us * sqrt(kV_sea_u * kA_sea_u) * fus * (gvu * gau);
-    q3 += switch_c * sqrt(kV_sea_u * kA_sea_u) * fc * (gvu * gau);
-    q3 += switch_dv * sqrt(kV_val_d * kA_val_d) * fdv * (gvd * gad);
-    q3 += switch_ds * sqrt(kV_sea_d * kA_sea_d) * fds * (gvd * gad);
-    q3 += switch_s * sqrt(kV_sea_s * kA_sea_s) * fs * (gvd * gad);
-
-    double qb3 = switch_ubar * sqrt(kV_sea_u * kA_sea_u) * fus * (gvu * gau);
-    qb3 += switch_cbar * sqrt(kV_sea_u * kA_sea_u) * fc * (gvu * gau);
-    qb3 += switch_dbar * sqrt(kV_sea_d * kA_sea_d) * fds * (gvd * gad);
-    qb3 += switch_sbar * sqrt(kV_sea_s * kA_sea_s) * fs * (gvd * gad);
+    double qb3  = switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus * (gvu*gau);
+    qb3        += switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
+    qb3        += switch_dbar * sqrt( kV_sea_d * kA_sea_d )  * fds * (gvd*gad);
+    qb3        += switch_sbar * sqrt( kV_sea_s * kA_sea_s )  * fs  * (gvd*gad);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pINFO) << "f2 : q = " << q2 << ", bar{q} = " << qb2;
     LOG("DISSF", pINFO) << "xf3: q = " << q3 << ", bar{q} = " << qb3;
 #endif
 
-    F2val = q2 + qb2;
-    xF3val = 2.0 * (q3 - qb3);
+    F2val  = q2 + qb2;
+    xF3val = 2.0 * (q3-qb3);
   }
-    // (fds_c > 0) = 1 if above charm threshold
-    // KCH = 1 if below charm threshold
-    // 1 - fCharmOff = 1 if charm is on
-    // only relevant for BY2021 model
+
   // ***  CHARGED CURRENT
-  double KCH = (fds_c > 0) && (!fCharmOff) && is_CC ? KCharm(interaction, fMc) : 1;
-  if (is_CC) {
-    double q = 0, qbar = 0;
+
+  if(is_CC) {
+    double q=0, qbar=0;
 
     if (is_nu) {
-      q = (switch_dv * fdv * (kV_val_d + kA_val_d) +
-           switch_ds * fds * (kV_sea_d + kA_sea_d)) *
-          fVud2;
-      q += (switch_dv * fdv_c * (kV_val_d + kA_val_d) +
-            switch_ds * fds_c * (kV_sea_d + kA_sea_d)) *
-           fVcd2;
-      q += switch_s * fs * (kV_sea_s + kA_sea_s) * fVus2;
-      q += switch_s * fs_c * (kV_sea_s + kA_sea_s) * fVcs2;
+      //vector is equal to axial for charm due to its mass
+      q    = ( switch_dv * fdv   * ( kV_val_d + kA_val_d ) 
+             + switch_ds * fds   * ( kV_sea_d + kA_sea_d ) ) * fVud2 ;
+      q   += ( switch_dv * fdv_c * ( kV_val_d + kV_val_d ) 
+             + switch_ds * fds_c * ( kV_sea_d + kV_sea_d ) ) * fVcd2 ;
+      q   +=   switch_s  * fs    * ( kV_sea_s + kA_sea_s )   * fVus2 ;
+      q   +=   switch_s  * fs_c  * ( kV_sea_s + kV_sea_s )   * fVcs2;
 
-      qbar = switch_ubar * fus * (kV_sea_u + kA_sea_u) * fVud2;
-      qbar += switch_ubar * fus * (kV_sea_u + kA_sea_u) * fVus2;
-      qbar += switch_cbar * fc_c * (kV_sea_u + kA_sea_u) * fVcd2;
-      qbar += switch_cbar * fc_c * (kV_sea_u + kA_sea_u) * fVcs2;
+      qbar  = switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcd2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcs2;
     } else if (is_nubar) {
-      q = (switch_uv * fuv * (kV_val_u + kA_val_u) +
-           switch_us * fus * (kV_sea_u + kA_sea_u)) *
-          fVud2;
-      q += (switch_uv * fuv * (kV_val_u + kA_val_u) +
-            switch_us * fus * (kV_sea_u + kA_sea_u)) *
-           fVus2;
-      q += switch_c * fc_c * (kV_sea_u + kA_sea_u) * fVcd2;
-      q += switch_c * fc_c * (kV_sea_u + kA_sea_u) * fVcs2;
+	    q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
+             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVud2 ;
+	    q   += ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
+             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVus2 ;
+	    q   +=   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fVcd2;
+	    q   +=   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fVcs2;
 
-      qbar = switch_dbar * fds_c * (kV_sea_d + kA_sea_d) * fVcd2;
-      qbar += switch_dbar * fds * (kV_sea_d + kA_sea_d) * fVud2;
-      qbar += switch_sbar * fs * (kV_sea_s + kA_sea_s) * fVus2;
-      qbar += switch_sbar * fs_c * (kV_sea_s + kA_sea_s) * fVcs2;
+	    qbar  = switch_dbar * fds_c * ( kV_sea_d + kV_sea_d ) * fVcd2;
+	    qbar += switch_dbar * fds   * ( kV_sea_d + kA_sea_d ) * fVud2;
+	    qbar += switch_sbar * fs    * ( kV_sea_s + kA_sea_s ) * fVus2;
+	    qbar += switch_sbar * fs_c  * ( kV_sea_s + kV_sea_s ) * fVcs2;
     } else {
-      return;
+	    return;
     }
-
-    F2val = (q + qbar);
-
+    
+    F2val  = (q+qbar);
+    
     if (is_nu) {
-      q = (switch_dv * fdv * sqrt(kV_val_d * kA_val_d) +
-           switch_ds * fds * sqrt(kV_sea_d * kA_sea_d)) *
-          fVud2;
-      q += switch_s * fs * sqrt(kV_sea_s * kA_sea_s) * fVus2;
-      q += (switch_dv * fdv_c * sqrt(kV_val_d * kA_val_d) +
-            switch_ds * fds_c * sqrt(kV_sea_d * kA_sea_d)) *
-           fVcd2;
-      q += switch_s * fs_c * sqrt(kV_sea_s * kA_sea_s) * fVcs2;
+      q    = ( switch_dv * fdv   * sqrt( kV_val_d * kA_val_d ) 
+             + switch_ds * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+      q   +=   switch_s  * fs    * sqrt( kV_sea_s * kA_sea_s )   * fVus2;
+      q   += ( switch_dv * fdv_c * sqrt( kV_val_d * kV_val_d ) 
+             + switch_ds * fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fVcd2;
+      q   +=   switch_s  * fs_c  * sqrt( kV_sea_s * kV_sea_s )   * fVcs2;
+      
+      qbar  = switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fVcd2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fVcs2;
+    }
+    else if (is_nubar) {
+	    q    = ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVud2;
+	    q   += ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVus2;
+	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fVcd2;
+	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fVcs2;
 
-      qbar = switch_ubar * fus * sqrt(kV_sea_u * kA_sea_u) * fVud2;
-      qbar += switch_ubar * fus * sqrt(kV_sea_u * kA_sea_u) * fVus2;
-      qbar += switch_cbar * fc_c * sqrt(kV_sea_u * kA_sea_u) * fVcd2;
-      qbar += switch_cbar * fc_c * sqrt(kV_sea_u * kA_sea_u) * fVcs2;
-    } else if (is_nubar) {
-      q = (switch_uv * fuv * sqrt(kV_val_u * kA_val_u) +
-           switch_us * fus * sqrt(kV_sea_u * kA_sea_u)) *
-          fVud2;
-      q += (switch_uv * fuv * sqrt(kV_val_u * kA_val_u) +
-            switch_us * fus * sqrt(kV_sea_u * kA_sea_u)) *
-           fVus2;
-      q += (switch_c * fc_c * sqrt(kV_sea_u * kA_sea_u)) * fVcd2;
-      q += (switch_c * fc_c * sqrt(kV_sea_u * kA_sea_u)) * fVcs2;
-
-      qbar = (switch_dbar * fds_c * sqrt(kV_sea_d * kA_sea_d)) * fVcd2;
-      qbar += (switch_dbar * fds * sqrt(kV_sea_d * kA_sea_d)) * fVud2;
-      qbar += (switch_sbar * fs * sqrt(kV_sea_s * kA_sea_s)) * fVus2;
-      qbar += (switch_sbar * fs_c * sqrt(kV_sea_s * kA_sea_s)) * fVcs2;
+	    qbar  = ( switch_dbar * fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fVcd2;
+	    qbar += ( switch_dbar * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+	    qbar += ( switch_sbar * fs    * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2;
+	    qbar += ( switch_sbar * fs_c  * sqrt( kV_sea_s * kV_sea_s ) ) * fVcs2;
     } else {
-      return;
+	    return;
     }
 
-    xF3val = 2 * (q - qbar);
+    xF3val = 2*(q-qbar);
   }
 
   // ***  ELECTROMAGNETIC
 
-  if (is_EM) {
+  if(is_EM) {
 
-    if (!pdg::IsChargedLepton(probe_pdgc))
-      return;
+    if(!pdg::IsChargedLepton(probe_pdgc)) return;
 
-    double sq23 = TMath::Power(2. / 3., 2.);
-    double sq13 = TMath::Power(1. / 3., 2.);
+    double sq23 = TMath::Power(2./3., 2.);
+    double sq13 = TMath::Power(1./3., 2.);
 
-    double qu =
-        sq23 * (switch_uv * fuv * kV_val_u + switch_us * fus * kV_sea_u);
-    double qd =
-        sq13 * (switch_dv * fdv * kV_val_d + switch_ds * fds * kV_sea_d);
-    double qs = sq13 * (switch_s * fs * kV_sea_s);
-    double qbu = sq23 * (switch_ubar * fus * kV_sea_u);
-    double qbd = sq13 * (switch_dbar * fds * kV_sea_d);
-    double qbs = sq13 * (switch_sbar * fs * kV_sea_s);
+    double qu   = sq23 * ( switch_uv   * fuv * kV_val_u + switch_us * fus * kV_sea_u ) ;
+    double qd   = sq13 * ( switch_dv   * fdv * kV_val_d + switch_ds * fds * kV_sea_d ) ;
+    double qs   = sq13 * ( switch_s    * fs  * kV_sea_s ) ;
+    double qbu  = sq23 * ( switch_ubar * fus * kV_sea_u );
+    double qbd  = sq13 * ( switch_dbar * fds * kV_sea_d );
+    double qbs  = sq13 * ( switch_sbar * fs  * kV_sea_s );
 
-    double q = qu + qd + qs;
+    double q    = qu  + qd  + qs;
     double qbar = qbu + qbd + qbs;
 
-    F2val = q + qbar;
+    F2val  = q + qbar;
     xF3val = 0.;
+
   }
 
   double Q2val = this->Q2(interaction);
@@ -494,18 +459,18 @@ void QPMDISStrucFuncBase::Calculate(const Interaction *interaction) const {
     double a = TMath::Power(bjx, 2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1. + r);
 
-    fF3 = H * xF3val * bjx;
+    fF3 = KCH * H * xF3val * bjx;
     fF2 = F2val;
-    fF1 = fF2 * 0.5 * c / bjx;
+    fF1 = KCH * fF2 * 0.5 * c / bjx;
     fF5 = fF2 * 0.5 / bjx; // Albright-Jarlskog relation
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   } else {
     double a = TMath::Power(x, 2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1. + r);
 
-    fF3 = H * xF3val / x;
+    fF3 = KCH * H * xF3val / x;
     fF2 = F2val;
-    fF1 = fF2 * 0.5 * c / x;
+    fF1 = KCH * fF2 * 0.5 * c / x;
     fF5 = fF2 * 0.5 / x; // Albright-Jarlskog relation
     fF4 = 0.;            // Nucl.Phys.B 84, 467 (1975)
   }

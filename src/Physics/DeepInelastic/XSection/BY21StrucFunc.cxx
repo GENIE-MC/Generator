@@ -125,6 +125,9 @@ double BY21StrucFunc::ScalingVar(const Interaction *interaction,
   double Mf2 = TMath::Power(Mf, 2);
   double xw = 2 * x * (myQ2 + Mf2 + fB) /
               (myQ2 * (1. + TMath::Sqrt(1 + a)) + 2 * fA * x);
+  // slow rescaling factor 
+  // for reference see https://arxiv.org/abs/0709.1775 page 15/16
+  xw *= (1+ Mf * Mf / myQ2);
   return xw;
 }
 //____________________________________________________________________________
