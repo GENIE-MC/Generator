@@ -113,10 +113,13 @@ bool EffectiveSF::GenerateNucleon(const Target & target) const
   f1p1h /= this->GetTransEnh1p1hMod(target);
   if ( RandomGen::Instance() -> RndGen().Rndm() < f1p1h) {
     fFermiMoverInteractionType = kFermiMoveEffectiveSF1p1h;
+	std::cout<<"DEBUG: NOT EMITTING SECOND NUCLEON "<<std::endl;
   } else if (fEjectSecondNucleon2p2h) {
     fFermiMoverInteractionType = kFermiMoveEffectiveSF2p2h_eject;
+	std::cout<<"DEBUG: YES EMITTING SECOND NUCLEON "<<std::endl;
   } else {
     fFermiMoverInteractionType = kFermiMoveEffectiveSF2p2h_noeject;
+	std::cout<<"DEBUG: NOT EMITTING SECOND NUCLEON "<<std::endl;
   }
 
   return true;

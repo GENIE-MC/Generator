@@ -91,6 +91,13 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   // Ejection of secondary particle
   if (eject_nucleon_pdg != 0) { EmitSecondNucleon(evrec,eject_nucleon_pdg); }
 
+  // SRC flag
+  /*
+  if(eject_nucleon_pdg != 0){
+    evrec->SetSRCFlag(true);
+  }
+  */
+
 }
 
 //___________________________________________________________________________
@@ -113,6 +120,9 @@ int SRCNuclearRecoil::SRCRecoilPDG( const GHepParticle & nucleon, const Target &
         RandomGen * rnd = RandomGen::Instance();
         double prob = rnd->RndGen().Rndm();
         eject_nucleon_pdg = (prob > Pp) ? kPdgNeutron : kPdgProton;
+	std::cout << "DEBUG: SECOND NUCLEON EMITTED, p = " << TMath::Sqrt(pN2) 
+              << " > kF = " << kF 
+              << ", second nucleon PDG = " << eject_nucleon_pdg << std::endl;
       }
       
       return eject_nucleon_pdg;

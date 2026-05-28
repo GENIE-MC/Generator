@@ -331,6 +331,9 @@ void LocalFGM::LoadConfig(void)
 
   this->GetParamDef("SRC-Fraction", fSRC_Fraction, 0.0);
 
+  std::cout << "DEBUG: SRC-Fraction = "
+	          << fSRC_Fraction << std::endl;
+
   // Default value from work by A. Ankowski (private communication to J.
   // Wolcott, Nov. 27 2024)
   this->GetParamDef("SRC-Ermv-C", fSRC_Ermv_C, 0.120);

@@ -35,7 +35,7 @@ NucRemovalE@Pdg=?         int      Yes       nuclear removal energy for specfic 
           (K. S. Egiyan et al., Phys. Rev. C 68 (2003) 014313 and Phys. Rev. Lett. 96 (2006) 082501.)
         - Short range correlations and the isospin dependence of nuclear correlation functions (arXiv:1710.07966)
     -->
-    <param type="double" name = "SRC-Fraction">    0.2   </param>
+    <param type="double" name = "SRC-Fraction">    0.20   </param>
   </param_set>
 
    <param_set name="SpectralFunctionLike"> 

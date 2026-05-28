@@ -37,6 +37,7 @@
 #include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
@@ -274,7 +275,14 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             nucleon->SetMomentum(p4ptr);
             nucleon->SetRemovalEnergy(fEb);
 
-            // add a recoiled nucleus remnant
+            // Handle SRC second nucleon possibility before calculating the remnant nucleus
+            if( fSecondEmitter ){
+                std::cout<<"DEBUG QEL-CC: Calling SRC second emitter..."<<std::endl;
+                fSecondEmitter->ProcessEventRecord(evrec);
+            }else{
+                std::cout<<"DEBUG QEL-CC: No SRC second emitter configured..."<<std::endl;
+            }
+            // Now, add the recoiled nucleus remnant (now accounts for the second nucleon if emitted)
             this->AddTargetNucleusRemnant(evrec);
 
             break; // done
@@ -404,6 +412,11 @@ void QELEventGenerator::LoadConfig(void)
     fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
 
     GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
+
+    RgKey nuclearrecoilkey = "SecondNucleonEmitter";
+    fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *>(
+        this->SubAlg(nuclearrecoilkey));
+    assert(fSecondEmitter);
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const

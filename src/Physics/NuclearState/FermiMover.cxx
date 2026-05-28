@@ -81,11 +81,19 @@ FermiMover::~FermiMover()
 //___________________________________________________________________________
 void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
 {
+  std::cout << "DEBUG: FermiMover::ProcessEventRecord called" << std::endl;
+
   // skip if not a nuclear target
-  if(! evrec->Summary()->InitState().Tgt().IsNucleus()) return;
+  if(! evrec->Summary()->InitState().Tgt().IsNucleus()){
+    std::cout << "DEBUG: FermiMover skipping - not a nucleus" << std::endl;
+    return;
+  }
 
   // skip if no hit nucleon is set
-  if(! evrec->HitNucleon()) return;
+  if(! evrec->HitNucleon()){
+    std::cout << "DEBUG: FermiMover skipping - no hit nucleon" << std::endl;
+    return;
+  }
 
   // give hit nucleon a Fermi momentum
   this->KickHitNucleon(evrec);
@@ -95,6 +103,19 @@ void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
 
   // add a recoiled nucleus remnant
   this->AddTargetNucleusRemnant(evrec);
+
+  // DEBUG: print full GHEP record after FermiMover
+  std::cout << "DEBUG FermiMover: Full GHEP record after FermiMover:" << std::endl;
+  for (int i = 0; i < evrec->GetEntries(); i++) {
+    GHepParticle * p = evrec->Particle(i);
+    std::cout << "  [" << i << "] PDG=" << p->Pdg() 
+              << " Status=" << p->Status()
+              << " Mother1=" << p->FirstMother()
+              << " Mother2=" << p->LastMother()
+              << " Dau1=" << p->FirstDaughter()
+              << " Dau2=" << p->LastDaughter()
+              << std::endl;
+  }
 }
 //___________________________________________________________________________
 void FermiMover::KickHitNucleon(GHepRecord * evrec) const

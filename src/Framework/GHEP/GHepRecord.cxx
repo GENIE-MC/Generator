@@ -850,6 +850,8 @@ void GHepRecord::InitRecord(void)
   fEventFlags  = new TBits(GHepFlags::NFlags());
   fEventFlags -> ResetAllBits(false);
 
+  fSRCFlag = false;
+
   fEventMask   = new TBits(GHepFlags::NFlags());
 //fEventMask  -> ResetAllBits(true);
   for(unsigned int i = 0; i < GHepFlags::NFlags(); i++) {
@@ -922,6 +924,7 @@ void GHepRecord::Copy(const GHepRecord & record)
   // copy flags & mask
   *fEventFlags = *(record.EventFlags());
   *fEventMask  = *(record.EventMask());
+  // fSRCFlag = record.fSRCFlag;
 
   // copy vtx position
   TLorentzVector * v = record.Vertex();

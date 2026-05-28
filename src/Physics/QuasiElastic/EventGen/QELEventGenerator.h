@@ -20,6 +20,7 @@
 #define _QEL_EVENT_GENERATOR_H_
 
 #include "Physics/NuclearState/NuclearModelI.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Framework/Utils/Range1.h"
@@ -50,6 +51,9 @@ private:
   double ComputeMaxXSec(const Interaction* in) const;
 
   void AddTargetNucleusRemnant (GHepRecord * evrec) const; ///< add a recoiled nucleus remnant
+
+  // in the private section of QELEventGenerator.h
+  const SecondNucleonEmissionI * fSecondEmitter; ///< second nucleon emitter (for SRC)
 
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
