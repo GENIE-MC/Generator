@@ -118,10 +118,6 @@ public :
   virtual TBits * EventMask    (void) const { return fEventMask; }
   virtual bool    IsUnphysical (void) const { return (fEventFlags->CountBits()>0); }
   virtual bool    Accept       (void) const;
-  /*
-  virtual bool SRCEnabled (void) const { return fSRCFlag; }
-  virtual void SetSRCFlag (bool flag)  { fSRCFlag = flag; }
-  */
 
   // Methods to set/get the event weight and cross sections
 
@@ -185,9 +181,6 @@ protected:
   double           fDiffXSec;       ///< differential cross section for selected event kinematics
   KinePhaseSpace_t fDiffXSecPhSp;   ///< specifies which differential cross-section (dsig/dQ2, dsig/dQ2dW, dsig/dxdy,...)
 
-  // SRC flag
-  bool fSRCFlag;  ///< flag indicating SRC pair emission occurred
-
   // Utility methods
   void InitRecord  (void);
   void CleanRecord (void);
@@ -204,7 +197,7 @@ protected:
 
 private:
 
-ClassDef(GHepRecord, 3)
+ClassDef(GHepRecord, 2)
 
 };
 

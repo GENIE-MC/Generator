@@ -91,13 +91,6 @@ void SRCNuclearRecoil::ProcessEventRecord(GHepRecord * evrec) const
   // Ejection of secondary particle
   if (eject_nucleon_pdg != 0) { EmitSecondNucleon(evrec,eject_nucleon_pdg); }
 
-  // SRC flag
-  /*
-  if(eject_nucleon_pdg != 0){
-    evrec->SetSRCFlag(true);
-  }
-  */
-
 }
 
 //___________________________________________________________________________
