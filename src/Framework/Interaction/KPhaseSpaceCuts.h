@@ -33,7 +33,6 @@ public:
   void   SetQ2MinOverride(double q2min);
   bool   HasQ2MinCut(const Interaction * interaction) const;
   double Q2MinCut(const Interaction * interaction, double default_q2min) const;
-  double EMQ2MinCut(void) const;
   bool   HasSplineQ2MinCut(void) const;
   double SplineQ2MinCut(void) const;
   string SplineQ2MinCutSource(void) const;

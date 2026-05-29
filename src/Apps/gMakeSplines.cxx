@@ -61,8 +61,10 @@
               free-nucleon cross-section values. If loaded, it can speed-up
               cross-section calculation for nuclear targets.
            --q2-min
-              Override the minimum Q^2 phase-space cut (in GeV^2). For weak
-              interactions, this explicitly opts the run into the Q2 cut.
+              Override the minimum Q^2 phase-space cut (in GeV^2). By default,
+              the EM cut is configured in CommonPhaseSpaceCuts.xml [Default]
+              as EM-Q2-min. For weak interactions, this explicitly opts the
+              run into the Q2 cut.
 
            --event-generator-list
               List of event generators to load in event generation drivers.
@@ -373,8 +375,10 @@ void GetCommandLineArgs(int argc, char ** argv)
   // Q2 minimum override
   gOptQ2MinSet = false;
   if(parser.OptionExists("q2-min")) {
-    LOG("gmkspl", pINFO) << "Reading Q2 minimum cut override";
     gOptQ2Min = parser.ArgAsDouble("q2-min");
+    LOG("gmkspl", pINFO)
+      << "Using command-line --q2-min override for the minimum Q2 "
+      << "phase-space cut: " << gOptQ2Min << " GeV^2";
     gOptQ2MinSet = true;
   }
 

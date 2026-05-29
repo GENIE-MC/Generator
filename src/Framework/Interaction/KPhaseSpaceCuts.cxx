@@ -101,15 +101,6 @@ double KPhaseSpaceCuts::Q2MinCut(
   return default_q2min;
 }
 //____________________________________________________________________________
-double KPhaseSpaceCuts::EMQ2MinCut(void) const
-{
-  this->LoadConfig();
-
-  if(fHasQ2MinOverride) return fQ2MinOverride;
-  if(!fHasEMQ2Min) this->FailMissingEMQ2Min();
-  return fEMQ2Min;
-}
-//____________________________________________________________________________
 bool KPhaseSpaceCuts::HasSplineQ2MinCut(void) const
 {
   this->LoadConfig();

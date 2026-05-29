@@ -42,6 +42,8 @@ ClassImp(KPhaseSpace)
 namespace {
   void ApplyQ2MinCut(const Interaction * interaction, Range1D_t & q2lim, double default_q2min)
   {
+    // default_q2min is the legacy kinematic floor. EM callers pass 0 here so
+    // the EM-Q2-min value comes only from KPhaseSpaceCuts/CommonPhaseSpaceCuts.
     KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
     bool has_cut = cuts->HasQ2MinCut(interaction);
     if(q2lim.min < 0. || q2lim.max < 0. || !has_cut) return;
@@ -89,11 +91,6 @@ double KPhaseSpace::GetTMaxDFR()
 
   return DFR_tMax;
 
-}
-//___________________________________________________________________________
-double KPhaseSpace::GetQ2MinEM()
-{
-  return KPhaseSpaceCuts::Instance()->EMQ2MinCut();
 }
 //___________________________________________________________________________
 void KPhaseSpace::UseInteraction(const Interaction * in)
