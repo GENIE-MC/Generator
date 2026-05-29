@@ -63,19 +63,20 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
-  virtual double q0         (const Interaction * i) const;
-  virtual double ScalingVar (const Interaction * i, double Mf = 0 ) const;
+  virtual double ScalingVar (const Interaction * i, double Mf = 0) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
-  virtual double H          (const Interaction * i) const;
   virtual double KCharm     (const Interaction * i, double Mf = 0) const;
-  virtual void   KVectorFactors (const Interaction * i, double & kuv,
-				 double & kdv, double & kus, double & kds, double & kss ) const;
-  virtual void   KAxialFactors (const Interaction * i, double & kuv,
-				 double & kdv, double & kus, double & kds, double & kss ) const;
-  // configuration
+  virtual double H          (const Interaction * i) const;
+  virtual void   KVectorFactors   (const Interaction * i, double & kuv,
+                                     double & kdv, double & kus, double & kds, double &ks) const;
+  virtual void   KAxialFactors    (const Interaction * i, double & kuv,
+                                     double & kdv, double & kus, double & kds, double &ks) const;
+
+  
+                                     // configuration
   //
-  double fPDFQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
+  double fQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
   bool   fCharmOff;          ///< turn charm production off?
   bool   fIncludeR;          ///< include R (~FL) in DIS SF calculation?
   bool   fIncludeH;          ///< include HO QCD corrections

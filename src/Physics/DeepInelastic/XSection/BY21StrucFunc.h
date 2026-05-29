@@ -54,7 +54,6 @@ protected:
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double KCharm(const Interaction * i, double Mf = 0) const; // overrides QPMDISStrucFuncBase implementation
-  double NuclMod(const Interaction * interaction) const;
   // Bodek-Yang model-specific parameters
 
   double fMv;    ///< Vector Mass
@@ -78,7 +77,7 @@ protected:
   double fH1;      /// high order QCD parameter
   double fH2;      /// high order QCD parameter
   double fH3;      /// high order QCD parameter
-  double fRQ2min;   /// Q2 below corrections are applied  
+  double fRQ2min;    /// Q2 below corrections are applied  
   bool   fIncludeH; ///< Include H correction 
 };
 

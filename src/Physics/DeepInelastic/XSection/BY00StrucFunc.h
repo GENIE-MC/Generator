@@ -17,8 +17,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
-#define _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
+#ifndef _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_00_H_
+#define _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_00_H_
 
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
 #include "Framework/Interaction/Interaction.h"
@@ -45,9 +45,12 @@ protected:
 
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
-  double ScalingVar (const Interaction * i, double Mf = 0 ) const;
-  void   KVectorFactors (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const;
-  void   KAxialFactors  (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const ;
+  double ScalingVar (const Interaction * i, double Mf) const;
+  void   KVectorFactors   (const Interaction * i, double & kuv,
+                         double & kdv, double & kus, double & kds, double & ks) const;
+  void   KAxialFactors    (const Interaction * i, double & kuv,
+                         double & kdv, double & kus, double & kds, double & ks) const;
+
   // Bodek-Yang model-specific parameters
 
   double fA;     ///< better scaling var parameter A

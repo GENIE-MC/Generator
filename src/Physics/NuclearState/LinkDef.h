@@ -25,8 +25,7 @@
 #pragma link C++ class genie::SRCNuclearRecoil;
 #pragma link C++ class genie::SecondNucleonEmissionI;
 #pragma link C++ class genie::SpectralFunction2p2h;
-#pragma link C++ class BY00DISNuclearModel;
-#pragma link C++ class BY21DISNuclearModel;
-#pragma link C++ class JGDISNuclearModel;
-
+#pragma link C++ class genie::BY00DISNuclearModel;
+#pragma link C++ class genie::BY21DISNuclearModel;
+#pragma link C++ class genie::JGDISNuclearModel;
 #endif

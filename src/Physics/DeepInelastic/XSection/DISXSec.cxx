@@ -42,49 +42,43 @@ DISXSec::DISXSec(string config) : XSecIntegratorI("genie::DISXSec", config) {}
 //____________________________________________________________________________
 DISXSec::~DISXSec() {}
 //____________________________________________________________________________
-double DISXSec::Integrate(const XSecAlgorithmI *model,
-                          const Interaction *in) const {
-  if (!model->ValidProcess(in))
-    return 0.;
+double DISXSec::Integrate(
+                 const XSecAlgorithmI * model, const Interaction * in) const
+{
+  if(! model->ValidProcess(in) ) return 0.;
 
-  const KPhaseSpace &kps = in->PhaseSpace();
-  if (!kps.IsAboveThreshold()) {
-    LOG("DISXSec", pDEBUG) << "*** Below energy threshold";
-    return 0;
+  const KPhaseSpace & kps = in->PhaseSpace();
+  if(!kps.IsAboveThreshold()) {
+     LOG("DISXSec", pDEBUG)  << "*** Below energy threshold";
+     return 0;
   }
 
-  const InitialState &init_state = in->InitState();
+  const InitialState & init_state = in->InitState();
   double Ev = init_state.ProbeE(kRfHitNucRest);
 
   int nucpdgc = init_state.Tgt().HitNucPdg();
-  int NNucl =
-      (pdg::IsProton(nucpdgc)) ? init_state.Tgt().Z() : init_state.Tgt().N();
+  int NNucl   = (pdg::IsProton(nucpdgc)) ?
+                   init_state.Tgt().Z() : init_state.Tgt().N();
 
   // If the input interaction is off a nuclear target, then chek whether
   // the corresponding free nucleon cross section already exists at the
   // cross section spline list.
-  // If yes, calculate the nuclear cross section based on that value only
-  // when nuclear effects are turned off.
-
-  XSecSplineList *xsl = XSecSplineList::Instance();
-  if (init_state.Tgt().IsNucleus() && !xsl->IsEmpty() && !fDISNuclCorr) {
-    // Computes xsec from free nucleon calculation wo nuclear effects
-    Interaction *interaction = new Interaction(*in);
-    Target *target = interaction->InitStatePtr()->TgtPtr();
-    if (pdg::IsProton(nucpdgc)) {
-      target->SetId(kPdgTgtFreeP);
-    } else {
-      target->SetId(kPdgTgtFreeN);
-    }
-    if (xsl->SplineExists(model, interaction)) {
-      const Spline *spl = xsl->GetSpline(model, interaction);
+  // If yes, calculate the nuclear cross section based on that value.
+  //
+  XSecSplineList * xsl = XSecSplineList::Instance();
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() && !fDISNuclCorr ) {
+    Interaction * interaction = new Interaction(*in);
+    Target * target = interaction->InitStatePtr()->TgtPtr();
+    if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
+    else                       { target->SetId(kPdgTgtFreeN); }
+    if(xsl->SplineExists(model,interaction)) {
+      const Spline * spl = xsl->GetSpline(model, interaction);
       double xsec = spl->Evaluate(Ev);
       LOG("DISXSec", pINFO)
-          << "From XSecSplineList: XSec[DIS,free nucleon] (E = " << Ev
-          << " GeV) = " << xsec;
-      if (!interaction->TestBit(kIAssumeFreeNucleon)) {
-        xsec *= NNucl;
-        LOG("DISXSec", pINFO) << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+        << "From XSecSplineList: XSec[DIS,free nucleon] (E = " << Ev << " GeV) = " << xsec;
+      if(! interaction->TestBit(kIAssumeFreeNucleon) ) {
+          xsec *= NNucl;
+          LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
       }
       delete interaction;
       return xsec;
@@ -93,88 +87,94 @@ double DISXSec::Integrate(const XSecAlgorithmI *model,
   }
 
   // There was no corresponding free nucleon spline saved in XSecSplineList that
-  // could be used to speed up this calculation (without nuclear effects).
+  // could be used to speed up this calculation.
   // Check whether local caching of free nucleon cross sections is allowed.
   // If yes, store free nucleon cross sections at a cache branch and use those
   // at any subsequent call.
-
+  //
   bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
-  if (precalc_bare_xsec && (!fDISNuclCorr || !init_state.Tgt().IsNucleus())) {
-
-    Cache *cache = Cache::Instance();
-    Interaction *interaction = new Interaction(*in);
-    string key = this->CacheBranchName(model, interaction);
-
-    LOG("DISXSec", pINFO) << "Finding cache branch with key: " << key;
-    CacheBranchFx *cache_branch =
-        dynamic_cast<CacheBranchFx *>(cache->FindCacheBranch(key));
-    if (!cache_branch) {
-      this->CacheFreeNucleonXSec(model, interaction);
-      cache_branch = dynamic_cast<CacheBranchFx *>(cache->FindCacheBranch(key));
-      assert(cache_branch);
-    }
-    const CacheBranchFx &cb = (*cache_branch);
-    double xsec = cb(Ev);
-    if (!interaction->TestBit(kIAssumeFreeNucleon)) {
-      xsec *= NNucl;
-    }
-    LOG("DISXSec", pINFO) << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
-
-    delete interaction;
-    return xsec;
+  if(precalc_bare_xsec && ( !fDISNuclCorr || !init_state.Tgt().IsNucleus() )) {
+     Cache * cache = Cache::Instance();
+     Interaction * interaction = new Interaction(*in);
+     string key = this->CacheBranchName(model,interaction);
+     LOG("DISXSec", pINFO) << "Finding cache branch with key: " << key;
+     CacheBranchFx * cache_branch =
+           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+     if(!cache_branch) {
+         this->CacheFreeNucleonXSec(model,interaction);
+         cache_branch =
+           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+         assert(cache_branch);
+     }
+     const CacheBranchFx & cb = (*cache_branch);
+     double xsec = cb(Ev);
+     if(! interaction->TestBit(kIAssumeFreeNucleon) ) { xsec *= NNucl; }
+     LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
+     delete interaction;
+     return xsec;
   }
+  else {
+    // Just go ahead and integrate the input differential cross section for the
+    // specified interaction.
+    //
+     Interaction * interaction = new Interaction(*in);
+     interaction->SetBit(kISkipProcessChk);
+//   interaction->SetBit(kISkipKinematicChk);
 
-  // If DIS nuclear effects are used, precompute from scratch. Cannot reuse free
-  // nucleon spline. Just go ahead and integrate the input differential cross
-  // section for the specified interaction.
+     // **Important note**
+     // Based on discussions with Hugh at the GENIE mini-workshop / RAL - July '07
+     // The DIS nuclear corrections re-distribute the strength in x,y but do not
+     // affect the total cross-section They should be disabled at this step.
+     // But they should be enabled at the DIS thread's kinematical selection.
+     // Since nuclear corrections don't need to be included at this stage, all the
+     // nuclear cross sections can be trivially built from the free nucleon ones.
+     //
+     interaction->SetBit(kINoNuclearCorrection);
 
-  Interaction *interaction = new Interaction(*in);
-  interaction->SetBit(kISkipProcessChk);
+     Range1D_t Wl  = kps.WLim();
+     Range1D_t Q2l = kps.Q2Lim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__     
+     LOG("DISXSec", pINFO)
+            << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
+     LOG("DISXSec", pINFO)
+         << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
+#endif
+     bool phsp_ok =
+          (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
+            Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
 
-  if (!fDISNuclCorr)
-    interaction->SetBit(kINoNuclearCorrection);
+     double xsec = 0.;
 
-  Range1D_t Wl = kps.WLim();
-  Range1D_t Q2l = kps.Q2Lim();
-  LOG("DISXSec", pINFO) << "W integration range = [" << Wl.min << ", " << Wl.max
-                        << "]";
-  LOG("DISXSec", pINFO) << "Q2 integration range = [" << Q2l.min << ", "
-                        << Q2l.max << "]";
+     if(phsp_ok) {
+       ROOT::Math::IBaseFunctionMultiDim * func =
+          new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
+       ROOT::Math::IntegrationMultiDim::Type ig_type =
+           utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
 
-  bool phsp_ok = (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
-                  Wl.min >= 0. && Wl.max >= 0. && Wl.max >= Wl.min);
+       double abstol = 1; //We mostly care about relative tolerance.
+       ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
 
-  double xsec = 0.;
+      if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+          ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+	        dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() 
+        );
+        assert(cast);
+        cast->SetMinPts(fGSLMinEval);
+      }
 
-  if (phsp_ok) {
-    ROOT::Math::IBaseFunctionMultiDim *func =
-        new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
-    ROOT::Math::IntegrationMultiDim::Type ig_type =
-        utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+       double kine_min[2] = { Wl.min, Q2l.min };
+       double kine_max[2] = { Wl.max, Q2l.max };
+       xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+       delete func;
+     }//phase space ok?
 
-    double abstol = 1; // We mostly care about relative tolerance.
-    ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol,
-                                      fGSLMaxEval);
+     LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
 
-    if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
-      ROOT::Math::AdaptiveIntegratorMultiDim *cast =
-          dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim *>(
-              ig.GetIntegrator());
-      assert(cast);
-      cast->SetMinPts(fGSLMinEval);
-    }
+     delete interaction;
 
-    double kine_min[2] = {Wl.min, Q2l.min};
-    double kine_max[2] = {Wl.max, Q2l.max};
-    xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-    delete func;
-  } // phase space ok?
-
-  LOG("DISXSec", pINFO) << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
-
-  delete interaction;
-
-  return xsec;
+     return xsec;
+  }
+  return 0;
 }
 //____________________________________________________________________________
 void DISXSec::Configure(const Registry &config) {
@@ -271,16 +271,18 @@ void DISXSec::CacheFreeNucleonXSec(const XSecAlgorithmI *model,
     TLorentzVector p4(0, 0, Ev, Ev);
     interaction->InitStatePtr()->SetProbeP4(p4);
     double xsec = 0.;
-    if (Ev > Ethr + kASmallNum) {
-      Range1D_t Wl = kps.WLim();
-      Range1D_t Q2l = kps.Q2Lim();
-      LOG("DISXSec", pINFO)
-          << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
-      LOG("DISXSec", pINFO)
-          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
-
-      bool phsp_ok = (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
-                      Wl.min >= 0. && Wl.max >= 0. && Wl.max >= Wl.min);
+    if(Ev>Ethr+kASmallNum) {
+       Range1D_t Wl  = kps.WLim();
+       Range1D_t Q2l = kps.Q2Lim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+       LOG("DISXSec", pINFO)
+            << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
+       LOG("DISXSec", pINFO)
+         << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
+#endif
+       bool phsp_ok =
+          (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
+            Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
 
       if (phsp_ok) {
         ROOT::Math::IntegrationMultiDim::Type ig_type =

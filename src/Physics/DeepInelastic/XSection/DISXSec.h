@@ -46,7 +46,7 @@ private:
 
   double fVldEmin;
   double fVldEmax;
-  bool   fDISNuclCorr ; 
+  bool   fDISNuclCorr; 
 };
 
 }       // genie namespace
