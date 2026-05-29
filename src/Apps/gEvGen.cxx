@@ -31,6 +31,7 @@ Syntax:
              [--force-flux-ray-interaction]
              [--seed random_number_seed]
              [--cross-sections xml_file]
+             [--q2-min q2_value]
 
              // command line args handled by RunOpt:
              [--event-generator-list list_name] // default "Default"
@@ -105,6 +106,11 @@ Syntax:
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
+           --q2-min
+              Override the minimum Q^2 phase-space cut (in GeV^2). By default,
+              the EM cut is configured in CommonPhaseSpaceCuts.xml [Default]
+              as EM-Q2-min. For weak interactions, this explicitly opts the
+              run into the Q2 cut.
 
            --event-generator-list
               List of event generators to load in event generation drivers.
@@ -146,6 +152,8 @@ Syntax:
 
 #include <cstdlib>
 #include <cassert>
+#include <algorithm>
+#include <cmath>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -171,6 +179,7 @@ Syntax:
 #include "Framework/EventGen/GMCJDriver.h"
 #include "Framework/EventGen/GMCJMonitor.h"
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Framework/Ntuple/NtpMCFormat.h"
@@ -207,6 +216,7 @@ using namespace genie::controls;
 void GetCommandLineArgs (int argc, char ** argv);
 void Initialize         (void);
 void PrintSyntax        (void);
+void ValidateQ2MinAgainstSplineMetadata(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
 void            GenerateEventsUsingFluxOrTgtMix();
@@ -240,6 +250,8 @@ long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
 string          gOptOutFileName;  // Optional outfile name
 string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
+double          gOptQ2Min;        // Q2 minimum override value
+bool            gOptQ2MinSet;     // whether --q2-min was specified
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -279,15 +291,73 @@ void Initialize()
   }
   RunOpt::Instance()->BuildTune();
 
+  // Apply Q2 minimum override before physics code queries phase-space cuts.
+  if(gOptQ2MinSet) {
+    KPhaseSpaceCuts::Instance()->SetQ2MinOverride(gOptQ2Min);
+    LOG("gevgen", pNOTICE)
+      << "Overriding Q2 minimum phase-space cut from command line: "
+      << gOptQ2Min << " GeV^2";
+  }
+
   // Initialization of random number generators, cross-section table,
   // messenger thresholds, cache file
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
   utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::XSecTable(gOptInpXSecFile, false);
+  ValidateQ2MinAgainstSplineMetadata();
 
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
+}
+//____________________________________________________________________________
+void ValidateQ2MinAgainstSplineMetadata(void)
+{
+  if(gOptInpXSecFile.empty()) return;
+
+  KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+  if(!cuts->HasSplineQ2MinCutForProbe(gOptNuPdgCode)) return;
+
+  double configured_q2_min = cuts->SplineQ2MinCutForProbe(gOptNuPdgCode);
+  string configured_source =
+    cuts->SplineQ2MinCutSourceForProbe(gOptNuPdgCode);
+
+  XSecSplineList * xspl = XSecSplineList::Instance();
+  double spline_q2_min = -1.;
+  string unit = "";
+  string source = "";
+
+  if(!xspl->GetCurrentTuneQ2MinKinematics(spline_q2_min, &unit, &source)) {
+    LOG("gevgen", pFATAL)
+      << "Input cross-section spline file [" << gOptInpXSecFile
+      << "] does not declare <kinematics><q2 min=\"...\"/> metadata "
+      << "for tune " << RunOpt::Instance()->Tune()->Name()
+      << ". Refusing to run because the configured Q2 cut from "
+      << configured_source << " cannot be checked against the spline.";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
+  const double abs_tol = 1E-12;
+  const double rel_tol = 1E-12;
+  const double diff = std::fabs(configured_q2_min - spline_q2_min);
+  const double scale = std::max(std::fabs(configured_q2_min), std::fabs(spline_q2_min));
+  if(diff > abs_tol && diff > rel_tol * scale) {
+    LOG("gevgen", pFATAL)
+      << "Q2 minimum cut mismatch between the configured run cut and "
+      << "input spline file [" << gOptInpXSecFile << "]. "
+      << configured_source << " sets " << configured_q2_min
+      << " GeV^2, but the spline metadata records " << spline_q2_min
+      << " " << unit << " from " << source << ".";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
+  LOG("gevgen", pNOTICE)
+    << "Validated configured Q2 minimum " << configured_q2_min
+    << " GeV^2 from " << configured_source
+    << " against spline metadata for tune "
+    << RunOpt::Instance()->Tune()->Name();
 }
 //____________________________________________________________________________
 void GenerateEventsAtFixedInitState(void)
@@ -816,6 +886,16 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
+  // Q2 minimum override
+  gOptQ2MinSet = false;
+  if(parser.OptionExists("q2-min")) {
+    gOptQ2Min = parser.ArgAsDouble("q2-min");
+    LOG("gevgen", pINFO)
+      << "Using command-line --q2-min override for the minimum Q2 "
+      << "phase-space cut: " << gOptQ2Min << " GeV^2";
+    gOptQ2MinSet = true;
+  }
+
   //
   // print-out the command line options
   //
@@ -865,6 +945,10 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevgen", pNOTICE)
           << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
+  if(gOptQ2MinSet) {
+     LOG("gevgen", pNOTICE)
+       << "Q2 minimum override: " << gOptQ2Min << " GeV^2";
+  }
   LOG("gevgen", pNOTICE) << "\n";
 
   LOG("gevgen", pNOTICE) << *RunOpt::Instance();
@@ -887,6 +971,7 @@ void PrintSyntax(void)
     << "\n              [--force-flux-ray-interaction]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"
+    << "\n              [--q2-min q2_value]"
     << RunOpt::RunOptSyntaxString(true)
     << "\n";
 

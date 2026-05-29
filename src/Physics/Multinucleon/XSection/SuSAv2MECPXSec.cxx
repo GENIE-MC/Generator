@@ -9,6 +9,7 @@
 //_________________________________________________________________________
 
 #include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGLibrary.h"
@@ -115,9 +116,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  double Q2min = KPhaseSpaceCuts::Instance()->Q2MinCut(
+    interaction, interaction->ProcInfo().IsEM() ?
+    0. : genie::controls::kMinQ2Limit);
 
   // Neglect shift due to binding energy. The cut is on the actual
   // value of Q^2, not the effective one to use in the tensor contraction.

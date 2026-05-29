@@ -23,6 +23,7 @@
 #include "Framework/EventGen/RunningThreadInfo.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepFlags.h"
+#include "Framework/Interaction/KPhaseSpace.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/Numerical/MathUtils.h"

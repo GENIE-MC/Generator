@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+***************************************************************************************************
+This file defines configurable kinematic phase-space cuts that are shared by the generator.
+Physical limits remain in KineUtils/KPhaseSpace; these values are user-configurable cuts layered
+on top of those physical limits.
+***************************************************************************************************
+-->
+
+<common_PhaseSpaceCuts_list>
+
+  <param_set name="Default">
+    <param type="double" name="EM-Q2-min"> 0.02 </param>
+  </param_set>
+
+</common_PhaseSpaceCuts_list>
