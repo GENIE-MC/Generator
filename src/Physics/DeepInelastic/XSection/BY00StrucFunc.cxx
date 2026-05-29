@@ -96,6 +96,10 @@ double BY00StrucFunc::ScalingVar(const Interaction * interaction, double Mf) con
 
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
+
+  // When the final lepton is heavy, i.e. charm production, we need to use the
+  // slow rescaling correction [10.1088/0954-3899/35/5/053101]
+  // This is unused when Mf = 0;
   xw *= (1 + Mf * Mf / myQ2);
   return xw;
 }
