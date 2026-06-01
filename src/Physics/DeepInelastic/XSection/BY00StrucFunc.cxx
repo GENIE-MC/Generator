@@ -92,8 +92,9 @@ double BY00StrucFunc::ScalingVar(const Interaction * interaction, double Mf) con
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
   //myQ2 = TMath::Max(Q2,fQ2min);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
-
+#endif
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
 
