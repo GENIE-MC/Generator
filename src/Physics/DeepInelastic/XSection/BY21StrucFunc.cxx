@@ -134,6 +134,7 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double Mf2 = TMath::Power( Mf, 2 ) ; 
   double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) + 2*fA*x);
+  xw *= (1 + Mf * Mf / myQ2);
   return xw;
 }
 //____________________________________________________________________________
