@@ -300,8 +300,9 @@ bool KPhaseSpace::IsAboveThreshold(void) const
   {
       E = init_state.ProbeE(kRfHitNucRest);
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KPhaseSpace", pDEBUG) << "E = " << E << ", Ethr = " << Ethr;
+#endif
   return (E>Ethr);
 }
 //___________________________________________________________________________
@@ -387,9 +388,10 @@ bool KPhaseSpace::IsAllowed(void) const
     kinematics::UpdateWQ2FromXY(fInteraction);
     double    W   = kine.W();
     double    Q2  = kine.Q2();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("KPhaseSpace", pDEBUG) << " W = " << W << ", limits = [" << Wl.min << "," << Wl.max << "];";
     LOG("KPhaseSpace", pDEBUG) << " Q2 = " << Q2 << ", limits = [" << Q2l.min << "," << Q2l.max << "];";
+#endif
     bool in_phys = math::IsWithinLimits(W, Wl);
     in_phys = in_phys && math::IsWithinLimits(Q2, Q2l);
 
@@ -400,11 +402,14 @@ bool KPhaseSpace::IsAllowed(void) const
     {
       double    t   = kine.t();
       Range1D_t tl  = this->TLim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("KPhaseSpace", pDEBUG) << " t = " << t << ", limits = [" << tl.min << "," << tl.max << "];";
+#endif
       in_phys = in_phys && math::IsWithinLimits(t, tl);
     }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("KPhaseSpace", pDEBUG) << " phase space point is " << ( in_phys ? "ALLOWED" : "NOT ALLOWED");
-
+#endif
 
     bool allowed = in_phys;
     return allowed;
@@ -481,9 +486,9 @@ Range1D_t KPhaseSpace::WLim(void) const
     }
     else if (fInteraction->ProcInfo().IsDiffractive())
       Wl.min = TMath::Max(Wl.min, kNeutronMass+kPionMass);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("KPhaseSpace", pDEBUG) << "Found nominal limits: " << Wl.min << ", " << Wl.max;
-
+#endif
     // sanity check
     if(Wl.min>Wl.max) {Wl.min=-1; Wl.max=-1;}
 

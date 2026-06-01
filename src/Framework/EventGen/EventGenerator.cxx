@@ -247,9 +247,11 @@ void EventGenerator::Init(void)
         i++;
      }
   }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("EventGenerator", pDEBUG)
     << "Initializing unphysical event mask (" << GHepFlags::NFlags()
     << "->0) = " << *fFiltUnphysMask;
+#endif
 }
 //___________________________________________________________________________
 void EventGenerator::LoadConfig(void)
@@ -257,16 +259,16 @@ void EventGenerator::LoadConfig(void)
   if(fEVGModuleVec) delete fEVGModuleVec;
   if(fEVGTime)      delete fEVGTime;
   if(fVldContext)   delete fVldContext;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("EventGenerator", pDEBUG) << "Loading the generator validity context";
-
+#endif
   string encoded_vld_context ;
   GetParam("VldContext", encoded_vld_context ) ;
   fVldContext = new GVldContext;
   fVldContext->Decode( encoded_vld_context );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("EventGenerator", pDEBUG) << "Loading the event generation modules";
-
+#endif
   int nsteps ;
   GetParam("NModules", nsteps) ;
   if(nsteps == 0) {

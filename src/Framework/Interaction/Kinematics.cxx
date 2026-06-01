@@ -334,9 +334,10 @@ double Kinematics::GetKV(KineVar_t kv) const
 //____________________________________________________________________________
 void Kinematics::SetKV(KineVar_t kv, double value)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Interaction", pDEBUG)
             << "Setting " << KineVar::AsString(kv) << " to " << value;
-
+#endif
   if(this->KVSet(kv)) {
      fKV[kv] = value;
   } else {

@@ -44,16 +44,19 @@ char * CmdLnArgParser::Arg(char op)
 
   while(argc>2)
   {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("CLAP", pDEBUG) << "Getting next argument in argument-list";
     LOG("CLAP", pDEBUG) << "Current argc = " << argc;
-
+#endif
     if (argv[1][0] == '-') {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("CLAP", pDEBUG)
        << "Got char (argv[1][1]) following argv[1][0]='-' : " << argv[1][1];
-
+#endif
       if (argv[1][1] == op) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   	 LOG("CLAP", pDEBUG) << "Input option: " << op << " was matched";
-
+#endif
          if (strlen(&argv[1][2]) ) {
             strcpy(argument,&argv[1][2]);
             LOG("CLAP", pINFO)
@@ -61,10 +64,10 @@ char * CmdLnArgParser::Arg(char op)
 
          } else if( (argc>2) &&
                     !(argv[2][0]=='-' && isalpha(argv[2][1])) ) {
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
             LOG("CLAP", pDEBUG)
               << "argc>2 and next arg not a '-' followed by an alpha char";
-
+#endif
             argc--;
             argv++;
             strcpy(argument,&argv[1][0]);
@@ -76,12 +79,15 @@ char * CmdLnArgParser::Arg(char op)
     }
     argc--;
     argv++;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     if(argc>2) {
       LOG("CLAP", pDEBUG) << "Next argv[1][0] = " << argv[1][0];
     }
+#endif
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("CLAP", pDEBUG) << "CmdLnArgParser::Arg op='" << op << "' set=" << set;
+#endif
   return argument;
 }
 //____________________________________________________________________________
@@ -194,18 +200,22 @@ char * CmdLnArgParser::Arg(string op)
 
   while(argc>2)
   {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("CLAP", pDEBUG) << "Getting next argument in argument-list";
     LOG("CLAP", pDEBUG) << "Current argc = " << argc;
-
+#endif
     if (argv[1][0] == '-' && argv[1][1] == '-') {
       //char * op_cur = strndup(argv[1]+2,strlen(argv[1]));
       char op_cur[buf_size];
       strcpy(op_cur,&argv[1][2]);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("CLAP", pDEBUG)
         << "Got string following '--' : " << op_cur;
+#endif
       if (strcmp(op.c_str(),op_cur)==0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__        
   	 LOG("CLAP", pDEBUG) << "Input option: " << op << " was matched";
-
+#endif
          if (strlen(&argv[2][0]) ) {
             strcpy(argument,&argv[2][0]);
             LOG("CLAP", pINFO)
@@ -213,9 +223,10 @@ char * CmdLnArgParser::Arg(string op)
 
          } else if( (argc>2) &&
                     !(argv[2][0]=='-' &&argv[2][1]=='-' && isalpha(argv[2][2])) ) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__                      
             LOG("CLAP", pDEBUG)
               << "argc>2 and next arg not a '--' followed by an alpha char";
-
+#endif
             argc--;
             argv++;
             strcpy(argument,&argv[1][0]);

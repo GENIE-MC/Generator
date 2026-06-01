@@ -240,9 +240,9 @@ XmlParserStatus_t PathLengthList::LoadFromXml(string filename)
 
        string spl = utils::xml::TrimSpacesClean(
                            xmlNodeListGetString(xml_doc, xmlPlVal, 1));
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("PathL", pDEBUG) << "pdgc = " << spdgc << " --> pl = " << spl;
-
+#endif
        int    pdgc = atoi( spdgc.c_str() );
        double pl   = atof( spl.c_str()   );
 

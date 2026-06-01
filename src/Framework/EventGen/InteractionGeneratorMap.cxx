@@ -100,8 +100,10 @@ void InteractionGeneratorMap::UseGeneratorList(const EventGeneratorList * l)
 //___________________________________________________________________________
 void InteractionGeneratorMap::BuildMap(const InitialState & init_state)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("IntGenMap", pDEBUG)
                << "Building 'interaction' -> 'generator' associations";
+#endif
   SLOG("IntGenMap", pNOTICE)
          << "Using all simulated interactions for init-state: "
                                               << init_state.AsString();
@@ -143,9 +145,10 @@ void InteractionGeneratorMap::BuildMap(const InitialState & init_state)
         // current interaction
         Interaction * interaction = *intliter;
         string code = interaction->AsString();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         SLOG("IntGenMap", pDEBUG)
               << "\nLinking: " << code << " --> to: " << evgen->Id().Key();
+#endif
         this->insert(
              map<string, const EventGeneratorI *>::value_type(code,evgen));
      } // loop over interactions

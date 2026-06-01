@@ -204,8 +204,9 @@ PathSegmentList::~PathSegmentList()
 //___________________________________________________________________________
 void PathSegmentList::SetAllToZero(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("PathS", pDEBUG) << "SetAllToZero called";
-
+#endif
   this->fStartPos.SetXYZ(0,0,1e37); // clear cache of position/direction
   this->fDirection.SetXYZ(0,0,0);   //
   this->fSegmentList.clear();       // clear the vector
@@ -379,9 +380,9 @@ XmlParserStatus_t PathSegmentList::LoadFromXml(string filename)
 
        string spl = XmlParserUtils::TrimSpaces(
                            xmlNodeListGetString(xml_doc, xmlPlVal, 1));
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("PathS", pDEBUG) << "pdgc = " << spdgc << " --> pl = " << spl;
-
+#endif
        int    pdgc = atoi( spdgc.c_str() );
        double pl   = atof( spl.c_str()   );
 

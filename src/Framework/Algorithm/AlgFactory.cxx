@@ -85,15 +85,17 @@ const Algorithm * AlgFactory::GetAlgorithm(const AlgId & algid)
 const Algorithm * AlgFactory::GetAlgorithm(string name, string config)
 {
   string key = name + "/" + config;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("AlgFactory", pDEBUG)
       << "Algorithm: " << key << " requested from AlgFactory";
-
+#endif
   map<string, Algorithm *>::const_iterator alg_iter = fAlgPool.find(key);
   bool found = (alg_iter != fAlgPool.end());
 
   if(found) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("AlgFactory", pDEBUG) << key << " algorithm found in memory";
+#endif
      return alg_iter->second;
   } else {
      //-- instantiate the factory
@@ -155,8 +157,9 @@ Algorithm * AlgFactory::InstantiateAlgorithm(string name, string config) const
 //! The class of any object instantiated here must have a LinkDef entry.
 
   // Get object through ROOT's TROOT::GetClass() mechanism
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AlgFactory", pDEBUG) << "Instantiating algorithm = " << name;
-
+#endif
   TClass * tclass = gROOT->GetClass(name.c_str());
   if(!tclass) {
      LOG("AlgFactory", pERROR)
@@ -167,12 +170,14 @@ Algorithm * AlgFactory::InstantiateAlgorithm(string name, string config) const
   Algorithm * alg_base = (Algorithm *) (vd_base);
 
   // Configure the instantiated algorithm
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AlgFactory", pDEBUG) << "Setting Configuration Set = " << config;
-
+#endif
   bool skip_conf = (config=="NoConfig" || config=="");
   if ( skip_conf ) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("AlgFactory", pDEBUG) << "Skipping algorithm configuration step!";
+#endif
   } else {
     alg_base->Configure(config);
   }

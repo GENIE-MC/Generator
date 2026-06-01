@@ -171,15 +171,19 @@ bool NaturalIsotopes::LoadTable(void)
 
       // check not re-reading same element
       if(Z!=Z_previous){
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	LOG("NatIsotop", pDEBUG) << "Reading entry for Z = " << Z;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	for(int n=0 ; n < nelements; n++){
 	  input >> subelementname;
 	  input >> pdgcode;
 	  input >> atomicmass;
 	  input >> abundance;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   	  LOG("NatIsotop", pDEBUG)
             << " - Element: " << n << ", pdg = " << pdgcode
             << ", A = " << atomicmass << ", abundance = " << abundance;
+#endif
           data = new NaturalIsotopeElementData(pdgcode, abundance,atomicmass);
   	  vec.push_back(data);
 	}

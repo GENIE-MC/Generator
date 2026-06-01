@@ -103,10 +103,10 @@ bool XSecSplineList::SplineExists(string key) const
     SLOG("XSecSplLst", pERROR) << "Spline requested while CurrentTune not set" ;
     return false ;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("XSecSplLst", pDEBUG)
     << "Checking for spline: " << key << " in tune: " << fCurrentTune;
-
+#endif
   map<string,  map<string, Spline *> >::const_iterator //
   mm_iter = fSplineMap.find(fCurrentTune);
   if(mm_iter == fSplineMap.end()) {
@@ -116,8 +116,10 @@ bool XSecSplineList::SplineExists(string key) const
   }
   const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
   bool exists = (spl_map_curr_tune.count(key) == 1);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("XSecSplLst", pDEBUG)
     << "Spline found?...." << utils::print::BoolAsYNString(exists);
+#endif
   return exists;
 }
 //____________________________________________________________________________
@@ -135,10 +137,10 @@ const Spline * XSecSplineList::GetSpline(string key) const
     SLOG("XSecSplLst", pFATAL) << "Spline requested while CurrentTune not set" ;
     exit(0) ;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("XSecSplLst", pDEBUG)
     << "Getting spline: " << key << " in tune: " << fCurrentTune;
-
+#endif
   map<string,  map<string, Spline *> >::const_iterator //\/
   mm_iter = fSplineMap.find(fCurrentTune);
   if(mm_iter == fSplineMap.end()) {
@@ -435,7 +437,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
             int       depth = xmlTextReaderDepth    (reader);
 
             if(depth==0 && type==kNodeTypeStartElement) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("XSecSplLst", pDEBUG) << "Root element = " << name;
+#endif
                if(xmlStrcmp(name, (const xmlChar *) "genie_xsec_spline_list")) {
                    LOG("XSecSplLst", pERROR)
                      << "\nXML doc. has invalid root element! [filename: " << filename << "]";

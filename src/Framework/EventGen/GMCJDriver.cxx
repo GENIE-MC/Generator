@@ -563,9 +563,10 @@ void GMCJDriver::GetMaxFluxEnergy(void)
 //___________________________________________________________________________
 void GMCJDriver::PopulateEventGenDriverPool(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GMCJDriver", pDEBUG)
        << "Creating GEVGPool & adding a GEVGDriver object per init-state";
-
+#endif
   if (fGPool) delete fGPool;
   fGPool = new GEVGPool;
 
@@ -588,8 +589,9 @@ void GMCJDriver::PopulateEventGenDriverPool(void)
      evgdriver->SetEventGeneratorList(fEventGenList); // specify list of generators
      evgdriver->Configure(init_state);
      evgdriver->UseSplines(); // check if all splines needed are loaded
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("GMCJDriver", pDEBUG) << "Adding new GEVGDriver object to GEVGPool";
+#endif
      fGPool->insert( GEVGPool::value_type(init_state.AsString(), evgdriver) );
    } // targets
   } // neutrinos
@@ -738,10 +740,10 @@ void GMCJDriver::ComputeProbScales(void)
          int target_pdgc = *tgtiter;
 
          InitialState init_state(target_pdgc, neutrino_pdgc);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("GMCJDriver", pDEBUG)
            << "Computing Pmax for init-state: " << init_state.AsString() << " E from " << EvLow << "-" << EvHigh;
-
+#endif
          // get the appropriate driver
          GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
 
@@ -766,9 +768,10 @@ void GMCJDriver::ComputeProbScales(void)
 	 }
 
          pmax_hst->SetBinContent(ie, pmax_hst->GetBinContent(ie) + pmax);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("GMCJDriver", pDEBUG)
            << "Pmax[" << init_state.AsString() << ", Ev from " << EvLow << "-" << EvHigh << "] = " << pmax;
+#endif
        } // targets
 
        pmax_hst->SetBinContent(ie, fPmaxSafetyFactor * pmax_hst->GetBinContent(ie));
@@ -849,8 +852,9 @@ EventRecord * GMCJDriver::GenerateEvent1Try(void)
 
   double Pno=0, Psum=0;
   double R = rnd->RndEvg().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GMCJDriver", pDEBUG) << "Rndm [0,1] = " << R;
-
+#endif
   // Generate a neutrino using the input GFluxI & get current pdgc/p4/x4
   bool flux_ok = this->GenerateFluxNeutrino();
   if(!flux_ok) {
@@ -1156,9 +1160,10 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
             xsec = totxsecspl->Evaluate( nup4.Energy() );
         }
         prob = this->InteractionProbability(xsec,pl,A);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("GMCJDriver", pDEBUG)
           << " (xsec, pl, A)=(" << xsec << "," << pl << "," << A << ")";
-
+#endif
         // scale the interaction probability to the maximum one so as not
         // to have to throw few billions of flux neutrinos before getting
         // an interaction...
@@ -1174,8 +1179,10 @@ double GMCJDriver::ComputeInteractionProbabilities(bool use_max_path_length)
            pmax = pmax_hst->GetBinContent(ie);
         }
         assert(pmax>0);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("GMCJDriver", pDEBUG)
           << "Pmax=" << pmax;
+#endif
         probn = prob/pmax;
      }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__

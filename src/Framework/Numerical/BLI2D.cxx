@@ -80,12 +80,12 @@ bool BLI2DUnifGrid::AddPoint(double x, double y, double z)
 
   fZmin = TMath::Min(z, fZmin);
   fZmax = TMath::Max(z, fZmax);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BLI2DUnifGrid", pDEBUG)
     << "Added x = " << x << " (ix = " << ix << ")"
          << " y = " << y << " (iy = " << iy << ") -> "
          << " z = " << z << " (iz = " << iz << ")";
-
+#endif
   return true;
 }
 //___________________________________________________________________________
@@ -237,14 +237,17 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
 	{
 	  if (TMath::Abs(x-fX[i])<=.5*.0000001*(TMath::Abs(x)+TMath::Abs(fX[i]))) {
 	    xidx=i;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	    LOG("BLI2DNonUnifGrid", pDEBUG) << "x value found at index "<<i;
+#endif
 	    changex=false; break;}
 	  changex=true;
 	}
     }
   if (changex && xidx<0) xidx=fNFillX;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if (changex) LOG("BLI2DNonUnifGrid", pDEBUG) << "Adding x value at index "<<xidx;
-
+#endif
   for(int i=0;i<fNFillY;i++)
     {
       if (!(TMath::Abs(y-fY[i])<=.5*.0000001*(TMath::Abs(y)+TMath::Abs(fY[i]))) && y<fY[i])
@@ -265,14 +268,19 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
 	{
 	  if (TMath::Abs(y-fY[i])<=.5*.0000001*(TMath::Abs(y)+TMath::Abs(fY[i]))) {
 	    yidx=i;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	    LOG("BLI2DNonUnifGrid", pDEBUG) << "y value found at index "<<i;
-	    changey=false; break;}
+#endif
+	    changey=false; 
+      break;
+    }
 	  changey=true;
 	}
     }
   if (changey && yidx<0) yidx=fNFillY;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if (changey) LOG("BLI2DNonUnifGrid", pDEBUG) << "Adding y value at index "<<yidx;
-
+#endif
   // make new entries if needed
   if (changex && xidx>=0)
     {
@@ -313,12 +321,12 @@ bool BLI2DNonUnifGrid::AddPoint(double x, double y, double z)
 
   fZmin = TMath::Min(z, fZmin);
   fZmax = TMath::Max(z, fZmax);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BLI2DNonUnifGrid", pDEBUG)
     << "Added x = " << x << " (ix = " << xidx << ")"
          << " y = " << y << " (iy = " << yidx << ") -> "
          << " z = " << z << " (iz = " << iz   << ")";
-
+#endif
   return true;
 }
 //___________________________________________________________________________

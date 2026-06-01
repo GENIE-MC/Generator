@@ -58,27 +58,31 @@ TFolder * NtpMCJobConfig::Load(void)
   for(keyiter = vconfkeys.begin(); keyiter != vconfkeys.end(); ++keyiter) {
 
     string key = *keyiter;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Ntp",pDEBUG) << "Current configuration registry key" << key;
-
+#endif
     vector<string> vkey = utils::str::Split(key,"/");
     assert(vkey.size()==2);
     string alg_name  = vkey[0];
     string param_set = vkey[1];
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Ntp",pDEBUG)
          << "alg_name: " << alg_name << ", param_set: " << param_set;
-
+#endif
     if( !(fConfig->FindObject(alg_name.c_str())) ) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Ntp",pDEBUG) << "Adding new folder for alg: " << alg_name;
+#endif
       fConfig->AddFolder(alg_name.c_str(), "");
     }
     TFolder * alg_folder = (TFolder *) fConfig->FindObject(alg_name.c_str());
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Ntp",pDEBUG) << "Adding folder for param set: " << param_set;
+#endif
     TFolder * config_folder = alg_folder->AddFolder(param_set.c_str(), "");
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Ntp",pDEBUG) << "Accessing Registry & converting it to TFolder";
+#endif
     Registry * config_registry = algconf->FindRegistry(key);
     config_registry->CopyToFolder(config_folder);
   }

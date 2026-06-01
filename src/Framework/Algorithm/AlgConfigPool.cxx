@@ -288,9 +288,9 @@ bool AlgConfigPool::LoadRegistries(
                              string key_prefix, string file_name, string root)
 {
 // Loads all the configuration registries from the input XML file
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("AlgConfigPool", pDEBUG) << "[-] Loading registries:";
-
+#endif
   bool is_accessible = ! (gSystem->AccessPathName(file_name.c_str()));
   if (!is_accessible) {
      SLOG("AlgConfigPool", pERROR)
@@ -390,8 +390,9 @@ bool AlgConfigPool::LoadRegistries(
 
       pair<string, Registry *> single_reg(key.str(), config);
       fRegistryPool.insert(single_reg);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       SLOG("AlgConfigPool", pDEBUG) << " |---o " << key.str();
+#endif
     }
     xml_cur = xml_cur->next;
   }
@@ -411,11 +412,11 @@ int  AlgConfigPool::AddParameterVector  (Registry * r, string pt, string pn, str
   // The name scheme starts from the name and it goes like
   // 'N'+pn+'s' that will be an integer with the number of entries.
   // Each entry will be named pn+"-i" where i is replaced by the number
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("AlgConfigPool", pDEBUG)
     << "Adding Parameter Vector [" << pt << "]: Key = "
     << pn << " -> Value = " << pv;
-
+#endif
   vector<string> bits = utils::str::Split( pv, delim ) ;
 
   string n_name = Algorithm::BuildParamVectSizeKey( pn ) ;
@@ -454,10 +455,11 @@ int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, str
     LOG("AlgConfigPool", pFATAL) << "row and column have wrong delims: " << rowdelim << "  " << coldelim ;
     exit(1);
   }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("AlgConfigPool", pDEBUG)
     << "Adding Parameter Matrix [" << pt << "]: Key = "
     << pn << " -> Value = " << pv;
-
+#endif
   vector<string> mat_row = utils::str::Split( pv, rowdelim ) ;
 
   string r_name = Algorithm::BuildParamMatRowSizeKey( pn ) ;
@@ -563,11 +565,11 @@ void AlgConfigPool::AddConfigParameter( Registry * r,
 {
 // Adds a configuration parameter with type = ptype, key = pname and value =
 // pvalue at the input configuration registry r
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("AlgConfigPool", pDEBUG)
     << "Adding Parameter [" << ptype << "]: Key = "
     << pname << " -> Value = " << pvalue;
-
+#endif
   bool isRootObjParam = (strcmp(ptype.c_str(), "h1f")    == 0) ||
                         (strcmp(ptype.c_str(), "Th2f")   == 0) ||
                         (strcmp(ptype.c_str(), "tree")   == 0);
@@ -718,14 +720,17 @@ Registry* AlgConfigPool::FindRegistry(string alg_name, string param_set) const
 //____________________________________________________________________________
 Registry * AlgConfigPool::FindRegistry(string key) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AlgConfigPool", pDEBUG) << "Searching for registry with key " << key;
-
+#endif
   if( fRegistryPool.count(key) == 1 ) {
      map<string, Registry *>::const_iterator config_entry =
                                                    fRegistryPool.find(key);
      return config_entry->second;
   } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("AlgConfigPool", pDEBUG) << "No config registry for key " << key;
+#endif
      return 0;
   }
   return 0;

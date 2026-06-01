@@ -917,7 +917,9 @@ RegistryItemI * Registry::CloneRegistryItem( const RgKey & key ) const {
            RgH1F histo = GetH1F(key);
            if(histo) {
                RgH1F chisto = new TH1F(*histo);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("Registry", pDEBUG) << chisto->GetName();
+#endif
                cri = new RegistryItem<RgH1F>(chisto,ilk);
            } else {
              LOG("Registry", pERROR)
@@ -927,7 +929,9 @@ RegistryItemI * Registry::CloneRegistryItem( const RgKey & key ) const {
            RgH2F histo = GetH2F(key);
            if(histo) {
                RgH2F chisto = new TH2F(*histo);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                LOG("Registry", pDEBUG) << chisto->GetName();
+#endif               
                cri = new RegistryItem<RgH2F>(chisto,ilk);
            } else {
              LOG("Registry", pERROR)
@@ -938,7 +942,9 @@ RegistryItemI * Registry::CloneRegistryItem( const RgKey & key ) const {
            if(tree) {
                //TTree * ctree = new TTree(*tree);
                TTree * ctree = tree->CopyTree("1");
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__               
                LOG("Registry", pDEBUG) << ctree->GetName();
+#endif
                cri = new RegistryItem<RgTree>(ctree,ilk);
            } else {
              LOG("Registry", pERROR)

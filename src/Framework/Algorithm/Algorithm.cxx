@@ -144,7 +144,9 @@ void Algorithm::FindConfig(void)
     if ( config ) {
       if ( config -> NEntries() > 0 ) {
 	AddTopRegistry( config, false ) ;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	LOG("Algorithm", pDEBUG) << "\n" << *config;
+#endif
       }
     }
   }
@@ -160,7 +162,9 @@ void Algorithm::FindConfig(void)
   else {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Algorithm", pDEBUG) << "\n" << config;
+#endif
     }
   }
 
@@ -209,9 +213,11 @@ void Algorithm::FindConfig(void)
       }
       else  {
 	    AddLowRegistry( config, false ) ;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	    LOG("Algorithm", pDEBUG) << "Loading "
 				     << it -> first << " registry "
 				     << list[i] << " \n" << config;
+#endif
       }
 
     }
@@ -225,7 +231,9 @@ void Algorithm::FindConfig(void)
   if ( config ) {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Algorithm", pDEBUG) << "Loading Tunable registry \n" << config;
+#endif
     }
   }
   else {
@@ -261,8 +269,9 @@ const Registry & Algorithm::GetConfig(void) const {
     	  iter != fOwnedSubAlgMp -> end() ; ++iter ) {
 
       Algorithm * subalg = iter -> second ;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Algorithm", pDEBUG) << "Appending config from " << iter -> first << " -> " << subalg -> Id() ;
+#endif
       const Registry & r = subalg->GetConfig();
       RgKey prefix = iter -> first + "/";
       fConfig -> Append(r,prefix);
@@ -435,16 +444,20 @@ void Algorithm::AdoptSubstructure(void)
     RegistryItemI * ri = iter->second;
 
     if(ri->TypeInfo() == kRgAlg) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Algorithm", pDEBUG)
+#endif
                  << "Found sub-algorithm pointed to by " << reg_key;
         RgAlg reg_alg = fConfig->GetAlg(reg_key);
         AlgId id(reg_alg);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Algorithm", pDEBUG) << "Adopting sub-algorithm = " << id.Key();
+#endif
         Algorithm * subalg = algf->AdoptAlgorithm(id.Name(),id.Config());
         subalg->AdoptSubstructure();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Algorithm", pDEBUG) << "Adding sub-algorithm to local pool";
+#endif
         AlgMapPair key_alg_pair(reg_key, subalg);
         fOwnedSubAlgMp->insert(key_alg_pair);
 
