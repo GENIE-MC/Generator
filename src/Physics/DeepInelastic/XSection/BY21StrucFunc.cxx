@@ -62,8 +62,8 @@ void BY21StrucFunc::Configure(string param_set)
 //____________________________________________________________________________
 void BY21StrucFunc::ReadBYParams(void)
 {
-  // vector mass
-  GetParamDef( "EL-Mv",fMv, 0.84 ) ;
+  // vector mass 
+  GetParam( "EL-Mv",fMv ) ;
   fMv2 = TMath::Power(fMv,2);
   
   // Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
