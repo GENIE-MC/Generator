@@ -311,7 +311,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     
     double q3   = switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv * (gvu*gau);
     q3         += switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus * (gvu*gau);
-    q3         += switch_c * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
+    q3         += switch_c  * sqrt( kV_sea_u * kA_sea_u ) * fc  * (gvu*gau);
     q3         += switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv * (gvd*gad);
     q3         += switch_ds * sqrt( kV_sea_d * kA_sea_d ) * fds * (gvd*gad);
     q3         += switch_s  * sqrt( kV_sea_s * kA_sea_s ) * fs  * (gvd*gad);

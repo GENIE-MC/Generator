@@ -69,6 +69,7 @@ WeinbergAngle              double  No                                           
     <param type="double" name="BY-H2">    -0.374   </param>
     <param type="double" name="BY-H3">    0.165   </param>
     <param type="double" name="BY-RQ2min">    0.3   </param>
+    <param type="double" name="EL-Mv"> 0.71     </param>
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 Switches controlling the DIS structure function calculation. Those switches specify whether to:

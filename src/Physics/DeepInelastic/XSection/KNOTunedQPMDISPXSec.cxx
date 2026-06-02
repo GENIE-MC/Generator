@@ -64,9 +64,7 @@ double KNOTunedQPMDISPXSec::XSec(const Interaction *interaction,
   LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN] (E= " << E << ", x= " << x
                          << ", y= " << y << ") = " << xsec;
 #endif
-
   double R = this->DISRESJoinSuppressionFactor(interaction);
-
   xsec *= R;
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -179,7 +177,7 @@ KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(const Interaction *in) const {
 
         cbr->AddValues(W, R);
       }
-      cbr->CreateSpline();
+      cbr->CreateSpline("LINEAR");
 
       cache->AddCacheBranch(key, cbr);
       assert(cbr);
