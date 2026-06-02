@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
@@ -15,11 +15,11 @@
 
  Important revisions after version 2.0.0 :
  @  sep 2025  - Mohamed Ismail, SD
-  new class for hA2025.  no changes from the 2018 class version, major changes made in INukeHadroData2025 
-for new hA pion splines  Add data, use hN for high pion KE, use INCL for low energy.  Use splines for channel 
+  new class for hA2025.  no changes from the 2018 class version, major changes made in INukeHadroData2025
+for new hA pion splines  Add data, use hN for high pion KE, use INCL for low energy.  Use splines for channel
 and total reac xs to improve accuracy.  Also, smooth results to avoid discontinuities.
 
- 
+
 */
 //____________________________________________________________________________
 
@@ -242,8 +242,8 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
      if (pdgc==kPdgPiP || pdgc==kPdgPiM) frac_abs *= fChPionFracAbsScale;
      if (pdgc==kPdgPi0) frac_abs *= fNeutralPionFracAbsScale;
      frac_piprod *= fPionFracPiProdScale;
-     
-	
+
+
 	// Flag to enable or disable π0/π+ ratio corrections
 	bool apply_pi0_ratio_correction = true;
 
@@ -261,7 +261,7 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
 	    double ratio_piprod =  0.0004402 * ke_ratio + 0.47418;
 
 	    // Apply the corrections only if kinetic energy is below 1000 MeV
-	
+
 	    frac_cex  *= ratio_cex;
   	    frac_abs  *= ratio_abs;
 	    frac_inel *= ratio_inel;
@@ -270,11 +270,11 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
 	    if (ke > 400.0) {
 		    frac_piprod *= ratio_piprod;
             }
-	   
+
 	}
 
-     
-     
+
+
 
      double frac_rescale = 1./(frac_cex + frac_inel + frac_abs + frac_piprod);
 
@@ -793,7 +793,7 @@ void HAIntranuke2025::Inelastic(
       GHepParticle s3(*p);
 
       bool success = utils::intranuke2025::PionProduction(
-         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
+         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel,fPiProdThreeBodyBias);
 
       if (success){
         LOG ("HAIntranuke2025",pINFO) << " successful pion production fate";
@@ -1131,10 +1131,10 @@ void HAIntranuke2025::Inelastic(
 
           if ( pdg::IsNeutronOrProton (pdgc) ) //nucleon probe
             {
-         // work done in 2011 by Meyer and Dytman. Make fits to hN simulation output for p and n. 
+         // work done in 2011 by Meyer and Dytman. Make fits to hN simulation output for p and n.
               ns = -TMath::Log(rnd->RndFsi().Rndm())/gam_ns; // exponential random variable
             }
-          if ( pdg::IsKaon (pdgc) ) //charged kaon probe - either 2 or 3 nucleons to stay simple.  
+          if ( pdg::IsKaon (pdgc) ) //charged kaon probe - either 2 or 3 nucleons to stay simple.
                                     // No data available, use hN simulation (sd)
             {
               ns =  (rnd->RndFsi().Rndm()<0.5?2:3);
@@ -1579,6 +1579,8 @@ void HAIntranuke2025::LoadConfig(void)
   GetParamDef( "FSI-Nucleon-FracAbsScale",       fNucleonFracAbsScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-FracPiProdScale",    fNucleonFracPiProdScale, 1.0 ) ;
 
+  GetParamDef( "FSI-PiProd-ThreeBodyBias", fPiProdThreeBodyBias, 0.0 );
+
   // report
   LOG("HAIntranuke2025", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
   LOG("HAIntranuke2025", pINFO) << "R0          = " << fR0 << " fermi";
@@ -1594,6 +1596,7 @@ void HAIntranuke2025::LoadConfig(void)
   LOG("HAIntranuke2025", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HAIntranuke2025", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
   LOG("HAIntranuke2025", pINFO) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
+  LOG("HAIntranuke2025", pINFO) << "PiProdBias = " << fPiProdThreeBodyBias;
 }
 //___________________________________________________________________________
 /*
