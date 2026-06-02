@@ -145,6 +145,7 @@ void GEVGDriver::Configure(int nu_pdgc, int Z, int A)
 void GEVGDriver::Configure(const InitialState & is)
 {
   InitialState init_state(is.TgtPdg(), is.ProbePdg()); // filter any other init state info
+  init_state.SetProbeHelicity(is.ProbeHelicity() );
 
   ostringstream mesg;
   mesg << "Configuring event generation driver for initial state: `"

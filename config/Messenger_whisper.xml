@@ -177,6 +177,9 @@
   <priority msgstream="SPPEventGen">           FATAL  </priority>
   <priority msgstream="RESXSec">               FATAL </priority>
   <priority msgstream="RESPXSec">              FATAL </priority>
+  <priority msgstream="DCCSPPPXSec">           FATAL </priority>
+  <priority msgstream="DCCSPPXSec">            FATAL </priority>
+  <priority msgstream="DCCSPPCache">           FATAL </priority>
   <priority msgstream="ReinSehgalCohPi">       FATAL </priority>
   <priority msgstream="ReinDFR">               FATAL </priority>
   <priority msgstream="ReinSehgalRes">         FATAL </priority>

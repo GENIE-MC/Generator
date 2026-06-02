@@ -18,6 +18,10 @@ Name                        Type    Opt  Comment                                
   <param_set name="NC-Default">
         <param type="bool" name="is-NC">    true  </param>
   </param_set>
+  
+  <param_set name="EM-Default">
+        <param type="bool" name="is-EM">    true  </param>
+  </param_set>
 
 </alg_conf>
 

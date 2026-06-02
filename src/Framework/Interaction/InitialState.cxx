@@ -94,6 +94,7 @@ InitialState::~InitialState()
 void InitialState::Init(void)
 {
   fProbePdg  = 0;
+  fProbeHelicity = 0;
   fTgt       = new Target();
   fProbeP4   = new TLorentzVector(0, 0, 0, 0);
   fTgtP4     = new TLorentzVector(0, 0, 0, 0);
@@ -109,6 +110,7 @@ void InitialState::Init(int target_pdgc, int probe_pdgc)
   double m = p->Mass();
   double M = t->Mass();
 
+  fProbeHelicity = 0;
   fProbePdg  = probe_pdgc;
   fTgt       = new Target(target_pdgc);
   fProbeP4   = new TLorentzVector(0, 0, 0, m);
@@ -134,8 +136,9 @@ void InitialState::Copy(const InitialState & init_state)
 
   fTgt->Copy(*init_state.fTgt);
 
-  this -> SetProbeP4 ( *init_state.fProbeP4 );
-  this -> SetTgtP4   ( *init_state.fTgtP4   );
+  this -> SetProbeP4       ( *init_state.fProbeP4 );
+  this -> SetTgtP4         ( *init_state.fTgtP4   );
+  this -> SetProbeHelicity (  init_state.fProbeHelicity );
 }
 //___________________________________________________________________________
 int InitialState::TgtPdg(void) const
@@ -412,9 +415,16 @@ string InitialState::AsString(void) const
 //     nu_pdg:code;tgt-pdg:code;
 
   ostringstream init_state;
-
-  if (this->Probe()->Mass() > 0) {
+  char c_hel = 0;
+  if (fProbeHelicity == -1)
+    c_hel = 'L';
+  else if (fProbeHelicity == 1)
+    c_hel = 'R';
+  if ( (pdg::IsDarkMatter(fProbePdg) ||  pdg::IsAntiDarkMatter(fProbePdg) ) && this->Probe()->Mass() > 0) {
     init_state << "dm_mass:" << this->Probe()->Mass() << ";";
+  }
+  else if ( pdg::IsChargedLepton(fProbePdg) && c_hel!=0 ) {
+    init_state << "probe-pdg:"  << this->ProbePdg()  << c_hel << ";";
   }
   else {
     init_state << "nu-pdg:"  << this->ProbePdg()  << ";";
@@ -430,7 +440,7 @@ void InitialState::Print(ostream & stream) const
 
   stream << " |--> probe        : "
          << "PDG-code = " << fProbePdg
-         << " (" << this->Probe()->GetName() << ")" << endl;
+         << " (" << this->Probe()->GetName() << "),   helicity = " << fProbeHelicity << endl;
 
   stream << " |--> nucl. target : "
          << "Z = "          << fTgt->Z()
@@ -496,10 +506,11 @@ void InitialState::Print(ostream & stream) const
 //___________________________________________________________________________
 bool InitialState::Compare(const InitialState & init_state) const
 {
-  int            probe  = init_state.ProbePdg();
-  const Target & target = init_state.Tgt();
+  int            probe    = init_state.ProbePdg();
+  const Target & target   = init_state.Tgt();
+  int            helicity = init_state.ProbeHelicity();
 
-  bool equal = (fProbePdg == probe) && (*fTgt == target);
+  bool equal = (fProbePdg == probe) && (*fTgt == target) && (fProbeHelicity == helicity);
 
   return equal;
 }
@@ -513,5 +524,19 @@ InitialState & InitialState::operator = (const InitialState & init_state)
 {
   this->Copy(init_state);
   return (*this);
+}
+//___________________________________________________________________________
+int InitialState::ProbeHelicity (void) const
+{
+   return fProbeHelicity;
+}
+//___________________________________________________________________________
+void InitialState::SetProbeHelicity (int helicity)
+{
+   fProbeHelicity = helicity;
+   if ( pdg::IsNeutrino(fProbePdg) )
+     fProbeHelicity = -1;
+   else if ( pdg::IsAntiNeutrino(fProbePdg) )
+     fProbeHelicity = 1;
 }
 //___________________________________________________________________________

@@ -577,6 +577,21 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/NORM            </param>
   </param_set>
+  
+  <param_set name="DCCSPPCC"> 
+     <param type="int" name="NGenerators">   1                                    </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DCCSPP-CC      </param>
+  </param_set>
+  
+    <param_set name="DCCSPPEM"> 
+     <param type="int" name="NGenerators">   1                                    </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DCCSPP-EM      </param>
+  </param_set>
+    
+ <param_set name="DCCSPPNC"> 
+     <param type="int" name="NGenerators">   1                                    </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DCCSPP-NC      </param>
+  </param_set>
 
 </alg_conf>
 

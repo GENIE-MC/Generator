@@ -253,6 +253,12 @@ string Interaction::AsString(void) const
   const Target & tgt = fInitialState->Tgt();
 
   ostringstream interaction;
+  
+  char c_hel = 0;
+  if (fInitialState->ProbeHelicity() == -1)
+    c_hel = 'L';
+  else if (fInitialState->ProbeHelicity() == 1)
+    c_hel = 'R';
 
   // If the probe has non-zero mass, then it is DM
   if (fInitialState->Probe()->PdgCode() == kPdgDarkMatter) {
@@ -260,6 +266,9 @@ string Interaction::AsString(void) const
   }
   else if (fInitialState->Probe()->PdgCode() == kPdgAntiDarkMatter) {
     interaction << "dmb;";
+  }
+  else if ( pdg::IsChargedLepton(fInitialState->ProbePdg()) && c_hel!=0 ){
+     interaction << "lep:"  << fInitialState->ProbePdg() << c_hel << ";";
   }
   else {
     interaction << "nu:"  << fInitialState->ProbePdg() << ";";
@@ -1104,3 +1113,79 @@ Interaction * Interaction::HNL(int probe, double E, int decayed_mode)
 
   return interaction;
 }
+//___________________________________________________________________________
+Interaction * Interaction::SPPCC(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScSinglePion, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::SPPCC(
+           int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScSinglePion, kIntWeakCC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::SPPNC(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScSinglePion, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::SPPNC(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScSinglePion, kIntWeakNC);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::SPPEM(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScSinglePion, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::SPPEM(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScSinglePion, kIntEM);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
