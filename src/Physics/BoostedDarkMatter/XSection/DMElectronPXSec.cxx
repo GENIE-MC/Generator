@@ -128,7 +128,9 @@ double DMElectronPXSec::XSec(
   //      Check whether variable tranformation is needed
   if(kps!=kPSyfE) {
     double J = utils::kinematics::Jacobian(interaction,kPSyfE,kps);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Elastic", pDEBUG) << "Multiplying by jacobian " << J;
+#endif
     xsec *= J;
   }
 
@@ -138,8 +140,9 @@ double DMElectronPXSec::XSec(
   //----- Scale for the number of scattering centers at the target
   int Ne = init_state.Tgt().Z(); // num of scattering centers
   xsec *= Ne;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Elastic", pDEBUG) << "Multiplying by Ne " << Ne;  
-
+#endif
   return xsec;
 }
 //____________________________________________________________________________

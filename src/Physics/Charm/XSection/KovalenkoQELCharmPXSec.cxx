@@ -157,16 +157,16 @@ double KovalenkoQELCharmPXSec::DR(const Interaction * interaction) const
 
   double vR_minus  = ( TMath::Power(MR-DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
   double vR_plus   = ( TMath::Power(MR+DeltaR,2) - Mnuc2 + Q2 ) / (2*Mnuc);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pDEBUG)
     << "vR = [plus: " << vR_plus << ", minus: " << vR_minus << "]";
-
+#endif
   double xi_bar_minus  = 0.999;
   double xi_bar_plus  = this->xiBar(Q2, Mnuc, vR_plus);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pDEBUG)
     << "Integration limits = [" << xi_bar_plus << ", " << xi_bar_minus << "]";
-
+#endif
   int pdgc = init_state.Tgt().HitNucPdg();
 
   ROOT::Math::IBaseFunctionOneDim * integrand = new
@@ -354,10 +354,10 @@ double utils::gsl::wrap::KovQELCharmIntegrand::DoEval(double xin) const
   fPDF->Calculate(xin, fQ2);
   bool isP = pdg::IsProton(fPdgC);
   double f = (isP) ? fPDF->DownValence() : fPDF->UpValence();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pDEBUG)
         << "f(xin = " << xin << ", Q2 = " << fQ2 << ") = " << f;
-
+#endif
   return f;
 }
 //____________________________________________________________________________

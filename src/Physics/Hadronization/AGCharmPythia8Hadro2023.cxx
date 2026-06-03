@@ -137,31 +137,32 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 
   double m1 = gPythia->particleData.m0(qrkSyst1);
   double m2 = gPythia->particleData.m0(qrkSyst2);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AGCharmPythia8Hadro2023", pINFO) // debug
     << " qrkSyst1 " << qrkSyst1 << " m1 " << m1
     << " qrkSyst2 " << qrkSyst2 << " m2 " << m2
     << " WR " << WR << " p4R " << genie::utils::print::P4AsString(&p4R);
-
+#endif
   double pz1cm = 0.5 * Pythia8::sqrtpos(
     (WR + m1 + m2)*(WR - m1 -m2)*(WR - m1 + m2)*(WR + m1 - m2) ) / WR;
 
   double pz2cm = - pz1cm;
   double e1    = sqrt(m1*m1 + pz1cm*pz1cm);
   double e2    = sqrt(m2*m2 + pz2cm*pz2cm);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AGCharmPythia8Hadro2023", pINFO) // debug
     << " qrkSyst1 pz=" << pz1cm << ", E=" << e1
     << " qrkSyst2 pz=" << pz2cm << ", E=" << e2;
-
+#endif
   // status codes and anti/collor tags must complement each other
   // id, status, int col, int acol, px,py,pz,E,m,scale=0,pol=9
   gPythia->event.append(qrkSyst1,23,101,  0,0.,0.,pz1cm,e1,m1);
   gPythia->event.append(qrkSyst2,23,  0,101,0.,0.,pz2cm,e2,m2);
   //gPythia->event.list();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AGCharmPythia8Hadro2023", pDEBUG)
     << "Generating next PYTHIA8 event";
+#endif
   // Generating next pythia8 event
   gPythia->next();
 

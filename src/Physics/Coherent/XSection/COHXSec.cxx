@@ -55,7 +55,9 @@ double COHXSec::Integrate(
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("COHXSec", pDEBUG)  << "*** Below energy threshold";
+#endif
      return 0;
   }
   Range1D_t xl = kps.Limits(kKVx);

@@ -146,10 +146,10 @@ void DFRKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
      interaction->KinePtr()->Setx(gx);
      interaction->KinePtr()->Sety(gy);
      interaction->KinePtr()->Sett(gt);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DFRKinematics", pDEBUG)
        << "Trying: x = " << gx << ", y = " << gy << ", t = " << gt;
-
+#endif
      //-- compute the cross section for current kinematics
      xsec = fXSecModel->XSec(interaction, kPSxytfE);
 

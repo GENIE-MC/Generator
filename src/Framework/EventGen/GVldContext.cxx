@@ -54,9 +54,9 @@ void GVldContext::Decode(string encoded_vld_context)
     fEmin = gc->GetDouble("GVLD-Emin");
     fEmax = gc->GetDouble("GVLD-Emax");
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("VldContext", pDEBUG) << "Validity context: " << vldc;
-
+#endif
   vector<string> fields = utils::str::Split(vldc, ";");
   if(fields.size()==0) return;
 
@@ -85,8 +85,9 @@ void GVldContext::Decode(string encoded_vld_context)
 //___________________________________________________________________________
 void GVldContext::DecodeENERGY(string encoded_energy)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("VldContext", pDEBUG) << "Decoding energy range: " << encoded_energy;
-
+#endif
   vector<string> energy = utils::str::Split(encoded_energy, "-");
   assert (energy.size() == 2);
   fEmin = atof( energy[0].c_str() );

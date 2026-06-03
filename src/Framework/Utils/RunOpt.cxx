@@ -98,7 +98,9 @@ void RunOpt::BuildTune()
 //____________________________________________________________________________
 void RunOpt::ReadFromCommandLine(int argc, char ** argv)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("RunOpt",pDEBUG) << "Reading "<<argc-1<<" command line arguments.";
+#endif
   CmdLnArgParser parser(argc,argv);
 
   if( parser.OptionExists("enable-bare-xsec-pre-calc") ) {

@@ -149,11 +149,12 @@ double genie::utils::kinematics::Jacobian(
 //                    |                            |
 //                    |  ...     ...    ...    ... |
 //
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG)
        << "Computing Jacobian for transformation: "
        << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
-
+#endif
   double J=0;
   bool forward;
   const Kinematics & kine = i->Kine();
@@ -389,9 +390,10 @@ Range1D_t genie::utils::kinematics::InelQ2Lim_W(
   double ml2 = TMath::Power(ml, 2.);
   double W2  = TMath::Power(W,  2.);
   double s   = M2 + 2*M*Ev;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
+#endif
   assert (s>0);
 
   double auxC = 0.5*(s-M2)/s;
@@ -462,9 +464,10 @@ Range1D_t genie::utils::kinematics::InelXLim(double Ev, double M, double ml)
   double M2  = TMath::Power(M, 2.);
   double ml2 = TMath::Power(ml,2.);
   double s   = M2 + 2*M*Ev;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
+#endif
   assert (s>M2);
 
   Range1D_t x;
@@ -505,7 +508,9 @@ Range1D_t genie::utils::kinematics::InelYLim(double Ev, double M, double ml)
     y.min = -1;
     y.max = -1;
   }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
+#endif
   return y;
 }
 //____________________________________________________________________________
@@ -521,10 +526,10 @@ Range1D_t genie::utils::kinematics::InelYLim_X(
 
   double Ev2 = TMath::Power(Ev,2);
   double ml2 = TMath::Power(ml,2);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "x  = " << x;
   SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
-
+#endif
   assert (Ev>0);
   assert (x>0&&x<1);
 
@@ -579,9 +584,10 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelQ2Lim_W(
   double ml2 = TMath::Power(ml, 2.);
   double W2  = TMath::Power(W,  2.);
   double s   = M2 + 2*M*El + ml2; // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "El = " << El;
+#endif
   assert (s>0);
 
   double auxC = 0.5*(s - M2 - ml2)/s; // subtract ml2 to account for the non-negligible mass of the incoming lepton
@@ -652,9 +658,10 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelXLim(double El, double 
   double M2  = TMath::Power(M, 2.);
   double ml2 = TMath::Power(ml,2.);
   double s   = M2 + 2*M*El + ml2; // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "El = " << El;
+#endif
   assert (s > M2 + ml2); // added lepton mass squared to be used in s calculation (non-negligible mass for em interactions)
 
   Range1D_t x;
@@ -695,7 +702,9 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelYLim(double El, double 
     y.min = -1;
     y.max = -1;
   }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
+#endif
   return y;
 }
 //____________________________________________________________________________
@@ -711,10 +720,10 @@ Range1D_t genie::utils::kinematics::electromagnetic::InelYLim_X(
 
   double El2 = TMath::Power(El,2);
   double ml2 = TMath::Power(ml,2);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "x  = " << x;
   SLOG("KineLimits", pDEBUG) << "El = " << El;
-
+#endif
   assert (El>0);
   assert (x>0&&x<1);
 
@@ -846,12 +855,14 @@ Range1D_t genie::utils::kinematics::CohYLim(double Mn, double m_produced, double
 
   Range1D_t W2lim = genie::utils::kinematics::CohW2Lim(Mn, m_produced, mlep, Ev, Q2);
   if (W2lim.min > W2lim.max) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("KineLimits", pDEBUG)
       << "Kinematically forbidden region in CohYLim. W2min = " << W2lim.min
       << "; W2max =" << W2lim.max;
     LOG("KineLimits", pDEBUG)
       << "  Mn = " << Mn << "; m_had_sys = " << m_produced << "; mlep = "
       << mlep << "; Ev = " << Ev << "; Q2 = " << Q2;
+#endif
     return ylim;
   }
   Range1D_t nulim = genie::utils::kinematics::CohNuLim(W2lim.min, W2lim.max,
@@ -933,7 +944,7 @@ Range1D_t genie::utils::kinematics::DarkQ2Lim_W(
   double E3CM = (s + ml2 - W2) / (2.*sqs);
   double p3CM = TMath::Max(0., E3CM*E3CM - ml2);
   p3CM = TMath::Sqrt(p3CM);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "s  = " << s;
   SLOG("KineLimits", pDEBUG) << "Ev = " << Ev;
   SLOG("KineLimits", pDEBUG) << "M = " << M;
@@ -942,11 +953,12 @@ Range1D_t genie::utils::kinematics::DarkQ2Lim_W(
   SLOG("KineLimits", pDEBUG) << "p1_CM = " << p1CM;
   SLOG("KineLimits", pDEBUG) << "E3_CM = " << E3CM;
   SLOG("KineLimits", pDEBUG) << "p3_CM = " << p3CM;
-
+#endif
   Q2.min = TMath::Power(p3CM - p1CM,2) - TMath::Power((W2 - M2) / (2.*sqs),2);
   Q2.max = TMath::Power(p3CM + p1CM,2) - TMath::Power((W2 - M2) / (2.*sqs),2);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "Nominal Q^2 limits: " << Q2.min << " , " << Q2.max;
+#endif
   // guard against overflows
   Q2.max = TMath::Max(0., Q2.max);
   Q2.min = TMath::Max(0., Q2.min);
@@ -1006,15 +1018,20 @@ Range1D_t genie::utils::kinematics::DarkXLim(double Ev, double M, double ml)
   Range1D_t Wl = utils::kinematics::DarkWLim(Ev, M, ml);
   double Wmin = Wl.min;
   double W2min = Wmin*Wmin;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "W^2_min = " << W2min;
+#endif
   Range1D_t Q2l = utils::kinematics::DarkQ2Lim_W(Ev, M, ml, Wmin);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "Q^2 range : " << Q2l.min << " , " << Q2l.max;
+#endif
   double M2 = M*M;
   Range1D_t x;
   x.min = Q2l.min / (Q2l.min + W2min - M2);
   x.max = Q2l.max / (Q2l.max + W2min - M2);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "x  = [" << x.min << ", " << x.max << "]";
+#endif
   return x;
 }
 //____________________________________________________________________________
@@ -1029,8 +1046,9 @@ Range1D_t genie::utils::kinematics::DarkYLim(double Ev, double M, double ml)
   Range1D_t y;
   y.min = (Q2l.min + W2min - M2) / (2*Ev*M);
   y.max = (Q2l.max + W2min - M2) / (2*Ev*M);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KineLimits", pDEBUG) << "y  = [" << y.min << ", " << y.max << "]";
+#endif
   return y;
 }
 //____________________________________________________________________________
@@ -1147,9 +1165,10 @@ void genie::utils::kinematics::WQ2toXY(
   y = TMath::Min(1.,y);
   x = TMath::Max(0.,x);
   y = TMath::Max(0.,y);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KineLimits", pDEBUG)
         << "(W=" << W << ",Q2=" << Q2 << ") => (x="<< x << ", y=" << y<< ")";
+#endif
 }
 //___________________________________________________________________________
 void genie::utils::kinematics::XYtoWQ2(
@@ -1165,9 +1184,10 @@ void genie::utils::kinematics::XYtoWQ2(
 
   W  = TMath::Sqrt(TMath::Max(0., W2));
   Q2 = 2*x*y*M*Ev;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KineLimits", pDEBUG)
       << "(x=" << x << ",y=" << y << " => (W=" << W << ",Q2=" << Q2 << ")";
+#endif
 }
 //___________________________________________________________________________
 void genie::utils::kinematics::XQ2toWY(
@@ -1184,9 +1204,10 @@ void genie::utils::kinematics::XQ2toWY(
 
   double W2  = M2 + 2*Ev*M*y*(1-x);
   W  = TMath::Sqrt(TMath::Max(0., W2));
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KineLimits", pDEBUG)
       << "(x=" << x << ",Q2=" << Q2 << " => (W=" << W << ",Y=" << y << ")";
+#endif
 }
 //___________________________________________________________________________
 double genie::utils::kinematics::XYtoW(
@@ -1199,9 +1220,9 @@ double genie::utils::kinematics::XYtoW(
   double M2  = TMath::Power(M,2);
   double W2  = M2 + 2*Ev*M*y*(1-x);
   double W  = TMath::Sqrt(TMath::Max(0., W2));
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KineLimits", pDEBUG) << "(x=" << x << ",y=" << y << ") => W=" << W;
-
+#endif
   return W;
 }
 //___________________________________________________________________________
@@ -1213,9 +1234,9 @@ double genie::utils::kinematics::XYtoQ2(
 // M is the nucleon mass - it does not need to be on the mass shell
 
   double Q2 = 2*x*y*M*Ev;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KineLimits", pDEBUG) << "(x=" << x << ",y=" << y << ") => Q2=" << Q2;
-
+#endif
   return Q2;
 }
 //___________________________________________________________________________
@@ -1228,10 +1249,10 @@ double genie::utils::kinematics::Q2YtoX(
   assert(Ev > 0. && M  > 0. && Q2 > 0. && y  > 0.);
 
   double x = Q2 / (2. * y * M * Ev);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("KineLimits", pDEBUG) << "(Ev=" << Ev << ",Q2=" << Q2
     << ",y=" << y << ",M=" << M << ") => x=" << x;
-
+#endif
   return x;
 }
 //___________________________________________________________________________

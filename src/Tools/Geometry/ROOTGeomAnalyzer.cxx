@@ -74,8 +74,10 @@ ROOTGeomAnalyzer::ROOTGeomAnalyzer(string geometry_filename)
 ///
 /// Constructor from a geometry file
 ///
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
     << "ROOTGeomAnalyzer ctor \"" << geometry_filename << "\"";
+#endif
   this->Initialize();
   this->Load(geometry_filename);
 }
@@ -87,8 +89,10 @@ ROOTGeomAnalyzer::ROOTGeomAnalyzer(TGeoManager * gm)
 ///
 /// Constructor from a TGeoManager
 ///
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GROOTGeom", pDEBUG)
     << "ROOTGeomAnalyzer ctor passed TGeoManager*";
+#endif
   this->Initialize();
   this->Load(gm);
 }
@@ -1138,14 +1142,14 @@ void ROOTGeomAnalyzer::MaxPathLengthsBoxMethod(void)
        }
     }
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   // print out the results
   LOG("GROOTGeom", pDEBUG)
     << "DensWeight \"" << (fDensWeight?"true":"false")
     << "\" MixtWghtSum " << fMixtWghtSum;
   LOG("GROOTGeom", pDEBUG) << "CurrMaxPathLengthList: "
     << *fCurrMaxPathLengthList;
-
+#endif
 #ifdef RWH_COUNTVOLS
   // rwh
   // print statistics for average,rms of number of volumes seen for
@@ -1514,8 +1518,10 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
           // the top volume (here for debug purposes)
           // Clear out the step range even if we keep it
           ps_curr.fStepRangeSet.clear();
-          LOG("GROOTGeom", pNOTICE)
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+          LOG("GROOTGeom", pDEBUG)
             << "debug: step towards top volume: " << ps_curr;
+#endif
           fCurrPathSegmentList->AddSegment(ps_curr);
         }
 

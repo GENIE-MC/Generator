@@ -194,8 +194,10 @@ void AMNuGammaGenerator::AddTargetRemnant(GHepRecord * evrec) const
   // Skip for non nuclear targets
   GHepParticle * nucleus = evrec->TargetNucleus();
   if (!nucleus) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("AMNuGammaGenerator", pDEBUG)
      << "No nucleus in the initial state - no remnant nucleus to add in the f/s";
+#endif
     return;
   }
 

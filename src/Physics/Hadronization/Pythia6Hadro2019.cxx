@@ -194,11 +194,11 @@ bool Pythia6Hadro2019::Hadronize(GHepRecord *
          vtx.Z(),            // z
          vtx.T()             // t
      );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("Pythia6Had", pDEBUG)
           << "Adding final state particle pdgc = " << particle.Pdg()
           << " with status = " << particle.Status();
-
+#endif
      // Insert the particle in the list
      event->AddParticle(particle);
   }
@@ -319,8 +319,9 @@ void Pythia6Hadro2019::LoadConfig(void)
   fPythia->SetPARJ(42, fLundb                  );
   fPythia->SetPARJ(45, fLundaDiq               );
 #endif
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia6Had", pDEBUG) << this->GetConfig() ;
+#endif
 }
 //____________________________________________________________________________
 void Pythia6Hadro2019::Initialize(void)

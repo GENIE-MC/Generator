@@ -189,10 +189,11 @@ void OutgoingDarkGenerator::AddToEventRecord(
     double pmag_old = p4l.P();
     double pmag_new = TMath::Sqrt(utils::math::NonNegative(El*El-m*m));
     double scale    = pmag_new / pmag_old;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("LeptonicVertex", pDEBUG)
          << "|pnew| = " << pmag_new << ", |pold| = " << pmag_old
          << ", scale = " << scale;
-
+#endif
     double pxl = scale * p4l.Px();
     double pyl = scale * p4l.Py();
     double pzl = scale * p4l.Pz();

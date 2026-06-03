@@ -47,9 +47,10 @@ void genie::utils::gui::FillListBox(
 //____________________________________________________________________________
 void genie::utils::gui::SelectAllListBoxEntries(TGListBox * lb)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("GuiUtils", pDEBUG) << "Selecting all listbox entries";
   SLOG("GuiUtils", pDEBUG) << "n-entries = " << lb->GetNumberOfEntries();
-
+#endif
   for(int i = 0; i < lb->GetNumberOfEntries(); i++) lb->Select(i);
 
   lb->SelectionChanged();
@@ -57,9 +58,10 @@ void genie::utils::gui::SelectAllListBoxEntries(TGListBox * lb)
 //____________________________________________________________________________
 void genie::utils::gui::ResetAllListBoxSelections(TGListBox * lb)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("GuiUtils", pDEBUG) << "Reseting all listbox entries";
   SLOG("GuiUtils", pDEBUG) << "n-entries = " << lb->GetNumberOfEntries();
-
+#endif
   TList *     selected_entries = new TList();
   TGLBEntry * selected_entry   = 0;
 

@@ -79,9 +79,9 @@ void Pythia6Decayer2023::ProcessEventRecord(GHepRecord * event) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
     ipos++;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia6Decay", pDEBUG) << "Checking: " << p->Name();
-
+#endif
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
 
@@ -249,11 +249,11 @@ bool Pythia6Decayer2023::IsHandled(int pdg_code) const
 // does not handle requests to decay baryon resonances
 
  bool is_handled = (!utils::res::IsBaryonResonance(pdg_code));
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
  LOG("Pythia6Decay", pDEBUG)
     << "Can decay particle with PDG code = " << pdg_code
     << "? " << ((is_handled)? "Yes" : "No");
-
+#endif
   return is_handled;
 }
 //____________________________________________________________________________
@@ -415,10 +415,10 @@ bool Pythia6Decayer2023::MatchDecayChannels(int ichannel, TDecayChannel* dc) con
   for (int i = 1; i <= 5; i++) {
      if(fPythia->GetKFDP(ichannel,i) != 0) py_nd++;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia6Decay", pDEBUG)
     << "NDaughters: PYTHIA = " << py_nd << ", ROOT's TDecayChannel = " << nd;
-
+#endif
   if(nd != py_nd) return false;
 
   //

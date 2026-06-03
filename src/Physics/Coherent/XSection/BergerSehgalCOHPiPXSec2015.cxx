@@ -69,14 +69,18 @@ double BergerSehgalCOHPiPXSec2015::XSec(
   assert(y < 1.);
   double ppistar = PionCOMAbsMomentum(interaction); // |Center of Mass Momentum|
   if (ppistar <= 0.0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("BergerSehgalCohPi", pDEBUG) << "Pion COM momentum negative for Q2 = " << Q2 <<
       " x = " << x << " y = " << y;
+#endif
     return 0.0;
   }
   double front  = ExactKinematicTerm(interaction);
   if (front <= 0.0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("BergerSehgalCohPi", pDEBUG) << "Exact kin. form = " << front <<
       " E = " << E << " Q2 = " << Q2 << " y = " << y << " x = " << x;
+#endif
     return 0.0;
   }
 

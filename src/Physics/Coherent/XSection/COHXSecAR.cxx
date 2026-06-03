@@ -58,7 +58,9 @@ double COHXSecAR::Integrate(
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("COHXSecAR", pDEBUG)  << "*** Below energy threshold";
+#endif
      return 0;
   }
 

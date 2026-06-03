@@ -64,9 +64,9 @@ void Pythia8Decayer2023::ProcessEventRecord(GHepRecord * event) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
     ipos++;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Decay", pDEBUG) << "Checking: " << p->Name();
-
+#endif
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
 
@@ -286,11 +286,11 @@ bool Pythia8Decayer2023::IsHandled(int pdg_code) const
 // does not handle requests to decay baryon resonances
 
  bool is_handled = (!utils::res::IsBaryonResonance(pdg_code));
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
  LOG("Pythia8Decay", pDEBUG)
     << "Can decay particle with PDG code = " << pdg_code
     << "? " << ((is_handled)? "Yes" : "No");
-
+#endif
   return is_handled;
 }
 //____________________________________________________________________________
@@ -314,8 +314,10 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
   int ifirst_chan = 0;
   int ilast_chan  = pdentry->sizeChannels() - 1;
   if (ilast_chan < 0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Decay", pDEBUG)
       << "No available decay channels for " << pdg_code;
+#endif
     return;
   }
 
@@ -386,8 +388,10 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
   int ifirst_chan = 0;
   int ilast_chan  = pdentry->sizeChannels() - 1;
   if (ilast_chan < 0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Decay", pDEBUG)
       << "No available decay channels for " << pdg_code;
+#endif
     return;
   }
 

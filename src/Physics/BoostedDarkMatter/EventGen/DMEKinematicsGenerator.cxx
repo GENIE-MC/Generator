@@ -116,8 +116,9 @@ void DMEKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         this->AssertXSecLimits(interaction, xsec, xsec_max);
 
         double t = xsec_max * rnd->RndKine().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("DMEKinematics", pDEBUG) << "xsec= "<< xsec<< ", J= 1, Rnd= "<< t;
-
+#endif
         accept = (t<xsec);
      } else {
        accept = (xsec>0);
@@ -182,8 +183,9 @@ double DMEKinematicsGenerator::ComputeMaxXSec(
     double y = ymin + i * dy;
     interaction->KinePtr()->Sety(y);
     double xsec = fXSecModel->XSec(interaction, kPSyfE);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     SLOG("DMEKinematics", pDEBUG) << "xsec(y = " << y << ") = " << xsec;
+#endif
     max_xsec = TMath::Max(xsec, max_xsec);
 /*
     increasing = xsec-xseclast>=0;
@@ -210,11 +212,11 @@ double DMEKinematicsGenerator::ComputeMaxXSec(
   // Apply safety factor, since value retrieved from the cache might
   // correspond to a slightly different energy.
   max_xsec *= fSafetyFactor;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("DMEKinematics", pDEBUG) << interaction->AsString();
   SLOG("DMEKinematics", pDEBUG) << "Max xsec in phase space = " << max_xsec;
   SLOG("DMEKinematics", pDEBUG) << "Computed using alg = " << *fXSecModel;
-
+#endif
   return max_xsec;
 }
 //___________________________________________________________________________

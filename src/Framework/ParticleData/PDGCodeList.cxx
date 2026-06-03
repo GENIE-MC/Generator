@@ -82,8 +82,10 @@ bool PDGCodeList::CheckPDGCode(int pdg_code) const
   if(!fAllowDuplicateEntries) {
     bool added = this->ExistsInPDGCodeList(pdg_code);
     if(added) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("PDG", pDEBUG)
                 << "Particle [pdgc = " << pdg_code << "] was already added";
+#endif
       return false;
     }
   }

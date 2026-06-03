@@ -138,9 +138,9 @@ int Interaction::FSPrimLeptonPdg(void) const
   const XclsTag &      xclstag    = this -> ExclTag();
 
   int pdgc = init_state.ProbePdg();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Interaction", pDEBUG) << "Probe PDG code: " << pdgc;
-
+#endif
   if (proc_info.IsNuElectronElastic())
     return kPdgElectron;
 
@@ -214,8 +214,9 @@ int Interaction::RecoilNucleonPdg(void) const
        recoil_nuc = struck_nuc; // NC, EM
     }
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Interaction", pDEBUG) << "Recoil nucleon PDG = " << recoil_nuc;
+#endif
   return recoil_nuc;
 }
 //___________________________________________________________________________

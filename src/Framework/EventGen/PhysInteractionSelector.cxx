@@ -103,10 +103,10 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 
      Interaction * interaction = new Interaction(**intliter);
      interaction->InitStatePtr()->SetProbeP4(p4);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      SLOG("IntSel", pDEBUG)
            << "Computing xsec for: \n  " << interaction->AsString();
-
+#endif
      // get the cross section for this interaction
      const XSecAlgorithmI * xsec_alg =
                igmap->FindGenerator(interaction)->CrossSectionAlg();

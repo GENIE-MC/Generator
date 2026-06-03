@@ -126,7 +126,9 @@ bool GSimFiles::LoadFromFile(string xmlfile)
        bool end_element   = (type==kNodeTypeEndElement);
 
        if(depth==0 && start_element) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("GSimFiles", pDEBUG) << "Root element = " << name;
+#endif
          if(xmlStrcmp(name, (const xmlChar *) "genie_simulation_outputs")) {
            LOG("GSimFiles", pERROR)
              << "\nXML doc. has invalid root element! [filename: "

@@ -122,7 +122,9 @@ string TuneId::TuneDirectory   (void) const {
 }
 //____________________________________________________________________________
 void TuneId::Build(const string & name ) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("TuneId",pDEBUG)<<"Building tune "<<name;
+#endif
   if ( name.size() > 0 ) fName = name ;
 
   this -> Decode( fName );

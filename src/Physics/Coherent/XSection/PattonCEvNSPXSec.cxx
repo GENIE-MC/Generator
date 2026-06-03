@@ -68,15 +68,16 @@ double PattonCEvNSPXSec::XSec(
   int A   = Z+N;
   int target_nucleus_pdgc = pdg::IonPdgCode(A,Z);
   double M = PDGLibrary::Instance()->Find(target_nucleus_pdgc)->Mass(); // units: GeV
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("CEvNS", pDEBUG) << "M = " << M << " GeV";
-
+#endif
   // Calculation of nuclear recoil kinetic energy computed from input Q2
   double TA = Q2*E / (2*E*M+Q2); // nuclear recoil kinetic energy
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("CEvNS", pDEBUG)
     << "Q2 = " << Q2 << " GeV^2, E = " << E << " GeV "
     << "--> TA = " << TA << " GeV";
-
+#endif
   // auxiliary variables
   double E2  = E*E;
   double TA2 = TA*TA;
@@ -95,13 +96,13 @@ double PattonCEvNSPXSec::XSec(
   double Rn2 = this->NuclearDensityMoment(A, 2) / avg_density; // units: fm^2
   double Rn4 = this->NuclearDensityMoment(A, 4) / avg_density; // units: fm^4
   double Rn6 = this->NuclearDensityMoment(A, 6) / avg_density; // units: fm^6
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("CEvNS", pDEBUG)
     << "Nuclear density moments:"
     << " <Rn^2> = " << Rn2 << " fm^2,"
     << " <Rn^4> = " << Rn4 << " fm^4,"
     << " <Rn^6> = " << Rn6 << " fm^6";
-
+#endif
   Rn2 *= TMath::Power(units::fm, 2.); // units: GeV^-2
   Rn4 *= TMath::Power(units::fm, 4.); // units: GeV^-4
   Rn6 *= TMath::Power(units::fm, 6.); // units: GeV^-6
@@ -117,18 +118,18 @@ double PattonCEvNSPXSec::XSec(
   double F  = (Fn - (1-4*fSin2thw)*Fp); // units: -
   F = TMath::Max(0.,F);
   double F2 = F*F; // units: -
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("CEvNS", pDEBUG)
     << "Form factors: Fp = " << Fp << ", Fn = " << Fn << ", F = " << F;
-
+#endif
   // dsig/dTA calculation
   double const_factor = 0.125*kGF2/kPi; // units: GeV^-4
   double kinematic_term = M * (2 - 2*TA/E + TA2/E2 - M*TA/E2); // units: GeV
   kinematic_term = TMath::Max(0., kinematic_term);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("CEvNS", pDEBUG)
     << "kinematic term: " << kinematic_term;
-
+#endif
   double xsec = const_factor * kinematic_term * F2; // units: GeV^-3 (area/GeV)
 
   LOG("CEvNS", pINFO)

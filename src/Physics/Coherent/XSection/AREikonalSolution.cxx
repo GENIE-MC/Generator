@@ -254,7 +254,9 @@ double AREikonalSolution::Qcm(const double s)
 
 AREikonalSolution::AREikonalSolution(bool debug, AlvarezRusoCOHPiPDXSec* parent): ARWFSolution(debug), parent_(parent)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if( debug_ ) std::cerr << "AREikonalSolution::AREikonalSolution" << std::endl;
+#endif
   this->fNucleus   = &(this->Parent()->GetNucleus());
   this->constants_ = &(this->Parent()->GetConstants());
   owns_constants = false;
@@ -262,7 +264,9 @@ AREikonalSolution::AREikonalSolution(bool debug, AlvarezRusoCOHPiPDXSec* parent)
 
 AREikonalSolution::AREikonalSolution(bool debug, ARSampledNucleus* nucl): ARWFSolution(debug), fNucleus(nucl)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if( debug_ ) std::cerr << "AREikonalSolution::AREikonalSolution" << std::endl;
+#endif
   this->constants_ = new ARConstants();
   owns_constants = true;
 }

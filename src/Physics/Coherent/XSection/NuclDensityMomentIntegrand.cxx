@@ -23,12 +23,13 @@ ROOT::Math::IBaseFunctionOneDim()
 {
   fA  = A;
   fK  = k;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if(fK < 0) {
      LOG("Nuclear", pDEBUG)
         << "Sure you want to calculate an inverse nuclear density moment ("
         << "E[r^{" << fK << "}]) ?";
   }
+#endif
   if(fA <= 1) {
      LOG("Nuclear", pWARN)
         << "The atomic mass number A should be >1 (input value was: "

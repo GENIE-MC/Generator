@@ -29,8 +29,9 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GINV = BRCalc->DecayWidth( kHNLDcyNuNuNu );
     if( IsMajorana ) GINV *= 2.0;
     fDecayGammas[0] = GINV;
-    LOG("HNL", pDEBUG)
-      << " Invisible decay gamma = " << fDecayGammas[0];
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("HNL", pDEBUG)  << " Invisible decay gamma = " << fDecayGammas[0];
+#endif
   } else GINV = fDecayGammas[0];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyNuNuNu, GINV ) );
 
@@ -44,8 +45,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GNEE = BRCalc->DecayWidth( kHNLDcyNuEE );
     if( IsMajorana ) GNEE *= 2.0;
     fDecayGammas[1] = GNEE;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Nu-e-e gamma = " << fDecayGammas[1];
+#endif
   } else GNEE = fDecayGammas[1];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyNuEE, GNEE ) );
 
@@ -59,8 +62,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GNEM = BRCalc->DecayWidth( kHNLDcyNuMuE );
     if( IsMajorana ) GNEM *= 2.0;
     fDecayGammas[2] = GNEM;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Nu-e-mu gamma = " << fDecayGammas[2];
+#endif
   } else GNEM = fDecayGammas[2];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyNuMuE, GNEM ) );
 
@@ -74,8 +79,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GP0N = BRCalc->DecayWidth( kHNLDcyPi0Nu );
     if( IsMajorana ) GP0N *= 2.0;
     fDecayGammas[3] = GP0N;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Pi0-nu gamma = " << fDecayGammas[3];
+#endif
   } else GP0N = fDecayGammas[3];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyPi0Nu, GP0N ) );
 
@@ -89,8 +96,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GPIE = BRCalc->DecayWidth( kHNLDcyPiE );
     if( IsMajorana ) GPIE *= 2.0;
     fDecayGammas[4] = GPIE;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Pi-e gamma = " << fDecayGammas[4];
+#endif
   } else GPIE = fDecayGammas[4];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyPiE, GPIE) );
 
@@ -104,8 +113,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GNMM = BRCalc->DecayWidth( kHNLDcyNuMuMu );
     if( IsMajorana ) GNMM *= 2.0;
     fDecayGammas[5] = GNMM;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Nu-mu-mu gamma = " << fDecayGammas[5];
+#endif
   } else GNMM = fDecayGammas[5];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyNuMuMu, GNMM ) );
 
@@ -119,8 +130,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GPIM = BRCalc->DecayWidth( kHNLDcyPiMu );
     if( IsMajorana ) GPIM *= 2.0;
     fDecayGammas[6] = GPIM;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Pi-mu gamma  = " << fDecayGammas[6];
+#endif
   } else GPIM = fDecayGammas[6];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyPiMu, GPIM ) );
 
@@ -134,8 +147,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GP02 = BRCalc->DecayWidth( kHNLDcyPi0Pi0Nu );
     if( IsMajorana ) GP02 *= 2.0;
     fDecayGammas[7] = GP02;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Pi0-pi0-nu gamma = " << fDecayGammas[7];
+#endif
   } else fDecayGammas[7] = GP02;
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyPi0Pi0Nu, GP02 ) );
 
@@ -149,8 +164,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GP0E = BRCalc->DecayWidth( kHNLDcyPiPi0E );
     if( IsMajorana ) GP0E *= 2.0;
     fDecayGammas[8] = GP0E;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Pi-pi0-e gamma = " << fDecayGammas[8];
+#endif
   } else GP0E = fDecayGammas[8];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyPiPi0E, GP0E ) );
 
@@ -164,8 +181,10 @@ std::map< HNLDecayMode_t, double > selector::GetValidChannelWidths( const double
     GP0M = BRCalc->DecayWidth( kHNLDcyPiPi0Mu );
     if( IsMajorana ) GP0M *= 2.0;
     fDecayGammas[9] = GP0M;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HNL", pDEBUG)
       << " Pi-pi0-mu gamma = " << fDecayGammas[9];
+#endif
   } else GP0M = fDecayGammas[9];
   allChannels.insert( allChannels.begin(), std::pair< HNLDecayMode_t, double >( kHNLDcyPiPi0Mu, GP0M ) );
 
@@ -181,12 +200,12 @@ double selector::GetTotalDecayWidth( std::map< HNLDecayMode_t, double > gammaMap
   double totGamma = 0.0;
 
   for( std::map< HNLDecayMode_t, double >::iterator it = gammaMap.begin(); it != gammaMap.end(); ++it ){ totGamma += (*it).second; }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNL", pDEBUG)
     << " Total gamma from N_channels = " << gammaMap.size()
     << " is = " << totGamma << " [GeV]"
     << " or = " << totGamma * genie::units::GeV * genie::units::ns << " [ns^{-1}]";
-
+#endif
   return totGamma;
 }
 

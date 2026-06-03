@@ -53,11 +53,11 @@ bool Decayer::ToBeDecayed(int pdg_code, GHepStatus_t status_code) const
   // Check whether it is "unstable" (definition can vary)
 
   bool is_unstable = this->IsUnstable(pdg_code);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Decay", pDEBUG)
     << "Particle is unstable? "
     << ((is_unstable) ? "Yes" : "No");
-
+#endif
   if(!is_unstable) return false;
 
   // Check whether the given unstable particle
@@ -75,12 +75,12 @@ bool Decayer::ToBeDecayed(int pdg_code, GHepStatus_t status_code) const
     to_be_decayed =
       (status_code == kIStStableFinalState);
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Decay", pDEBUG)
       << "Particle to be decayed "
       << "[" << ((fRunBefHadroTransp) ? "Before" : "After") << " FSI]? "
       << ((to_be_decayed) ? "Yes" : "No");
-
+#endif
   return to_be_decayed;
 }
 //___________________________________________________________________________
@@ -178,14 +178,18 @@ void Decayer::LoadConfig(void)
       continue;
     }
     if(decay) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("Decay", pDEBUG)
             << "Configured to decay " <<  p->GetName();
+#endif
        fParticlesToDecay.push_back(pdgc);
        this->UnInhibitDecay(pdgc);
     }
     else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("Decay", pDEBUG)
             << "Configured to inhibit decays for  " <<  p->GetName();
+#endif
        fParticlesNotToDecay.push_back(pdgc);
        this->InhibitDecay(pdgc);
     }// decay?

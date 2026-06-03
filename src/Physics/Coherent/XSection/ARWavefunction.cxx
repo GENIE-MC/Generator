@@ -26,7 +26,9 @@ ARWavefunction::ARWavefunction(unsigned int sampling_in, bool debug)
   sampling_(2*sampling_in),
   wavefunction_(sampling_, std::vector<std::complex<double> >(sampling_, std::complex<double> (0.0,0.0)) )
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if(debug_) std::cerr << "WF@ Constructor" << std::endl;
+#endif
 }
 
 ARWavefunction::~ARWavefunction() {}

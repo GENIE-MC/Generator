@@ -258,14 +258,15 @@ TClonesArray * AGCharmPythiaBaseHadro2023::Hadronize(
 
      // Boost charm hadron 4-momentum from the LAB' to the HCM' frame
      //
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("CharmHad", pDEBUG)
        << "Charm hadron p4 (@LAB') = " << utils::print::P4AsString(&p4C);
-
+#endif
      p4C.Boost(beta);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("CharmHad", pDEBUG)
         << "Charm hadron p4 (@HCM') = " << utils::print::P4AsString(&p4C);
-
+#endif
      // Hadronic non-charm remnant 4p at HCM'
      TLorentzVector p4 = p4H - p4C;
      double wr = p4.M();
@@ -660,8 +661,10 @@ TClonesArray * AGCharmPythiaBaseHadro2023::Hadronize(
        }
        double gw = wmax * rnd->RndHadro().Rndm();
        accept_decay = (gw<=w);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("CharmHad", pDEBUG)
           << "Decay weight = " << w << " / R = " << gw << " - accepted: " << accept_decay;
+#endif
      }
      for(unsigned int i=0; i<2; i++) {
         int pdgc = pd[i];

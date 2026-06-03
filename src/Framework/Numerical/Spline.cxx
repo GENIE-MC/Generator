@@ -58,10 +58,10 @@ Spline::Spline(string filename, string xtag, string ytag, bool is_xml) :
 TObject()
 {
   string fmt = (is_xml) ? "XML" : "ASCII";
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG)
       << "Constructing spline from data in " << fmt << " file: " << filename;
-
+#endif
   this->InitSpline();
 
   if(is_xml)
@@ -73,8 +73,9 @@ TObject()
 Spline::Spline(TNtupleD * ntuple, string var, string cut) :
 TObject()
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TNtuple";
-
+#endif
   this->InitSpline();
   this->LoadFromNtuple(ntuple, var, cut);
 }
@@ -82,8 +83,9 @@ TObject()
 Spline::Spline(TTree * tree, string var, string cut) :
 TObject()
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Constructing spline from data in a TTree";
-
+#endif
   this->InitSpline();
   this->LoadFromTree(tree, var, cut);
 }
@@ -91,8 +93,9 @@ TObject()
 Spline::Spline(TSQLServer * db, string query) :
 TObject()
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Constructing spline from data in a MySQL server";
-
+#endif
   this->InitSpline();
   this->LoadFromDBase(db, query);
 }
@@ -100,9 +103,10 @@ TObject()
 Spline::Spline(int nentries, double x[], double y[]) :
 TObject()
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG)
                  << "Constructing spline from the arrays passed to the ctor";
-
+#endif
   this->InitSpline();
   this->BuildSpline(nentries, x, y);
 }
@@ -110,9 +114,10 @@ TObject()
 Spline::Spline(int nentries, float x[], float y[]) :
 TObject()
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG)
                  << "Constructing spline from the arrays passed to the ctor";
-
+#endif
   double * dblx = new double[nentries];
   double * dbly = new double[nentries];
 
@@ -131,7 +136,9 @@ TObject()
 Spline::Spline(const Spline & spline) :
   TObject(), fInterpolator(0)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Spline copy constructor";
+#endif
   this->InitSpline();
   this->LoadFromTSpline3( *spline.GetAsTSpline(), spline.NKnots() );
 }
@@ -139,8 +146,10 @@ Spline::Spline(const Spline & spline) :
 Spline::Spline(const TSpline3 & spline, int nknots) :
   TObject(), fInterpolator(0)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG)
                     << "Constructing spline from the input TSpline3 object";
+#endif
   this->InitSpline();
   this->LoadFromTSpline3( spline, nknots );
 }
@@ -154,8 +163,9 @@ Spline::~Spline()
 //___________________________________________________________________________
 bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Retrieving data from file: " << filename;
-
+#endif
   xmlDocPtr xml_doc = xmlParseFile(filename.c_str());
 
   if(xml_doc==NULL) {
@@ -194,9 +204,10 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
 
   // loop over all xml tree nodes that are children of the <spline> node
   while (xmlSplChild != NULL) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("Spline", pDEBUG)
                  << "Got <spline> children node: " << xmlSplChild->name;
-
+#endif
      // enter everytime you find a <knot> tag
      if( (!xmlStrcmp(xmlSplChild->name, (const xmlChar *) "knot")) ) {
 
@@ -204,9 +215,10 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
 
         // loop over all xml tree nodes that are children of this <knot>
         while (xmlKnotChild != NULL) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
            LOG("Spline", pDEBUG)
                  << "Got <knot> children node: "  << xmlKnotChild->name;
-
+#endif
            // enter everytime you find a <E> or a <xsec> tag
            const xmlChar * tag = xmlKnotChild->name;
            bool is_xtag = ! xmlStrcmp(tag,(const xmlChar *) xtag.c_str());
@@ -220,7 +232,9 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
               if (is_ytag) vy[iknot] = atof(val.c_str());
 
               xmlFree(xmlValTagChild);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
               LOG("Spline", pDEBUG) << "tag: " << tag << ", value: " << val;
+#endif
            }//if current tag is <E>,<xsec>
 
            xmlKnotChild = xmlKnotChild->next;
@@ -241,8 +255,9 @@ bool Spline::LoadFromXmlFile(string filename, string xtag, string ytag)
 //___________________________________________________________________________
 bool Spline::LoadFromAsciiFile(string filename)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Retrieving data from file: " << filename;
-
+#endif
   TNtupleD nt("ntuple","","x:y");
   nt.ReadFile(filename.c_str());
 
@@ -260,8 +275,9 @@ bool Spline::LoadFromNtuple(TNtupleD * nt, string var, string cut)
 //___________________________________________________________________________
 bool Spline::LoadFromTree(TTree * tree, string var, string cut)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Retrieving data from tree: " << tree->GetName();
-
+#endif
   if(!cut.size()) tree->Draw(var.c_str(), "",          "GOFF");
   else            tree->Draw(var.c_str(), cut.c_str(), "GOFF");
 
@@ -298,7 +314,9 @@ bool Spline::LoadFromTree(TTree * tree, string var, string cut)
 //___________________________________________________________________________
 bool Spline::LoadFromDBase(TSQLServer * /*db*/,  string /*query*/)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Retrieving data from data-base: ";
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   return false;
 }
 //___________________________________________________________________________
@@ -362,7 +380,9 @@ bool Spline::IsWithinValidRange(double x) const
 //___________________________________________________________________________
 double Spline::Evaluate(double x) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Evaluating spline at point x = " << x;
+#endif
   assert(!TMath::IsNaN(x));
 
   double y = 0;
@@ -375,7 +395,9 @@ double Spline::Evaluate(double x) const
 
     if(!is0p && !is0n) {
       // both knots (on the left and right are non-zero) - just interpolate
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("Spline", pDEBUG) << "Point is between non-zero knots";
+#endif
       if (fInterpolatorType == "TSpline3")
         y = fInterpolator->Eval(x);
       else if (fInterpolatorType == "TSpline5")
@@ -386,12 +408,16 @@ double Spline::Evaluate(double x) const
       // at least one of the neighboring knots has y=0
       if(is0p && is0n) {
         // both neighboring knots have y=0
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Spline", pDEBUG) << "Point is between zero knots";
+#endif
         y=0;
       } else {
         // just 1 neighboring knot has y=0 - do a linear interpolation
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Spline", pDEBUG)
           << "Point has zero" << (is0n ? " left " : " right ") << "knot";
+#endif
         double xpknot=0, ypknot=0, xnknot=0, ynknot=0;
         this->FindClosestKnot(x, xnknot, ynknot, "-");
         this->FindClosestKnot(x, xpknot, ypknot, "+");
@@ -400,19 +426,20 @@ double Spline::Evaluate(double x) const
       }
     }
 
-  } else {
+  } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__else {
     LOG("Spline", pDEBUG) << "x = " << x
      << " is not within spline range [" << fXMin << ", " << fXMax << "]";
   }
-
+#endif
   if(y<0 && !fYCanBeNegative) {
     LOG("Spline", pINFO) << "Negative y (" << y << ")";
     LOG("Spline", pINFO) << "x = " << x;
     LOG("Spline", pINFO) << "spline range [" << fXMin << ", " << fXMax << "]";
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Spline(x = " << x << ") = " << y;
-
+#endif
   return y;
 }
 //___________________________________________________________________________
@@ -722,8 +749,9 @@ void Spline::Divide(double a)
 //___________________________________________________________________________
 void Spline::InitSpline(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Initializing spline...";
-
+#endif
   fName = "genie-spline";
   fXMin = 0.0;
   fXMax = 0.0;
@@ -735,8 +763,9 @@ void Spline::InitSpline(void)
   fInterpolatorType = "TSpline3";
 
   fYCanBeNegative = false;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "...done initializing spline";
+#endif
 }
 //___________________________________________________________________________
 void Spline::ResetSpline(void)
@@ -749,8 +778,9 @@ void Spline::ResetSpline(void)
 //___________________________________________________________________________
 void Spline::BuildSpline(int nentries, double x[], double y[])
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Building spline...";
-
+#endif
   double xmin = x[0];          // minimum x in spline
   double xmax = x[nentries-1]; // maximum x in spline
 
@@ -762,8 +792,9 @@ void Spline::BuildSpline(int nentries, double x[], double y[])
   if(fInterpolator) delete fInterpolator;
 
   fInterpolator = new TSpline3("spl3", x, y, nentries, "0");
-    
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "...done building spline";
+#endif
 }
 //___________________________________________________________________________
 void Spline::SetType(string type)
