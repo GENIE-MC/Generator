@@ -95,8 +95,9 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
     << ", W = " << W << " GeV";
 
   // Hadronize
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia8Had", pDEBUG) << "Reseting PYTHIA8 event";
+#endif
   gPythia->event.reset();
 
   // Get quark/diquark masses
@@ -120,12 +121,15 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
 
   // Pythia8 status code for outgoing particles of the hardest subprocesses is 23
   // anti/colour tags for these 2 particles must complement each other
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia8Had", pDEBUG) << "Appending quark/diquark into the PYTHIA8 event";
+#endif
   gPythia->event.append(fLeadingQuark,   23, 101, 0, 0., 0., pzAcm, eA, mA);
   gPythia->event.append(fRemnantDiquark, 23, 0, 101, 0., 0., pzBcm, eB, mB);
   gPythia->event.list();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia8Had", pDEBUG) << "Generating next PYTHIA8 event";
+#endif
   gPythia->next();
 
   // List the event information
@@ -133,7 +137,9 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
   //gPythia->stat();
 
   // Get LUJETS record
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia8Had", pDEBUG) << "Copying PYTHIA8 event record into GENIE's";
+#endif
   Pythia8::Event &fEvent = gPythia->event;
   int np = fEvent.size();
   assert(np>0);
@@ -356,8 +362,9 @@ void Pythia8Hadro2019::LoadConfig(void)
   gPythia->init(); // needed again to read the above?
 
 #endif
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Pythia8Had", pDEBUG) << this->GetConfig();
+#endif
 }
 //____________________________________________________________________________
 void Pythia8Hadro2019::Initialize(void)

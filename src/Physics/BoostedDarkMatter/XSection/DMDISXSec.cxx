@@ -64,7 +64,9 @@ double DMDISXSec::Integrate(
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DMDISXSec", pDEBUG)  << "*** Below energy threshold";
+#endif
      return 0;
   }
 
@@ -271,7 +273,9 @@ void DMDISXSec::CacheFreeNucleonXSec(
   double Md = interaction->InitStatePtr()->GetProbeP4()->M();
   double Md2 = Md*Md;
   for(int ie=0; ie<nknots; ie++) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DMDISXSec", pDEBUG) << "Dealing with knot " << ie << " out of " << nknots;
+#endif
     double Ed = E[ie];
     double pd = TMath::Max(Ed*Ed - Md2,0.);
     pd = TMath::Sqrt(pd);

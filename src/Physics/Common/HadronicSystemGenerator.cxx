@@ -68,14 +68,16 @@ void HadronicSystemGenerator::AddTargetNucleusRemnant(
                                                     GHepRecord * evrec) const
 {
 // add the remnant nuclear target at the GHEP record
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HadronicVtx", pDEBUG) << "Adding final state nucleus";
-
+#endif
   //-- skip for non nuclear targets
   GHepParticle * nucleus = evrec->TargetNucleus();
   if (!nucleus) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("HadronicVtx", pDEBUG)
                << "Initial state not a nucleus - no remnant nucleus to add";
+#endif
     return;
   }
 

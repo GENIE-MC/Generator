@@ -257,10 +257,11 @@ PDGCodeList * AGKYLowW2019::SelectParticles(
   //   conserve charge in the interaction
   int maxQ = this->HadronShowerCharge(interaction);
   LOG("KNOHad", pINFO) << "Hadron Shower Charge = " << maxQ;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
    //-- Build the multiplicity probabilities for the input interaction
   LOG("KNOHad", pDEBUG) << "Building Multiplicity Probability distribution";
   LOG("KNOHad", pDEBUG) << *interaction;
+#endif
   Option_t * opt = "+LowMultSuppr+Renormalize";
   TH1D * mprob = this->MultiplicityProb(interaction,opt);
 
@@ -341,7 +342,9 @@ PDGCodeList * AGKYLowW2019::SelectParticles(
       double m = PDGLibrary::Instance()->Find(pdgc)->Mass();
 
       msum += m;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("KNOHad", pDEBUG) << "- PDGC=" << pdgc << ", m=" << m << " GeV";
+#endif
     }
     bool permitted = (W > msum);
 
@@ -413,9 +416,9 @@ TH1D * AGKYLowW2019::MultiplicityProb(
   // particles accepted by the ROOT phase space decayer (18)
   // Change this if ROOT authors remove the TGenPhaseSpace limitation.
   if(maxmult>18) maxmult=18;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   SLOG("KNOHad", pDEBUG) << "Computed maximum multiplicity = " << maxmult;
-
+#endif
   if(maxmult<2) {
      LOG("KNOHad", pWARN) << "Low maximum multiplicity! Quiting.";
      return 0;
@@ -436,15 +439,17 @@ TH1D * AGKYLowW2019::MultiplicityProb(
        double z    = n/avn;                       // z=n/<n>
        double avnP = this->KNO(nu_pdg,nuc_pdg,z); // <n>*P(n)
        double P    = avnP / avn;                  // P(n)
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        SLOG("KNOHad", pDEBUG)
           << "n = " << n << " (n/<n> = " << z
           << ", <n>*P = " << avnP << ") => P = " << P;
-
+#endif
        mult_prob->Fill(n,P);
     }
   } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        SLOG("KNOHad", pDEBUG) << "Fixing multiplicity to 2";
+#endif
        mult_prob->Fill(2,1.);
   }
 
@@ -468,11 +473,14 @@ TH1D * AGKYLowW2019::MultiplicityProb(
      // Only do so for W<Wcut
      if(W<fWcut) {
        this->ApplyRijk(interaction, renormalize, mult_prob);
-     } else {
+     } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     else {
         SLOG("KNOHad", pDEBUG)
               << "W = " << W << " < Wcut = " << fWcut
                                 << " - Will not apply scaling factors";
      }//<wcut?
+#endif
   }//apply?
 
   return mult_prob;
@@ -828,9 +836,9 @@ TClonesArray * AGKYLowW2019::DecayMethod2(
       double E   = TMath::Sqrt(p2+MN2);
 
       p4N.SetPxPyPzE(px,py,pz,E);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("KNOHad", pDEBUG) << "Trying nucleon xF= "<< xf<< ", pT2= "<< pt2;
-
+#endif
       //-- check whether there is phase space for the remnant N-1 system
       p4d = p4had-p4N; // 4-momentum vector for phase space decayer
       double Mav = p4d.Mag();
@@ -1155,13 +1163,16 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
 
   // Conserve strangeness
   if(baryon_is_strange) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("KNOHad", pDEBUG)
            << " Remnant baryon is strange. Conserving strangeness...";
-
+#endif
         //conserve strangeness and handle charge imbalance with one particle
         if(multiplicity == 2) {
            if(maxQ == 1) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
               LOG("KNOHad", pDEBUG) << " -> Adding a K+";
+#endif
               pdgc->push_back( kPdgKP );
 
               // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1170,7 +1181,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
               W -= pdg->Find(kPdgKP)->Mass();
            }
            else if(maxQ == 0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
               LOG("KNOHad", pDEBUG) << " -> Adding a K0";
+#endif
               pdgc->push_back( kPdgK0 );
 
               // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1181,7 +1194,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
 
         //only two particles left to balance charge
         else if(multiplicity == 3 && maxQ == 2) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
            LOG("KNOHad", pDEBUG) << " -> Adding a K+";
+#endif
            pdgc->push_back( kPdgKP );
 
            // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1190,7 +1205,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
            W -= pdg->Find(kPdgKP)->Mass();
         }
         else if(multiplicity == 3 && maxQ == -1) { //adding K+ makes it impossible to balance charge
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
            LOG("KNOHad", pDEBUG) << " -> Adding a K0";
+#endif
            pdgc->push_back( kPdgK0 );
 
            // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1202,7 +1219,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
         else {
            double y = rnd->RndHadro().Rndm();
            if(y < 0.5) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
               LOG("KNOHad", pDEBUG) <<" -> Adding a K+";
+#endif
               pdgc->push_back( kPdgKP );
 
               // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1211,7 +1230,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
               W -= pdg->Find(kPdgKP)->Mass();
            }
            else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
               LOG("KNOHad", pDEBUG) <<" -> Adding a K0";
+#endif
               pdgc->push_back( kPdgK0 );
 
               // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1226,7 +1247,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
 
      if (maxQ < 0) {
         // Need more negative charge
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("KNOHad", pDEBUG) << "Need more negative charge -> Adding a pi-";
+#endif
         pdgc->push_back( kPdgPiM );
 
         // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1237,7 +1260,9 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
 
      } else if (maxQ > 0) {
         // Need more positive charge
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("KNOHad", pDEBUG) << "Need more positive charge -> Adding a pi+";
+#endif
         pdgc->push_back( kPdgPiP );
 
         // update n-of-hadrons to add, avail. shower charge & invariant mass
@@ -1250,10 +1275,10 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
 
   // Add remaining neutrals or pairs up to the generated multiplicity
   if(maxQ == 0) {
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("KNOHad", pDEBUG)
        << "Hadronic charge balanced. Now adding only neutrals or +- pairs";
-
+#endif
      // Final state has correct charge.
      // Now add pi0 or pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar) only
 
@@ -1273,9 +1298,10 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
      // If yes, add a single pi0 and then go on and add pairs
 
      if( hadrons_to_add > 0 && hadrons_to_add % 2 == 1 ) {
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("KNOHad", pDEBUG)
                   << "Odd number of hadrons left to add -> Adding a pi0";
+#endif
         pdgc->push_back( kPdgPi0 );
 
         // update n-of-hadrons to add & available invariant mass
@@ -1284,17 +1310,22 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
      }
 
      // Now add pairs (pi0 pi0 / pi+ pi- / K+ K- / K0 K0bar)
-     assert( hadrons_to_add % 2 == 0 ); // even number
+     assert( hadrons_to_add % 2 == 0 ); // even numberc
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("KNOHad", pDEBUG)
        <<" hadrons_to_add = "<<hadrons_to_add<<" W= "<<W<<" M2pi0 = "<<M2pi0<<"  M2pic = "<<M2pic<<"  M2Kc = "<<M2Kc<<"  M2K0= "<<M2K0<<" M2Eta= "<<M2Eta;
-
+#endif
      while(hadrons_to_add > 0 && W >= M2pi0) {
 
          double x = rnd->RndHadro().Rndm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
          LOG("KNOHad", pDEBUG) << "rndm = " << x;
+#endif
          // Add a pi0 pair
          if (x >= 0 && x < fPpi0) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
             LOG("KNOHad", pDEBUG) << " -> Adding a pi0pi0 pair";
+#endif
             pdgc->push_back( kPdgPi0 );
             pdgc->push_back( kPdgPi0 );
             hadrons_to_add -= 2; // update the number of hadrons to add
@@ -1304,72 +1335,95 @@ PDGCodeList * AGKYLowW2019::GenerateHadronCodes(
          // Add a pi+ pi- pair
          else if (x < fPpi0 + fPpic) {
             if(W >= M2pic) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                 LOG("KNOHad", pDEBUG) << " -> Adding a pi+pi- pair";
+#endif
                 pdgc->push_back( kPdgPiP );
                 pdgc->push_back( kPdgPiM );
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2pic; // update the available invariant mass
             } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                 LOG("KNOHad", pDEBUG)
                   << "Not enough mass for a pi+pi-: trying something else";
+#endif
             }
          }
 
          // Add a K+ K- pair
          else if (x < fPpi0 + fPpic + fPKc) {
             if(W >= M2Kc) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                 LOG("KNOHad", pDEBUG) << " -> Adding a K+K- pair";
+#endif
                 pdgc->push_back( kPdgKP );
                 pdgc->push_back( kPdgKM );
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2Kc; // update the available invariant mass
-            } else {
+            } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+            else {
                 LOG("KNOHad", pDEBUG)
                      << "Not enough mass for a K+K-: trying something else";
             }
+#endif
          }
 
          // Add a K0 - \bar{K0} pair
          else if (x <= fPpi0 + fPpic + fPKc + fPK0) {
             if( W >= M2K0 ) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                 LOG("KNOHad", pDEBUG) << " -> Adding a K0 K0bar pair";
+#endif
                 pdgc->push_back( kPdgK0     );
                 pdgc->push_back( kPdgAntiK0 );
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= M2K0; // update the available invariant mass
-            } else {
+            } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+            else {
                 LOG("KNOHad", pDEBUG)
                  << "Not enough mass for a K0 K0bar: trying something else";
             }
+#endif
 	 }
 
 	 // Add a Pi0-Eta pair
 	 else if (x <= fPpi0 + fPpic + fPKc + fPK0 + fPpi0eta) {
             if( W >= Mpi0eta ) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
                 LOG("KNOHad", pDEBUG) << " -> Adding a Pi0-Eta pair";
+#endif
                 pdgc->push_back( kPdgPi0 );
                 pdgc->push_back( kPdgEta );
                 hadrons_to_add -= 2; // update the number of hadrons to add
                 W -= Mpi0eta; // update the available invariant mass
-            } else {
+            } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+            else {
                 LOG("KNOHad", pDEBUG)
                  << "Not enough mass for a Pi0-Eta pair: trying something else";
             }
+#endif
 	 }
 
 	 //Add a Eta pair
 	 else if(x <= fPpi0 + fPpic + fPKc + fPK0 + fPpi0eta + fPeta) {
 	   if( W >= M2Eta ){
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	     LOG("KNOHad", pDEBUG) << " -> Adding a eta-eta pair";
+#endif
 	     pdgc->push_back( kPdgEta );
 	     pdgc->push_back( kPdgEta );
 	     hadrons_to_add -= 2; // update the number of hadrons to add
 	     W -= M2Eta; // update the available invariant mass
-	   }  else {
+	   }  
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+     else {
 	     LOG("KNOHad", pDEBUG)
 	       << "Not enough mass for a Eta-Eta pair: trying something else";
 	   }
-
+#endif
 	 } else {
 	   LOG("KNOHad", pERROR)
 	     << "Hadron Assignment Probabilities do not add up to 1!!";
@@ -1456,7 +1510,7 @@ int AGKYLowW2019::GenerateBaryonPdgCode(
   else if(pdgc == kPdgNeutron && y < Pstr && maxQ <= 0) {
      pdgc = kPdgSigmaM;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if(pdgc == kPdgProton)
      LOG("KNOHad", pDEBUG) << " -> Adding a proton";
   if(pdgc == kPdgNeutron)
@@ -1467,7 +1521,7 @@ int AGKYLowW2019::GenerateBaryonPdgCode(
      LOG("KNOHad", pDEBUG) << " -> Adding a lambda";
   if(pdgc == kPdgSigmaM)
      LOG("KNOHad", pDEBUG) << " -> Adding a sigma-";
-
+#endif
   return pdgc;
 }
 //____________________________________________________________________________

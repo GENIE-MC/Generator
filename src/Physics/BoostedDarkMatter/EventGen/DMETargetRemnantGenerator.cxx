@@ -96,9 +96,9 @@ void DMETargetRemnantGenerator::AddTargetNucleusRemnant(
                                                     GHepRecord * evrec) const
 {
 // add the remnant nuclear target at the GHEP record
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMETargetRemnant", pDEBUG) << "Adding final state nucleus";
-
+#endif
   //-- get A,Z for initial state nucleus
   Interaction * interaction = evrec->Summary();
   const InitialState & init_state = interaction->InitState();

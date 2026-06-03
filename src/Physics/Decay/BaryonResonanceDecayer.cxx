@@ -73,8 +73,9 @@ void BaryonResonanceDecayer::ProcessEventRecord(GHepRecord * event) const
   while( (p = (GHepParticle *) piter.Next()) ) {
 
     ipos++;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("ResonanceDecay", pDEBUG) << "Checking: " << p->Name();
-
+#endif
     int pdg_code = p->Pdg();
     GHepStatus_t status_code = p->Status();
 
@@ -219,11 +220,11 @@ TDecayChannel * BaryonResonanceDecayer::SelectDecayChannel( int decay_particle_i
 
     double fsmass = this->FinalStateMass(ch) ;
     if ( fsmass < W ) {
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       SLOG("ResonanceDecay", pDEBUG)
                 << "Using channel: " << ich
                 << " with final state mass = " << fsmass << " GeV";
-
+#endif
       tot_BR += ch->BranchingRatio();
 
     } else {
@@ -412,10 +413,11 @@ bool BaryonResonanceDecayer::DecayExclusive(
      int daughter_pdg_code = pdgc[id];
 
      TLorentzVector * daughter_p4 = fPhaseSpaceGenerator.GetDecay(id);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("ResonanceDecay", pDEBUG)
         << "Adding daughter particle with PDG code = " << pdgc[id]
         << " and mass = " << mass[id] << " GeV";
-
+#endif
      bool is_hadron = pdg::IsHadron(daughter_pdg_code);
      bool hadron_in_nuc = (in_nucleus && is_hadron && fRunBefHadroTransp);
 
@@ -745,11 +747,11 @@ void BaryonResonanceDecayer::Initialize(void) const
 bool BaryonResonanceDecayer::IsHandled(int pdg_code) const
 {
   bool is_handled = utils::res::IsBaryonResonance(pdg_code);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("ResonanceDecay", pDEBUG)
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
-
+#endif
   return is_handled ; 
 }
 //____________________________________________________________________________
@@ -851,9 +853,9 @@ double BaryonResonanceDecayer::FindDistributionExtrema( unsigned int q2_bin, boo
 				       << "of angular distribution found in ( " 
 				       << xs[0] << ", " << xs[1] << " ): " 
 				       << result ;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BaryonResonanceDecayer", pDEBUG) << "Minimum found in " << min.NCalls() << " calls" ;
-  
+#endif
   return result  ; 
 
 }

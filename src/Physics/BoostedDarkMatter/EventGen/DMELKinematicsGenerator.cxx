@@ -485,7 +485,9 @@ double DMELKinematicsGenerator::ComputeMaxXSec(
 
   const KPhaseSpace & kps = interaction->PhaseSpace();
   Range1D_t rQ2 = kps.Limits(kKVQ2);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMELKinematics", pDEBUG) << "Range of Q^2: " << rQ2.min << " to " << rQ2.max;
+#endif
   if(rQ2.min <=0 || rQ2.max <= rQ2.min) return 0.;
 
   const double logQ2min = TMath::Log(rQ2.min + kASmallNum);

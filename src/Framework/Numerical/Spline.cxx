@@ -93,8 +93,9 @@ TObject()
 Spline::Spline(TSQLServer * db, string query) :
 TObject()
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Constructing spline from data in a MySQL server";
-
+#endif
   this->InitSpline();
   this->LoadFromDBase(db, query);
 }
@@ -430,13 +431,13 @@ double Spline::Evaluate(double x) const
     LOG("Spline", pDEBUG) << "x = " << x
      << " is not within spline range [" << fXMin << ", " << fXMax << "]";
   }
-
+#endif
   if(y<0 && !fYCanBeNegative) {
     LOG("Spline", pINFO) << "Negative y (" << y << ")";
     LOG("Spline", pINFO) << "x = " << x;
     LOG("Spline", pINFO) << "spline range [" << fXMin << ", " << fXMax << "]";
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Spline(x = " << x << ") = " << y;
 #endif
   return y;

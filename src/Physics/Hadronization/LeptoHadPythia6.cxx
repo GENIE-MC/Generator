@@ -74,12 +74,12 @@ bool LeptoHadPythia6::Hadronize(GHepRecord *
   LongLorentzVector p4N( * event->HitNucleon()->P4()              );
   LongLorentzVector p4l( * event->FinalStatePrimaryLepton()->P4() );
   LongLorentzVector p4Hadlong( p4v.Px()+p4N.Px()-p4l.Px(), p4v.Py()+p4N.Py()-p4l.Py(), p4v.Pz()+p4N.Pz()-p4l.Pz(), p4v.E()+p4N.E()-p4l.E() );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("LeptoHad", pDEBUG) << "v [LAB']: " << p4v.E() << " // " << p4v.M2() << " // [ " << p4v.Dx() << " , " << p4v.Dy() << " , " << p4v.Dz() << " ]";
   LOG("LeptoHad", pDEBUG) << "N [LAB']: " << p4N.E() << " // " << p4N.M2() << " // [ " << p4N.Dx() << " , " << p4N.Dy() << " , " << p4N.Dz() << " ]";
   LOG("LeptoHad", pDEBUG) << "l [LAB']: " << p4l.E() << " // " << p4l.M2() << " // [ " << p4l.Dx() << " , " << p4l.Dy() << " , " << p4l.Dz() << " ]";
   LOG("LeptoHad", pDEBUG) << "H [LAB']: " << p4Hadlong.E() << " // " << p4Hadlong.M2() << " // [ " << p4Hadlong.Dx() << " , " << p4Hadlong.Dy() << " , " << p4Hadlong.Dz() << " ]";
-
+#endif
   // Translate from long double to double
   const TLorentzVector & vtx = *( event->Probe()->X4());
   TLorentzVector p4Had( (double)p4Hadlong.Px(), (double)p4Hadlong.Py(), (double)p4Hadlong.Pz(), (double)p4Hadlong.E() );
@@ -103,10 +103,10 @@ bool LeptoHadPythia6::Hadronize(GHepRecord *
   bool isp        = pdg::IsProton(target.HitNucPdg());
   int  hit_quark  = target.HitQrkPdg();
   int  frag_quark = xclstag.FinalQuarkPdg();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("LeptoHad", pDEBUG) << "Hit nucleon pdgc = " << target.HitNucPdg() << ", W = " << W;
   LOG("LeptoHad", pDEBUG) << "Selected hit quark pdgc = " << hit_quark << " // Fragmentation quark = " << frag_quark;
-
+#endif
   RandomGen * rnd = RandomGen::Instance();
 
   //

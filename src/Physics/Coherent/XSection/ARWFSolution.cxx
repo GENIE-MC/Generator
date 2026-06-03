@@ -22,7 +22,9 @@ namespace alvarezruso
 
 ARWFSolution::ARWFSolution(bool debug): debug_(debug)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   if(debug_) std::cerr << "WFS@ constructor" << std::endl;
+#endif
 }
 
 ARWFSolution::~ARWFSolution()

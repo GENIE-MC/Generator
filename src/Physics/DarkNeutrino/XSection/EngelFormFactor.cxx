@@ -49,11 +49,11 @@ double EngelFormFactor::FormFactor(const double Q2, const Target & target) const
       << "target: " << target.AsString() << " is not a valid nucleus. ";
     return 0.;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("EngelFormFactor", pDEBUG)
     << "Running Engel Form Factor with Q2: " << Q2
     << " and target: " << target.AsString();
-
+#endif
   const double A = target.A();
 
   const double s = 1.*units::fm;

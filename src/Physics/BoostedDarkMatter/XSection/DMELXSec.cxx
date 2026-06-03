@@ -66,15 +66,18 @@ double DMELXSec::Integrate(
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DMELXSec", pDEBUG)  << "*** Below energy threshold";
+#endif
      return 0;
   }
   Range1D_t rQ2 = kps.Limits(kKVQ2);
   
   if(rQ2.min<0 || rQ2.max<0) return 0;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMELXSec", pDEBUG) 
           << "Q2 integration range = (" << rQ2.min << ", " << rQ2.max << ")";
-
+#endif
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   interaction->SetBit(kISkipKinematicChk);

@@ -81,8 +81,9 @@ void QPMDMDISStrucFuncBase::Configure(string param_set)
 //____________________________________________________________________________
 void QPMDMDISStrucFuncBase::LoadConfig(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Loading configuration...";
-
+#endif
   //-- pdf
   const PDFModelI * pdf_model =
          dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
@@ -119,8 +120,9 @@ void QPMDMDISStrucFuncBase::LoadConfig(void)
   GetParam( "DownRightCharge", fQdR );
   GetParam( "StrangeLeftCharge", fQsL );
   GetParam( "StrangeRightCharge", fQsR );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "Done loading configuration";
+#endif
 }
 //____________________________________________________________________________
 void QPMDMDISStrucFuncBase::InitPDF(void)

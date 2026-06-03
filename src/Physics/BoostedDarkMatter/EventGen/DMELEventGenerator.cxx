@@ -66,8 +66,9 @@ DMELEventGenerator::~DMELEventGenerator()
 //___________________________________________________________________________
 void DMELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DMELEvent", pDEBUG) << "Generating QE event kinematics...";
-
+#endif
     // Get the random number generators
     RandomGen * rnd = RandomGen::Instance();
 
@@ -187,7 +188,9 @@ void DMELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
         // Set the "bind_nucleon" flag to false in this call to ComputeFullDMELPXSec
         // since we've already done that above
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("DMELEvent", pDEBUG) << "cth0 = " << costheta << ", phi0 = " << phi;
+#endif
         double xsec = genie::utils::ComputeFullDMELPXSec(interaction, fNuclModel,
           fXSecModel, costheta, phi, fEb, fHitNucleonBindingMode, fMinAngleEM, false);
 
@@ -273,10 +276,12 @@ void DMELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             this->AddTargetNucleusRemnant(evrec);
 
             break; // done
-        } else { // accept throw
+        } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+         else { // accept throw
             LOG("DMELEvent", pDEBUG) << "Reject current throw...";
         }
-
+#endif
     } // iterations - while(1) loop
     LOG("DMELEvent", pINFO) << "Done generating QE event kinematics!";
 }

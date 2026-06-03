@@ -60,9 +60,9 @@ double AhrensDMELPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AhrensDMEL", pDEBUG) << "Using v^" << fVelMode << " dependence";
-  
+#endif
   double E    = init_state.ProbeE(kRfHitNucRest);
   double ml   = init_state.GetProbeP4(kRfHitNucRest)->M();
   double Q2   = kinematics.Q2();
@@ -150,8 +150,10 @@ double AhrensDMELPXSec::XSec(
   double smu = E/M - tau;
   double MZ2   = TMath::Power(fMedMass,2);
   double lon = TMath::Power(M2 / MZ2 + 0.25/tau,2);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AhrensDMEL", pDEBUG)
     << "Using a mediator mass of " << fMedMass;
+#endif
   //  double fd    = 8*ml2*M2*tau*(2*M2*tau+MZ2) / (MZ2*MZ2*E2);
   double gZp   = fgZp;
   double gZp4  = TMath::Power(gZp,4);
@@ -159,10 +161,10 @@ double AhrensDMELPXSec::XSec(
   double prop2 = TMath::Power(prop,2);
   double xsec0 = gZp4 * M2 * prop2 / (4. * kPi * (E2 - ml2));
   xsec = xsec0 * (AL * lon + AT_F1F1 * F12 + AT_F2F2 * F22 + AT_FAFA * FA2 + AT_F1F2 * F1 * F2 + nusign * B * smu + C * smu * smu); 
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AhrensDMEL", pDEBUG)
     << "dXSec[vN,El]/dQ2 [FreeN](Ev = "<< E<< ", Q2 = "<< Q2 << ") = "<< xsec;
-
+#endif
   //-- The algorithm computes dxsec/dQ2
   //   Check whether variable tranformation is needed
   if(kps!=kPSQ2fE) {
@@ -179,10 +181,10 @@ double AhrensDMELPXSec::XSec(
 
   //-- number of scattering centers in the target
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AhrensDMEL", pDEBUG)
        << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
-
+#endif
   //-- compute nuclear cross section
   xsec *= (R*NNucl); 
 

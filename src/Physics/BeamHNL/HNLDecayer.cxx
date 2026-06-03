@@ -233,7 +233,9 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
     // for now, assume 2-body production and 2-body decay describes the pol modulus
     // see arXiv:1805.06419[hep-ph]
     TVector3 vecPolDir( fPolDir.at(0), fPolDir.at(1), fPolDir.at(2) );
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG( "HNL", pDEBUG ) << "Doing a polarised decay...";
+#endif
     decayFailed = this->PolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax, vecPolDir );
   } else {
     if( doPol && fCurrDecayMode == kHNLDcyNuNuNu ){
@@ -241,8 +243,9 @@ void Decayer::GenerateDecayProducts(GHepRecord * event) const
       LOG( "HNL", pWARN )
 	<< "Polarisation for invisible FS not implemented yet, defaulting to phase-space decay...";
     }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG( "HNL", pDEBUG ) << "Doing a phase-space decay...";
+#endif
     decayFailed = this->UnpolarisedDecay( fPhaseSpaceGenerator, pdgv, wmax );
   }
   if( decayFailed ){
@@ -338,9 +341,10 @@ std::vector< double > * Decayer::GenerateDecayPosition( GHepRecord * /* event */
   double pvz = (rnd->RndGen()).Uniform( -0.5, 0.5 );
   std::vector< double > * prodVtx = new std::vector< double >();
   prodVtx->emplace_back( pvx ); prodVtx->emplace_back( pvy ); prodVtx->emplace_back( pvz );
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Production vertex at: ( " << prodVtx->at(0) << ", " << prodVtx->at(1) << ", " << prodVtx->at(2) << ") [cm]";
-  
+#endif
   TLorentzVector v4( prodVtx->at(0), prodVtx->at(1), prodVtx->at(2), 0.0 );
 
   SetProdVtxPosition( v4 );
@@ -418,9 +422,10 @@ void Decayer::Configure(string config)
 //___________________________________________________________________________
 void Decayer::LoadConfig(void)
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNL", pDEBUG)
     << "Loading configuration from file...";
-
+#endif
   this->GetParam( "HNL-Mass", fMass );
   std::vector< double > U4l2s;
   this->GetParamVect( "HNL-LeptonMixing", U4l2s );

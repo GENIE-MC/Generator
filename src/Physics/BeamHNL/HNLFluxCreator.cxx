@@ -74,9 +74,9 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
       fGnmf = this->MakeTupleFluxEntry( iCurrEntry, fCurrPath );
       
       if( std::abs(fGnmf.pdg) == genie::kPdgHNL ){ // only add particle if parent is valid
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	LOG( "HNL", pDEBUG ) << fGnmf;
-	
+#endif
 	double invAccWeight = fGnmf.nimpwt * fGnmf.acceptance;
 	evrec->SetWeight( evrec->Weight() / invAccWeight );
 	
@@ -127,7 +127,9 @@ void FluxCreator::ProcessEventRecord(GHepRecord * evrec) const
 //----------------------------------------------------------------------------
 void FluxCreator::SetInputFluxPath(std::string finpath) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG ) << "Setting input path to " << finpath;
+#endif
   fCurrPath = finpath;
 }
 //----------------------------------------------------------------------------
@@ -227,11 +229,11 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 
   TVector3 fDvec_user( fDvec_beam.X() - fCx, fDvec_beam.Y() - fCy, fDvec_beam.Z() - fCz ); // in USER coords
   fDvec_user = this->ApplyUserRotation( fDvec_user, originPoint, fDetRotation, false );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\nIn BEAM coords, fDvec = " << utils::print::Vec3AsString( &fDvec )
     << "\nIn NEAR coords, fDvec = " << utils::print::Vec3AsString( &fDvec_beam );
-
+#endif
   TVector3 detO_beam( fCvec_beam.X() - fDvec_beam.X(),
 		      fCvec_beam.Y() - fDvec_beam.Y(),
 		      fCvec_beam.Z() - fDvec_beam.Z() ); // separation in NEAR coords
@@ -275,9 +277,11 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   TVector3 p3par_beam = p4par_beam.Vect();
   TVector3 p3par_near = this->ApplyUserRotation( p3par_beam, true );
   TLorentzVector p4par_near( p3par_near.X(), p3par_near.Y(), p3par_near.Z(), parentEnergy ); // in NEAR coords
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\nIn BEAM coords: p3par_beam = " << utils::print::Vec3AsString( &p3par_beam )
     << "\nIn NEAR coords: p3par_near = " << utils::print::Vec3AsString( &p3par_near );
+#endif
   if( !isParentOnAxis ){
     // rotate p4par to NEAR coordinates
     TVector3 tmpv3 = ApplyUserRotation( p4par.Vect(), true );
@@ -309,11 +313,13 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   std::map< HNLProd_t, double >::iterator pdit = dynamicScores.begin();
   while( score >= s1 && pdit != dynamicScores.end() ){
     s1 += (*pdit).second;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     if( parentMass > 0.495 ){
       LOG( "HNL", pDEBUG )
 	<< "(*pdit).first = " << utils::hnl::ProdAsString( (*pdit).first )
 	<< " : (*pdit).second = " << (*pdit).second;
     }
+#endif
     if( score >= s1 ){
       imap++; pdit++;
     }
@@ -337,10 +343,10 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   case kHNLProdPion2Muon: fNuProdChan = 7; fNuPdg = kPdgNuMu; break;
   default: fNuProdChan = -999; fNuPdg = -999; break;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Selected channel: " << utils::hnl::ProdAsString( prodChan );
-  
+#endif
   // decay channel specified, now time to make kinematics
   TLorentzVector p4HNL_rest = HNLEnergy( prodChan, p4par ); 
   // this is a random direction rest-frame HNL. 
@@ -489,12 +495,12 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
 
   TVector3 pHNL_near = this->ApplyUserRotation( p4HNL.Vect(), true ); // BEAM --> NEAR coords
   TLorentzVector p4HNL_near( pHNL_near.X(), pHNL_near.Y(), pHNL_near.Z(), p4HNL.E() );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\nRandom:  " << utils::print::P4AsString( &p4HNL_rand )
     << "\nPointed [NEAR]: " << utils::print::P4AsString( &p4HNL_near )
     << "\nRest:    " << utils::print::P4AsString( &p4HNL_rest );
-
+#endif
   // update polarisation
   TLorentzVector p4Lep_good = p4Lep_rest_good; // in parent rest frame
   p4Lep_good.Boost( boost_beta ); // in lab frame
@@ -561,12 +567,12 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
       
       pHNL_near = this->ApplyUserRotation( p4HNL.Vect(), true ); // NEAR
       p4HNL_near.SetPxPyPzE( pHNL_near.X(), pHNL_near.Y(), pHNL_near.Z(), p4HNL.E() );
-      
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG( "HNL", pDEBUG )
-	<< "\nRandom:  " << utils::print::P4AsString( &p4HNL_rand )
-	<< "\nPointed: " << utils::print::P4AsString( &p4HNL )
-	<< "\nRest:    " << utils::print::P4AsString( &p4HNL_rest );
-      
+	      << "\nRandom:  " << utils::print::P4AsString( &p4HNL_rand )
+	      << "\nPointed: " << utils::print::P4AsString( &p4HNL )
+	      << "\nRest:    " << utils::print::P4AsString( &p4HNL_rest );
+#endif      
       // update polarisation
       p4Lep_good = p4Lep_rest_good; // in parent rest frame
       p4Lep_good.Boost( boost_beta ); // in lab frame
@@ -581,20 +587,20 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
       // first, get minimum and maximum deviation from parent momentum to hit detector in degrees
       zm = 0.0; zp = 0.0;
       if( fIsUsingRootGeom ){
-	this->GetAngDeviation( p4par_near, detO_beam, zm, zp ); // NEAR and NEAR
+	      this->GetAngDeviation( p4par_near, detO_beam, zm, zp ); // NEAR and NEAR
       } else { // !fIsUsingRootGeom
-	zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_near, detO_beam, false );
-	zp = this->GetAngDeviation( p4par_near, detO_beam, true );
+	      zm = ( isParentOnAxis ) ? 0.0 : this->GetAngDeviation( p4par_near, detO_beam, false );
+	      zp = this->GetAngDeviation( p4par_near, detO_beam, true );
       }
       
       if( zm == -999.9 && zp == 999.9 ){
-	this->FillNonsense( iEntry, gnmf ); return gnmf;
+	      this->FillNonsense( iEntry, gnmf ); return gnmf;
       }
       
       if( isParentOnAxis ){ 
-	double tzm = zm, tzp = zp;
-	zm = 0.0;
-	zp = (tzp - tzm)/2.0; // 1/2 * angular opening
+	      double tzm = zm, tzp = zp;
+	      zm = 0.0;
+	      zp = (tzp - tzm)/2.0; // 1/2 * angular opening
       }
       
       accCorr = this->CalculateAcceptanceCorrection( p4par_near, p4HNL_rest, decay_necm, zm, zp );
@@ -645,9 +651,9 @@ FluxContainer FluxCreator::MakeTupleFluxEntry( int iEntry, std::string finpath )
   TLorentzVector x4HNL_cm( units::m / units::cm * x4HNL.X(),
 			   units::m / units::cm * x4HNL.Y(),
 			   units::m / units::cm * x4HNL.Z(), delay ); // in cm, ns, USER
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG ) << "Filling gnmf...";
-
+#endif
   // fill all the flux stuff now!
   
   int typeMod = 1;
@@ -745,10 +751,10 @@ void FluxCreator::OpenFluxInput( std::string finpath ) const
   iCurrEntry = fFirstEntry;
   fCurrPath = finpath;
   finpath.append("/");
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Getting flux input from finpath = " << finpath.c_str();
-
+#endif
   // recurse over files in this directory and add to chain
   if(!ctree){
     ctree = new TChain( "dkTree" );
@@ -784,11 +790,11 @@ void FluxCreator::OpenFluxInput( std::string finpath ) const
   int nEntries = ctree->GetEntries();
 
   fNEntries = nEntries;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\nThere were " << nEntriesInMeta << " entries in meta with " << nEntries << " total nus"
     << "\n got from " << nFiles << " files";
-
+#endif
   fPathLoaded = true;
 
   delete file;
@@ -1138,9 +1144,10 @@ std::map< HNLProd_t, double > FluxCreator::GetProductionProbs( int parPDG ) cons
     LOG( "HNL", pERROR )
       << "Unknown parent particle. Cannot make scales, exiting."; exit(1);
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Score map now has " << dynScores.size() << " elements. Returning.";
+#endif
   return dynScores;
 
 }
@@ -1151,11 +1158,11 @@ TLorentzVector FluxCreator::HNLEnergy( HNLProd_t hnldm, TLorentzVector p4par ) c
   TLorentzVector p4par_rest = p4par;
   TVector3 boost_beta = p4par.BoostVector();
   p4par_rest.Boost( -boost_beta );
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Attempting to decay rest-system p4 = " << utils::print::P4AsString(&p4par_rest)
     << " as " << utils::hnl::ProdAsString( hnldm );
-  
+#endif
   // get PDGCodeList and truncate 1st member
   PDGCodeList fullList  = utils::hnl::ProductionProductList( hnldm );
   bool        allow_duplicate = true;
@@ -1309,10 +1316,10 @@ TVector3 FluxCreator::PointToRandomPointInBBox( ) const
   if( !fDoingOldFluxCalc ){
     // user-coordinates of this point. [cm]
     //double ux = rx - ox, uy = ry - oy, uz = rz - oz;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG( "HNL", pDEBUG )
       << "\nChecking point " << utils::print::Vec3AsString(&checkPoint) << " [m, user]";
-
+#endif
     // check if the point is inside the geometry, otherwise do it again
     std::string pathString = this->CheckGeomPoint( ux, uy, uz ); int iNode = 1; // 1 past beginning
     int iBad = 0;
@@ -1335,10 +1342,11 @@ TVector3 FluxCreator::PointToRandomPointInBBox( ) const
   checkPoint.SetXYZ( checkPoint.X() + ox, checkPoint.Y() + oy, checkPoint.Z() + oz );
 
   TVector3 vec( ux, uy, uz ); // USER m
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\nPointing to this point in BBox (USER coords): " << utils::print::Vec3AsString( &vec ) << "[m]"
     << "\nIn NEAR coords this is " << utils::print::Vec3AsString( &checkPoint ) << "[m]";
-
+#endif
   // update bookkeeping
   fTargetPoint = checkPoint;
   
@@ -1455,12 +1463,12 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   const double xun[3] = { cz, -cx1*sz, sx1*sz };
   const double yun[3] = { sz*cx2, cx1*cz*cx2 - sx1*sx2, -sx1*cz*cx2 - cx1*sx2 };
   const double zun[3] = { sz*sx2, cx1*cz*sx2 + sx1*cx2, -sx1*cz*sx2 + cx1*cx2 };
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNL", pDEBUG)
     << "\nxun = ( " << xun[0] << ", " << xun[1] << ", " << xun[2] << " )"
     << "\nyun = ( " << yun[0] << ", " << yun[1] << ", " << yun[2] << " )"
     << "\nzun = ( " << zun[0] << ", " << zun[1] << ", " << zun[2] << " )";
-
+#endif
   /*
   TVector3 detO_cm( (detO.X() + fDetOffset.at(0)) * units::m / units::cm, 
 		    (detO.Y() + fDetOffset.at(1)) * units::m / units::cm,
@@ -1517,11 +1525,11 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   const double startPoint_m[3] = { aConst[0] + nMult * zConstMult * nConst[0],
 				   aConst[1] + nMult * zConstMult * nConst[1],
 				   aConst[2] + nMult * zConstMult * nConst[2] }; // NEAR
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\ndetO_cm = " << utils::print::Vec3AsString( &detO_cm )
     << "\npparUnit = " << utils::print::Vec3AsString( &pparUnit );
-
+#endif
   const double startPoint[3] = { startPoint_m[0] * units::m / units::cm,
 				 startPoint_m[1] * units::m / units::cm,
 				 startPoint_m[2] * units::m / units::cm }; // NEAR, cm
@@ -1548,12 +1556,12 @@ void FluxCreator::GetAngDeviation( TLorentzVector p4par, TVector3 detO, double &
   TVector3 detSweepVect( sweepVect[0], sweepVect[1], sweepVect[2] );
 
   TVector3 detPpar = ppar;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "\nStartPoint = " << utils::print::Vec3AsString( &detStartPoint )
     << "\nSweepVect  = " << utils::print::Vec3AsString( &detSweepVect )
     << "\nparent p3  = " << utils::print::Vec3AsString( &detPpar );
-  
+#endif
   detStartPoint = this->ApplyUserRotation( detStartPoint, detori, fDetRotation, false ); // passive transformation
   detSweepVect = this->ApplyUserRotation( detSweepVect, dumori, fDetRotation, true );
   detPpar = this->ApplyUserRotation( detPpar, dumori, fDetRotation, true );
@@ -2042,10 +2050,10 @@ void FluxCreator::Configure(string config)
 void FluxCreator::LoadConfig(void)
 {
   if( fIsConfigLoaded ) return;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNL", pDEBUG)
     << "Loading flux-creation parameters from file...";
-
+#endif
   this->GetParam( "HNL-Mass", fMass );
   this->GetParamVect( "HNL-LeptonMixing", fU4l2s );
   this->GetParam( "HNL-Majorana", fIsMajorana );
@@ -2109,7 +2117,9 @@ void FluxCreator::LoadConfig(void)
 //____________________________________________________________________________
 void FluxCreator::SetGeomFile( string geomfile ) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG ) << "Setting geometry file to " << geomfile;
+#endif
   fGeomFile = geomfile;
 }
 //____________________________________________________________________________
@@ -2120,7 +2130,9 @@ void FluxCreator::SetFirstFluxEntry( int iFirst ) const
 //____________________________________________________________________________
 void FluxCreator::ImportBoundingBox( TGeoBBox * box ) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG ) << "Importing bounding box...";
+#endif
   fLxR = 2.0 * box->GetDX() * units::cm / units::m;
   fLyR = 2.0 * box->GetDY() * units::cm / units::m;
   fLzR = 2.0 * box->GetDZ() * units::cm / units::m;

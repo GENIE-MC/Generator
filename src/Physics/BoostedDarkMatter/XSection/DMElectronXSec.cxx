@@ -57,13 +57,15 @@ double DMElectronXSec::Integrate(
 
   const KPhaseSpace & kps = in->PhaseSpace();
   if(!kps.IsAboveThreshold()) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DMEXSec", pDEBUG)  << "*** Below energy threshold";
+#endif
      return 0;
   }
   Range1D_t yl = kps.Limits(kKVy);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMEXSec", pDEBUG) << "y = (" << yl.min << ", " << yl.max << ")";
-
+#endif
   Interaction * interaction = new Interaction(*in);
   interaction->SetBit(kISkipProcessChk);
   //interaction->SetBit(kISkipKinematicChk);

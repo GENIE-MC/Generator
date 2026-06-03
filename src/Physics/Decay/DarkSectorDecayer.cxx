@@ -69,8 +69,9 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
 
   while( (p = (GHepParticle *) piter.Next()) ) {
     ipos++;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DarkSectorDecayer", pDEBUG) << "Checking: " << p->Name();
-
+#endif
     if(!this->ToBeDecayed(*p)) continue;
 
     GHepParticle&  mother = *p; // rename p now we know it will decay
@@ -92,7 +93,9 @@ void DarkSectorDecayer::ProcessEventRecord(GHepRecord * event) const
         amplitudes_msg << pdgc << "  " ;
       }
       amplitudes_msg << "]";
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("DarkSectorDecayer", pDEBUG) << amplitudes_msg.str();
+#endif
     }
 
     double total_amplitude = std::accumulate(dcs.begin(), dcs.end(), 0.,
@@ -183,10 +186,12 @@ std::vector<GHepParticle> DarkSectorDecayer::Decay(
     SLOG("DarkSectorDecayer", pINFO)
       << "Adding daughter particle with PDG code = " << pdg_daughters[id]
       << " with P4 = " << utils::print::P4AsShortString( daughter_p4 );
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     SLOG("DarkSectorDecayer", pDEBUG)
       << "Particle Gun Kinematics: "
       << "PDG : " << pdg_daughters[id] << ", "
       << DarkSectorDecayer::ParticleGunKineAsString( *daughter_p4 );
+#endif
     GHepStatus_t daughter_status_code = (pdg_daughters[id]==kPdgDNuMediator)
       ? kIStDecayedState : kIStStableFinalState;
     particles.push_back(GHepParticle(pdg_daughters[id], daughter_status_code,
@@ -315,11 +320,11 @@ bool DarkSectorDecayer::ToBeDecayed(const GHepParticle & p) const
      pdg_code == kPdgAntiDarkNeutrino){
     is_handled = true;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DarkSectorDecayer", pDEBUG)
       << "Can decay particle with PDG code = " << pdg_code
       << "? " << ((is_handled)? "Yes" : "No");
-
+#endif
   return is_handled;
 }
 //____________________________________________________________________________

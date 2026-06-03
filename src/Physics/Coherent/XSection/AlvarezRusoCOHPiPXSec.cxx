@@ -88,7 +88,9 @@ double AlvarezRusoCOHPiPXSec::XSec(
       current = kNC;
     }
     else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("AlvarezRusoCohPi",pDEBUG)<<"Unknown current for AlvarezRuso implementation";
+#endif
       return 0.;
     }
 
@@ -103,7 +105,9 @@ double AlvarezRusoCOHPiPXSec::XSec(
       flavour=kTau;
     }
     else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("AlvarezRusoCohPi",pDEBUG)<<"Unknown probe for AlvarezRuso implementation";
+#endif
       return 0.;
     }
 

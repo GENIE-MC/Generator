@@ -200,10 +200,11 @@ void VertexGenerator::EnforceUnits( std::string length_units, std::string angle_
   fOx /= lunits/old_lunits; fOy /= lunits/old_lunits; fOz /= lunits/old_lunits;
 
   kNewSpeedOfLight /= (lunits / old_lunits) / (tunits / old_tunits);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "kNewSpeedOfLight = " << kNewSpeedOfLight << " [" << lunitString.c_str() << "/"
     << tunitString.c_str() << "]";
+#endif
 }
 //____________________________________________________________________________
 double VertexGenerator::CalcTravelLength( double betaMag, double CoMLifetime, double maxLength ) const
@@ -286,11 +287,11 @@ void VertexGenerator::MakeSDV() const
   kNewSpeedOfLight = genie::units::kSpeedOfLight 
   * (genie::units::m / lunits)
   / (genie::units::s / tunits);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("HNL", pDEBUG)
     << "Setting simple decay volume with unit-m side."
     << "\nSetting units to \"mm\", \"rad\", \"ns\"";
-
+#endif
   EnforceUnits("mm","rad","ns");
 }
 //____________________________________________________________________________
@@ -506,10 +507,10 @@ bool VertexGenerator::VolumeEntryAndExitPoints( TVector3 & startPoint, TVector3 
 
   double stepmax = 1.0e+6; // cm 
   stepmax *= genie::units::cm / lunits;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Starting to search for intersections...";
-  
+#endif
   // enter the volume.
   TGeoNode * nextNode = gGeoManager->FindNextBoundaryAndStep( stepmax );
   
@@ -639,10 +640,10 @@ void VertexGenerator::Configure(string config)
 void VertexGenerator::LoadConfig()
 {
   if( fIsConfigLoaded ) return;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG( "HNL", pDEBUG )
     << "Loading geometry parameters from file. . .";
-
+#endif
   this->GetParamVect( "Near2User_T", fB2UTranslation );
   this->GetParamVect( "Near2User_R", fDetRotation );
   this->GetParamVect( "Near2Beam_R", fB2URotation );

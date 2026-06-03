@@ -73,9 +73,9 @@ double QPMDMDISPXSec::XSec(
   const Kinematics &   kinematics = interaction -> Kine();
   const InitialState & init_state = interaction -> InitState();
   const ProcessInfo &  proc_info  = interaction -> ProcInfo(); // comment-out unused variable to eliminate warnings
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG) << "Using v^" << fVelMode << " dependence";
-  
+#endif
   double E     = init_state.ProbeE(kRfHitNucRest);
   double ml    = interaction->FSPrimLepton()->Mass();
   double Mnuc  = init_state.Tgt().HitNucMass();
@@ -124,8 +124,10 @@ double QPMDMDISPXSec::XSec(
   double Q2 = utils::kinematics::XYtoQ2(E,Mnuc,x,y);
   // double Q4 = Q2*Q2; // comment-out unused variable to eliminate warnings
   // temp: set the Z' mass to MZ and g' = 1 for now
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)
     << "Using a mediator mass " << fMedMass;
+#endif
   double Mzp2 = TMath::Power(fMedMass,2);
   // double gzp = RunOpt::Instance()->ZpCoupling();
   double gzp = fgzp;
@@ -174,11 +176,11 @@ double QPMDMDISPXSec::XSec(
   term3 *= fDISSF.F3();
   term4 *= fDISSF.F4();
   term5 *= fDISSF.F5();
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISPXSec", pDEBUG)  
     << "\nd2xsec/dxdy ~ (" << term1 << ")+(" << term2 << ")+(" 
                   << term3 << ")+(" << term4 << ")+(" << term5 << ")";
-
+#endif
   
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
   xsec = TMath::Max(xsec,0.);
@@ -333,8 +335,10 @@ void QPMDMDISPXSec::LoadConfig(void)
   RgKey local_key = "CharmXSec" ;
   RgAlg xalg ;
   GetParam( local_key, xalg) ;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DMDISXSec", pDEBUG)
      << "Loading the cross section model: " << xalg;
+#endif
   fCharmProdModel = dynamic_cast<const XSecAlgorithmI *> ( this -> SubAlg(local_key) ) ;
   assert(fCharmProdModel);
 }
