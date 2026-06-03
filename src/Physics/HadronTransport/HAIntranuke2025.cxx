@@ -1388,7 +1388,7 @@ void HAIntranuke2025::Inelastic(
           delete p4;
 
         }
-      else // less than 18 particles pion
+      else // less than 18 particles pion or proton/neutron or kaon
         {
           if (pdgc==kPdgKP)  list.push_back(kPdgKP); //normally conserve strangeness
 //          if (pdgc==kPdgKM)  list.push_back(kPdgKM);
@@ -1406,6 +1406,7 @@ void HAIntranuke2025::Inelastic(
           //set up HadronCluster
 
           double probM = pLib->Find(pdgc)   ->Mass();
+	  if (pdgc==211||pdgc==-211||pdgc==111) probM = 0.;  //sd fix 6-26 include pion mass
           double probBE = (np+nn)*.005;   // BE correction
           TVector3 pP3 = p->P4()->Vect();
           double probKE = p->P4()->E() - (probM - probBE);

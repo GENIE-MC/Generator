@@ -55,10 +55,12 @@ University of Liverpool
    - genie::HAIntranuke2018/Default
    - genie::HNIntranuke2018/Default
    - genie::HNIntranuke2018/OsetOff
+   - genie::HAIntranuke2025/Default
+   - genie::HINCLCascadeIntranuke/Default
+   - genie::HG4BertCascadeIntranuke
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke2018/Default  </param>
-
 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
