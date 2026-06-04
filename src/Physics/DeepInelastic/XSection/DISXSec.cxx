@@ -119,9 +119,8 @@ double DISXSec::Integrate(
     //
      Interaction * interaction = new Interaction(*in);
      interaction->SetBit(kISkipProcessChk);
-//   interaction->SetBit(kISkipKinematicChk);
 
-     // **Important note**
+     // **Important note** - TO DISCUSS !!
      // Based on discussions with Hugh at the GENIE mini-workshop / RAL - July '07
      // The DIS nuclear corrections re-distribute the strength in x,y but do not
      // affect the total cross-section They should be disabled at this step.
@@ -129,7 +128,7 @@ double DISXSec::Integrate(
      // Since nuclear corrections don't need to be included at this stage, all the
      // nuclear cross sections can be trivially built from the free nucleon ones.
      //
-     interaction->SetBit(kINoNuclearCorrection);
+     if( !fDISNuclCorr ) interaction->SetBit(kINoNuclearCorrection);
 
      Range1D_t Wl  = kps.WLim();
      Range1D_t Q2l = kps.Q2Lim();
@@ -156,8 +155,7 @@ double DISXSec::Integrate(
 
       if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
           ROOT::Math::AdaptiveIntegratorMultiDim * cast =
-	        dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() 
-        );
+	        dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
         assert(cast);
         cast->SetMinPts(fGSLMinEval);
       }
