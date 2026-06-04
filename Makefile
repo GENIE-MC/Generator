@@ -87,7 +87,7 @@ framework: FORCE
 	cd ${GENIE}
 
 
-physics-neutrino-scattering-modes: FORCE
+physics-neutrino-scattering-modes: framework physics-nuclear-environment physics-utilities FORCE
 	@echo " "
 	@echo "** Building simulation modules for neutrino scattering modes..."
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) &&   \
@@ -117,7 +117,7 @@ physics-neutrino-scattering-modes: FORCE
 	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) &&   \
 	cd ${GENIE}
 
-physics-nucleon-decay:
+physics-nucleon-decay: framework physics-nuclear-environment
 	@echo " "
 	@echo "** Building nucleon decay library..."
 ifeq ($(strip $(GOPT_ENABLE_NUCLEON_DECAY)),YES)
@@ -131,7 +131,7 @@ else
 endif
 
 
-physics-nnbar-oscillation:
+physics-nnbar-oscillation: physics-nuclear-environment
 	@echo " "
 	@echo "** Building n-nbar oscillation library..."
 ifeq ($(strip $(GOPT_ENABLE_NNBAR_OSCILLATION)),YES)
@@ -183,7 +183,7 @@ else
 endif
 
 
-physics-utilities: FORCE
+physics-utilities: framework FORCE
 	@echo " "
 	@echo "** Building misc physics utility libraries..."
 	cd ${GENIE}/src/Physics && \
@@ -205,7 +205,7 @@ physics-nuclear-environment: FORCE
 	cd ${GENIE}
 
 
-physics-hadronic-simulations: FORCE
+physics-hadronic-simulations: physics-nuclear-environment FORCE
 	@echo " "
 	@echo "** Building libraries for hadronic simulations..."
 	cd ${GENIE}/src/Physics && \
