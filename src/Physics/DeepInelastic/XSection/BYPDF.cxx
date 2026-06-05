@@ -78,28 +78,11 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const {
   LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
 #endif
 
-  // The Bodek Yang model includes a parameter to scale the up and down sea quark distributions by a percentage.
-  // These are added as additional degrees of freedom in the model.
-  // The paper uses a 5% increase of the sea up and down distribution and a decrease of the valance quarks.
-  // The value was not obtained from the tune - we do not use it.
-  // We use the defalt of 0 for this implementation whilst keeping the functionality it for the user to use.
-  uv -= 2 * fUpScale * uncorrected_pdfs.uval;
-  dv -= 2 * fDownScale * uncorrected_pdfs.dval;
-  us *= ( 1 + fUpScale ) ;
-  ds *= ( 1 + fUpScale ) ;
   // compute u/(u+d) ratios for both valence & sea quarks
   double val = uv + dv;
   double sea = us + ds;
   double rv = (val == 0) ? 0. : uv / val;
   double rs = (sea == 0) ? 0. : us / sea;
-
-  // Ignore delta correction if requested
-  if (!fApplyDelta)
-    delta = 0;
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BodekYang", pDEBUG) << "delta(d/u) = " << delta;
-#endif
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) << "valence[u/(u+d)] = " << rv
