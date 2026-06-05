@@ -368,6 +368,31 @@ double genie::utils::nuclear::FmArea(
   return sum;
 }
 //___________________________________________________________________________
+double genie::utils::nuclear::DISNuclFactor(double x, int A)
+{
+// Adapted from NeuGEN's nuc_factor(). Kept original comments from Hugh.
+
+  double xv     = TMath::Min(0.75, x);
+  double xv2    = xv  * xv;
+  double xv3    = xv2 * xv;
+  double xv4    = xv3 * xv;
+  double xv5    = xv4 * xv;
+  double xvp    = TMath::Power(xv, 14.417);
+  double expaxv = TMath::Exp(-21.94*xv);
+
+  double f = 1.;
+
+  // first factor goes from free nucleons to deuterium
+  if(A >= 2) {
+    f= 0.985*(1.+0.422*xv - 2.745*xv2 + 7.570*xv3 - 10.335*xv4 + 5.422*xv5);
+  }
+  // 2nd factor goes from deuterium to iso-scalar iron
+  if(A > 2) {
+    f *= (1.096 - 0.364*xv - 0.278*expaxv + 2.722*xvp);
+  }
+  return f;
+}
+//___________________________________________________________________________
 double genie::utils::nuclear::Density(double r, int A, double ring)
 {
 // [by S.Dytman]
