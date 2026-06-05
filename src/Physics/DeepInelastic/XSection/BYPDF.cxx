@@ -67,8 +67,8 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const {
   // down distribution and a decrease of the valance quarks. The value was not
   // obtained from the tune - we do not use it. We use the defalt of 0 for this
   // implementation whilst keeping the functionality it for the user to use.
-  uv *= ( 1 - fUpScale ) * uncorrected_pdfs.uval;
-  dv *= ( 1 - fDownScale ) * uncorrected_pdfs.dval;
+  uv *= ( 1 - fUpScale );
+  dv *= ( 1 - fDownScale );
   us *= (1 + fUpScale);
   ds *= (1 + fUpScale);
 
