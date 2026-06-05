@@ -380,8 +380,7 @@ double QPMDMDISStrucFuncBase::NuclMod(const Interaction * interaction) const
      const Kinematics & kine  = interaction->Kine();
      double x  = kine.x();
      int    A = tgt.A();
-     // !!!!!!!!  WHY IS THIS CLASS so simmilar ?
-     //f = utils::nuclear::DISNuclFactor(x,A);
+     f = utils::nuclear::DISNuclFactor(x,A);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
      LOG("DISSF", pDEBUG) << "Nuclear factor for x of " << x << "  = " << f;
 #endif
