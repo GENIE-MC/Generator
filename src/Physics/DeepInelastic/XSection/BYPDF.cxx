@@ -67,11 +67,15 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const {
   // down distribution and a decrease of the valance quarks. The value was not
   // obtained from the tune - we do not use it. We use the defalt of 0 for this
   // implementation whilst keeping the functionality it for the user to use.
-  uv *= ( 1 - fUpScale );
-  dv *= ( 1 - fDownScale );
+  uv = uv - 2 * fUpScale * us ;
+  dv = dv - 2 * fDownScale * ds ;
   us *= (1 + fUpScale);
-  ds *= (1 + fUpScale);
-
+  ds *= (1 + fDownScale);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BodekYang", pDEBUG) << "Scaling up (down), up sea (valance) contribution by = " << fUpScale;
+  LOG("BodekYang", pDEBUG) << "Scaling up (down), down sea (valance) contribution by = " << fDownScale;
+#endif
+  
   // compute correction factor delta(d/u)
   double delta = fApplyDelta ? this->DeltaDU(x) : 0;
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
