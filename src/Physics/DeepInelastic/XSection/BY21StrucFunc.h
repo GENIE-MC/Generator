@@ -79,6 +79,7 @@ protected:
   double fH3;      /// high order QCD parameter
   double fRQ2min;    /// Q2 below corrections are applied  
   bool   fIncludeH; ///< Include H correction 
+  bool   fIncludeAxial; ///< Include difference between A and V;
 };
 
 }         // genie namespace

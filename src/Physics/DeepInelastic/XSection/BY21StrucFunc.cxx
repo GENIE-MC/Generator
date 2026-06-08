@@ -91,6 +91,7 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H3" , fH3  ) ;
   GetParam( "BY-RQ2min", fRQ2min);
   GetParamDef( "BY-IncludeH", fIncludeH, true );
+  GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -113,6 +114,7 @@ void BY21StrucFunc::Init(void)
   fCaLW_nu = 0;
   fCaLW_nubar = 0;
   fIncludeH = true;
+  fIncludeAxial = true;
   fH0   = 0;
   fH1   = 0;
   fH2   = 0;
@@ -160,6 +162,9 @@ void BY21StrucFunc::KVectorFactors(const Interaction * interaction,
 //____________________________________________________________________________
 void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
 				    double & kuv, double & kdv, double & kus, double & kds, double & kss ) const {
+
+  // If requested, assume axial is equal to vector;
+  if( !fIncludeAxial ) return KVectorFactors( interaction, kuv, kdv, kus, kds, kss );
   
   // https://arxiv.org/pdf/2108.09240 Sec 11.2 
   // We apply a different K factor for axial contribtions, as given in Eq. 49-50.
