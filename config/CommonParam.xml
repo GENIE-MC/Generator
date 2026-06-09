@@ -267,6 +267,9 @@ Or changing the name of this parameter set
 
   <param_set name="Lepton">
     <param type="bool" name="ApplyCoulombCorrection"> false </param>
+    <!-- Q^2 threshold for em scattering events, in GeV^2 (was hardcoded as
+         static const double kMinQ2Limit in src/Framework/Utils/KineUtils.h) -->
+    <param type="double" name="EM-MinQ2Limit"> 0.02 </param>
 
   </param_set>
 
