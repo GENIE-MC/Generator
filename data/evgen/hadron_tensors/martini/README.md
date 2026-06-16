@@ -51,4 +51,4 @@ No recompilation is needed after editing `config/MartiniMECHadronTensorModel.xml
 
 For a comprehensive description of these interaction channels, see:
 
-[1] M. Martini, M. Ericson, and G. Chanfray, *Phys. Rev. C 80*, 065501 (2009), arXiv:0910.2622 [nucl-th]
+[1] M. Martini, M. Ericson, G. Chanfray, and J. Marteau *Phys. Rev. C 80*, 065501 (2009), arXiv:0910.2622 [nucl-th]
