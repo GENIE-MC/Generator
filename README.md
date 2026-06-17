@@ -1,6 +1,5 @@
 # The GENIE Event Generator
 
-
 <table style="border-collapse: collapse; border: none;">
   <tr>
     <td style="border: none; padding-right: 12px; vertical-align: top;">
@@ -8,14 +7,14 @@
     </td>
     <td style="border: none; padding: 0;">
       <p>
-        The GENIE Generator is a <b>leading simulation tool used by nearly all modern neutrino experiments</b>. 
-        It features a <b>modular framework</b> with <b>state-of-the-art physics</b> for neutrino and charged-lepton interactions, 
-        and several BSM channels. It incorporates results from GENIE’s global data analysis and includes multiple tuned models. 
-        GENIE supports all neutrino types, targets, and energy scales from MeV to PeV, 
+        The GENIE Generator is a <b>leading simulation tool used by nearly all modern neutrino experiments</b>.
+        It features a <b>modular framework</b> with <b>state-of-the-art physics</b> for neutrino and charged-lepton interactions,
+        and several BSM channels. It incorporates results from GENIE’s global data analysis and includes multiple tuned models.
+        GENIE supports all neutrino types, targets, and energy scales from MeV to PeV,
         and provides tools for flux handling, geometry, event generation, and reweighting.
       </p>
       <p>
-        For more information, visit 
+        For more information, visit
         <a href="http://www.genie-mc.org" target="_blank">http://genie-mc.org</a> |
         <a href="https://genie-mc.github.io" target="_blank">https://genie-mc.github.io</a>.
       </p>
@@ -27,7 +26,7 @@
 
 Luis Alvarez-Ruso (*IFIC*), Costas Andreopoulos (*Liverpool*), Adi Ashkenazi (*Tel Aviv*), Joshua Barrow (*Minnesota*), Steve Dytman (*Pittsburgh*), Hugh Gallagher (*Tufts*), Alfonso Andres Garcia Soto (*IFIC*), Steven Gardiner (*Fermilab*), Matan Goldenberg (*Tel Aviv*), Robert Hatcher (*Fermilab*), Or Hen (*MIT*), Igor Kakorin (*JINR*), Konstantin Kuzmin (*ITEP and JINR*), Liang Liu (*Fermilab*), Xianguo Lu (*Warwick*), Anselmo Meregaglia (*Bordeaux, CNRS/IN2P3*), Vadim Naumov (*JINR*), Afroditi Papadopoulou (*Argonne*), Gabriel Perdue (*Fermilab*), Komninos-John Plows (*Oxford*), Marco Roda (*Liverpool*), Alon Sportes (*Tel Aviv*), Júlia Tena Vidal (*Tel Aviv*), Jeremy Wolcott (*Tufts*), Qiyu Yan (*UCAS and Warwick*)
 
-**Past authors:** Christopher Barry (*Liverpool*), Steve Dennis (*Liverpool*), Walter Giele (*Fermilab*), Timothy Hobbs (*Fermilab*), Libo Jiang (*Pittsburgh*), Rhiannon Jones (*Liverpool*), Weijun Li (*Oxford*), Donna Naples (*Pittsburgh*), Beth Slater (*Liverpool*), Noah Steinberg (*Fermilab*), Vladyslav Syrotenko (*Tufts*), Julia Yarba (*Fermilab*) 
+**Past authors:** Christopher Barry (*Liverpool*), Steve Dennis (*Liverpool*), Walter Giele (*Fermilab*), Timothy Hobbs (*Fermilab*), Libo Jiang (*Pittsburgh*), Rhiannon Jones (*Liverpool*), Weijun Li (*Oxford*), Donna Naples (*Pittsburgh*), Beth Slater (*Liverpool*), Noah Steinberg (*Fermilab*), Vladyslav Syrotenko (*Tufts*), Julia Yarba (*Fermilab*)
 
 For more details on the GENIE collaboration please visit [this page](https://genie-mc.github.io/collaboration.html).
 
@@ -54,7 +53,7 @@ DOIs for recent releases of the GENIE Event Generator are listed below:
 
 ## Physics & User manual
 
-For installation and usage information, as well as information on the GENIE framework, event generator modules and tuning, 
+For installation and usage information, as well as information on the GENIE framework, event generator modules and tuning,
 see the [latest version of the GENIE Physics & User Manual](https://www.overleaf.com/read/rqmbqzzvsvmb#5ab475), originally published as arXiv:1510.05494.
 
 ## Public releases and physics tunes
@@ -63,7 +62,7 @@ For a list of public releases and a summary information, see [this page](https:/
 A list of model configurations and tunes supported in each release is maintained [here](https://genie-mc.github.io/tunes.html).
 Details on the naming conventions for releases, model configurations and tunes can be found [here](https://genie-mc.github.io/naming_conventions.html).
 
-[Recent publications and talks](https://genie-mc.github.io/pub.html) 
+[Recent publications and talks](https://genie-mc.github.io/pub.html)
 by GENIE authors highlight key modeling advances and results from our global analysis of scattering data.
 
 ## Contribution guidelines

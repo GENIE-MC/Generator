@@ -13,6 +13,7 @@
 
          Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
+          and Zachary Orr (Colorado State Univ.)
 
           Changes required to implement the GENIE Dark Neutrino module
           were installed by Iker de Icaza (Univ. of Sussex)
@@ -64,6 +65,7 @@ public:
   bool IsDeepInelastic           (void) const;
   bool IsDarkMatterDeepInelastic (void) const;
   bool IsResonant                (void) const;
+  bool IsDarkMatterResonant      (void) const;
   bool IsCoherentProduction      (void) const;
   bool IsCoherentElastic         (void) const;
   bool IsSinglePion              (void) const;

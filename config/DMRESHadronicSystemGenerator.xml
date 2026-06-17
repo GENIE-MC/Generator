@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for the RESHadronSystemGenerator EventRecordVisitorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+Decayer          alg      No
+-->
+
+  <param_set name="Default">
+     <param type="alg" name="Decayer">             genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
+<!--
+     <param type="alg" name="PreTransportDecayer"> genie::UnstableParticleDecayer/BeforeHadronTransport  </param>
+-->
+  </param_set>
+
+</alg_conf>

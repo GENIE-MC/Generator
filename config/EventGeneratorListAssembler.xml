@@ -7,31 +7,31 @@
 ..........................................................................................................................
 NOTE:
 
-The GENIE authors would like to caution users against using anything but a comprehensive 
+The GENIE authors would like to caution users against using anything but a comprehensive
 GENIE mode (`Default' setting below) for physics studies.
 No detector measures generator-level reaction modes like CCQE or NCRES.
-Detectors measure final states / topologies like {1mu-,0pi}, {1mu-,1pi+}, {0mu-, 1pi0}, 
+Detectors measure final states / topologies like {1mu-,0pi}, {1mu-,1pi+}, {0mu-, 1pi0},
 {1 track, 1 shower}, {1 mu-like ring} etc depending on granularity, thresholds and PID capabilities.
 No final state / topology is a proxy for any particular reaction mode.
 Intranuclear re-scattering in particular causes significant migration between states
 (see Table 8.1 in the Physics and User manual).
 
-The Default configuration depends on the tune and it is defined in TuneGeneratorList.xml, 
+The Default configuration depends on the tune and it is defined in TuneGeneratorList.xml,
 which is defined in each Tune subdirectory.
 
 Examples:
 - {1mu-,0pi} is mostly numuCCQE, but can also be caused by numu resonance production followed by pion absorption.
 - numuCCQE gives mostly {1mu-,0pi} but occasionaly can give {1mu-,1pi} if the recoil nucleon re-interacts.
-- NC1pi0 final states can be caused by all a) NC elastic followed by nucleon rescattering, 
+- NC1pi0 final states can be caused by all a) NC elastic followed by nucleon rescattering,
   b) NC resonance neutrino-production, c) NC non-resonance background, d) low-W NC DIS
   e) NC coherent scattering. Each source contributes differently in the pion momentum distribution.
 
-We also recommend that you treat the generator-level reaction modes largely as as an internal degree of freedom. 
+We also recommend that you treat the generator-level reaction modes largely as as an internal degree of freedom.
 Consequently, try to define your selection efficiencies and purities in terms of observable final states _only_.
 For example, if you define as `numuCCQE-like' := {1mu-,0pi} then define your selection efficiency
 as:
   efficiency = (`numuCCQE-like' events passing cuts) / (all true {1mu-,0pi} events)
-and not as: 
+and not as:
   efficiency = (`numuCCQE-like' events passing cuts) / (all true numuCCQE events)
 
 ..........................................................................................................................
@@ -47,44 +47,44 @@ Generator-%d                alg     No
 
 -->
 
-  <param_set name="AnomalyMediatedNuGamma"> 
+  <param_set name="AnomalyMediatedNuGamma">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/AM-NUGAMMA   </param>
   </param_set>
 
-  <param_set name="CEvNS"> 
+  <param_set name="CEvNS">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/CEvNS        </param>
   </param_set>
 
-  <param_set name="DFR"> 
+  <param_set name="DFR">
      <param type="int" name="NGenerators">  2                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/DFR-CC       </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/DFR-NC       </param>
   </param_set>
 
-  <param_set name="CCDFR"> 
+  <param_set name="CCDFR">
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DFR-CC    </param>
   </param_set>
 
-  <param_set name="NCDFR"> 
+  <param_set name="NCDFR">
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DFR-NC    </param>
   </param_set>
 
-  <param_set name="Charm"> 
+  <param_set name="Charm">
      <param type="int" name="NGenerators">   2                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-CHARM </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
-  <param_set name="CharmCCDIS"> 
+  <param_set name="CharmCCDIS">
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
-  <param_set name="CharmCCQE"> 
+  <param_set name="CharmCCQE">
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC-CHARM </param>
   </param_set>
@@ -103,48 +103,48 @@ Generator-%d                alg     No
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/IBD       </param>
   </param_set>
-  
-  <param_set name="IMD"> 
+
+  <param_set name="IMD">
      <param type="int" name="NGenerators">   2                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/IMD       </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/IMD-ANH   </param>
   </param_set>
 
-  <param_set name="NuEElastic"> 
+  <param_set name="NuEElastic">
      <param type="int" name="NGenerators">   1                            </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/NUE-EL </param>
   </param_set>
 
-  <param_set name="NuE"> 
+  <param_set name="NuE">
      <param type="int" name="NGenerators">   3                              </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/NUE-EL   </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/IMD      </param>
      <param type="alg" name="Generator-2">   genie::EventGenerator/IMD-ANH  </param>
   </param_set>
 
-  <param_set name="QE"> 
+  <param_set name="QE">
      <param type="int" name="NGenerators">   2                             </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC  </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC  </param>
   </param_set>
 
-  <param_set name="CCQE"> 
+  <param_set name="CCQE">
      <param type="int" name="NGenerators">   1                             </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC  </param>
   </param_set>
 
-  <param_set name="NCEL"> 
+  <param_set name="NCEL">
      <param type="int" name="NGenerators">   1                              </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-NC   </param>
   </param_set>
 
 
-  <param_set name="CCMEC"> 
+  <param_set name="CCMEC">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/MEC-CC       </param>
   </param_set>
 
-  <param_set name="NCMEC"> 
+  <param_set name="NCMEC">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/MEC-NC       </param>
   </param_set>
@@ -156,13 +156,13 @@ Generator-%d                alg     No
   </param_set>
 
 
-  <param_set name="CCQE+CCMEC"> 
+  <param_set name="CCQE+CCMEC">
      <param type="int" name="NGenerators">  2                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/MEC-CC       </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/QEL-CC       </param>
   </param_set>
 
-  <param_set name="NCEL+NCMEC"> 
+  <param_set name="NCEL+NCMEC">
      <param type="int" name="NGenerators">  2                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/MEC-NC       </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/QEL-NC       </param>
@@ -174,55 +174,55 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-1">  genie::EventGenerator/QEL-EM       </param>
   </param_set>
 
-  <param_set name="RES"> 
+  <param_set name="RES">
      <param type="int" name="NGenerators">   2                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-CC    </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-NC    </param>
   </param_set>
 
-  <param_set name="CCRES"> 
+  <param_set name="CCRES">
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-CC    </param>
   </param_set>
 
-  <param_set name="NCRES"> 
+  <param_set name="NCRES">
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-NC    </param>
   </param_set>
 
-  <param_set name="COHPION"> 
+  <param_set name="COHPION">
      <param type="int" name="NGenerators">   2                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-PION    </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/COH-NC-PION    </param>
   </param_set>
 
-  <param_set name="CCCOHPION"> 
+  <param_set name="CCCOHPION">
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-PION    </param>
   </param_set>
 
-  <param_set name="NCCOHPION"> 
+  <param_set name="NCCOHPION">
      <param type="int" name="NGenerators">   1                               </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-NC-PION    </param>
   </param_set>
 
-  <param_set name="DIS"> 
+  <param_set name="DIS">
      <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/DIS-NC    </param>
   </param_set>
 
-  <param_set name="CCDIS"> 
+  <param_set name="CCDIS">
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>
   </param_set>
 
-  <param_set name="NCDIS"> 
+  <param_set name="NCDIS">
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0">    genie::EventGenerator/DIS-NC    </param>
   </param_set>
 
-  <param_set name="NC"> 
+  <param_set name="NC">
      <param type="int" name="NGenerators">   6                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-NC       </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-NC       </param>
@@ -232,7 +232,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-5">   genie::EventGenerator/DFR-NC       </param>
   </param_set>
 
-  <param_set name="CC"> 
+  <param_set name="CC">
      <param type="int" name="NGenerators">   9                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC       </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-CC       </param>
@@ -245,7 +245,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-8">   genie::EventGenerator/QEL-CC-LAMBDA </param>
   </param_set>
 
-  <param_set name="CCinclMECnoDIS"> 
+  <param_set name="CCinclMECnoDIS">
      <param type="int" name="NGenerators">   5                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC       </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-CC       </param>
@@ -266,26 +266,26 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-7">   genie::EventGenerator/NUE-EL       </param>
   </param_set>
 
-  <!-- 
+  <!--
      Electron Scattering
   -->
 
-  <param_set name="EMQE"> 
+  <param_set name="EMQE">
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM       </param>
   </param_set>
 
-  <param_set name="EMMEC"> 
+  <param_set name="EMMEC">
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/MEC-EM       </param>
   </param_set>
 
-  <param_set name="EMRES"> 
+  <param_set name="EMRES">
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/RES-EM       </param>
   </param_set>
 
-  <param_set name="EMDIS"> 
+  <param_set name="EMDIS">
      <param type="int" name="NGenerators">   1                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DIS-EM       </param>
   </param_set>
@@ -293,7 +293,7 @@ Generator-%d                alg     No
   <!-- For future versions-->
   <!-- We also need EM COH, DFR and e-e scattering processes-->
 
-  <param_set name="EM"> 
+  <param_set name="EM">
      <param type="int" name="NGenerators">   4                                  </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-EM       </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/RES-EM       </param>
@@ -301,11 +301,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-3">   genie::EventGenerator/MEC-EM       </param>
   </param_set>
 
-  <!-- 
-     Special mode used for the hadronization benchmark test 
+  <!--
+     Special mode used for the hadronization benchmark test
   -->
 
-  <param_set name="HadronizationTest"> 
+  <param_set name="HadronizationTest">
      <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0">    genie::EventGenerator/RES-CC    </param>
      <param type="alg" name="Generator-1">    genie::EventGenerator/DIS-CC    </param>
@@ -313,7 +313,7 @@ Generator-%d                alg     No
 
 
   <!-- Generator List usefull for Spline generations -->
- 
+
   <param_set name="FastOnP">
      <param type="int" name="NGenerators">   9                                     </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
@@ -323,8 +323,8 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-4">   genie::EventGenerator/IMD-ANH         </param>
      <param type="alg" name="Generator-5">   genie::EventGenerator/QEL-CC-LAMBDA   </param>
      <param type="alg" name="Generator-6">   genie::EventGenerator/DIS-CC-SINGLEK  </param>
-     <param type="alg" name="Generator-7">   genie::EventGenerator/QEL-CC-CHARM    </param>     
-     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM    </param>     
+     <param type="alg" name="Generator-7">   genie::EventGenerator/QEL-CC-CHARM    </param>
+     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM    </param>
 
   </param_set>
 
@@ -379,7 +379,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-11">  genie::EventGenerator/QEL-CC-LAMBDA   </param>
      <param type="alg" name="Generator-12">  genie::EventGenerator/DIS-CC-SINGLEK  </param>
      <param type="alg" name="Generator-13">  genie::EventGenerator/MEC-CC          </param>
-     <param type="alg" name="Generator-14">  genie::EventGenerator/MEC-NC          </param>     
+     <param type="alg" name="Generator-14">  genie::EventGenerator/MEC-NC          </param>
      <param type="alg" name="Generator-15">  genie::EventGenerator/QEL-CC-CHARM    </param>
      <param type="alg" name="Generator-16">  genie::EventGenerator/DIS-CC-CHARM    </param>
   </param_set>
@@ -397,6 +397,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/DMDIS    </param>
   </param_set>
 
+  <param_set name="DMRES">
+     <param type="int" name="NGenerators">   1                              </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMRES    </param>
+  </param_set>
+
   <param_set name="DME">
      <param type="int" name="NGenerators">   1                              </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DME     </param>
@@ -409,10 +414,11 @@ Generator-%d                alg     No
   </param_set>
 
   <param_set name="DM">
-     <param type="int" name="NGenerators">   3                              </param>
+     <param type="int" name="NGenerators">   4                              </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/DMDIS    </param>
      <param type="alg" name="Generator-2">   genie::EventGenerator/DME      </param>
+     <param type="alg" name="Generator-3">   genie::EventGenerator/DMRES    </param>
   </param_set>
 
     <param_set name="DARKNEUTRINO">
@@ -420,10 +426,16 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/COHDNu   </param>
   </param_set>
 
+  <param_set name="DMNORES">
+    <param type="int" name="NGenerators">   3                                  </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/DMEL     </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/DMDIS    </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/DME      </param>
+  </param_set>
 
   <!-- HEDIS and HELepton modules -->
 
-  <param_set name="HE"> 
+  <param_set name="HE">
      <param type="int" name="NGenerators">    13                                  </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC      </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/HEDIS-NC      </param>
@@ -440,7 +452,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-12">   genie::EventGenerator/PhotonCOH     </param>
   </param_set>
 
-  <param_set name="HELepton"> 
+  <param_set name="HELepton">
      <param type="int" name="NGenerators">    11                                  </param>
      <param type="alg" name="Generator-0">    genie::EventGenerator/GLRES-Mu      </param>
      <param type="alg" name="Generator-1">    genie::EventGenerator/GLRES-Tau     </param>
@@ -455,7 +467,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-10">   genie::EventGenerator/PhotonCOH     </param>
   </param_set>
 
-  <param_set name="HEDISGLRES"> 
+  <param_set name="HEDISGLRES">
      <param type="int" name="NGenerators">    6                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/HEDIS-NC  </param>
@@ -465,7 +477,7 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-5">    genie::EventGenerator/GLRES-Had </param>
   </param_set>
 
-  <param_set name="CCHEDISGLRES"> 
+  <param_set name="CCHEDISGLRES">
      <param type="int" name="NGenerators">    5                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
      <param type="alg" name="Generator-1">    genie::EventGenerator/GLRES-Mu  </param>
@@ -474,23 +486,23 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-4">    genie::EventGenerator/GLRES-Had </param>
   </param_set>
 
-  <param_set name="HEDIS"> 
+  <param_set name="HEDIS">
      <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/HEDIS-NC  </param>
   </param_set>
 
-  <param_set name="CCHEDIS"> 
+  <param_set name="CCHEDIS">
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/HEDIS-CC  </param>
   </param_set>
 
-  <param_set name="NCHEDIS"> 
+  <param_set name="NCHEDIS">
      <param type="int" name="NGenerators">    1                               </param>
      <param type="alg" name="Generator-0">    genie::EventGenerator/HEDIS-NC  </param>
   </param_set>
 
-  <param_set name="GLRES"> 
+  <param_set name="GLRES">
      <param type="int" name="NGenerators">  4                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Mu     </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/GLRES-Tau    </param>
@@ -498,43 +510,43 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-3">  genie::EventGenerator/GLRES-Had    </param>
   </param_set>
 
-  <param_set name="GLRES-Mu"> 
+  <param_set name="GLRES-Mu">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Mu     </param>
   </param_set>
 
-  <param_set name="GLRES-Tau"> 
+  <param_set name="GLRES-Tau">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Tau    </param>
   </param_set>
 
-  <param_set name="GLRES-Ele"> 
+  <param_set name="GLRES-Ele">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Ele    </param>
   </param_set>
 
-  <param_set name="GLRES-Had"> 
+  <param_set name="GLRES-Had">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/GLRES-Had    </param>
   </param_set>
 
-  <param_set name="HENuEl"> 
+  <param_set name="HENuEl">
      <param type="int" name="NGenerators">  2                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/HENuEl-CC    </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/HENuEl-NC    </param>
   </param_set>
 
-  <param_set name="CCHENuEl"> 
+  <param_set name="CCHENuEl">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/HENuEl-CC    </param>
   </param_set>
 
-  <param_set name="NCHENuEl"> 
+  <param_set name="NCHENuEl">
      <param type="int" name="NGenerators">  1                                  </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/HENuEl-NC    </param>
   </param_set>
 
-  <param_set name="PhotonRES"> 
+  <param_set name="PhotonRES">
      <param type="int" name="NGenerators">  4                                   </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonRES-Mu  </param>
      <param type="alg" name="Generator-1">  genie::EventGenerator/PhotonRES-Tau </param>
@@ -542,41 +554,40 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-3">  genie::EventGenerator/PhotonRES-Had </param>
   </param_set>
 
-  <param_set name="PhotonRES-Mu"> 
+  <param_set name="PhotonRES-Mu">
      <param type="int" name="NGenerators">  1                                   </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonRES-Mu  </param>
   </param_set>
 
-  <param_set name="PhotonRES-Tau"> 
+  <param_set name="PhotonRES-Tau">
      <param type="int" name="NGenerators">  1                                   </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonRES-Tau </param>
   </param_set>
 
-  <param_set name="PhotonRES-Ele"> 
+  <param_set name="PhotonRES-Ele">
      <param type="int" name="NGenerators">  1                                   </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonRES-Ele </param>
   </param_set>
 
-  <param_set name="PhotonRES-Had"> 
+  <param_set name="PhotonRES-Had">
      <param type="int" name="NGenerators">  1                                   </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonRES-Had </param>
   </param_set>
 
-  <param_set name="PhotonCOH"> 
+  <param_set name="PhotonCOH">
      <param type="int" name="NGenerators">  1                                   </param>
      <param type="alg" name="Generator-0">  genie::EventGenerator/PhotonCOH     </param>
   </param_set>
 
-  <param_set name="NORM"> 
+  <param_set name="NORM">
      <param type="int" name="NGenerators">    1                               </param>
   <param type="alg" name="Generator-0">    genie::EventGenerator/NORM         </param>
   </param_set>
-  
-  <param_set name="CCQE+NORM"> 
+
+  <param_set name="CCQE+NORM">
      <param type="int" name="NGenerators">   2                                     </param>
      <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
      <param type="alg" name="Generator-1">   genie::EventGenerator/NORM            </param>
   </param_set>
 
 </alg_conf>
-
