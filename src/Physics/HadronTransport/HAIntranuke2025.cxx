@@ -1262,10 +1262,10 @@ void HAIntranuke2025::Inelastic(
           probM -= BE_correction_per_nucleon*5;   // BE correction
 	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
           double probEAvail;
-          if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) probEAvail = p->P4()->E() + BE_correction_per_nucleon*5; //pion probe -- includes mass, BE correction for 4 nucleons
+          if ( genie::pdg::IsPion(pgdc) ) probEAvail = p->P4()->E() + BE_correction_per_nucleon*5; //pion probe -- includes mass, BE correction for 4 nucleons
           else probEAvail = p->P4()->E() -probM; //proton or neutron probe -- does not include mass
           double clusKE = probEAvail * (1./5.);
-	  TLorentzVector clusP4(pP3,clusKE);   //no mass
+          TLorentzVector clusP4(pP3,clusKE);   //using no mass here is correct
           LOG("HAIntranuke2025",pINFO) << "probM = " << probM << " ;clusKE=  " << clusKE;
           TLorentzVector X4(*p->X4());
           GHepStatus_t ist = kIStNucleonClusterTarget;
@@ -1412,10 +1412,10 @@ void HAIntranuke2025::Inelastic(
           double probBE = (np+nn)*.005;   // BE correction
           TVector3 pP3 = p->P4()->Vect();
           double probEAvail;
-          if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) probEAvail = p->P4()->E() + probBE; //pion probe -- includes mass, BE correction for 4 nucleons
+          if ( genie::pdg::IsPion(pgdc) ) probEAvail = p->P4()->E() + probBE; //pion probe -- includes mass, BE correction for 4 nucleons
           else probEAvail = p->P4()->E() - (probM - probBE); //proton or neutron probe -- does not include mass
           double clusKE = probEAvail;  // + np*0.9383 + nn*.9396;
-	  TLorentzVector clusP4(pP3,clusKE);   //no mass is correct
+          TLorentzVector clusP4(pP3,clusKE);   //using no mass here is correct
           LOG("HAIntranuke2025",pINFO) << "probM = " << probM << " ;clusKE=  " << clusKE;
           TLorentzVector X4(*p->X4());
           GHepStatus_t ist = kIStNucleonClusterTarget;
