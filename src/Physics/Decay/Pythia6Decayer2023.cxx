@@ -204,10 +204,17 @@ bool Pythia6Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
     TLorentzVector daughter_p4(
        mcp.Px(),mcp.Py(),mcp.Pz(),mcp.Energy());
 
+    TLorentzVector daughter_x4(
+      mcp.X4()->X() + decay_particle->X4()->X(),
+      mcp.X4()->Y() + decay_particle->X4()->Y(),
+      mcp.X4()->Z() + decay_particle->X4()->Z(),
+      mcp.X4()->T() + decay_particle->X4()->T()
+    );
+
     event->AddParticle(
        daughter_pdg_code, daughter_status_code,
        decay_particle_id,-1,-1,-1,
-       daughter_p4, * mcp.X4() );
+       daughter_p4, daughter_x4 );
   }
 
   // Update the event weight for each weighted particle decay

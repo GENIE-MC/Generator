@@ -117,6 +117,12 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
 
     if(!apply_formation_zone) continue;
 
+    // If the first mother of the current particle has status kIStFormZone, then
+    // the formation zone was already applied, and we can move on
+    int first_mommy_idx = p->FirstMother();
+    GHepParticle* first_mommy = evrec->Particle( first_mommy_idx );
+    if ( first_mommy && first_mommy->Status() == kIStFormZone ) continue;
+
     LOG("DISHadronicVtx", pINFO)
       << "Applying formation-zone to " << p->Name();
 
@@ -154,7 +160,24 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
         x4new *= scale;
     }
 
-    p->SetPosition(x4new);
+    // We're ready. Create a copy of the current particle
+    GHepParticle p_copy( *p );
+
+    // Update the status of the current particle to indicate that its
+    // 4-position is before the formation zone "free step"
+    p->SetStatus( kIStFormZone );
+
+    // Set the position of the copy to the end of the formation zone. Note that
+    // the copy has the status kIstHadronInTheNucleus due to the check above,
+    // so it will be passed to the intranuclear cascade.
+    p_copy.SetPosition( x4new );
+
+    // Also add the current particle as the sole mother of the copy
+    p_copy.SetFirstMother( icurr );
+    p_copy.SetLastMother( -1 );
+
+    // Add the copy as a new particle to the event record
+    evrec->AddParticle( p_copy );
   }
 }
 //___________________________________________________________________________

@@ -23,6 +23,9 @@ QvalueShifterAlg      algo     yes        Possible Qshift algo             none
       <param type="double" name="MEC-CC-XSecScale"> 1.000 </param>
       <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
 
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.88.113007 </param>
+
   </param_set>
 
 </alg_conf>

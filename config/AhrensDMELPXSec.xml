@@ -19,6 +19,12 @@ WeinbergAngle    double   No         Weinberg angle              CommonParam[Wea
 XSec-Integrator  alg      No
 -->
 
+<param_set name="Default">
+  <param type="int" name="Citation-Count"> 2 </param>
+  <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.35.785 </param>
+  <param type="string" name="Citation-1-DOI"> 10.1103/PhysRevD.19.779 </param>
+</param_set>
+
 <param_set name="Velocity0">
   <param type="string"  name="CommonParam"> WeakInt,QuasiElastic,MagnMoments,BoostedDarkMatter </param>
   <param type="alg"  name="XSec-Integrator"> genie::DMELXSec/Default </param>

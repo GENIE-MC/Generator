@@ -67,8 +67,12 @@ void VertexGenerator::ProcessEventRecord(GHepRecord * evrec) const
   GHepParticle * p = 0;
   while( (p = (GHepParticle *) piter.Next()) )
   {
-    if(pdg::IsPseudoParticle(p->Pdg())) continue;
-    if(pdg::IsIon           (p->Pdg())) continue;
+    int pdg = p->Pdg();
+    bool is_pseudo_particle = pdg::IsPseudoParticle( pdg );
+    bool is_2nuc_cluster = pdg::Is2NucleonCluster( pdg );
+    bool is_ion = pdg::IsIon( pdg );
+    if ( is_pseudo_particle && !is_2nuc_cluster ) continue;
+    if ( is_ion ) continue;
 
     LOG("Vtx", pINFO) << "Setting vertex position for: " << p->Name();
     p->SetPosition(vtx.x(), vtx.y(), vtx.z(), 0.);

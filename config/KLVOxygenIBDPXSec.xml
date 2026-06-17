@@ -12,6 +12,10 @@ Name                   Type     Optional   Comment            Default
 -->
 
   <param_set name="Default"> 
+
+    <param type="int" name="Citation-Count"> 1 </param>
+    <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.66.013007 </param>
+
   </param_set>
 
 </alg_conf>

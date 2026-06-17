@@ -24,6 +24,10 @@ QvalueShifterAlg      algo     yes        Qvalue shifter algo                   
       <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
       <param type="double" name="MEC-EM-XSecScale"> 1.000 </param>
       <param type="string" name="CommonParam"> FermiGas  </param> <!-- For Kf lookups -->
+
+      <param type="int" name="Citation-Count"> 1 </param>
+      <param type="string" name="Citation-0-DOI"> 10.1103/PhysRevD.91.073004 </param>
+
   </param_set>
 
 </alg_conf>
