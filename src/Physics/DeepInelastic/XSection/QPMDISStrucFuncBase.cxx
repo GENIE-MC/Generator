@@ -264,7 +264,15 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     this->KAxialFactors (interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d, kA_sea_s);
   }
 
-
+  
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("DISSF", pDEBUG) << "K-Factors:";
+  LOG("DISSF", pDEBUG) << "U: kV_val_u = " << kV_val_u << ", kV_sea_u = " << kV_sea_u;
+  LOG("DISSF", pDEBUG) << "U: kA_val_u = " << kA_val_u << ", kA_sea_u = " << kA_sea_u;
+  LOG("DISSF", pDEBUG) << "D: kV_val_d = " << kV_val_d << ", kV_sea_d = " << kV_sea_d;
+  LOG("DISSF", pDEBUG) << "D: kA_val_d = " << kA_val_d << ", kA_sea_d = " << kA_sea_d;
+#endif
+  
   //
   // Compute structure functions for the EM, NC and CC cases
   //
@@ -431,7 +439,6 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISSF", pDEBUG) << "Nucl. mod   = " << f;
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
 #endif
 
@@ -593,8 +600,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   fPDF->Calculate(x, Q2pdf);
 
   // Check whether it is above charm threshold
-  bool above_charm =
-           utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fMc);
+  bool above_charm = utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fMc);
   if(above_charm) {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISSF", pDEBUG)
@@ -625,19 +631,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
     LOG("DISSF", pDEBUG)
      << "The event is below the charm threshold (mcharm = " << fMc << ")";
   }
-  LOG("DISSF", pDEBUG) << "K-Factors:";
-  LOG("DISSF", pDEBUG) << "U: Kval = " << kval_u << ", Ksea = " << ksea_u;
-  LOG("DISSF", pDEBUG) << "D: Kval = " << kval_d << ", Ksea = " << ksea_d;
 #endif
-
-  // Apply the K factors
-  //
-  // Always scale d pdfs with d kfactors and u pdfs with u kfactors.
-  // Don't swap the applied kfactors for neutrons.
-  // Debdatta & Donna noted (Sep.2006) that a similar swap in the neugen
-  // implementation was the cause of the difference in nu and nubar F2
-  //
-
 
   // Rules of thumb
   // ---------------------------------------
