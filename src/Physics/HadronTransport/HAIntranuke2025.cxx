@@ -1258,11 +1258,14 @@ void HAIntranuke2025::Inelastic(
           // simple for now, each (of 5) in hadron cluster has 1/5 of mom and KE
 
           double probM = pLib->Find(pdgc)   ->Mass();
-          probM -= .025;   // BE correction
-          TVector3 pP3 = p->P4()->Vect() * (1./5.);
-          double probKE = p->P4()->E() -probM;
-          double clusKE = probKE * (1./5.);
-          TLorentzVector clusP4(pP3,clusKE);   //no mass
+          double BE_correction_per_nucleon = .005; //GeV
+          probM -= BE_correction_per_nucleon*5;   // BE correction
+	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
+          double probEAvail;
+          if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) probEAvail = p->P4()->E() + BE_correction_per_nucleon*5; //pion probe -- includes mass, BE correction for 4 nucleons
+          else probEAvail = p->P4()->E() -probM; //proton or neutron probe -- does not include mass
+          double clusKE = probEAvail * (1./5.);
+	  TLorentzVector clusP4(pP3,clusKE);   //no mass
           LOG("HAIntranuke2025",pINFO) << "probM = " << probM << " ;clusKE=  " << clusKE;
           TLorentzVector X4(*p->X4());
           GHepStatus_t ist = kIStNucleonClusterTarget;
@@ -1408,9 +1411,11 @@ void HAIntranuke2025::Inelastic(
           double probM = pLib->Find(pdgc)   ->Mass();
           double probBE = (np+nn)*.005;   // BE correction
           TVector3 pP3 = p->P4()->Vect();
-          double probKE = p->P4()->E() - (probM - probBE);
-          double clusKE = probKE;  // + np*0.9383 + nn*.9396;
-          TLorentzVector clusP4(pP3,clusKE);   //no mass is correct
+          double probEAvail;
+          if ( pdgc==kPdgPiP || pdgc==kPdgPi0 || pdgc==kPdgPiM) probEAvail = p->P4()->E() + probBE; //pion probe -- includes mass, BE correction for 4 nucleons
+          else probEAvail = p->P4()->E() - (probM - probBE); //proton or neutron probe -- does not include mass
+          double clusKE = probEAvail;  // + np*0.9383 + nn*.9396;
+	  TLorentzVector clusP4(pP3,clusKE);   //no mass is correct
           LOG("HAIntranuke2025",pINFO) << "probM = " << probM << " ;clusKE=  " << clusKE;
           TLorentzVector X4(*p->X4());
           GHepStatus_t ist = kIStNucleonClusterTarget;
