@@ -53,6 +53,8 @@ protected:
   virtual void InhibitDecay  (int pdgc, TDecayChannel * dc=0) const = 0;
   virtual void UnInhibitDecay(int pdgc, TDecayChannel * dc=0) const = 0;
 
+  virtual void PrintDecayChannelInfo (int pdgc) const;
+
   bool        fGenerateWeighted;    ///< generate weighted or unweighted decays?
   bool        fRunBefHadroTransp;   ///< is invoked before or after FSI?
   PDGCodeList fParticlesToDecay;    ///< list of particles to be decayed

@@ -39,6 +39,9 @@ public:
   // Implement the EventRecordVisitorI interface
   void ProcessEventRecord(GHepRecord * event) const;
 
+  void   PrintDecayChannelInfo  (int pdgc)                       const;
+  int    FindPythiaDecayChannel (int kc, TDecayChannel * ch)     const;
+
 private:
 
   void   Initialize             (void)                           const;
@@ -47,8 +50,6 @@ private:
   void   UnInhibitDecay         (int pdgc, TDecayChannel * ch=0) const;
   bool   Decay                  (int ip, GHepRecord * event)     const;
   double SumOfBranchingRatios   (int kc)                         const;
-  int    FindPythiaDecayChannel (int kc, TDecayChannel * ch)     const;
-  bool   MatchDecayChannels     (int ic, TDecayChannel * ch)     const;
 
   mutable double     fWeight;
 };

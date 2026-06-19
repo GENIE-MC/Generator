@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -10,6 +10,11 @@
 
 #include <vector>
 #include <cassert>
+#include <algorithm>
+
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 
 #include <TClonesArray.h>
 #include <TLorentzVector.h>
@@ -298,13 +303,17 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
   if(! this->IsHandled(pdg_code)) return;
 
+  LOG("Pythia8Decay",pINFO)
+    << "InhibitDecay for pdgc " << pdg_code << " PDGLibrary channel "
+    << (dc?dc->Number():-999) << " [ -999 = all ]";
+
 #ifdef __GENIE_PYTHIA8_ENABLED__
 
   Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
   bool known = gPythia->particleData.isParticle(pdg_code);
   if ( ! known ) {
     LOG("Pythia8Decay", pERROR)
-      << "Can not switch off decays of " << pdg_code
+      << "Can not switch off decays of pdgc " << pdg_code
       << " as it is UNKNOWN to Pythia8";
     return;
   }
@@ -315,27 +324,39 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
   int ilast_chan  = pdentry->sizeChannels() - 1;
   if (ilast_chan < 0) {
     LOG("Pythia8Decay", pDEBUG)
-      << "No available decay channels for " << pdg_code;
+      << "No available decay channels for pdgc " << pdg_code;
     return;
   }
 
-  if(dc) {
-    LOG("Pythia8Decay", pFATAL)
-       << "Switching off individual decay channels for particle = " << pdg_code
-       << " is NOT yet supported for Pythia8";
-    exit(42);
-    return;
+  if (dc) {
+    // find the matching channel set ifirst_chan,ilast_chan to that
+    LOG("Pythia8Decay",pDEBUG)
+      << "Need to map TDatabasePDG channel to Pythia8 channel for " << pdg_code;
+    int ichannel = FindPythiaDecayChannel(pdg_code,dc);
+    if (ichannel < 0) {
+      LOG("Pythia8Decay",pWARN)
+        << "Could not map TDecayChannel " << dc->Number() << " to a Pythia8 channel";
+      return;
+    }
+    LOG("Pythia8Decay",pINFO)
+      << "TDatabasePDG channel " << dc->Number() << " mapped to Pythia8 " << ichannel;
+    // toggle just the one channel
+    ifirst_chan = ichannel;
+    ilast_chan  = ichannel;
   }
 
+  LOG("Pythia8Decay",pINFO)
+    << "Inhibiting Pythia8 channels [" << ifirst_chan << "," << ilast_chan << "] of pdgc " << pdg_code;
   //std::cout << "Before inhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
   //gPythia->particleData.list(pdg_code);
 
   for (int ichan=ifirst_chan; ichan<=ilast_chan; ++ichan) {
     int onMode = pdentry->channel(ichan).onMode();
-    // 4 possible modes:  0=off particle & antiparticle; 1=on both; 2=on particle only; 3=on antiparticle only
+    int onMode_original = onMode;
     bool is_particle = (pdg_code>0);
-    // we're trying to turn off the mode
+    // 4 possible modes:  0=off particle & antiparticle; 1=on both; 2=on particle only; 3=on antiparticle only
+    // we're trying to turn _off_ the mode
     switch ( onMode ) {
     case 0: // off for particles & antiparticles
       break; // already off
@@ -349,10 +370,11 @@ void Pythia8Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
       onMode = (is_particle ? 3 : 0);
       break;
     }
+    LOG("Pythia8Decay", pINFO) << " change py8 ichan " << ichan << ": " << onMode_original << " to " << onMode;
     pdentry->channel(ichan).onMode(onMode);
   }
 
-  //std::cout << "After inhibiting channels " << ifirst_chan << "," << ilast_chan
+  //std::cout << "*** After inhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
   //gPythia->particleData.list(pdg_code);
 
@@ -370,13 +392,17 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
 {
   if(! this->IsHandled(pdg_code)) return;
 
+  LOG("Pythia8Decay",pINFO)
+    << "UnInhibitDecay for pdgc " << pdg_code << " PDGLibrary channel "
+    << (dc?dc->Number():-999) << " [ -999 = all ]";
+
 #ifdef __GENIE_PYTHIA8_ENABLED__
 
   Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
   bool known = gPythia->particleData.isParticle(pdg_code);
   if ( ! known ) {
     LOG("Pythia8Decay", pERROR)
-      << "Can not switch on decays of " << pdg_code
+      << "Can not switch on decays of pdgc " << pdg_code
       << " as it is UNKNOWN to Pythia8";
     return;
   }
@@ -387,27 +413,39 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
   int ilast_chan  = pdentry->sizeChannels() - 1;
   if (ilast_chan < 0) {
     LOG("Pythia8Decay", pDEBUG)
-      << "No available decay channels for " << pdg_code;
+      << "No available decay channels for pdgc " << pdg_code;
     return;
   }
 
-  if(dc) {
-    LOG("Pythia8Decay", pFATAL)
-       << "Switching on individual decay channels for particle = " << pdg_code
-       << " is NOT yet supported for Pythia8";
-    exit(42);
-    return;
+  if (dc) {
+    // find the matching channel set ifirst_chan,ilast_chan to that
+    LOG("Pythia8Decay",pDEBUG)
+      << "Need to map TDatabasePDG channel to Pythia8 channel for " << pdg_code << " (" << dc->Number() << ")";
+    int ichannel = FindPythiaDecayChannel(pdg_code,dc);
+    if (ichannel < 0) {
+      LOG("Pythia8Decay",pWARN)
+        << "Could not map TDecayChannel " << dc->Number() << " to a Pythia8 channel";
+      return;
+    }
+    LOG("Pythia8Decay",pINFO)
+      << "TDatabasePDG channel " << dc->Number() << " mapped to Pythia8 " << ichannel;
+    // toggle just the one channel
+    ifirst_chan = ichannel;
+    ilast_chan  = ichannel;
   }
 
+  LOG("Pythia8Decay",pINFO)
+    << "Unihibiting Pythia8 channels [" << ifirst_chan << "," << ilast_chan << "] of pdgc " << pdg_code;
   //std::cout << "Before uninhibiting channels " << ifirst_chan << "," << ilast_chan
   //          << " of " << pdg_code << std::endl;
   //gPythia->particleData.list(pdg_code);
 
   for (int ichan=ifirst_chan; ichan<=ilast_chan; ++ichan) {
     int onMode = pdentry->channel(ichan).onMode();
-    // 4 possible modes:  0=off particle & antiparticle; 1=on both; 2=on particle only; 3=on antiparticle only
+    int onMode_original = onMode;
     bool is_particle = (pdg_code>0);
-    // we're trying to turn off the mode
+    // 4 possible modes:  0=off particle & antiparticle; 1=on both; 2=on particle only; 3=on antiparticle only
+    // we're trying to turn _on_ the mode
     switch ( onMode ) {
     case 0: // off for particles & antiparticles
       onMode = (is_particle ? 2 : 3);
@@ -415,12 +453,13 @@ void Pythia8Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
     case 1: // on for both particle & antiparticle
       break; // already on
     case 2: // on for particle only
-      onMode = (is_particle ? 2 : 0);
+      onMode = (is_particle ? 2 : 1);
       break;
     case 3: // on for antiparticle only
-      onMode = (is_particle ? 0 : 3);
+      onMode = (is_particle ? 1 : 3);
       break;
     }
+    LOG("Pythia8Decay", pINFO) << " change py8 ichan " << ichan << ": " << onMode_original << " to " << onMode;
     pdentry->channel(ichan).onMode(onMode);
   }
 
@@ -462,16 +501,69 @@ double Pythia8Decayer2023::SumOfBranchingRatios(int /* kc */ ) const
   return sumbr;
 }
 //____________________________________________________________________________
-int Pythia8Decayer2023::FindPythiaDecayChannel(int /* kc */, TDecayChannel* dc) const
+int Pythia8Decayer2023::FindPythiaDecayChannel(int pdgc, TDecayChannel* dc) const
 {
-  if(!dc) return -1;
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
+  LOG("Pythia8Decay",pDEBUG)
+    << "looking for " << pdgc << " channel " << dc->Number();
 
-  LOG("Pythia8Decay", pFATAL)
-    << "Pythia8Decayer2023::FindPythiaDecayChannel() not yet implemented";
-  gAbortingInErr = true;
-  std::exit(1);
+  // Get the one-and-only instance of Pythia8 that GENIE will use
+  Pythia8::Pythia* gPythia = genie::Pythia8Singleton::Instance()->Pythia8();
+  if ( ! gPythia->particleData.isParticle(pdgc) ) {
+    LOG("Pythia8Decay",pWARN) << "Pythia8 doesn't know about pdg " << pdgc;
+    return -1;
+  }
+
+  // gather info from TDatabasePDG channel; get sorted list of daughters to match
+  int nd = dc->NDaughters();
+  vector<int> dc_daughter(nd);
+  for (int i=0; i < nd; ++i) dc_daughter[i] = dc->DaughterPdgCode(i);
+  sort( dc_daughter.begin(), dc_daughter.end() );
+
+  auto pdentry = gPythia->particleData.particleDataEntryPtr(pdgc);
+  // loop over Pythia8 channels looking for a match
+  int nChan = pdentry->sizeChannels();
+
+  LOG("Pythia8Decay",pDEBUG) << " dc has nd " << nd << " daughters "
+                             << " pythia8 has nChan " << nChan;
+
+  for (int iChan=0; iChan < nChan; ++iChan) {
+    auto p8dkchan = pdentry->channel(iChan);
+
+    int nmult = p8dkchan.multiplicity();
+    // must have same number of daughters
+    if (nd != nmult) {
+      LOG("Pythia8Decay",pDEBUG) << "iChan " << iChan << " " << nd << " != " << nmult;
+      continue;
+    }
+
+    vector<int> py_daughter(nmult);
+    for (int j=0; j < nmult; ++j) {
+      // pythia8 decay list is for particles, not antiparticles
+      // if we're getting the daughters of an antiparticle, then reverse them
+      int py_dau = p8dkchan.product(j);
+      if (pdgc<0) py_dau = gPythia->particleData.antiId(py_dau);
+      py_daughter[j] = py_dau;
+    }
+    sort ( py_daughter.begin(), py_daughter.end() );
+
+    // now compare the lists
+    bool match = true;
+    for (int k=0; k < nd; ++k) {
+      LOG("Pythia8Decay",pDEBUG) << "   iChan " << iChan << " k=" << k
+                                 << " " << dc_daughter[k] << " vs. " << py_daughter[k];
+      if (dc_daughter[k] != py_daughter[k]) {
+        match = false;  // mismatch
+        break; // we're done with this iChan
+      }
+    }
+    // made it through the vector comparison; have a match?
+    if (match) {
+      LOG("Pythia8Decay",pDEBUG) << "iChan " << iChan << " match " << (match?"yes":"no");
+      return iChan;
+    }
+  } // loop over iChan
 
 #else
   LOG("Pythia8Decay", pFATAL)
@@ -482,26 +574,86 @@ int Pythia8Decayer2023::FindPythiaDecayChannel(int /* kc */, TDecayChannel* dc) 
 
   return -1;
 }
-//____________________________________________________________________________
-bool Pythia8Decayer2023::MatchDecayChannels(int /* ichannel */, TDecayChannel* /* dc */) const
+//___________________________________________________________________________
+void Pythia8Decayer2023::PrintDecayChannelInfo(int pdgc) const
 {
-  // num. of daughters in the input TDecayChannel & the input PYTHIA ichannel
-  //int nd = dc->NDaughters();
+  LOG("Decay",pDEBUG)
+    << "Real implementation for PrintDecayInfo(" << pdgc << ") for "
+    << typeid(*this).name();
 
-#ifdef __GENIE_PYTHIA8_ENABLED__
+  TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
+  if ( ! p ) {
+    LOG("Pythia8Decay",pWARN) << "PDGLibrary doesn't know about pdg " << pdgc;
+    return;
+  }
 
-  LOG("Pythia8Decay", pFATAL)
-    << "Pythia8Decayer2023::MatchDecayChannels() not yet implemented";
-  gAbortingInErr = true;
-  std::exit(1);
+  // Get the one-and-only instance of Pythia8 that GENIE will use
+  Pythia8::Pythia* gPythia = genie::Pythia8Singleton::Instance()->Pythia8();
+  if ( ! gPythia->particleData.isParticle(pdgc) ) {
+    LOG("Pythia8Decay",pWARN) << "Pythia8 doesn't know about pdg " << pdgc;
+    return;
+  }
 
-#else
-  LOG("Pythia8Decay", pFATAL)
-    << "calling GENIE/PYTHIA8 decay without enabling PYTHIA8";
-  gAbortingInErr = true;
-  std::exit(1);
-#endif
+  auto py8_p  = gPythia->particleData.particleDataEntryPtr(pdgc);
 
-  return true;
+  std::ostringstream ss;
+  ss << "\n";
+  double brsum=0.0, brsum_py8=0.0;
+  std::set<int> py8matches;
+  for (int ic=0; ic < p->NDecayChannels(); ++ic) {
+    TDecayChannel * dch = p->DecayChannel(ic);
+    double br     = dch->BranchingRatio();
+    double br_py8     =  0;
+    int    onMode_py8 = -1;
+    // does this PDGLibrary channel map to something in Pythia8?
+    int ic_py8 = FindPythiaDecayChannel(pdgc,dch); // -1 if no match
+    if (ic_py8>=0) {
+      auto py8_dk = py8_p->channel(ic_py8);
+      br_py8      = py8_dk.bRatio();
+      onMode_py8  = py8_dk.onMode();
+    }
+    brsum     += br;
+    brsum_py8 += br_py8;
+    ss << "    " << std::setw(2) << ic
+       << " " << std::fixed << std::setprecision(8) << br << " [ ";
+    if (ic_py8<0) {
+      ss << "-- - ----------";
+    } else {
+      py8matches.insert(ic_py8);
+      ss << std::setw(2) << ic_py8 << " "
+         << std::setw(1) << onMode_py8 << " "
+         << std::setprecision(8) << br_py8;
+    }
+    ss << " ] ==> ";
+    for (int kdau=0; kdau < dch->NDaughters(); ++kdau) {
+      int pdgc_dau = dch->DaughterPdgCode(kdau);
+      TParticlePDG * p_dau = PDGLibrary::Instance()->Find(pdgc_dau);
+      ss << p_dau->GetName() << "(" << pdgc_dau << ")";
+      if ( kdau < dch->NDaughters() -1 ) ss << " + ";
+    }
+    ss << "\n";
+  }
+  ss << " BRsum " << std::setprecision(8) << brsum
+     << " BRsum_py8 " << std::setprecision(8) << brsum_py8 << "\n";
+  ss <<    "The following pythia channels are not accessible from InhibitDecay/Particle:" << "\n";
+  //std::set<int> py8missing;
+  int npy8chan = py8_p->sizeChannels();
+  for (int ic_py8=0; ic_py8 < npy8chan; ++ic_py8) {
+    //c++20 if ( ! py8matches.contains(ic_py8) ) {
+    if ( py8matches.find(ic_py8) == py8matches.end() ) {
+      //py8missing.insert(ic_py8);
+      ss << " " << ic_py8;
+    }
+  }
+
+  LOG("Pythia8Decay",pNOTICE)
+    << "\n PDGLibrary decay channels for " <<  p->GetName() << "(" << pdgc << ")"
+    << "\n iChan BRatio [ pythia8chan onMode BRatio ] "
+    << ss.str() << "\n";
+
+  LOG("Pythia8Decay",pNOTICE)
+    << " Pythia8 view of decays for " <<  py8_p->name() << "(" << pdgc << ")";
+  gPythia->particleData.list(pdgc);
+
 }
-//____________________________________________________________________________
+//___________________________________________________________________________
