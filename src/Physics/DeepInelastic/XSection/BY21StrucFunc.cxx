@@ -136,7 +136,14 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double Mf2 = TMath::Power( Mf, 2 ) ; 
   double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) + 2*fA*x);
+
+  // When the final lepton is heavy, i.e. charm production, we need to use the
+  // slow rescaling correction [10.1088/0954-3899/35/5/053101]
+  // This is unused when Mf = 0;
   xw *= (1 + Mf * Mf / myQ2);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
+  LOG("BodekYang", pDEBUG) << "slow rescaling = " << (1 + Mf * Mf / myQ2) << " with M_C = " << Mf;
+#endif
   return xw;
 }
 //____________________________________________________________________________
@@ -172,13 +179,13 @@ void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
   double myQ2  = this->Q2(interaction);
   double ksea = ( myQ2 + fPsA*fCsA ) / ( myQ2 + fCsA ) ;
   double kvalance = ( myQ2 + fPvA * fMv2/4. ) / ( myQ2 + fMv2/4. ) ; 
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
   const InitialState & init_state = interaction->InitState();
   int  probe_pdgc  = init_state.ProbePdg();
   bool is_nu       = pdg::IsNeutrino     ( probe_pdgc );
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc );
-
+#endif
   kuv = kvalance;
   kdv = kvalance;
   kus = ksea;
