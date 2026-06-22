@@ -1,3 +1,18 @@
 [submodule "src/ExternalLibs/professor"]
 	path = src/ExternalLibs/professor
 	url = https://gitlab.com/hepcedar/professor.git
+[submodule "src/ExternalLibs/lhapdf6"]
+	path = src/ExternalLibs/lhapdf6
+	url = https://gitlab.com/hepcedar/lhapdf.git
+[submodule "src/ExternalLibs/libxml2"]
+	path = src/ExternalLibs/libxml2
+	url = https://github.com/GNOME/libxml2.git
+[submodule "src/ExternalLibs/pythia8"]
+	path = src/ExternalLibs/pythia8
+	url = https://gitlab.com/Pythia8/releases.git
+[submodule "src/ExternalLibs/log4cpp"]
+	path = src/ExternalLibs/log4cpp
+	url = https://github.com/orocos-toolchain/log4cpp.git
+[submodule "src/ExternalLibs/geant4"]
+	path = src/ExternalLibs/geant4
+	url = https://github.com/Geant4/geant4.git
