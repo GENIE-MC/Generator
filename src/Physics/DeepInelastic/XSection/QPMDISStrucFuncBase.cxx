@@ -341,7 +341,21 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   // (fds_c > 0) = 1 if above charm threshold
   // KCH = 1 if below charm threshold
   // ***  CHARGED CURRENT
-  double KCH = (fds_c > 0) && (fCharmOff) && (is_CC) ? KCharm(interaction, fMc) : 1;
+  const bool hasCharmContribution =
+         (fdv_c * switch_dv   > 0)
+      || (fds_c * switch_ds   > 0)
+      || (fs_c  * switch_s    > 0)
+      || (fc_c  * switch_cbar > 0)
+      || (fc_c  * switch_c    > 0)
+      || (fds_c * switch_dbar > 0)
+      || (fs_c  * switch_sbar > 0);
+
+  const bool applyCharmCorrection =
+      hasCharmContribution && !fCharmOff && is_CC;
+
+  double KCH = applyCharmCorrection
+      ? KCharm(interaction, fMc)
+      : 1.0;
   if(is_CC) {
 
     
