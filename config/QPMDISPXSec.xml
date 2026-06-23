@@ -36,7 +36,7 @@ WeinbergAngle               double  No                                          
 
   <param_set name="BY2021">
     <param type="string" name="CommonParam"> WeakInt  </param>
-    <param type="alg" name="XSec-Integrator"> genie::DISXSec/BY2000  </param>
+    <param type="alg" name="XSec-Integrator"> genie::DISXSec/BY2021  </param>
     <param type="alg" name="SFAlg"> genie::BY21StrucFunc/Default   </param>
     <param type="double" name="DIS-CC-XSecScale">    1. </param>
     <param type="double" name="DIS-NC-XSecScale">    1. </param>
