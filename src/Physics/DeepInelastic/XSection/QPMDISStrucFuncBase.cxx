@@ -339,26 +339,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     xF3val = 2.0 * (q3-qb3);
   }
 
-  // (fds_c > 0) = 1 if above charm threshold
-  // KCH = 1 if below charm threshold
-  // ***  CHARGED CURRENT
-  double KCH = 1.0;
-  if(is_CC) {
-    const bool hasCharmContribution =
-          (fdv_c * switch_dv   > 0)
-        || (fds_c * switch_ds   > 0)
-        || (fs_c  * switch_s    > 0)
-        || (fc_c  * switch_cbar > 0)
-        || (fc_c  * switch_c    > 0)
-        || (fds_c * switch_dbar > 0)
-        || (fs_c  * switch_sbar > 0);
-
-    const bool applyCharmCorrection =
-        hasCharmContribution && !fCharmOff;
-      if (applyCharmCorrection){
-        KCH = KCharm(interaction, fMc);
-      }
-    
+  if( is_CC ) { 
     double q=0, qbar=0;
 
     if (is_nu) {      
@@ -375,7 +356,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
       qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcd2;
       qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcs2;
     } else if (is_nubar) {
-	    q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
+      q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
              + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVud2 ;
 	    q   += ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
              + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVus2 ;
@@ -387,7 +368,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	    qbar += switch_sbar * fs    * ( kV_sea_s + kA_sea_s ) * fVus2;
 	    qbar += switch_sbar * fs_c  * ( kV_sea_s + kV_sea_s ) * fVcs2;
     } else {
-	    return;
+      return;
     }
     
     F2val  = (q+qbar);
@@ -451,7 +432,10 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
 
-
+  // Apply Charm correction only for charm production and CC
+  double KCH = 1.0;
+  if(is_CC && !fCharmOff &&( (fdv_c > 0) || (fds_c > 0) || (fs_c > 0) || (fc_c > 0) ) ) KCH = KCharm(interaction, fMc);
+  
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
 #endif
