@@ -338,26 +338,26 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     F2val  = q2 + qb2;
     xF3val = 2.0 * (q3-qb3);
   }
+
   // (fds_c > 0) = 1 if above charm threshold
   // KCH = 1 if below charm threshold
   // ***  CHARGED CURRENT
-  const bool hasCharmContribution =
-         (fdv_c * switch_dv   > 0)
-      || (fds_c * switch_ds   > 0)
-      || (fs_c  * switch_s    > 0)
-      || (fc_c  * switch_cbar > 0)
-      || (fc_c  * switch_c    > 0)
-      || (fds_c * switch_dbar > 0)
-      || (fs_c  * switch_sbar > 0);
-
-  const bool applyCharmCorrection =
-      hasCharmContribution && !fCharmOff && is_CC;
-
-  double KCH = applyCharmCorrection
-      ? KCharm(interaction, fMc)
-      : 1.0;
+  double KCH = 1.0;
   if(is_CC) {
+    const bool hasCharmContribution =
+          (fdv_c * switch_dv   > 0)
+        || (fds_c * switch_ds   > 0)
+        || (fs_c  * switch_s    > 0)
+        || (fc_c  * switch_cbar > 0)
+        || (fc_c  * switch_c    > 0)
+        || (fds_c * switch_dbar > 0)
+        || (fs_c  * switch_sbar > 0);
 
+    const bool applyCharmCorrection =
+        hasCharmContribution && !fCharmOff;
+      if (applyCharmCorrection){
+        KCH = KCharm(interaction, fMc);
+      }
     
     double q=0, qbar=0;
 
@@ -481,7 +481,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
     //double a = TMath::Power(x,2.) / Q2val;
     //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
-
+    // KCH neq 1 if above charm threshold and cc interactions
     fF3 = H * KCH *xF3val / x;
     fF2 = F2val;
     fF1 = fF2 * KCH * 0.5 * c / x;
