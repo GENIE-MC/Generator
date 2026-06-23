@@ -67,8 +67,8 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const {
   // down distribution and a decrease of the valance quarks. The value was not
   // obtained from the tune - we do not use it. We use the defalt of 0 for this
   // implementation whilst keeping the functionality it for the user to use.
-  uv = uv - 2 * fUpScale * us ;
-  dv = dv - 2 * fDownScale * ds ;
+  uv -= 2 * fUpScale * us ;
+  dv -= 2 * fDownScale * ds ;
   us *= (1 + fUpScale);
   ds *= (1 + fDownScale);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
