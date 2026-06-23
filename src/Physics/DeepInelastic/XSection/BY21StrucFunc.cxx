@@ -91,6 +91,7 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-H3" , fH3  ) ;
   GetParam( "BY-RQ2min", fRQ2min);
   GetParamDef( "BY-IncludeH", fIncludeH, true );
+  GetParamDef( "BY-IncludeKCharm", fIncludeKCharm, true );
   GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
 }
 //____________________________________________________________________________
@@ -115,6 +116,7 @@ void BY21StrucFunc::Init(void)
   fCaLW_nubar = 0;
   fIncludeH = true;
   fIncludeAxial = true;
+  fIncludeKCharm = true;
   fH0   = 0;
   fH1   = 0;
   fH2   = 0;
@@ -171,7 +173,10 @@ void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
 				    double & kuv, double & kdv, double & kus, double & kds, double & kss ) const {
 
   // If requested, assume axial is equal to vector;
-  if( !fIncludeAxial ) return KVectorFactors( interaction, kuv, kdv, kus, kds, kss );
+  if( !fIncludeAxial ) {
+    KVectorFactors( interaction, kuv, kdv, kus, kds, kss );
+    return ;
+  }
   
   // https://arxiv.org/pdf/2108.09240 Sec 11.2 
   // We apply a different K factor for axial contribtions, as given in Eq. 49-50.
@@ -179,13 +184,7 @@ void BY21StrucFunc::KAxialFactors(const Interaction * interaction,
   double myQ2  = this->Q2(interaction);
   double ksea = ( myQ2 + fPsA*fCsA ) / ( myQ2 + fCsA ) ;
   double kvalance = ( myQ2 + fPvA * fMv2/4. ) / ( myQ2 + fMv2/4. ) ; 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
-  const ProcessInfo &  proc_info  = interaction->ProcInfo();
-  const InitialState & init_state = interaction->InitState();
-  int  probe_pdgc  = init_state.ProbePdg();
-  bool is_nu       = pdg::IsNeutrino     ( probe_pdgc );
-  bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc );
-#endif
+
   kuv = kvalance;
   kdv = kvalance;
   kus = ksea;
@@ -208,6 +207,8 @@ double BY21StrucFunc::H(const Interaction * interaction) const {
 double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
   // Overrides QPMDISStrucFuncBase::KCharm() function to compute the correction of the BY 2021 update
   // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  if( !fIncludeKCharm ) return 1.;
+  
   double Q2 = this->Q2(interaction);
   return Q2/(Q2 + Mf * Mf);
 }
