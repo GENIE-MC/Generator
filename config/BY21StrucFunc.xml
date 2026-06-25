@@ -83,6 +83,8 @@ WeinbergAngle              double  No                                           
     <param type="bool"   name="IncludeNuclMod">     true  </param>
     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
     <param type="bool"   name="Use2016Corrections"> true </param>
+    <param type="bool"   name="Use-Kcharm">         true </param>
+    <param type="bool"   name="Use-slow-rescaling"> true </param>
     <!-- Specify DIS nuclear correction to use
 	 In this case we use the A-Dependent parameterization by J.Gomez et. al. 
     -->

@@ -560,12 +560,12 @@ void QPMDISStrucFuncBase::KAxialFactors(const Interaction *,
 }
 
 double QPMDISStrucFuncBase::KCharm(const Interaction * interaction, double Mf) const {
-  // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  // Not used by default
   return 1;
 }
 
 double QPMDISStrucFuncBase::H(const Interaction * interaction) const {
-  // The correction corresponds to Sec ??? eq ??? of https://arxiv.org/pdf/2108.09240
+  // Not used by default
   return 1;
 }
 

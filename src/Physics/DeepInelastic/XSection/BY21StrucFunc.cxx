@@ -92,6 +92,8 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParam( "BY-RQ2min", fRQ2min);
   GetParamDef( "BY-IncludeH", fIncludeH, true );
   GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
+  GetParam("Use-Kcharm", fkcharm, false);
+  GetParam("Use-slow-rescaling", fslowrescaling, true);
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -120,6 +122,8 @@ void BY21StrucFunc::Init(void)
   fH2   = 0;
   fH3   = 0;
   fRQ2min = 0;
+  fkcharm = false;
+  fslowrescaling = true;
 }
 //____________________________________________________________________________
 double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) const
@@ -136,11 +140,15 @@ double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) co
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double Mf2 = TMath::Power( Mf, 2 ) ; 
   double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) + 2*fA*x);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BodekYang", pDEBUG) << "A " << fA << ", B " << fB << ", use kCharm: " << fkcharm;
+#endif
   // When the final lepton is heavy, i.e. charm production, we need to use the
   // slow rescaling correction [10.1088/0954-3899/35/5/053101]
   // This is unused when Mf = 0;
-  xw *= (1 + Mf * Mf / myQ2);
+  if (fslowrescaling){
+    xw *= (1 + Mf * Mf / myQ2);
+  }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
   LOG("BodekYang", pDEBUG) << "slow rescaling = " << (1 + Mf * Mf / myQ2) << " with M_C = " << Mf;
 #endif
@@ -208,6 +216,9 @@ double BY21StrucFunc::H(const Interaction * interaction) const {
 double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
   // Overrides QPMDISStrucFuncBase::KCharm() function to compute the correction of the BY 2021 update
   // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  if (!fkcharm){
+    return 1;
+  }
   double Q2 = this->Q2(interaction);
   return Q2/(Q2 + Mf * Mf);
 }

@@ -80,6 +80,8 @@ protected:
   double fRQ2min;    /// Q2 below corrections are applied  
   bool   fIncludeH; ///< Include H correction 
   bool   fIncludeAxial; ///< Include difference between A and V;
+  bool   fkcharm; ///< weather to use kcharm factor
+  bool   fslowrescaling; ///< weather to use the slow resclaing charm factor
 };
 
 }         // genie namespace
