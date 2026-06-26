@@ -93,7 +93,7 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParamDef( "BY-IncludeH", fIncludeH, true );
   GetParamDef( "BY-IncludeKCharm", fIncludeKCharm, true );
   GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
-  GetParam("Use-slow-rescaling", fslowrescaling, true);
+  GetParam("BY-IncludeSlowRescaling", fslowrescaling, true);
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
