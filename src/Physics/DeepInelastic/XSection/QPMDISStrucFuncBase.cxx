@@ -356,7 +356,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     const bool applyCharmCorrection =
         hasCharmContribution && !fCharmOff;
       if (applyCharmCorrection){
-        KCH = KCharm(interaction, fMc);
+        KCH = ScalingVar(interaction, fMc)/interaction->Kine().x();
       }
     
     double q=0, qbar=0;
@@ -482,9 +482,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     //double a = TMath::Power(x,2.) / Q2val;
     //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
     // KCH neq 1 if above charm threshold and cc interactions
-    fF3 = H * KCH *xF3val / x;
+    fF3 = H * xF3val / x;
     fF2 = F2val;
-    fF1 = fF2 * KCH * 0.5 * c / x;
+    fF1 = fF2 * 0.5 * c / x;
     fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   }
