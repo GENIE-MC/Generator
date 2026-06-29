@@ -356,7 +356,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     const bool applyCharmCorrection =
         hasCharmContribution && !fCharmOff;
       if (applyCharmCorrection){
-        KCH = ScalingVar(interaction, fMc)/interaction->Kine().x();
+        KCH = KCharm(interaction, fMc);
       }
     
     double q=0, qbar=0;

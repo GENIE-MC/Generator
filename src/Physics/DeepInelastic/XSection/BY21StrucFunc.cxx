@@ -215,8 +215,12 @@ double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
   // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
   if( !fIncludeKCharm ) return 1.;
   
-  double Q2 = this->Q2(interaction);
-  return Q2/(Q2 + Mf * Mf);
+  double K = ScalingVar(interaction, fMc)/interaction->Kine().x();
+  if (fslowrescaling){
+            K /= (1 + Mf * Mf / this->Q2(interaction));
+  }
+  return K;
+  
 }
 //____________________________________________________________________________
 double BY21StrucFunc::R(const Interaction * interaction) const {
