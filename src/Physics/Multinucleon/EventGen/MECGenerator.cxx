@@ -32,9 +32,7 @@
 #include "Physics/Multinucleon/EventGen/MECGenerator.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
-#ifdef MARTINI_MEC
 #include "Physics/Multinucleon/XSection/MartiniEricsonChanfrayMarteauMECPXSec2024.h"
-#endif 
 
 #include "Physics/NuclearState/NuclearModelI.h"
 //#include "Physics/Multinucleon/XSection/MECHadronTensor.h"
@@ -104,6 +102,15 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
       this -> DecayNucleonCluster(event);
   }  else if (fXSecModel->Id().Name() == "genie::SuSAv2MECPXSec") {
       this -> SelectSuSALeptonKinematics(event);
+      this -> AddTargetRemnant(event);
+      this -> GenerateNSVInitialHadrons(event);
+      // Note: this method in `MECTensor/MECTensorGenerator.cxx` appeared to be a straight
+      // copy of an earlier version of the `DecayNucleonCluster` method here - but, watch
+      // for this...
+      this -> DecayNucleonCluster(event);
+  }
+  else if (fXSecModel->Id().Name() == "genie::MartiniEricsonChanfrayMarteauMECPXSec2024") {
+      this -> SelectMartiniLeptonKinematics(event);
       this -> AddTargetRemnant(event);
       this -> GenerateNSVInitialHadrons(event);
       // Note: this method in `MECTensor/MECTensorGenerator.cxx` appeared to be a straight
@@ -1142,7 +1149,6 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   LOG("MEC", pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
 //___________________________________________________________________________
-#ifdef MARTINI_MEC
 void MECGenerator::SelectMartiniLeptonKinematics(GHepRecord* event) const
 {
   // Event Properties
@@ -1153,8 +1159,8 @@ void MECGenerator::SelectMartiniLeptonKinematics(GHepRecord* event) const
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
   double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  if ( interaction->ProcInfo().IsEM() )
+    Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
 
   LOG("MEC", pDEBUG) << "Q2min = " << Q2min;
 
@@ -1294,7 +1300,8 @@ void MECGenerator::SelectMartiniLeptonKinematics(GHepRecord* event) const
 
         // Find out if we should use a pn initial state
         double myrand_pn = rnd->RndKine().Rndm();
-        double pnFraction = 1.;
+        double pnFraction = dynamic_cast< const MartiniEricsonChanfrayMarteauMECPXSec2024* >( fXSecModel )
+          ->PairRatio( interaction );
 
         LOG("MEC", pINFO) << "Test for pn: "
           << "; xsec = " << XSec << "; pn_fraction = " << pnFraction
@@ -1303,15 +1310,14 @@ void MECGenerator::SelectMartiniLeptonKinematics(GHepRecord* event) const
         double myrand_pp = rnd->RndKine().Rndm();
         double ppFraction = 0 ;
 
-	if ( interaction->ProcInfo().IsEM() ) {
-      // calculate ppFraction in the EM case
-	  ppFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )
-          ->PairRatio( interaction ,"ppFraction");
+	      if ( interaction->ProcInfo().IsEM() ) {
+          // calculate ppFraction in the EM case
+	        ppFraction = dynamic_cast< const SuSAv2MECPXSec* >( fXSecModel )->PairRatio( interaction ,"ppFraction");
 
-      LOG("MEC", pINFO) << "Test for pp: "
-                        << "; xsec = " << XSec << "; pp_fraction = " << ppFraction
-                        << "; random number val = " << myrand_pp;
-	}
+          LOG("MEC", pINFO) << "Test for pp: "
+            << "; xsec = " << XSec << "; pp_fraction = " << ppFraction
+            << "; random number val = " << myrand_pp;
+	      }
 
         if ( myrand_pn <= pnFraction ) {
           // yes it is, add a PN initial state to event record
@@ -1402,7 +1408,6 @@ void MECGenerator::SelectMartiniLeptonKinematics(GHepRecord* event) const
 
   LOG("MEC", pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
-#endif
 //___________________________________________________________________________
 void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
 {

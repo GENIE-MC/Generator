@@ -64,10 +64,8 @@ protected:
   void    DecayNucleonCluster               (GHepRecord * event) const;
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
   void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
- #ifdef MARTINI_MEC
   void    SelectMartiniLeptonKinematics     (GHepRecord * event) const;
- #endif
-  virtual void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
+  void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
 
   // Helper function that computes the maximum differential cross section
