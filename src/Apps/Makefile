@@ -297,7 +297,7 @@ clean: FORCE
 	$(RM) $(TGT)
 
 distclean: FORCE
-	$(RM) $(patsubst $(GENIE_BIN_DIR),$(GENIE_BIN_INSTALLATION_PATH),$(TGT))
+	$(RM) $(patsubst $(GENIE_BIN_PATH)%,$(GENIE_BIN_INSTALLATION_PATH)%,$(TGT))
 
 FORCE:
 

@@ -352,7 +352,7 @@ double NievesQELCCPXSec::Integral(const Interaction * in) const
   // let the cross section integrator do all of the work. It's smart
   // enough to handle free nucleon vs. nuclear targets, different
   // nuclear models (including the local Fermi gas model), etc.
-  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" ) {
+  if ( fXSecIntegrator->Id().Name() == "genie::NewQELXSec" || fXSecIntegrator->Id().Name() == "genie::INCLQELXSec" ) {
     return fXSecIntegrator->Integrate(this, in);
   }
   else {
@@ -922,11 +922,36 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 // Calculates the constraction of the leptonic and hadronic tensors. The
 // expressions used here are valid in a frame in which the
 // initial nucleus is at rest, and qTilde must be in the z direction.
-double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
-const TLorentzVector inNucleonMomOnShell, const TLorentzVector leptonMom,
-const TLorentzVector qTildeP4, double M, bool is_neutrino,
+double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom1,
+const TLorentzVector inNucleonMomOnShell1, const TLorentzVector leptonMom1,
+const TLorentzVector qTildeP41, double M, bool is_neutrino,
 const Target& target, bool assumeFreeNucleon) const
 {
+
+  // copy the const value to do the transfermation
+  TLorentzVector neutrinoMom = neutrinoMom1;
+  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShell1;
+  TLorentzVector qTildeP4 = qTildeP41;
+  TLorentzVector leptonMom = leptonMom1;
+
+  // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
+  TVector3 beta = -1.0 * inNucleonMomOnShell.BoostVector(); // boost from lab to nucRest
+  neutrinoMom.Boost(beta);
+  leptonMom.Boost(beta);
+  qTildeP4.Boost(beta);
+  inNucleonMomOnShell.Boost(beta);
+
+  // Find the rotation angle needed to put q3VecTilde along z
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 rot = ( qTildeP4.Vect().Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( qTildeP4.Vect() );
+
+  neutrinoMom.Rotate(angle, rot);
+  leptonMom.Rotate(angle, rot);
+  qTildeP4.Rotate(angle, rot);
+  inNucleonMomOnShell.Rotate(angle, rot);
+
   double r = target.HitNucPosition();
   bool tgtIsNucleus = target.IsNucleus();
   int tgt_pdgc = target.Pdg();

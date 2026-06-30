@@ -254,10 +254,10 @@ double DMDISKinematicsGenerator::ComputeMaxXSec(
 #endif
   double max_xsec = 0.0;
 
-  const InitialState & init_state = interaction->InitState();
+  //const InitialState & init_state = interaction->InitState();
   //double Ev = init_state.ProbeE(kRfHitNucRest);
   //const ProcessInfo & proc = interaction->ProcInfo();
-  const Target & tgt = init_state.Tgt();
+  //const Target & tgt = init_state.Tgt();
 
   int Ny  = 20;
   int Nx  = 40;

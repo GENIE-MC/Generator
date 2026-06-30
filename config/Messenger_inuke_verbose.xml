@@ -91,6 +91,7 @@
   <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="HadTransp">             INFO   </priority>
   <priority msgstream="HadronicVtx">           NOTICE </priority>
+  <priority msgstream="HadronTensors">         WARN   </priority>
   <priority msgstream="HybridHad">             INFO   </priority>
   <priority msgstream="IBD">                   NOTICE </priority>
   <priority msgstream="IMDXSec">               NOTICE </priority>
@@ -100,18 +101,18 @@
   <priority msgstream="Interaction">           NOTICE </priority>
   <priority msgstream="Intranuke">             INFO   </priority>
   <priority msgstream="Intranuke2018">         INFO   </priority>
-  <priority msgstream="Intranuke2019">         INFO   </priority>
+  <priority msgstream="Intranuke2025">         INFO   </priority>
   <priority msgstream="HAIntranuke">           INFO   </priority>
   <priority msgstream="HAIntranuke2018">       INFO   </priority>
-  <priority msgstream="HNIntranuke2019">       NOTICE </priority>
+  <priority msgstream="HNIntranuke2025">       NOTICE </priority>
   <priority msgstream="HAIntranuke2018">       INFO   </priority>
-  <priority msgstream="HNIntranuke2019">       NOTICE </priority>
+  <priority msgstream="HNIntranuke2025">       NOTICE </priority>
   <priority msgstream="INukeData">             NOTICE </priority>
   <priority msgstream="INukeData2018">         NOTICE </priority>
-  <priority msgstream="INukeData2019">         NOTICE </priority>
+  <priority msgstream="INukeData2025">         NOTICE </priority>
   <priority msgstream="INukeUtils">            INFO   </priority>
   <priority msgstream="INukeUtils2018">        INFO   </priority>
-  <priority msgstream="INukeUtils2019">        INFO   </priority>
+  <priority msgstream="INukeUtils2025">        INFO   </priority>
   <priority msgstream="HINCLCascadeIntranuke"> INFO   </priority>
   <priority msgstream="HG4BertCascIntranuke">  INFO   </priority>
   <priority msgstream="INukeNucleonCorr">      INFO   </priority>
@@ -156,6 +157,7 @@
   <priority msgstream="QELEvent">              INFO   </priority>
   <priority msgstream="QELHadronicVtx">        INFO   </priority>
   <priority msgstream="QELKinematics">         INFO   </priority>
+  <priority msgstream="UnifiedQE">             WARN   </priority>
   <priority msgstream="SPPEventGen">           INFO   </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
@@ -203,6 +205,7 @@
   <priority msgstream="HEDISKinematics">       WARN   </priority>
   <priority msgstream="HEDISStrucFunc">        WARN   </priority>
   <priority msgstream="LeptoHad">              ERROR  </priority>
+  <priority msgstream="LeptonTensor">          WARN   </priority>
 
   <priority msgstream="gevgen">                NOTICE </priority>
   <priority msgstream="gevgen_ndcy">           NOTICE </priority>

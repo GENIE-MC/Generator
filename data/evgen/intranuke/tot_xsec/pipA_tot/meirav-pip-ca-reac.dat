@@ -1,0 +1,6 @@
+#pi+ Ca total reaction xsec
+#Meirav, et al.  Phys Rev C36, 1066 (1987)
+#Tpi (MeV)   sig (mb)   err (mb)
+  50.          439       66
+  65.          563       43
+

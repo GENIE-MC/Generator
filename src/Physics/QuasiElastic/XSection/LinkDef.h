@@ -1,4 +1,5 @@
 #ifdef __CINT__
+#include "Framework/Conventions/GBuild.h"
 
 #pragma link off all globals;
 #pragma link off all classes;
@@ -22,6 +23,7 @@
 #pragma link C++ class genie::LwlynSmithQELCCPXSec;
 #pragma link C++ class genie::LwlynSmithFFCC;
 #pragma link C++ class genie::LwlynSmithFFNC;
+#pragma link C++ class genie::LwlynSmithFFEM;
 #pragma link C++ class genie::LwlynSmithFF;
 #pragma link C++ class genie::MKFFEM;
 #pragma link C++ class genie::MKFFCC;
@@ -46,6 +48,14 @@
 #pragma link C++ class genie::QELXSec;
 #pragma link C++ class genie::NewQELXSec;
 
+#pragma link C++ class genie::LeptonTensor;
+#pragma link C++ class genie::ManualResponseTensor;
+#pragma link C++ class genie::UnifiedQELPXSec;
+#pragma link C++ class genie::KellyELFormFactorsModel;
+
+#ifdef __GENIE_INCL_ENABLED__
+#pragma link C++ class genie::INCLQELXSec;
+#endif
 
 // Wrappers for GSL/MathMore lib
 #pragma link C++ class genie::utils::gsl::d2Xsec_dQ2dv;

@@ -79,7 +79,7 @@ double HELeptonXSec::Integrate(
     Target * target = interaction->InitStatePtr()->TgtPtr();
 
     int NNucl = 0;
-    bool skip = false;
+    //bool skip = false;
     if ( proc_info.IsGlashowResonance() ) {
       NNucl = init_state.Tgt().Z();
       target->SetId(kPdgTgtFreeP);

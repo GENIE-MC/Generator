@@ -10,6 +10,7 @@
 
 #pragma link C++ class genie::INukeHadroData;
 #pragma link C++ class genie::INukeHadroData2018;
+#pragma link C++ class genie::INukeHadroData2025;
 #pragma link C++ class genie::INukeDeltaPropg;
 //#pragma link C++ class genie::INukePhotoPropg;
 
@@ -19,13 +20,16 @@
 #pragma link C++ class genie::Intranuke;
 #pragma link C++ class genie::HAIntranuke;
 #pragma link C++ class genie::Intranuke2018;
+#pragma link C++ class genie::Intranuke2025;
 #pragma link C++ class genie::HAIntranuke2018;
 #pragma link C++ class genie::HNIntranuke2018;
+#pragma link C++ class genie::HAIntranuke2015;
+#pragma link C++ class genie::HNIntranuke2015;
 
 #pragma link C++ class genie::CascadeReweight;
 
 #ifdef __GENIE_INCL_ENABLED__
-#pragma link C++ class genie::HINCLCascadeIntranuke;
+#pragma link C++ class genie::INCLCascadeIntranuke;
 #endif
 
 #ifdef __GENIE_GEANT4_INTERFACE_ENABLED__

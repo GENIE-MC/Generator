@@ -44,6 +44,16 @@ SU3-F                         double   No                                     Co
 
   </param_set>
 
+  <param_set name="ZExp_minerva"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/minerva </param>
+
+  </param_set>  
+
+  <param_set name="ZExp_lqcd"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/lqcd </param>
+
+  </param_set>   
+
   <param_set name="RunningMA"> 
      <param type="alg" name="AxialFormFactorModel"> genie::MArunAxialFormFactorModel/Default </param>
 

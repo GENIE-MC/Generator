@@ -43,6 +43,30 @@ bool NuclearModelI::GenerateNucleon(const Target & tgt,
     return GenerateNucleon(tgt);
   }
 
+
+bool NuclearModelI::GenerateCluster(Target & tgt, PDGCodeList & pdgv, TVector3 *p3a, TVector3 *p3b) const 
+  {
+    tgt.SetHitNucPdg(pdgv[0]);
+    bool gen_a = this->GenerateNucleon(tgt);
+    (*p3a) = this->Momentum3();
+    tgt.SetHitNucPdg(pdgv[1]);
+    bool gen_b = this->GenerateNucleon(tgt);
+    (*p3b) = this->Momentum3();
+    return (gen_a && gen_b);
+  }
+bool  NuclearModelI::GenerateCluster (Target & tgt, PDGCodeList & pdgv, TVector3 *p3a, TVector3 *p3b, double *removalEa, double *removalEb) const
+  {
+    tgt.SetHitNucPdg(pdgv[0]);
+    bool gen_a = this->GenerateNucleon(tgt);
+    (*p3a) = this->Momentum3();
+    (*removalEa) = this->RemovalEnergy();
+    tgt.SetHitNucPdg(pdgv[1]);
+    bool gen_b = this->GenerateNucleon(tgt);
+    (*p3b) = this->Momentum3();
+    (*removalEb) = this->RemovalEnergy();
+    return (gen_a && gen_b);
+  }
+
 double NuclearModelI::Prob(double p, double w, const Target & tgt,
                            double /*hitNucleonRadius*/) const
   {

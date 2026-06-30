@@ -111,7 +111,13 @@ namespace kinematics
    Range1D_t  InelYLim    (double El, double ml, double M);
    Range1D_t  InelYLim_X  (double El, double ml, double M, double x);
 
-   static const double kMinQ2Limit   = 0.02;  // GeV^2 // Q2 threshold relevant for em scattering events
+   // static const double kMinQ2Limit   = 0.02;  // GeV^2 // Q2 threshold relevant for em scattering events
+	 // Configurable Q^2 threshold for em scattering events (GeV^2).
+   // Reads "EM-MinQ2Limit" from CommonParam.xml [Lepton] on first use;
+   // falls back to 0.02 if absent. Implicitly converts to double so all
+   // existing call sites compile unchanged.
+   struct EMMinQ2LimitProxy { operator double() const; };
+   extern const EMMinQ2LimitProxy kMinQ2Limit;
   }
 
 } // kinematics namespace

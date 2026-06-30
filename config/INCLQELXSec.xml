@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the NewQELXSec xsec algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name                         Type     Optional   Comment                                      Default
+
+gsl-integration-type         string   Yes        name of GSL multidimensional integrator      adaptive
+
+AverageOverNucleons          bool     Yes        whether to do an MC integration over the     true
+                                                 initial state nuclear model when computing
+                                                 the total cross section
+.....................................................................................................
+-->
+
+  <param_set name="Default"> 
+    <param type="string" name = "gsl-integration-type"> adaptive </param>
+    <param type="double" name = "gsl-relative-tolerance"> 0.0001 </param>
+    <param type="int" name = "gsl-max-eval"> 100000 </param>
+    <param type="alg" name = "VertexGenAlg"> genie::VertexGenerator/Default </param>
+    <param type="int" name = "NumNucleonThrows"> 500 </param>
+  </param_set>
+
+
+  <!-- Omits the MC integration over nucleons for use in "QE shape" reweighting -->
+  <param_set name="ReweightShape">
+    <param type="bool" name = "AverageOverNucleons"> false </param>
+  </param_set>
+
+</alg_conf>

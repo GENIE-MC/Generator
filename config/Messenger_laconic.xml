@@ -107,6 +107,7 @@
   <priority msgstream="GIBUU">                         WARN   </priority>
   <priority msgstream="HadTransp">                     WARN   </priority>
   <priority msgstream="HadronicVtx">                   WARN   </priority>
+  <priority msgstream="HadronTensors">                 WARN   </priority>
   <priority msgstream="HybridHad">                     WARN   </priority>
   <priority msgstream="IBD">                           WARN   </priority>
   <priority msgstream="IMDXSec">                       WARN   </priority>
@@ -115,19 +116,19 @@
   <priority msgstream="IntLst">                        WARN   </priority>
   <priority msgstream="Interaction">                   WARN   </priority>
   <priority msgstream="Intranuke">                     WARN   </priority>
-  <priority msgstream="Intranuke2019">                 WARN   </priority>
+  <priority msgstream="Intranuke2025">                 WARN   </priority>
   <priority msgstream="Intranuke2018">                 WARN   </priority>
   <priority msgstream="HAIntranuke">                   WARN   </priority>
-  <priority msgstream="HAIntranuke2019">               WARN   </priority>
+  <priority msgstream="HAIntranuke2025">               WARN   </priority>
   <priority msgstream="HAIntranuke2018">               WARN   </priority>
   <priority msgstream="HNIntranuke">                   WARN   </priority>
-  <priority msgstream="HNIntranuke2019">               WARN   </priority>
+  <priority msgstream="HNIntranuke2025">               WARN   </priority>
   <priority msgstream="HNIntranuke2018">               WARN   </priority>
   <priority msgstream="INukeData">                     WARN   </priority>
-  <priority msgstream="INukeData2019">                 WARN   </priority>
+  <priority msgstream="INukeData2025">                 WARN   </priority>
   <priority msgstream="INukeData2018">                 WARN   </priority>
   <priority msgstream="INukeUtils">                    WARN   </priority>
-  <priority msgstream="INukeUtils2019">                WARN   </priority>
+  <priority msgstream="INukeUtils2025">                WARN   </priority>
   <priority msgstream="INukeUtils2018">                WARN   </priority>
   <priority msgstream="HINCLCascadeIntranuke">         WARN   </priority>
   <priority msgstream="HG4BertCascIntranuke">          WARN   </priority>
@@ -177,6 +178,7 @@
   <priority msgstream="QELEvent">                      WARN   </priority>
   <priority msgstream="QELHadronicVtx">                WARN   </priority>
   <priority msgstream="QELKinematics">                 WARN   </priority>
+  <priority msgstream="UnifiedQE">                     WARN   </priority>
   <priority msgstream="SPPEventGen">                   WARN </priority>
   <priority msgstream="RESXSec">                       WARN   </priority>
   <priority msgstream="RESPXSec">                      WARN   </priority>
@@ -224,6 +226,7 @@
   <priority msgstream="HEDISKinematics">               WARN   </priority>
   <priority msgstream="HEDISStrucFunc">                WARN   </priority>
   <priority msgstream="LeptoHad">                      WARN   </priority>
+  <priority msgstream="LeptonTensor">                  WARN   </priority>
 
   <priority msgstream="gevgen">                        WARN   </priority>
   <priority msgstream="gevgen_dm">                     WARN   </priority>

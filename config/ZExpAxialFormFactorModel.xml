@@ -43,9 +43,40 @@ QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
     <param type="double" name="QEL-Z_A4">    2.3    </param>
     <!-- more factors can be added, if necessary according to Kmax --> 
 
+  </param_set>
+
+  <param_set name="minerva"> 
+
+    <param type="string"   name="CommonParam"> QuasiElastic  </param>
     
+    <param type="bool"   name="QEL-Q4limit"> true   </param>
+    <param type="int"    name="QEL-Kmax">     2     </param>
+
+    <param type="double" name="QEL-T0">   -0.5   </param>
+    <param type="double" name="QEL-Tcut">  0.161604   </param> <!-- 9*m_pi^2 -->
+
+    <param type="double" name="QEL-Z_A1">   1.64778080    </param>
+    <param type="double" name="QEL-Z_A2">  -0.94181417    </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
 
   </param_set>
+
+   <param_set name="lqcd"> 
+
+    <param type="string"   name="CommonParam"> QuasiElastic  </param>
+    
+    <param type="bool"   name="QEL-Q4limit"> true   </param>
+    <param type="int"    name="QEL-Kmax">     2     </param>
+
+    <param type="double" name="QEL-T0">    -0.5    </param>
+    <param type="double" name="QEL-Tcut">  0.161604   </param> <!-- 9*m_pi^2 -->
+
+    <param type="double" name="QEL-Z_A1">  1.72089706     </param>
+    <param type="double" name="QEL-Z_A2">  -0.30982708     </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
+
+  </param_set> 
+
 
 </alg_conf>
 

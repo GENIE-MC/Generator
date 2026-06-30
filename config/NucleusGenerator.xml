@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the Nucleus Gen
+
+Configurable Parameters:
+.............................................................................................................
+Name                          Type    Optional   Comment                                           Default
+NucleusGenerator              alg     No         Nucleus Generator:
+						 1. NucleusGenTraditional 
+						    - the combination of FermiMover and 
+						      VertexGenerator
+						 2. NucleusGenINCL
+						    - INCLXX nuclear model
+.............................................................................................................
+-->
+
+<alg_conf>
+
+ 
+
+
+  <param_set name="Default">
+    <param type="alg"  name="NucleusGenerator">                 genie::NucleusGenHybridStruck/Default </param>
+</param_set>
+
+
+  <param_set name="INCL">
+    <param type="alg"  name="NucleusGenerator">                 genie::NucleusGenINCL/Default </param>
+  </param_set>
+</alg_conf>

@@ -67,6 +67,8 @@ void RESHadronicSystemGenerator::ProcessEventRecord(GHepRecord * evrec) const
   this->AddResonance(evrec,pdgc);
 
   // Decay the resonance (and its decay products, if they include resonances)
+  // Turn off decay for INCL FSI model
+  if(!fDecay) return;
   fResonanceDecayer->ProcessEventRecord(evrec);
 
   // Add the baryon resonance decay products at the event record
@@ -220,10 +222,13 @@ void RESHadronicSystemGenerator::LoadConfig(void)
 {
   fResonanceDecayer = 0;
   //fPreINukeDecayer  = 0;
+  //
+  // Turn off decay for INCL FSI model
+  this->GetParamDef("DecayResonance", fDecay, true);
 
   // Get the specified decayers
   fResonanceDecayer =
-      dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("Decayer"));
+    dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("Decayer"));
   assert(fResonanceDecayer);
   // fPreINukeDecayer =
   //    dynamic_cast<const EventRecordVisitorI *> (this->SubAlg("PreTransportDecayer"));

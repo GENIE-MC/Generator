@@ -12,6 +12,19 @@ MAKEFILE = Makefile
 #
 include $(GENIE)/src/make/Make.include
 
+# Include INCL in here; INCL model include hyper-nuclei
+# So, it is need to put hyper-nuclei into event record to
+# avoid crashing.
+ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
+  # extra flags, include paths, and libraries to link to
+  CXXFLAGS               += $(INCL_DFLAGS)
+  CPP_INCLUDES           += $(INCL_INCLUDES)
+  ROOT_DICT_GEN_INCLUDES += $(INCL_INCLUDES) $(INCL_DFLAGS)
+  EXTRA_EXT_LIBS         += $(INCL_LIBRARIES)
+else
+  $(info $(PACKAGE) not built against INCL++)
+endif
+
 PACKAGE           = Framework/ParticleData
 PACKAGE_ABBREV    = FwParDat
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)

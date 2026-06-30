@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the Nucleus Gen
+
+Configurable Parameters:
+.............................................................................................................
+Name                          Type    Optional   Comment                                           Default
+inclxx-data-dir               string  yes        data files of INCL model                          ${INCLXX_DATA_DIR}/data
+inclxx-ablaxx-dir             string  yes        data files of ablaxx model                        ${INCLXX_DATA_DIR}/data
+inclxx-abla07-dir             string  yes        data files of abla07 model                        ${INCLXX_DATA_DIR}/data
+inclxx-geminixx-dir           string  yes        data files of geminixx model                      ${INCLXX_DATA_DIR}/data
+inclxx-de-excitation          string  yes        options for deexcitation model                    ABLA07
+                                                 - ABLA07
+                                                 - ABLAXX
+                                                 - GEMINIXX
+inclxx-potential              string  yes        options for potential energy                      IsospinEnergyPotential
+                                                 - IsospinEnergyPotential 
+                                                 - IsospinEnergySmoothPotential 
+                                                 - IsospinPotential 
+                                                 - ConstantPotential 
+inclxx-pauli-block            string  yes        options for pauli blocking                        StrictStatisticalPauli
+                                                 - StrictStatisticalPauli 
+                                                 - StatisticalPauli 
+                                                 - StrictPauli 
+                                                 - GlobalPauli
+                                                 - NoPauli
+local-energy-BB               string  yes        options for local energy baryon-baryon            always
+                                                 - always
+                                                 - never
+                                                 - first-collision
+local-energy-BB               string  yes        options for local energy pi-N collision           always
+                                                 - always
+                                                 - never
+                                                 - first-collision
+hadronizationTime             double  yes        Hadronization time, in fm/c. Particles            0.0
+                                                 emerging from collisions are forbidden
+                                                 to recollide within this time.
+cluster-algorithm             string  yes        cluster-algorithm                                 intercomparison
+                                                 - intercomparison
+                                                 - none 
+
+
+.............................................................................................................
+-->
+
+<alg_conf>
+  <param_set name="Default">
+    <param type="string" name="inclxx-data-dir"    >   ${INCLXX_DATA_DIR}/data </param>
+    <param type="string" name="inclxx-ablaxx-dir"  >   ${INCLXX_DATA_DIR}/de-excitation/ablaxx/upstream/data/G4ABLA3.0/ </param>
+    <param type="string" name="inclxx-abla07-dir"  >   ${INCLXX_DATA_DIR}/de-excitation/abla07/upstream/tables/ </param>
+    <param type="string" name="inclxx-geminixx-dir">   ${INCLXX_DATA_DIR}/de-excitation/geminixx/upstream/ </param>
+    <param type="string" name="inclxx-de-excitation" > ABLAXX </param>
+    <param type="string" name="inclxx-potential" > IsospinEnergyPotential </param>
+    <param type="string" name="inclxx-pauli-block" > StrictStatisticalPauli </param>
+    <param type="string" name="local-energy-BB" > first-collision </param>
+    <param type="string" name="local-energy-pi" > first-collision </param>
+    <param type="double" name="hadronizationTime" > 0.0 </param>
+    <param type="string" name="cluster-algorithm" > intercomparison </param>
+  </param_set>
+
+  <param_set name="Never">
+    <param type="string" name="local-energy-BB" > never </param>
+    <param type="string" name="local-energy-pi" > never </param>
+  </param_set>
+
+  <param_set name="Always">
+    <param type="string" name="local-energy-BB" > always </param>
+    <param type="string" name="local-energy-pi" > always </param>
+  </param_set>
+
+  <param_set name="clusterNone">
+    <param type="string" name="local-energy-BB" > first-collision </param>
+    <param type="string" name="local-energy-pi" > first-collision </param>
+    <param type="string" name="cluster-algorithm" > none </param>
+  </param_set>
+
+
+
+
+</alg_conf>

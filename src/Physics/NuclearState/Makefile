@@ -25,4 +25,19 @@ install : install-inc install-lib
 #
 include $(GENIE)/src/make/Make.std-package-targets
 
+# Only need these here ... not in every package
+
+ifeq ($(strip $(GOPT_ENABLE_INCL)),YES)
+  # extra flags, include paths, and libraries to link to
+  CXXFLAGS               += $(INCL_DFLAGS)
+  CPP_INCLUDES           += $(INCL_INCLUDES)
+  ROOT_DICT_GEN_INCLUDES += $(INCL_INCLUDES) $(INCL_DFLAGS)
+  EXTRA_EXT_LIBS         += $(INCL_LIBRARIES)
+else
+  $(info $(PACKAGE) not built against INCL++)
+endif
+
+
+
+
 FORCE:

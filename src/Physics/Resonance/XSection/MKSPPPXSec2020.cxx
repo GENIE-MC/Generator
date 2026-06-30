@@ -101,8 +101,15 @@ double MKSPPPXSec2020::XSec(const Interaction * interaction, KinePhaseSpace_t kp
 
   // dimension of kine phase space
   std::string s = KinePhaseSpace::AsString(kps);
-  int kpsdim = s!="<|E>"?1 + std::count(s.begin(), s.begin()+s.find('}'), ','):0;
-  if (kpsdim < 3 || kpsdim > 4) return 0;
+  int kpsdim = 0;
+  if (s != "<|E>") 
+  {
+      std::string::size_type r = s.find('}');
+      if (r != std::string::npos) 
+          kpsdim = 1 + std::count(s.begin(), s.begin() + r, ',');
+  }
+  if (kpsdim < 3 || kpsdim > 4) return 0.;
+  
   // Pion angles should be given in Adler frame
   double CosTheta = kinematics.GetKV(kKVctp);
   double Phi = 0;

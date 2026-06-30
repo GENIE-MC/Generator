@@ -26,11 +26,40 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Interaction/InteractionException.h"
+#include "Framework/Algorithm/AlgConfigPool.h"
+#include "Framework/Registry/Registry.h"
 
 #include <sstream>
 
 using namespace genie;
 using namespace genie::constants;
+//____________________________________________________________________________
+// Definition of the runtime-configurable EM Q^2 threshold proxy.
+// The value is read once from CommonParam.xml [Lepton] / "EM-MinQ2Limit"
+// and cached for the lifetime of the program. Falls back to 0.02 GeV^2
+// (the historical hardcoded value) if the registry is unavailable.
+genie::utils::kinematics::electromagnetic::EMMinQ2LimitProxy::operator double() const
+{
+  static const double value = []() -> double {
+    AlgConfigPool * pool = AlgConfigPool::Instance();
+    Registry * r = pool ? pool->CommonList("Param", "Lepton") : nullptr;
+    const double v = r ? r->GetDoubleDef("EM-MinQ2Limit", 0.02) : 0.02;
+    LOG("KineLimits", pNOTICE)
+      << "EM-MinQ2Limit loaded from CommonParam.xml [Lepton] = "
+      << v << " GeV^2 (registry " << (r ? "found" : "missing, using fallback")
+      << ")";
+    if (r) {
+      LOG("KineLimits", pNOTICE) << "Full [Lepton] registry: " << *r;
+    }
+    return v;
+  }();
+  return value;
+}
+
+const genie::utils::kinematics::electromagnetic::EMMinQ2LimitProxy
+genie::utils::kinematics::electromagnetic::kMinQ2Limit;
+
+
 
 //____________________________________________________________________________
 double genie::utils::kinematics::PhaseSpaceVolume(

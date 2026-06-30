@@ -598,11 +598,8 @@ void SaveGraphsToRootFile(void)
 
     if      (proc.IsQuasiElastic()     ) { title << "qel";   }
     else if (proc.IsMEC()              ) { title << "mec";   }
-    else if (proc.IsResonant()         ) { 
-      title << "res";   
-      if ( ! xcls.KnownResonance() ) 
-	title << "_single_pion" ;
-    }
+    else if (proc.IsResonant()         ) { title << "res";   }
+    else if (proc.IsSinglePion()       ) { title << "1pion";}
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
     else if (proc.IsCoherentProduction() ) {
@@ -670,33 +667,33 @@ void SaveGraphsToRootFile(void)
         else      { title << "val"; }
       }
     }
-    if(proc.IsResonant()) {
-      if ( xcls.KnownResonance() ) {
-	Resonance_t res = xcls.Resonance();
-	string resname = res::AsString(res);
-	resname = str::FilterString(")", resname);
-	resname = str::FilterString("(", resname);
-	title << "_" << resname.substr(3,4) << resname.substr(0,3);
+    if(proc.IsResonant()) 
+    {
+      if ( xcls.KnownResonance() ) 
+      {
+         Resonance_t res = xcls.Resonance();
+         string resname = res::AsString(res);
+         resname = str::FilterString(")", resname);
+         resname = str::FilterString("(", resname);
+         title << "_" << resname.substr(3,4) << resname.substr(0,3);
       }
-      else if ( xcls.NPions() == 1 ) {
-	// we are in the case of the single pion production
-	// since the hiht nucleon is known and we also know if 
-	// it is CC or NC, the only missing information to identify the channel
-	// is only the flavour of the pion
-	string channel ;
-	if ( xcls.NPiPlus() == 1 ) {
-	  channel = "pip" ;
-	}
-	else if ( xcls.NPiMinus() == 1 ) {
-	  channel = "pim" ;
-	}
-	else if ( xcls.NPi0() == 1 ) {
-	  channel = "pi0" ;
-	}
-	
-	title << '_' << channel ;
-      }  // single resonsance or single pion
     }  // resonance case
+    if(proc.IsSinglePion() )
+    {
+        // we are in the case of the single pion production
+        // since the hiht nucleon is known and we also know if 
+        // it is CC or NC, the only missing information to identify the channel
+        // is only the flavour of the pion
+        string channel = "->";
+        if ( xcls.NPiPlus() == 1 ) channel += "pip" ;
+        else if ( xcls.NPiMinus() == 1 ) channel += "pim" ;
+        else if ( xcls.NPi0() == 1 ) channel += "pi0" ;
+        if ( xcls.NProtons() == 1 ) channel += ",p" ;
+        else if ( xcls.NNeutrons() == 1 ) channel += ",n" ;
+        title << channel;
+    }  // single resonsance or single pion
+      
+
 
     if(xcls.IsStrangeEvent()) {
       title << "_strange";

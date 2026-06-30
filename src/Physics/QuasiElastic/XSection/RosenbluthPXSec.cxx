@@ -57,7 +57,7 @@ double RosenbluthPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
-  const ProcessInfo & proc_info = interaction->ProcInfo();
+  //const ProcessInfo & proc_info = interaction->ProcInfo();
 
   int nucpdgc = target.HitNucPdg();
   double E  = init_state.ProbeE(kRfHitNucRest);

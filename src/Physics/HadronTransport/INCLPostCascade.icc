@@ -1,0 +1,608 @@
+
+bool INCLCascadeIntranuke::decayInsideStrangeParticles(G4INCL::FinalState * finalState) const {
+
+  /* Transform each strange particles into a lambda
+   * Every Kaon (KPlus and KZero) are emited
+   */
+  const bool unphysicalRemnant = (incl_target->getZ()<0 || incl_target->getZ() > incl_target->getA());
+  if(unphysicalRemnant){
+    this->emitInsideStrangeParticles(finalState);
+    INCL_WARN("Remnant is unphysical: Z=" << incl_target->getZ() << ", A=" << incl_target->getA() << ", too much strange particles? -> all emit" << '\n');
+    return false;
+  }
+
+  /* Build a list of particles with a strangeness == -1 except Lambda,
+   * and two other one for proton and neutron
+   */
+  ParticleList const &inside = incl_target->getStore()->getParticles();
+  ParticleList stranges;
+  ParticleList protons;
+  ParticleList neutrons;
+  for(ParticleIter i=inside.begin(), e=inside.end(); i!=e; ++i){
+    if((*i)->isSigma() || (*i)->isAntiKaon()) stranges.push_back((*i));
+    else if((*i)->isNucleon() && (*i)->getZ() == 1) protons.push_back((*i));
+    else if((*i)->isNucleon() && (*i)->getZ() == 0) neutrons.push_back((*i));
+  }
+
+  if((stranges.size() > protons.size()) || (stranges.size() > neutrons.size())){
+    INCL_WARN("Remnant is unphysical: Nproton=" << protons.size() << ", Nneutron=" << neutrons.size() << ", Strange particles : " << stranges.size() <<  '\n');
+    this->emitInsideStrangeParticles(finalState);
+    return false;
+  }
+
+  // Loop over the strange particles, make them absorbe
+  ParticleIter protonIter = protons.begin();
+  ParticleIter neutronIter = neutrons.begin();
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+  for(ParticleIter i=stranges.begin(), e=stranges.end(); i!=e; ++i) {
+    //    INCL_DEBUG("Absorbe inside strange particles:" << '\n'
+    //	<< (*i)->print() << '\n');
+    LOG("INCLCascadeIntranuke", pDEBUG) << "Absorbe inside strange particles:" << '\n' << (*i)->print();
+    mother_list.clear();
+    mother_list.push_back((*i));
+    IAvatar *decay;
+    if((*i)->getType() == SigmaMinus){
+      decay = new DecayAvatar((*protonIter), (*i), 0.0, incl_target, true);
+      ++protonIter;
+    }
+    else if((*i)->getType() == SigmaPlus){
+      decay = new DecayAvatar((*neutronIter), (*i), 0.0, incl_target, true);
+      ++neutronIter;
+    }
+    else if(Random::shoot()*(protons.size() + neutrons.size()) < protons.size()){
+      decay = new DecayAvatar((*protonIter), (*i), 0.0, incl_target, true);
+      ++protonIter;
+    }
+    else {
+      decay = new DecayAvatar((*neutronIter), (*i), 0.0, incl_target, true);
+      ++neutronIter;
+    }
+    FinalState *fs = decay->getFinalState();
+    // record decayInsideStrangeParticles
+    cascadeAction->fillEventRecord(fs, mother_list, incl_target->getStore()->getBook().getCurrentTime(), decay->getType());
+    incl_target->applyFinalState(fs);
+    delete fs;
+    delete decay;
+  }
+
+  return true;
+
+}
+
+void INCLCascadeIntranuke::emitInsideStrangeParticles(G4INCL::FinalState * finalState) const {
+  /* Forcing emissions of Sigmas and antiKaons.
+   * This probably violates energy conservation
+   * (although the computation of the recoil kinematics
+   * might sweep this under the carpet).
+   */
+  //INCL_DEBUG("Forcing emissions of all strange particles in the nucleus." << '\n');
+  LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emissions of all strange particles in the nucleus.";
+  LOG("INCLCascadeIntranuke", pNOTICE) << "Forcing emissions of all strange particles in the nucleus.";
+
+
+  // Emit the strange particles with this kinetic energy
+  const double tinyEnergy = 0.1; // MeV
+
+  // Push out the emitted strange particles
+  ParticleList const &inside = incl_target->getStore()->getParticles();
+  ParticleList toEject;
+  for(ParticleIter i=inside.begin(), e=inside.end(); i!=e; ++i) {
+    if((*i)->isSigma() || (*i)->isAntiKaon()) {
+      Particle * const theParticle = *i;
+      //     INCL_DEBUG("Forcing emission of the following particle: "
+      //	  << theParticle->print() << '\n');
+      LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emission of the following particle: " 
+        << theParticle->print();
+      theParticle->setEmissionTime(incl_target->getStore()->getBook().getCurrentTime());
+      // Correction for real masses
+      const double theQValueCorrection = theParticle->getEmissionQValueCorrection(incl_target->getA(),incl_target->getZ(),incl_target->getS()); // Does it work for strange particles? should be check
+      const double kineticEnergyOutside = theParticle->getKineticEnergy() - theParticle->getPotentialEnergy() + theQValueCorrection;
+      theParticle->setTableMass();
+      if(kineticEnergyOutside > 0.0){
+        theParticle->setEnergy(theParticle->getMass()+kineticEnergyOutside);
+      }
+      else{
+        theParticle->setEnergy(theParticle->getMass()+tinyEnergy);
+      }
+      theParticle->adjustMomentumFromEnergy();
+      theParticle->setPotentialEnergy(0.);
+      incl_target->setA(incl_target->getA() - theParticle->getA());
+      incl_target->setZ(incl_target->getZ() - theParticle->getZ());
+      incl_target->setS(incl_target->getS() - theParticle->getS());
+      toEject.push_back(theParticle);
+    }
+  }
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+  for(ParticleIter i=toEject.begin(), e=toEject.end(); i!=e; ++i) {
+    incl_target->getStore()->particleHasBeenEjected(*i);
+    incl_target->getStore()->addToOutgoing(*i);
+    (*i)->setParticleBias(Particle::getTotalBias());
+
+    // record emitInsideStrangeParticles
+    mother_list.clear();
+    mother_list.push_back(*i);
+    finalState->reset();
+    finalState->addOutgoingParticle(*i);
+    cascadeAction->fillEventRecord(finalState, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::SurfaceAvatarType);
+  }
+
+}
+
+bool INCLCascadeIntranuke::emitInsideKaon(G4INCL::FinalState * finalState) const {
+  /* Forcing emissions of all Kaon (not antiKaons) in the nucleus.
+   * This probably violates energy conservation
+   * (although the computation of the recoil kinematics
+   * might sweep this under the carpet).
+   */
+  //    INCL_DEBUG("Forcing emissions of all Kaon in the nucleus." << '\n');
+  LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emissions of all Kaon in the nucleus.";
+
+  // Emit the Kaon with this kinetic energy (not supposed to append
+  const double tinyEnergy = 0.1; // MeV
+
+  // Push out the emitted kaon
+  ParticleList const &inside = incl_target->getStore()->getParticles();
+  ParticleList toEject;
+  for(ParticleIter i=inside.begin(), e=inside.end(); i!=e; ++i) {
+    if((*i)->isKaon()) {
+      Particle * const theKaon = *i;
+      //        INCL_DEBUG("Forcing emission of the following particle: "
+      //                 << theKaon->print() << '\n');
+      LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emission of the following particle: " << theKaon->print();
+      theKaon->setEmissionTime(incl_target->getStore()->getBook().getCurrentTime());
+      // Correction for real masses
+      const double theQValueCorrection = theKaon->getEmissionQValueCorrection(incl_target->getA(),incl_target->getZ(),incl_target->getS());
+      const double kineticEnergyOutside = theKaon->getKineticEnergy() - theKaon->getPotentialEnergy() + theQValueCorrection;
+      theKaon->setTableMass();
+      if(kineticEnergyOutside > 0.0)
+        theKaon->setEnergy(theKaon->getMass()+kineticEnergyOutside);
+      else
+        theKaon->setEnergy(theKaon->getMass()+tinyEnergy);
+      theKaon->adjustMomentumFromEnergy();
+      theKaon->setPotentialEnergy(0.);
+      //  theZ -= theKaon->getZ();
+      //  theS -= theKaon->getS();
+      incl_target->setZ(incl_target->getZ() - theKaon->getZ());
+      incl_target->setS(incl_target->getS() - theKaon->getS());
+      toEject.push_back(theKaon);
+    }
+  }
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+  for(ParticleIter i=toEject.begin(), e=toEject.end(); i!=e; ++i) {
+    incl_target->getStore()->particleHasBeenEjected(*i);
+    incl_target->getStore()->addToOutgoing(*i);
+    (*i)->setParticleBias(Particle::getTotalBias());
+    // record emitInsideStrangeParticles
+    mother_list.clear();
+    mother_list.push_back(*i);
+    finalState->reset();
+    finalState->addOutgoingParticle(*i);
+    cascadeAction->fillEventRecord(finalState, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::SurfaceAvatarType);
+  }
+  //   theNKaon -= 1;
+  incl_target->setNumberOfKaon(incl_target->getNumberOfKaon() - 1);
+  return toEject.size() != 0;
+}
+
+
+int INCLCascadeIntranuke::emitInsideLambda(G4INCL::FinalState *finalState) const {
+  /* Forcing emissions of all Lambda in the nucleus.
+   * This probably violates energy conservation
+   * (although the computation of the recoil kinematics
+   * might sweep this under the carpet).
+   */
+  //INCL_DEBUG("Forcing emissions of all Lambda in the nucleus." << '\n');
+  LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emissions of all Lambda in the nucleus.";
+
+
+  // Emit the Lambda with this kinetic energy
+  const double tinyEnergy = 0.1; // MeV
+
+  // Push out the emitted Lambda
+  ParticleList const &inside = incl_target->getStore()->getParticles();
+  ParticleList toEject;
+  for(ParticleIter i=inside.begin(), e=inside.end(); i!=e; ++i) {
+    if((*i)->isLambda()) {
+      Particle * const theLambda = *i;
+      //      INCL_DEBUG("Forcing emission of the following particle: "
+      //	  << theLambda->print() << '\n');
+      LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emission of the following particle: " << theLambda->print();
+      theLambda->setEmissionTime(incl_target->getStore()->getBook().getCurrentTime());
+      // Correction for real masses
+      const double theQValueCorrection = theLambda->getEmissionQValueCorrection(incl_target->getA(),incl_target->getZ(),incl_target->getS()); // Does it work for strange particles? Should be check
+      const double kineticEnergyOutside = theLambda->getKineticEnergy() - theLambda->getPotentialEnergy() + theQValueCorrection;
+      theLambda->setTableMass();
+      if(kineticEnergyOutside > 0.0)
+        theLambda->setEnergy(theLambda->getMass()+kineticEnergyOutside);
+      else
+        theLambda->setEnergy(theLambda->getMass()+tinyEnergy);
+      theLambda->adjustMomentumFromEnergy();
+      theLambda->setPotentialEnergy(0.);
+
+      incl_target->setA(incl_target->getA() - theLambda->getA());
+      incl_target->setS(incl_target->getS() - theLambda->getS());
+      toEject.push_back(theLambda);
+    }
+  }
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+  for(ParticleIter i=toEject.begin(), e=toEject.end(); i!=e; ++i) {
+    incl_target->getStore()->particleHasBeenEjected(*i);
+    incl_target->getStore()->addToOutgoing(*i);
+    (*i)->setParticleBias(Particle::getTotalBias());
+    // record emitInsideStrangeParticles
+    mother_list.clear();
+    mother_list.push_back(*i);
+    finalState->reset();
+    finalState->addOutgoingParticle(*i);
+    cascadeAction->fillEventRecord(finalState, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::SurfaceAvatarType);
+  }
+  return (int)toEject.size();
+}
+
+bool INCLCascadeIntranuke::decayInsideDeltas(G4INCL::FinalState * finalState) const {
+  /* If there is a pion potential, do nothing (deltas will be counted as
+   * excitation energy).
+   * If, however, the remnant is unphysical (Z<0 or Z>A), force the deltas to
+   * decay and get rid of all the pions. In case you're wondering, you can
+   * end up with Z<0 or Z>A if the remnant contains more pi- than protons or
+   * more pi+ than neutrons, respectively.
+   */
+  const bool unphysicalRemnant = (incl_target->getZ()<0 || incl_target->getZ()>incl_target->getA());
+  if(incl_target->getPotential()->hasPionPotential() && !unphysicalRemnant)
+    return false;
+
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+  // Build a list of deltas (avoid modifying the list you are iterating on).
+  ParticleList const &inside = incl_target->getStore()->getParticles();
+  ParticleList deltas;
+  for(ParticleIter i=inside.begin(), e=inside.end(); i!=e; ++i)
+    if((*i)->isDelta()) deltas.push_back((*i));
+
+  // Loop over the deltas, make them decay
+
+  for(ParticleIter i=deltas.begin(), e=deltas.end(); i!=e; ++i) {
+    //    INCL_DEBUG("Decay inside delta particle:" << '\n'
+    //	<< (*i)->print() << '\n');
+    LOG("INCLCascadeIntranuke", pDEBUG) << "Decay inside delta particle:" << '\n'
+      << (*i)->print();
+    mother_list.clear();
+    mother_list.push_back((*i));
+    // Create a forced-decay avatar. Note the last boolean parameter. Note
+    // also that if the remnant is unphysical we more or less explicitly give
+    // up energy conservation and CDPP by passing a NULL pointer for the
+    // nucleus.
+    IAvatar *decay;
+    if(unphysicalRemnant) {
+      //      INCL_WARN("Forcing delta decay inside an unphysical remnant (A=" << theA
+      //	  << ", Z=" << theZ << "). Might lead to energy-violation warnings."
+      //	  << '\n');
+      LOG("INCLCascadeIntranuke", pWARN) << "Forcing delta decay inside an unphysical remnant (A=" << incl_target->getA() << ", Z=" << incl_target->getZ() << "). Might lead to energy-violation warnings.";
+      decay = new DecayAvatar((*i), 0.0, NULL, true);
+    } else
+      decay = new DecayAvatar((*i), 0.0, incl_target, true);
+    FinalState *fs = decay->getFinalState();
+
+    // The pion can be ejected only if we managed to satisfy energy
+    // conservation and if pion emission does not lead to negative excitation
+    // energies.
+    if(fs->getValidity()==ValidFS) {
+      // record decayInsideStrangeParticles
+      cascadeAction->fillEventRecord(fs, mother_list, incl_target->getStore()->getBook().getCurrentTime(), decay->getType());
+      // Apply the final state to the nucleus
+      incl_target->applyFinalState(fs);
+    }
+    delete fs;
+    delete decay;
+  }
+
+  // If the remnant is unphysical, emit all the pions
+  if(unphysicalRemnant) {
+    //   INCL_DEBUG("Remnant is unphysical: Z=" << theZ << ", A=" << theA << ", emitting all the pions" << '\n');
+    LOG("INCLCascadeIntranuke", pDEBUG) << "Remnant is unphysical: Z="
+      << incl_target->getZ() << ", A=" << incl_target->getA() << ", emitting all the pions";
+    this->emitInsidePions(finalState);
+  }
+  return true;
+}
+
+void INCLCascadeIntranuke::emitInsidePions(G4INCL::FinalState * finalState) const {
+  /* Forcing emissions of all pions in the nucleus. This probably violates
+   * energy conservation (although the computation of the recoil kinematics
+   * might sweep this under the carpet).
+   */
+  //  INCL_WARN("Forcing emissions of all pions in the nucleus." << '\n');
+  LOG("INCLCascadeIntranuke", pWARN) << "Forcing emissions of all pions in the nucleus.";
+
+  // Emit the pions with this kinetic energy
+  const double tinyPionEnergy = 0.1; // MeV
+
+  // Push out the emitted pions
+  ParticleList const &inside = incl_target->getStore()->getParticles();
+  ParticleList toEject;
+  for(ParticleIter i=inside.begin(), e=inside.end(); i!=e; ++i) {
+    if((*i)->isPion()) {
+      Particle * const thePion = *i;
+      //      INCL_DEBUG("Forcing emission of the following particle: "
+      //	  << thePion->print() << '\n');
+      LOG("INCLCascadeIntranuke", pDEBUG) << "Forcing emission of the following particle: " << thePion->print();
+      thePion->setEmissionTime(incl_target->getStore()->getBook().getCurrentTime());
+      // Correction for real masses
+      const double theQValueCorrection = thePion->getEmissionQValueCorrection(incl_target->getA(),incl_target->getZ(),incl_target->getS());
+      const double kineticEnergyOutside = thePion->getKineticEnergy() - thePion->getPotentialEnergy() + theQValueCorrection;
+      thePion->setTableMass();
+      if(kineticEnergyOutside > 0.0)
+        thePion->setEnergy(thePion->getMass()+kineticEnergyOutside);
+      else
+        thePion->setEnergy(thePion->getMass()+tinyPionEnergy);
+      thePion->adjustMomentumFromEnergy();
+      thePion->setPotentialEnergy(0.);
+      //theZ -= thePion->getZ();
+      incl_target->setZ(incl_target->getZ() - thePion->getZ());
+      toEject.push_back(thePion);
+    }
+  }
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+  for(ParticleIter i=toEject.begin(), e=toEject.end(); i!=e; ++i) {
+    incl_target->getStore()->particleHasBeenEjected(*i);
+    incl_target->getStore()->addToOutgoing(*i);
+    (*i)->setParticleBias(Particle::getTotalBias());
+    // record emitInsideStrangeParticles
+    mother_list.clear();
+    mother_list.push_back(*i);
+    finalState->reset();
+    finalState->addOutgoingParticle(*i);
+    cascadeAction->fillEventRecord(finalState, mother_list,  incl_target->getStore()->getBook().getCurrentTime(), G4INCL::SurfaceAvatarType);
+  }
+
+}
+
+bool INCLCascadeIntranuke::decayOutgoingClusters(G4INCL::FinalState * finalState) const {
+  ParticleList const &out = incl_target->getStore()->getOutgoingParticles();
+  ParticleList clusters;
+  for(ParticleIter i=out.begin(), e=out.end(); i!=e; ++i) {
+    if((*i)->isCluster()) clusters.push_back((*i));
+  }
+  if(clusters.empty()) return false;
+
+
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+
+  for(ParticleIter i=clusters.begin(), e=clusters.end(); i!=e; ++i) {
+    Cluster *cluster = dynamic_cast<Cluster*>(*i); // Can't avoid using a cast here
+    assert(cluster);
+    //#ifdef INCLXX_IN_GEANT4_MODE
+    if(!cluster)
+      continue;
+    // record emitInsideStrangeParticles
+    mother_list.clear();
+    mother_list.push_back((*i));
+    finalState->reset();
+    //#endif
+    cluster->deleteParticles(); // Don't need them
+    ParticleList decayProducts = ClusterDecay::decay(cluster);
+    finalState->addOutgoingParticle(cluster);
+    for(ParticleIter j=decayProducts.begin(), end=decayProducts.end(); j!=end; ++j){
+      (*j)->setBiasCollisionVector(cluster->getBiasCollisionVector());
+      incl_target->getStore()->addToOutgoing(*j);
+      finalState->addOutgoingParticle(*j);
+    }
+    cascadeAction->fillEventRecord(finalState, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::DecayAvatarType);
+  }
+  return true;
+
+}
+
+
+bool INCLCascadeIntranuke::decayMe(G4INCL::FinalState * finalState) const {
+  // Do the phase-space decay only if Z=0 or N=0
+  if(incl_target->getA()<=1 || (incl_target->getZ()!=0 && (incl_target->getA()+incl_target->getS())!=incl_target->getZ()))
+    return false;
+
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+
+  LOG("INCLCascadeIntranuke", pWARN) << "A and Z: " << incl_target->getA() << " " << incl_target->getZ();
+
+  mother_list.clear();
+  mother_list.push_back(incl_target);
+  //backup_mother.clear();
+  //cascadeAction->fillStep(incl_target, backup_mother, G4INCL::kComposite, incl_target->getStore()->getBook().getCurrentTime());
+  finalState->reset();
+
+  ParticleList decayProducts = ClusterDecay::decay(incl_target);
+  for(ParticleIter j=decayProducts.begin(), e=decayProducts.end(); j!=e; ++j){
+    (*j)->setBiasCollisionVector(incl_target->getBiasCollisionVector());
+    //incl_target->getStore()->addToOutgoing(*j);
+    finalState->addOutgoingParticle(*j);
+  }
+  cascadeAction->fillEventRecord(finalState, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::DecayAvatarType);
+  LOG("INCLCascadeIntranuke", pWARN) << "A and Z: " << incl_target->getA() << " " << incl_target->getZ();
+
+  return true;
+
+}
+
+bool INCLCascadeIntranuke::decayOutgoingNeutralKaon(G4INCL::FinalState * finalState) const{
+  (void) finalState;
+  ParticleList const &out = incl_target->getStore()->getOutgoingParticles();
+  ParticleList neutralkaon;
+  for(ParticleIter i=out.begin(), e=out.end(); i!=e; ++i) {
+    if((*i)->getType() == KZero  || (*i)->getType() == KZeroBar)  neutralkaon.push_back((*i));
+  }
+  if(neutralkaon.empty()) return false;
+
+
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+
+
+  for(ParticleIter i=neutralkaon.begin(), e=neutralkaon.end(); i!=e; ++i) {
+    INCL_DEBUG("Transform outgoing neutral kaon:" << '\n'
+        << (*i)->print() << '\n');
+
+    mother_list.clear();
+    mother_list.push_back((*i));
+    //finalState->reset();
+    // Use a DecayAvatar
+    IAvatar *decay = new DecayAvatar((*i), 0.0, NULL);
+    FinalState *fs = decay->getFinalState();
+    cascadeAction->fillEventRecord(fs, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::DecayAvatarType);
+    delete fs;
+    delete decay;
+  }
+
+  return true;
+}
+
+bool INCLCascadeIntranuke::decayOutgoingSigmaZero(double timeThreshold, G4INCL::FinalState * finalState) const{
+  (void) finalState;
+  ParticleList const &out = incl_target->getStore()->getOutgoingParticles();
+  ParticleList neutralsigma;
+  for(ParticleIter i=out.begin(), e=out.end(); i!=e; ++i) {
+    if((*i)->getType() == SigmaZero && timeThreshold > ParticleTable::getWidth(SigmaZero))  neutralsigma.push_back((*i));
+  }
+  if(neutralsigma.empty()) return false;
+
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+
+  for(ParticleIter i=neutralsigma.begin(), e=neutralsigma.end(); i!=e; ++i) {
+    INCL_DEBUG("Decay outgoing neutral sigma:" << '\n'
+        << (*i)->print() << '\n');
+    mother_list.clear();
+    mother_list.push_back((*i));
+    const ThreeVector beta = -(*i)->boostVector();
+    const double neutralsigmaMass = (*i)->getMass();
+
+    // Set the neutral sigma momentum to zero and sample the decay in the CM frame.
+    // This makes life simpler if we are using real particle masses.
+    (*i)->setMomentum(ThreeVector());
+    (*i)->setEnergy((*i)->getMass());
+
+    // Use a DecayAvatar
+    IAvatar *decay = new DecayAvatar((*i), 0.0, NULL);
+    FinalState *fs = decay->getFinalState();
+
+    Particle * const theModifiedParticle = fs->getModifiedParticles().front();
+    ParticleList const &created = fs->getCreatedParticles();
+    Particle * const theCreatedParticle = created.front();
+
+    if (created.size() == 1) {
+
+      // Adjust the decay momentum if we are using the real masses
+      const double decayMomentum = KinematicsUtils::momentumInCM(neutralsigmaMass,theModifiedParticle->getTableMass(),theCreatedParticle->getTableMass());
+      ThreeVector newMomentum = theCreatedParticle->getMomentum();
+      newMomentum *= decayMomentum / newMomentum.mag();
+
+      theCreatedParticle->setTableMass();
+      theCreatedParticle->setMomentum(newMomentum);
+      theCreatedParticle->adjustEnergyFromMomentum();
+      theCreatedParticle->boost(beta);
+      theCreatedParticle->setBiasCollisionVector(theModifiedParticle->getBiasCollisionVector());
+
+      theModifiedParticle->setTableMass();
+      theModifiedParticle->setMomentum(-newMomentum);
+      theModifiedParticle->adjustEnergyFromMomentum();
+      theModifiedParticle->boost(beta);
+
+      incl_target->getStore()->addToOutgoing(theCreatedParticle);
+    }
+    else {
+      INCL_ERROR("Wrong number (!= 1) of created particles during the decay of a sigma zero");
+    }
+    cascadeAction->fillEventRecord(fs, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::DecayAvatarType);
+    delete fs;
+    delete decay;
+  }
+  return true;
+}
+
+bool INCLCascadeIntranuke::decayOutgoingPionResonances(double timeThreshold, G4INCL::FinalState * finalState) const{
+  (void) finalState;
+
+  ParticleList const &out = incl_target->getStore()->getOutgoingParticles();
+  ParticleList pionResonances;
+  for(ParticleIter i=out.begin(), e=out.end(); i!=e; ++i) {
+    //            if((*i)->isEta() || (*i)->isOmega()) pionResonances.push_back((*i));
+    if(((*i)->isEta() && timeThreshold > ParticleTable::getWidth(Eta)) || ((*i)->isOmega() && timeThreshold > ParticleTable::getWidth(Omega))) pionResonances.push_back((*i));
+  }
+  if(pionResonances.empty()) return false;
+
+  // mother_list to track the particle participate interaction
+  G4INCL::ParticleList mother_list;
+
+  for(ParticleIter i=pionResonances.begin(), e=pionResonances.end(); i!=e; ++i) {
+    INCL_DEBUG("Decay outgoing pionResonances particle:" << '\n'
+        << (*i)->print() << '\n');
+    mother_list.clear();
+    mother_list.push_back((*i));
+    const ThreeVector beta = -(*i)->boostVector();
+    const double pionResonanceMass = (*i)->getMass();
+
+    // Set the pionResonance momentum to zero and sample the decay in the CM frame.
+    // This makes life simpler if we are using real particle masses.
+    (*i)->setMomentum(ThreeVector());
+    (*i)->setEnergy((*i)->getMass());
+
+    // Use a DecayAvatar
+    IAvatar *decay = new DecayAvatar((*i), 0.0, NULL);
+    FinalState *fs = decay->getFinalState();
+
+    Particle * const theModifiedParticle = fs->getModifiedParticles().front();
+    ParticleList const &created = fs->getCreatedParticles();
+    Particle * const theCreatedParticle1 = created.front();
+
+    if (created.size() == 1) {
+
+      // Adjust the decay momentum if we are using the real masses
+      const double decayMomentum = KinematicsUtils::momentumInCM(pionResonanceMass,theModifiedParticle->getTableMass(),theCreatedParticle1->getTableMass());
+      ThreeVector newMomentum = theCreatedParticle1->getMomentum();
+      newMomentum *= decayMomentum / newMomentum.mag();
+
+      theCreatedParticle1->setTableMass();
+      theCreatedParticle1->setMomentum(newMomentum);
+      theCreatedParticle1->adjustEnergyFromMomentum();
+      //theCreatedParticle1->setEmissionTime(nucleon->getEmissionTime());
+      theCreatedParticle1->boost(beta);
+      theCreatedParticle1->setBiasCollisionVector(theModifiedParticle->getBiasCollisionVector());
+
+      theModifiedParticle->setTableMass();
+      theModifiedParticle->setMomentum(-newMomentum);
+      theModifiedParticle->adjustEnergyFromMomentum();
+      theModifiedParticle->boost(beta);
+
+      incl_target->getStore()->addToOutgoing(theCreatedParticle1);
+    }
+    else if (created.size() == 2) {
+      Particle * const theCreatedParticle2 = created.back();
+
+      theCreatedParticle1->boost(beta);
+      theCreatedParticle1->setBiasCollisionVector(theModifiedParticle->getBiasCollisionVector());
+      theCreatedParticle2->boost(beta);
+      theCreatedParticle2->setBiasCollisionVector(theModifiedParticle->getBiasCollisionVector());
+      theModifiedParticle->boost(beta);
+
+      incl_target->getStore()->addToOutgoing(theCreatedParticle1);
+      incl_target->getStore()->addToOutgoing(theCreatedParticle2);
+    }
+    else {
+      INCL_ERROR("Wrong number (< 2) of created particles during the decay of a pion resonance");
+    }
+    cascadeAction->fillEventRecord(fs, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::DecayAvatarType);
+    delete fs;
+    delete decay;
+  }
+
+  return true;
+
+
+}
+
+

@@ -55,6 +55,7 @@ private:
   // void AddResonanceDecayProducts (GHepRecord * evrec, int pdgc) const;
 
   const EventRecordVisitorI * fResonanceDecayer;
+  mutable bool fDecay;
 };
 
 }      // genie namespace

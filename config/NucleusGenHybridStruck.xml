@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the Nucleus Gen
+
+Configurable Parameters:
+.............................................................................................................
+Name                          Type    Optional   Comment                                           Default
+.............................................................................................................
+-->
+
+<alg_conf>
+    <param_set name="Default">
+        <param type="bool" name="INCL-vertex">       true </param>
+        <param type="alg"  name="VertexGenerator">   genie::VertexGenerator/Default </param>
+        <param type="alg"  name="FermiMover">        genie::FermiMover/Default </param>
+        <param type="alg"  name="NucleusGenerator">  genie::NucleusGenINCL/Default </param>
+    </param_set>
+</alg_conf>

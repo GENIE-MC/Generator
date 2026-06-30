@@ -31,7 +31,8 @@ typedef enum ENuclearModel {
    kNucmFermiGas,
    kNucmLocalFermiGas,
    kNucmSpectralFunc,
-   kNucmEffSpectralFunc
+   kNucmEffSpectralFunc,
+   kNucmINCL
 
 } NuclearModel_t; 
 
@@ -52,6 +53,7 @@ public:
      case kNucmLocalFermiGas:   return "Local Fermi gas model";    break;
      case kNucmSpectralFunc:    return "Spectral function model";  break;
      case kNucmEffSpectralFunc: return "Effective spectral function model"; break;
+     case kNucmINCL:            return "INCL nuclear model";       break;
      default:                 break;
      }
      return " ";

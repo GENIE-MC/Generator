@@ -353,6 +353,8 @@ void ConvertToGST(void)
   double brPyv         = 0;      // Neutrino py @ LAB
   double brPzv         = 0;      // Neutrino pz @ LAB
   double brEn          = 0;      // Initial state hit nucleon energy @ LAB
+  double brPn          = 0;      // Initial state hit nucleon p @ LAB
+  double brCosthn      = 0;      // Initial state hit nucleon cos(theta)p @ LAB
   double brPxn         = 0;      // Initial state hit nucleon px @ LAB
   double brPyn         = 0;      // Initial state hit nucleon py @ LAB
   double brPzn         = 0;      // Initial state hit nucleon pz @ LAB
@@ -382,6 +384,16 @@ void ConvertToGST(void)
   int    brNiK0        = 0;      // Nu. of `primary' K0's + \bar{K0}'s 
   int    brNiEM        = 0;      // Nu. of `primary' gammas and e-/e+ 
   int    brNiOther     = 0;      // Nu. of other `primary' hadron shower particles
+  int    brNpar        = 0;      // Nu. of paritcle in event record
+  int    brPDG_evtre   [kNPmax]; // Pdg    of paritcle in event record
+  int    brFirstMother_evtre[kNPmax]; // Index  of first mother of paritcle in event record
+  int    brLastMother_evtre[kNPmax]; // Index  of last mother of paritcle in event record
+  int    brStatus_evtre[kNPmax]; // Status of paritcle in event record
+  double brPx_evtre[kNPmax];     // Px     of paritcle in event record
+  double brPy_evtre[kNPmax];     // Py     of paritcle in event record
+  double brPz_evtre[kNPmax];     // Pz     of paritcle in event record
+  double brE_evtre[kNPmax];      // E      of paritcle in event record
+  double brE_exci;               // E      of remnant excited energy
   int    brNf          = 0;      // Nu. of final state particles in hadronic system
   int    brPdgf  [kNPmax];       // Pdg code of k^th final state particle in hadronic system
   double brEf    [kNPmax];       // Energy     of k^th final state particle in hadronic system @ LAB
@@ -468,6 +480,8 @@ void ConvertToGST(void)
   s_tree->Branch("pyv",	          &brPyv,	    "pyv/D"	    );
   s_tree->Branch("pzv",	          &brPzv,	    "pzv/D"	    );
   s_tree->Branch("En",	          &brEn,	    "En/D"	    );
+  s_tree->Branch("pn",	          &brPn,	    "pn/D"	    );
+  s_tree->Branch("cthn",	  &brCosthn,	    "cthn/D"	    );
   s_tree->Branch("pxn",	          &brPxn,	    "pxn/D"	    );
   s_tree->Branch("pyn",	          &brPyn,	    "pyn/D"	    );
   s_tree->Branch("pzn",	          &brPzn,	    "pzn/D"	    );
@@ -497,6 +511,16 @@ void ConvertToGST(void)
   s_tree->Branch("nik0",          &brNiK0,	    "nik0/I"	    );
   s_tree->Branch("niem",          &brNiEM,	    "niem/I"	    );
   s_tree->Branch("niother",       &brNiOther,       "niother/I"     );
+  s_tree->Branch("npar",	  &brNpar,	    "npar/I"	    );
+  s_tree->Branch("pdg_evtre",	           brPDG_evtre,	    "pdg_evtre[npar]/I"   );
+  s_tree->Branch("first_mother_evtre",	   brFirstMother_evtre,	    "first_mother_evtre[npar]/I");
+  s_tree->Branch("last_mother_evtre",	   brLastMother_evtre,	    "last_mother_evtre[npar]/I");
+  s_tree->Branch("status_evtre",	   brStatus_evtre,	    "status_evtre[npar]/I");
+  s_tree->Branch("px_evtre",	   brPx_evtre,	    "px_evtre[npar]/D");
+  s_tree->Branch("py_evtre",	   brPy_evtre,	    "py_evtre[npar]/D");
+  s_tree->Branch("pz_evtre",	   brPz_evtre,	    "pz_evtre[npar]/D");
+  s_tree->Branch("E_evtre",	   brE_evtre,	    "E_evtre[npar]/D");
+  s_tree->Branch("E_exci",	   &brE_exci,	    "E_exci/D");
   s_tree->Branch("ni",	         &brNi,	            "ni/I"	    );
   s_tree->Branch("pdgi",          brPdgi,	    "pdgi[ni]/I"   );
   s_tree->Branch("resc",          brResc,	    "resc[ni]/I"   );
@@ -767,9 +791,6 @@ void ConvertToGST(void)
     bool study_hadsyst = (is_qel || is_res || is_dis || is_coh || is_dfr || is_mec || is_singlek || is_hnl);
     
     //
-    TObjArrayIter piter(&event);
-    GHepParticle * p = 0;
-    int ip=-1;
 
     //
     // Extract the final state system originating from the hadronic vertex 
@@ -778,6 +799,31 @@ void ConvertToGST(void)
 
     LOG("gntpc", pDEBUG) << "Extracting final state hadronic system";
 
+    TObjArrayIter piter1(&event);
+    GHepParticle * pp = 0;
+    brNpar=0;
+    while( (pp = (GHepParticle *) piter1.Next())){
+      brPDG_evtre[brNpar] = pp->Pdg();
+      brFirstMother_evtre[brNpar] = pp->FirstMother();
+      brLastMother_evtre[brNpar] = pp->LastMother();
+      brStatus_evtre[brNpar] = pp->Status();
+      brPx_evtre[brNpar] = pp->P4()->Px();
+      brPy_evtre[brNpar] = pp->P4()->Py();
+      brPz_evtre[brNpar] = pp->P4()->Pz();
+      brE_evtre[brNpar] = pp->P4()->E();
+      brNpar++;
+      if(pp->Status() == kIStNucleonTarget){
+ //       pp->X4()->Print();
+	      vtx = pp->X4();
+      }
+      if(pp->Status() == kIStPreDeExNuclearRemnant){
+        brE_exci = pp->P4()->M() - pp->Mass();
+      }
+    }
+
+    TObjArrayIter piter(&event);
+    GHepParticle * p = 0;
+    int ip=-1;
     vector<int> final_had_syst;
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
     {
@@ -984,6 +1030,8 @@ void ConvertToGST(void)
     brPyv        = k1.Py();  
     brPzv        = k1.Pz();  
     brEn         = (hitnucl) ? p1.Energy() : 0;      
+    brPn         = (hitnucl) ? p1.P() : 0;      
+    brCosthn         = (hitnucl) ? TMath::Cos( p1.Vect().Angle(k1.Vect()) ) : 0;      
     brPxn        = (hitnucl) ? p1.Px()     : 0;      
     brPyn        = (hitnucl) ? p1.Py()     : 0;      
     brPzn        = (hitnucl) ? p1.Pz()     : 0;            

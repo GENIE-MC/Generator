@@ -27,6 +27,7 @@
 #ifndef _PDG_LIBRARY_H_
 #define _PDG_LIBRARY_H_
 
+#include "Framework/Conventions/GBuild.h"
 #include <TDatabasePDG.h>
 #include <TParticlePDG.h>
 
@@ -46,6 +47,8 @@ public:
   // Ideally, this code should be in the Dark Matter app, not here.
   // But presently there is no way to edit the PDGLibrary after it has been created.
   void AddDarkMatter  (double mass, double med_ratio);
+  void AddHypernucleus(int pdg_hypernucleus);
+  void AddVirtualCluster(int pdg_virtual);
 
 private:
 
