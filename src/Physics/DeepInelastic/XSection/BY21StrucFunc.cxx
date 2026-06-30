@@ -93,7 +93,6 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParamDef( "BY-IncludeH", fIncludeH, true );
   GetParamDef( "BY-IncludeKCharm", fIncludeKCharm, true );
   GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
-  GetParam("BY-IncludeSlowRescaling", fslowrescaling, true);
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -123,35 +122,25 @@ void BY21StrucFunc::Init(void)
   fH2   = 0;
   fH3   = 0;
   fRQ2min = 0;
-  fslowrescaling = true;
 }
 //____________________________________________________________________________
 double BY21StrucFunc::ScalingVar(const Interaction * interaction, double Mf ) const
 {
   // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
-
+  // Eq. 15, https://arxiv.org/abs/2108.09240 
   const Kinematics & kine  = interaction->Kine();
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
   //myQ2 = TMath::Max(Q2,fQ2min);
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
 #endif
+
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
-  double Mf2 = TMath::Power( Mf, 2 ) ; 
+  double Mf2 = TMath::Power( Mf, 2 ) ; // Accounts for slow rescaling
   double xw =  2*x*(myQ2+Mf2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) + 2*fA*x);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BodekYang", pDEBUG) << "A " << fA << ", B " << fB << ", use kCharm: " << fIncludeKCharm;
-#endif
-  // When the final lepton is heavy, i.e. charm production, we need to use the
-  // slow rescaling correction [10.1088/0954-3899/35/5/053101]
-  // This is unused when Mf = 0;
-  if (fslowrescaling){
-    xw *= (1 + Mf * Mf / myQ2);
-  }
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
-  LOG("BodekYang", pDEBUG) << "slow rescaling = " << (1 + Mf * Mf / myQ2) << " with M_C = " << Mf;
-#endif
+
   return xw;
 }
 //____________________________________________________________________________
@@ -205,6 +194,7 @@ double BY21StrucFunc::H(const Interaction * interaction) const {
   
   // Overrides QPMDISStrucFuncBase::H() function to compute the correction of the BY 2021 update
   // The correction is given by Eq. 34 of https://arxiv.org/pdf/2108.09240
+  // It accounts for the difference in the QCD higher order corrections in F2 and xF3
   const Kinematics & kinematics = interaction->Kine();
   double bjx = kinematics.x();
   return fH0 + fH1 * bjx + fH2 * pow(bjx,2) + fH3 * pow(bjx,3);
@@ -212,13 +202,15 @@ double BY21StrucFunc::H(const Interaction * interaction) const {
 
 double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
   // Overrides QPMDISStrucFuncBase::KCharm() function to compute the correction of the BY 2021 update
-  // The correction corresponds to Sec 8 of https://arxiv.org/pdf/2108.09240
+  // For production of heavy quarks, the relation between the structure function changes and
+  // instead of kinematics x, we need to use chi. See Eq. 5.1 of PhysRevD.14.1829 for details.
+  // For a simple modification of Bjorken x, chi'=x(1+Mf2/Q2), the correction factor is equivalent
+  // to KCharm, defined in Sec 8 of https://arxiv.org/pdf/2108.09240
+  // In our case, to keep it general, we define it explicitly as x/chi_w
   if( !fIncludeKCharm ) return 1.;
   
-  double K = ScalingVar(interaction, fMc)/interaction->Kine().x();
-  if (fslowrescaling){
-            K /= (1 + Mf * Mf / this->Q2(interaction));
-  }
+  double K = interaction->Kine().x()/ScalingVar(interaction, fMc);
+
   return K;
   
 }

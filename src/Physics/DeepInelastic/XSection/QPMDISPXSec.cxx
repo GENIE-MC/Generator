@@ -170,15 +170,19 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   else if( proc_info.IsWeakNC() )  xsec *= fNCScale;
   else if( proc_info.IsEM() )  xsec *= fEMScale;
 
-  // Subtract the inclusive charm production cross section
-  interaction->ExclTagPtr()->SetCharm();
-  double xsec_charm = fCharmProdModel->XSec(interaction, kps);
-  interaction->ExclTagPtr()->UnsetCharm();
+  // Subtract the inclusive charm production cross section if charm was used
+  // in the total CCDIS calculation. This is accounted in a separate algorithm
+  if( !fCharmOnly && !fCharmOff ) {
+    interaction->ExclTagPtr()->SetCharm();
+    double xsec_charm = fCharmProdModel->XSec(interaction, kps);
+    interaction->ExclTagPtr()->UnsetCharm();
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pINFO) << "Subtracting charm piece: " << xsec_charm
-                         << " / out of " << xsec;
+    LOG("DISPXSec", pINFO) << "Subtracting charm piece: " << xsec_charm
+			   << " / out of " << xsec;
 #endif
-  xsec = TMath::Max(0., xsec - xsec_charm);
+    xsec = TMath::Max(0., xsec - xsec_charm);
+  }
+  
   return xsec;
 }
 //____________________________________________________________________________
@@ -222,8 +226,7 @@ void QPMDISPXSec::Configure(string config) {
 
   RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
   RgKey local_key = "CharmXSec";
-  r.Set(local_key,
-        AlgConfigPool::Instance()->GlobalParameterList()->GetAlg(xdefkey));
+  r.Set(local_key, AlgConfigPool::Instance()->GlobalParameterList()->GetAlg(xdefkey));
 
   Algorithm::Configure(r);
 
@@ -245,6 +248,10 @@ void QPMDISPXSec::LoadConfig(void) {
   GetParam("DIS-NC-XSecScale", fNCScale);
   GetParam("DIS-EM-XSecScale", fEMScale);
 
+  // Compute only charm?
+  GetParamDef( "Charm-Only", fCharmOnly, false ) ;
+  GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
+  
   // sin^4(theta_weinberg)
   double thw;
   GetParam("WeinbergAngle", thw);
@@ -262,8 +269,7 @@ void QPMDISPXSec::LoadConfig(void) {
   fInInitPhase = false;
 
   //-- load the differential cross section integrator
-  fXSecIntegrator =
-      dynamic_cast<const XSecIntegratorI *>(this->SubAlg("XSec-Integrator"));
+  fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 
   // Load the charm production cross section model
@@ -272,8 +278,7 @@ void QPMDISPXSec::LoadConfig(void) {
   GetParam(local_key, xalg);
   LOG("DISXSec", pDEBUG) << "Loading the cross section model: " << xalg;
 
-  fCharmProdModel =
-      dynamic_cast<const XSecAlgorithmI *>(this->SubAlg(local_key));
+  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *>(this->SubAlg(local_key));
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________

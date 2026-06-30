@@ -78,6 +78,7 @@ protected:
   //
   double fQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
   bool   fCharmOff;          ///< turn charm production off?
+  bool   fCharmOnly;         ///< This parameter is used to compute the charm contribution as a standalone model
   bool   fIncludeR;          ///< include R (~FL) in DIS SF calculation?
   bool   fIncludeH;          ///< include HO QCD corrections
   bool   fIncludeNuclMod;    ///< include nuclear factor (shadowing, anti-shadowing,...)?
@@ -93,7 +94,7 @@ protected:
   double fSin2thw;           ///<
   bool   fUse2016Corrections;///< Use 2016 SF relation corrections
   double fLowQ2CutoffF1F2;   ///< Set min for relation between 2xF1 and F2
-
+  
   const DISNuclearModelI * fDISNuclCorr ; ///< model for nuclear factors (shadowing, anti-shadowing,...)
   
   mutable double fF1;

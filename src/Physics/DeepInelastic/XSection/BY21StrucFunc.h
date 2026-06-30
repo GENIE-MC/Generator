@@ -81,7 +81,6 @@ protected:
   bool   fIncludeH; ///< Include H correction 
   bool   fIncludeAxial; ///< Include difference between A and V;
   bool   fIncludeKCharm; ///< Include KCharm correction
-  bool   fslowrescaling; ///< weather to use the slow resclaing charm factor
 
 };
 

@@ -118,6 +118,8 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 
   //-- turn charm production off?
   GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
+  //-- compute only charm? 
+  GetParamDef( "Charm-Only", fCharmOnly, false ) ;
 
   //-- include H?
   GetParam( "IncludeH", fIncludeH, false ) ;
@@ -240,13 +242,25 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   this -> CalcPDFs (interaction);
 
-    // Compute the K factors
+  // In the case of Charm CC DIS, we need a different treatment 
+  bool hasCharmContribution = (fdv_c * switch_dv   > 0) || (fds_c * switch_ds   > 0) || (fs_c  * switch_s    > 0) || (fc_c  * switch_cbar > 0) || (fc_c  * switch_c    > 0) || (fds_c * switch_dbar > 0) || (fs_c  * switch_sbar > 0);
+  const bool applyCharmCorrection = is_CC && hasCharmContribution && !fCharmOff ;
+
+  // KCH = 1 if below charm threshold
+  double KCH = 1.0;
+  if (applyCharmCorrection) KCH = KCharm(interaction, fMc);  
+
+  // If we are computing the Charm CCDIS contribution, and applyCharmCorrection is false, return 0 for all structure functions
+  if (!applyCharmCorrection && fCharmOnly ) { fF1 = fF2 = fF3 = fF4 = fF5 = 0 ; return ;}
+
+  
+  // Compute the K factors
   double kV_val_u = 1.;
   double kV_val_d = 1.;
   double kV_sea_u = 1.;
   double kV_sea_d = 1.;
   double kV_sea_s = 1.;
- // Axial Factors
+  // Axial Factors
   double kA_val_u = 1.;
   double kA_val_d = 1.;
   double kA_sea_u = 1.;
@@ -338,27 +352,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     F2val  = q2 + qb2;
     xF3val = 2.0 * (q3-qb3);
   }
-
-  // (fds_c > 0) = 1 if above charm threshold
-  // KCH = 1 if below charm threshold
+  
   // ***  CHARGED CURRENT
-  double KCH = 1.0;
   if(is_CC) {
-    const bool hasCharmContribution =
-          (fdv_c * switch_dv   > 0)
-        || (fds_c * switch_ds   > 0)
-        || (fs_c  * switch_s    > 0)
-        || (fc_c  * switch_cbar > 0)
-        || (fc_c  * switch_c    > 0)
-        || (fds_c * switch_dbar > 0)
-        || (fs_c  * switch_sbar > 0);
-
-    const bool applyCharmCorrection =
-        hasCharmContribution && !fCharmOff;
-      if (applyCharmCorrection){
-        KCH = KCharm(interaction, fMc);
-      }
-    
     double q=0, qbar=0;
 
     if (is_nu) {      
@@ -451,11 +447,10 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double r     = this->R         (interaction); // R ~ FL
   double H     = fIncludeH ? this->H(interaction) : 1;
 
-
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
 #endif
-
+  
   if(fUse2016Corrections) {
     //It was confirmed by A.Bodek that the modified scaling variable
     //should just be used to compute the strucure functions F2 and xF3,
