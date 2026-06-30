@@ -65,12 +65,12 @@ protected:
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
   void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
   void    SelectMartiniLeptonKinematics     (GHepRecord * event) const;
-  void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
-  PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
+  virtual void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
+  virtual PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
 
   // Helper function that computes the maximum differential cross section
   // in the kPSTlctl phase space
-  double GetXSecMaxTlctl( const Interaction & inter, const Range1D_t & Tl_range, const Range1D_t & ctl_range ) const;
+  virtual double GetXSecMaxTlctl( const Interaction & inter, const Range1D_t & Tl_range, const Range1D_t & ctl_range ) const;
 
   mutable const XSecAlgorithmI * fXSecModel;
   mutable TGenPhaseSpace         fPhaseSpaceGenerator;
