@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -45,6 +45,14 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
   // Don't try to do the calculation if we've been handed an interaction that
   // doesn't make sense
   if ( !this->ValidProcess(interaction) ) return 0.;
+
+  if ( kps != kPSTlctl ) {
+    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN)
+      << "Doesn't support transformation from "
+      << KinePhaseSpace::AsString(kPSTlctl) << " to "
+      << KinePhaseSpace::AsString(kps);
+    return 0.;
+  }
 
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
@@ -124,6 +132,8 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
     }
   }
 
+  if(tensor_pdg != target_pdg) need_to_scale = true;
+
   // The MartiniEricsonChanfrayMarteau-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
@@ -168,8 +178,8 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
   double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  if ( interaction->ProcInfo().IsEM() )
+    Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
 
   // Neglect shift due to binding energy. The cut is on the actual
   // value of Q^2, not the effective one to use in the tensor contraction.
@@ -207,14 +217,6 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* intera
   // Scale given a scaling algorithm:
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
 
-  if ( kps != kPSTlctl ) {
-    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
-  }
-
   return xsec;
 }
 //_________________________________________________________________________
@@ -248,16 +250,16 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* i
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
   const LabFrameHadronTensorI* tensor
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+        fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, tensor_type) );
 
   const LabFrameHadronTensorI* tensor_pn
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    pn_tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+        fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, pn_tensor_type) );
 
   const LabFrameHadronTensorI* tensor_pp
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    pp_tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>( 
+      fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, pp_tensor_type) );
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
@@ -306,7 +308,11 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* i
   // Compute the cross section using the hadron tensor
   double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
 
-  double ratio;
+  if (xsec_all <= 0.) {
+    return 0.8;  // default pn fraction when SuSAv2 tensor has no coverage
+  } 
+
+  double ratio = 0.;
 
   if (final_state_ratio == "pnFraction") { // pnFraction will be calculated by default
     double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
@@ -329,7 +335,6 @@ double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* i
     ratio = pp_ratio;
 
   }
-
   return ratio;
 }
 //_________________________________________________________________________
@@ -466,6 +471,13 @@ void MartiniEricsonChanfrayMarteauMECPXSec2024::LoadConfig(void)
     LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required HadronTensorAlg does not exist. AlgoID is : " << SubAlg("HadronTensorAlg")->Id();
   }
 
+  // Load SuSAv2 hadron tensor model for pair ratio calculation
+  fPairRatioHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("PairRatioHadronTensorAlg") );
+  if( !fPairRatioHadronTensorModel ) {
+    good_config = false ;
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required PairRatioHadronTensorAlg does not exist. AlgoID is : " << SubAlg("PairRatioHadronTensorAlg")->Id();
+  }
+
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (this->SubAlg("NumericalIntegrationAlg"));
   if( !fXSecIntegrator ) {
     good_config = false ;
@@ -510,8 +522,8 @@ void MartiniEricsonChanfrayMarteauMECPXSec2024::LoadConfig(void)
   }
 
   if( ! good_config ) {
-    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "Configuration has failed.";
-    exit(78) ;
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pFATAL) << "Configuration has failed.";
+    exit(-1) ;
   }
 
 }
