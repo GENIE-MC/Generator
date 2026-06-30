@@ -27,8 +27,8 @@ FermiMomentumTable      string   No         Table of Fermi momentum (kF) constan
     <param type="string" name="SpectFuncTable@Pdg=1000060120_2112"> pke12_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000080160_2212"> pke16_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000080160_2112"> pke16_tot.data </param>
-    <param type="string" name="SpectFuncTable@Pdg=1000260560_2212"> benhar-sf-56fe.data </param>
-    <param type="string" name="SpectFuncTable@Pdg=1000260560_2112"> benhar-sf-56fe.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560_2212"> pke56_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560_2112"> pke56_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000180400_2212"> pke40p_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000180400_2112"> pke40n_tot.data </param>
 
@@ -53,8 +53,8 @@ FermiMomentumTable      string   No         Table of Fermi momentum (kF) constan
     <param type="string" name="SpectFuncTable@Pdg=1000060120_2112"> pke12_2024.table </param>
     <param type="string" name="SpectFuncTable@Pdg=1000080160_2212"> pke16_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000080160_2112"> pke16_tot.data </param>
-    <param type="string" name="SpectFuncTable@Pdg=1000260560_2212"> benhar-sf-56fe.data </param>
-    <param type="string" name="SpectFuncTable@Pdg=1000260560_2112"> benhar-sf-56fe.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560_2212"> pke56_tot.data </param>
+    <param type="string" name="SpectFuncTable@Pdg=1000260560_2112"> pke56_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000180400_2212"> pke40p_tot.data </param>
     <param type="string" name="SpectFuncTable@Pdg=1000180400_2112"> pke40n_tot.data </param>
 
