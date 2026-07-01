@@ -277,10 +277,7 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 
             // Handle SRC second nucleon possibility before calculating the remnant nucleus
             if( fSecondEmitter ){
-                std::cout<<"DEBUG QEL-CC: Calling SRC second emitter..."<<std::endl;
                 fSecondEmitter->ProcessEventRecord(evrec);
-            }else{
-                std::cout<<"DEBUG QEL-CC: No SRC second emitter configured..."<<std::endl;
             }
             // Now, add the recoiled nucleus remnant (now accounts for the second nucleon if emitted)
             this->AddTargetNucleusRemnant(evrec);
