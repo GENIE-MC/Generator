@@ -87,6 +87,10 @@ WeinbergAngle              double  No                                           
     <param type="bool"   name="Use2016Corrections"> true </param>
     <param type="bool"   name="BY-IncludeKCharm">         true </param>
     <param type="bool"   name="BY-IncludeSlowRescaling"> true </param>
+
+    <!-- Turning off charm production, as it is accounted by a separate model -->
+    <param type="bool"   name="Charm-Prod-Off">     true  </param>
+    
     <!-- Specify DIS nuclear correction to use
 	 In this case we use the A-Dependent parameterization by J.Gomez et. al. 
     -->

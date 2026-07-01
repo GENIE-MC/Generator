@@ -79,6 +79,9 @@ WeinbergAngle              double  No                                           
     <param type="double" name="BY-Cv2D">  0.323   </param>
     <param type="bool"   name="Use2016Corrections"> true </param>
 
+    <!-- Turning off charm production, as it is accounted by a separate model -->
+    <param type="bool"   name="Charm-Prod-Off">     true  </param>
+
     <!-- Specify DIS nuclear correction to use-->
     <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
   </param_set>
