@@ -67,8 +67,6 @@ QELEventGenerator::~QELEventGenerator()
 //___________________________________________________________________________
 void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
-
-    std::cout<<"DEBUG: THE COMPILATION WORKED. QELEventGenerator::ProcessEventRecord called"<<std::endl;
     LOG("QELEvent", pDEBUG) << "Generating QE event kinematics...";
 
     // Get the random number generators
