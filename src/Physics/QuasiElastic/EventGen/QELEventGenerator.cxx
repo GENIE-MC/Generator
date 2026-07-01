@@ -67,6 +67,8 @@ QELEventGenerator::~QELEventGenerator()
 //___________________________________________________________________________
 void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
+
+    std::cout<<"DEBUG: THE COMPILATION WORKED. QELEventGenerator::ProcessEventRecord called"<<std::endl;
     LOG("QELEvent", pDEBUG) << "Generating QE event kinematics...";
 
     // Get the random number generators
@@ -377,6 +379,7 @@ void QELEventGenerator::Configure(string config)
 //____________________________________________________________________________
 void QELEventGenerator::LoadConfig(void)
 {
+    
     // Load sub-algorithms and config data to reduce the number of registry
     // lookups
         fNuclModel = 0;
@@ -385,6 +388,14 @@ void QELEventGenerator::LoadConfig(void)
 
     fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
     assert(fNuclModel);
+
+    // Read the nuclear model name directly from the global configuration,
+    // bypassing the local algorithm registry
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    const Registry * globals = confp->GlobalParameterList();
+    RgAlg nucl_model_alg = globals->GetAlg("NuclearModel");
+    std::string nucl_model_name = nucl_model_alg.name;
+    LOG("QELEvent", pINFO) << "Configured nuclear model: " << nucl_model_name;
 
     // Safety factor for the maximum differential cross section
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
@@ -413,10 +424,22 @@ void QELEventGenerator::LoadConfig(void)
 
     GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
 
-    RgKey nuclearrecoilkey = "SecondNucleonEmitter";
-    fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *>(
-        this->SubAlg(nuclearrecoilkey));
-    assert(fSecondEmitter);
+    // Auto-select SecondNucleonEmitter based on nuclear model
+    AlgFactory * algf = AlgFactory::Instance();
+    if (nucl_model_name == "genie::LocalFGM" ||
+        nucl_model_name == "genie::FGMBodekRitchie") {
+        fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *>(
+            algf->GetAlgorithm("genie::SRCNuclearRecoil", "Default"));
+        LOG("QELEvent", pINFO) << "Selected SRCNuclearRecoil as SecondNucleonEmitter";
+    } else if (nucl_model_name == "genie::EffectiveSF") {
+        fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *>(
+            algf->GetAlgorithm("genie::SpectralFunction2p2h", "Default"));
+        LOG("QELEvent", pINFO) << "Selected SpectralFunction2p2h as SecondNucleonEmitter";
+    } else {
+        fSecondEmitter = 0;
+        LOG("QELEvent", pWARN) << "No SecondNucleonEmitter for nuclear model "
+                                << nucl_model_name << " -- SRC recoil disabled";
+    }
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const

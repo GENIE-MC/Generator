@@ -57,6 +57,8 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
+#include "Framework/Algorithm/AlgFactory.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -81,19 +83,12 @@ FermiMover::~FermiMover()
 //___________________________________________________________________________
 void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
 {
-  std::cout << "DEBUG: FermiMover::ProcessEventRecord called" << std::endl;
 
   // skip if not a nuclear target
-  if(! evrec->Summary()->InitState().Tgt().IsNucleus()){
-    std::cout << "DEBUG: FermiMover skipping - not a nucleus" << std::endl;
-    return;
-  }
+  if(! evrec->Summary()->InitState().Tgt().IsNucleus()) return;
 
   // skip if no hit nucleon is set
-  if(! evrec->HitNucleon()){
-    std::cout << "DEBUG: FermiMover skipping - no hit nucleon" << std::endl;
-    return;
-  }
+  if(! evrec->HitNucleon()) return;
 
   // give hit nucleon a Fermi momentum
   this->KickHitNucleon(evrec);
@@ -103,19 +98,6 @@ void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
 
   // add a recoiled nucleus remnant
   this->AddTargetNucleusRemnant(evrec);
-
-  // DEBUG: print full GHEP record after FermiMover
-  std::cout << "DEBUG FermiMover: Full GHEP record after FermiMover:" << std::endl;
-  for (int i = 0; i < evrec->GetEntries(); i++) {
-    GHepParticle * p = evrec->Particle(i);
-    std::cout << "  [" << i << "] PDG=" << p->Pdg() 
-              << " Status=" << p->Status()
-              << " Mother1=" << p->FirstMother()
-              << " Mother2=" << p->LastMother()
-              << " Dau1=" << p->FirstDaughter()
-              << " Dau2=" << p->LastDaughter()
-              << std::endl;
-  }
 }
 //___________________________________________________________________________
 void FermiMover::KickHitNucleon(GHepRecord * evrec) const
@@ -324,6 +306,14 @@ void FermiMover::LoadConfig(void)
   fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
   assert(fNuclModel);
 
+  // Read the nuclear model name directly from the global configuration,
+  // bypassing the local algorithm registry
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * globals = confp->GlobalParameterList();
+  RgAlg nucl_model_alg = globals->GetAlg("NuclearModel");
+  std::string nucl_model_name = nucl_model_alg.name;
+  LOG("FermiMover", pINFO) << "Configured nuclear model: " << nucl_model_name;
+
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
   bool mom_dep_energy_removal_def = false;
@@ -333,10 +323,22 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("MomentumDependentErmv", fMomDepErmv, mom_dep_energy_removal_def);
 
-  RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
-  fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
-  
-  assert(fSecondEmitter);
+  // Select the correct second nucleon emitter for this nuclear model. If none is found, disable SRC recoil.
+  AlgFactory * algf = AlgFactory::Instance(); 
+  if (nucl_model_name == "genie::LocalFGM" ||
+      nucl_model_name == "genie::FGMBodekRitchie") {
+      fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *>(
+          algf->GetAlgorithm("genie::SRCNuclearRecoil", "Default"));
+      LOG("FermiMover", pINFO) << "Selected SRCNuclearRecoil as SecondNucleonEmitter";
+  } else if (nucl_model_name == "genie::EffectiveSF") {
+      fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *>(
+          algf->GetAlgorithm("genie::SpectralFunction2p2h", "Default"));
+      LOG("FermiMover", pINFO) << "Selected SpectralFunction2p2h as SecondNucleonEmitter";
+  } else {
+      fSecondEmitter = 0;
+      LOG("FermiMover", pWARN) << "No SecondNucleonEmitter for nuclear model "
+                              << nucl_model_name << " -- SRC recoil disabled";
+  }
 
 }
 //____________________________________________________________________________

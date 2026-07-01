@@ -21,6 +21,7 @@
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/SecondNucleonEmissionI.h"
+#include "Framework/Algorithm/AlgFactory.h"
 #include "Physics/Common/KineGeneratorWithCache.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Framework/Utils/Range1.h"
