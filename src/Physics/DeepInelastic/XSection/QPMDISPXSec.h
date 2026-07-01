@@ -64,7 +64,6 @@ private:
   double fSin48w;           ///< sin^4(Weingberg angle)
 
   bool   fCharmOff;          ///< turn charm production off?
-  bool   fCharmOnly;         ///< This parameter is used to compute the charm contribution as a standalone model
 };
 
 }       // genie namespace

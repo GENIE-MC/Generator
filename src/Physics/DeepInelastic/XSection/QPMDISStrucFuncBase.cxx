@@ -118,8 +118,6 @@ void QPMDISStrucFuncBase::LoadConfig(void)
 
   //-- turn charm production off?
   GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
-  //-- compute only charm? 
-  GetParamDef( "Charm-Only", fCharmOnly, false ) ;
 
   //-- include H?
   GetParam( "IncludeH", fIncludeH, false ) ;
@@ -249,10 +247,6 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   // KCH = 1 if below charm threshold
   double KCH = 1.0;
   if (applyCharmCorrection) KCH = KCharm(interaction, fMc);  
-
-  // If we are computing the Charm CCDIS contribution, and applyCharmCorrection is false, return 0 for all structure functions
-  if (!applyCharmCorrection && fCharmOnly ) { fF1 = fF2 = fF3 = fF4 = fF5 = 0 ; return ;}
-
   
   // Compute the K factors
   double kV_val_u = 1.;

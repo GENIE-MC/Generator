@@ -169,10 +169,11 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   if( proc_info.IsWeakCC() )  xsec *= fCCScale;
   else if( proc_info.IsWeakNC() )  xsec *= fNCScale;
   else if( proc_info.IsEM() )  xsec *= fEMScale;
-
+  
   // Subtract the inclusive charm production cross section if charm was used
   // in the total CCDIS calculation. This is accounted in a separate algorithm
-  if( !fCharmOnly && !fCharmOff ) {
+  // If it was not used, do not substract.
+  if( !fCharmOff ) {
     interaction->ExclTagPtr()->SetCharm();
     double xsec_charm = fCharmProdModel->XSec(interaction, kps);
     interaction->ExclTagPtr()->UnsetCharm();
@@ -221,7 +222,7 @@ void QPMDISPXSec::Configure(const Registry &config) {
 //____________________________________________________________________________
 void QPMDISPXSec::Configure(string config) {
   Algorithm::Configure(config);
-
+  
   Registry r("QPMDISPXSec_specific", false);
 
   RgKey xdefkey = "XSecModel@genie::EventGenerator/DIS-CC-CHARM";
@@ -229,7 +230,7 @@ void QPMDISPXSec::Configure(string config) {
   r.Set(local_key, AlgConfigPool::Instance()->GlobalParameterList()->GetAlg(xdefkey));
 
   Algorithm::Configure(r);
-
+  
   this->LoadConfig();
 }
 //____________________________________________________________________________
@@ -249,7 +250,6 @@ void QPMDISPXSec::LoadConfig(void) {
   GetParam("DIS-EM-XSecScale", fEMScale);
 
   // Compute only charm?
-  GetParamDef( "Charm-Only", fCharmOnly, false ) ;
   GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
   
   // sin^4(theta_weinberg)
@@ -280,5 +280,6 @@ void QPMDISPXSec::LoadConfig(void) {
 
   fCharmProdModel = dynamic_cast<const XSecAlgorithmI *>(this->SubAlg(local_key));
   assert(fCharmProdModel);
+
 }
 //____________________________________________________________________________
