@@ -13,3 +13,4 @@ Notable components of the physics model are the following:
  - The parameters related to pion production are taken from the G18_10a_02_11b
    tune in order to ensure a better starting point.
  - De-excitation photons are enabled for 40Ar
+ - Hadronisation is hAIntranuke2025, not hAIntranuke2018
