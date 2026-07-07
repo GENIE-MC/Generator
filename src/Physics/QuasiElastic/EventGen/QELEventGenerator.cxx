@@ -38,11 +38,6 @@
 #include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
-#include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Framework/EventGen/EventGeneratorList.h"
-#include "Framework/Utils/RunOpt.h"
-#include "Framework/EventGen/EventGeneratorListAssembler.h"
-#include "Framework/Utils/RunOpt.h"
 #include "Physics/NuclearState/SecondNucleonEmissionI.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"

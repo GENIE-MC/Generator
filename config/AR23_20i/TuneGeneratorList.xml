@@ -68,20 +68,5 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-17">  genie::EventGenerator/MEC-NC          </param>
   </param_set>
 
-
-<!--
-  <param_set name="Default"> 
-     <param type="int" name="NGenerators">   2                                    </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/COH-CC-PION          </param>
-     <param type="alg" name="Generator-1">   genie::EventGenerator/COH-NC-PION          </param>
-  </param_set>
--->
-<!--
-  <param_set name="Default">
-     <param type="int" name="NGenerators">   1                                    </param>
-     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC         </param>
-  </param_set>
--->
-
 </tune_generator_list>
 
