@@ -37,10 +37,12 @@
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Framework/Conventions/Units.h"
 #include "Physics/NuclearState/FermiMover.h"
 
 #include "Physics/NuclearState/NuclearModel.h"
+#include "Physics/NuclearState/NuclearModelMap.h"
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/EVGThreadException.h"
 #include "Framework/GHEP/GHepRecord.h"
@@ -57,6 +59,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -81,6 +84,7 @@ FermiMover::~FermiMover()
 //___________________________________________________________________________
 void FermiMover::ProcessEventRecord(GHepRecord * evrec) const
 {
+
   // skip if not a nuclear target
   if(! evrec->Summary()->InitState().Tgt().IsNucleus()) return;
 
@@ -303,6 +307,13 @@ void FermiMover::LoadConfig(void)
   fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
   assert(fNuclModel);
 
+  // Read the nuclear model name directly from the global configuration,
+  AlgConfigPool * confp = AlgConfigPool::Instance();
+  const Registry * globals = confp->GlobalParameterList();
+  RgAlg nucl_model_alg = globals->GetAlg("NuclearModel");
+  std::string nucl_model_name = nucl_model_alg.name;
+  LOG("FermiMover", pINFO) << "Configured nuclear model: " << nucl_model_name;
+  
   this->GetParamDef("KeepHitNuclOnMassShell", fKeepNuclOnMassShell, false);
 
   bool mom_dep_energy_removal_def = false;
@@ -312,10 +323,65 @@ void FermiMover::LoadConfig(void)
 
   this->GetParamDef("MomentumDependentErmv", fMomDepErmv, mom_dep_energy_removal_def);
 
-  RgKey nuclearrecoilkey = "SecondNucleonEmitter" ;
-  fSecondEmitter = dynamic_cast<const SecondNucleonEmissionI *> (this->SubAlg(nuclearrecoilkey));
-  
-  assert(fSecondEmitter);
+  // Build nuclear-model algorithm name -> SecondNucleonEmitter algorithm,
+  std::string nucl_model_names_str, fermi_mover_algids_str;
+  this->GetParam("NuclearModels",         nucl_model_names_str);
+  this->GetParam("SecondNucleonEmitters", fermi_mover_algids_str);
+
+  std::vector<std::string> nucl_model_names  = genie::utils::str::Split(nucl_model_names_str, ";");
+  std::vector<std::string> fermi_mover_algids = genie::utils::str::Split(fermi_mover_algids_str, ";");
+
+  if (nucl_model_names.size() != fermi_mover_algids.size()) {
+    LOG("FermiMover", pFATAL)
+      << "NuclearModels and SecondNucleonEmitters must have the same "
+      << "number of entries (" << nucl_model_names.size() << " vs "
+      << fermi_mover_algids.size() << ")";
+    exit(1);
+  }
+  fSecondEmitterMap.clear();
+  AlgFactory * algf = AlgFactory::Instance(); 
+
+  for (size_t i = 0; i < nucl_model_names.size(); ++i) {
+
+    // split "genie::SRCNuclearRecoil/Default" into alg name + config set
+    const std::string & full = fermi_mover_algids[i];
+    std::string alg_name = full;
+    std::string alg_conf = "Default"; // In case no config is specified, use "Default"
+    size_t slash = full.find('/');
+    if (slash != std::string::npos) {
+      alg_name = full.substr(0, slash);
+      alg_conf = full.substr(slash + 1);  // If the slash is found, take the substring after it as the config
+    }
+
+    const Algorithm * alg = algf->GetAlgorithm(alg_name, alg_conf);
+    const SecondNucleonEmissionI * emitter =
+      dynamic_cast<const SecondNucleonEmissionI *>(alg);
+    if (!emitter) {
+    LOG("FermiMover", pWARN)
+        << "Could not load a valid SecondNucleonEmitter ('" << full
+        << "') for nuclear model '" << nucl_model_names[i] << "' -- entry skipped";
+        continue;
+    }
+
+    fSecondEmitterMap[nucl_model_names[i]] = emitter;
+    LOG("FermiMover", pINFO)
+      << "Registered SecondNucleonEmitter '" << full
+      << "' for nuclear model '" << nucl_model_names[i] << "'";
+  }
+
+  // Now resolve fSecondEmitter for the currently configured nuclear model
+  fSecondEmitter = 0;
+  auto it = fSecondEmitterMap.find(nucl_model_name);
+  if(it != fSecondEmitterMap.end()) {
+    fSecondEmitter = it->second;
+    LOG("FermiMover", pINFO)
+      << "Selected " << fSecondEmitter->Id().Name()
+      << " as SecondNucleonEmitter for nuclear model " << nucl_model_name;
+  }else{
+    LOG("FermiMover", pWARN)
+      << "No SecondNucleonEmitter for nuclear model "
+      << nucl_model_name << " -- SRC recoil disabled";
+  }
 
 }
 //____________________________________________________________________________

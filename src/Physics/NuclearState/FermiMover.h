@@ -21,6 +21,9 @@
 #ifndef _FERMI_MOVER_H_
 #define _FERMI_MOVER_H_
 
+#include <string>
+#include <unordered_map>
+
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
@@ -60,6 +63,8 @@ private:
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
   const SecondNucleonEmissionI *  fSecondEmitter ; 
+  /// Map with the corresponding NuclearModel to SecondNucleonEmissionI algorithm for each nuclear model.
+  std::unordered_map<std::string, const SecondNucleonEmissionI *> fSecondEmitterMap;
 
 };
 
