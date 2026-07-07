@@ -1,0 +1,44 @@
+# INCL26_07a — spectral-function + Unified-CC QE + INCL FSI tune
+
+Derived from `AR23_20i` (byte-identical copy, then reconfigured). Runnable as
+tune id `INCL26_07a_00_000`.
+
+## Physics content
+
+ - **1p1h QE (CC):** `genie::HybridXSecAlgorithm/Unified-CC`, which delegates
+   complex nuclei to the SF-Unified impulse-approximation model
+   `genie::UnifiedQELPXSec/ZExp_lqcd` (LQCD Z-expansion axial form factor,
+   `LwlynSmithFFCC/ZExp_lqcd`) and free nucleons to `LwlynSmithQELCCPXSec/Dipole`.
+   Uses the standard `NewQELXSec` integrator — not the INCL-specific QE integrator.
+ - **Ground state:** the 2024 Ankowski–Benhar–Sakuda spectral function for C12,
+   `genie::SpectralFunc/pke12_2024` (data: `data/evgen/nucl/spectral_functions/pke12_2024.table`).
+   Non-C12 targets fall back to the global `genie::LocalFGM/Default`.
+ - **2p2h:** SuSAv2 MEC, retained unchanged from AR23_20i.
+ - **FSI:** INCL intranuclear cascade, `genie::INCLCascadeIntranuke/Default`
+   (`DeltaTransp-Enable` = true). Requires the INCL data environment from the
+   `genie_inclxx` installation's `setup_env.sh`.
+ - Pion-production parameters inherited from AR23_20i (originally G18_10a_02_11b);
+   de-excitation photons enabled (carbon/argon).
+
+## Files changed relative to AR23_20i
+
+ - `ModelConfiguration.xml` — NuclearModel (C12 → SpectralFunc/pke12_2024),
+   QEL-CC XSecModel (→ HybridXSecAlgorithm/Unified-CC), HadronTransp-Model
+   (→ INCLCascadeIntranuke/Default) + DeltaTransp-Enable.
+ - `EventGenerator.xml` — added (copied from SF26_22b). Overrides the QEL-CC
+   thread to `genie::QELEventGeneratorINCL/Hybrid`, which prepares the QE vertex
+   (struck nucleon positioned via the global `NucleusGenHybridStruck`) for hand-off
+   to the INCL cascade. This is required by the INCL FSI choice — the master default
+   `QELEventGeneratorSM/Default` does not feed the INCL cascade. `QELEventGeneratorINCL`
+   and `NucleusGenHybridStruck` resolve from the global `$GENIE/config` (SF26_22b's
+   local copies are byte-identical), so only `EventGenerator.xml` is needed locally.
+ - `TuneGeneratorList.xml` — dropped the two charm threads (`DIS-CC-CHARM`,
+   `QEL-CC-CHARM`); `NGenerators` 18 -> 16, generators renumbered contiguously.
+ - `CommonParam.xml`, `MECInteractionListGenerator.xml`, `NucDeExcitationSim.xml`
+   — inherited from AR23_20i, unchanged.
+
+## Naming note
+
+FSI is INCL by explicit design (the `INCL26_` prefix). The `a` suffix here does
+**not** follow the SF26_/LFG26_ series letter convention (where `a` = hA2018,
+`b` = INCL FSI).
