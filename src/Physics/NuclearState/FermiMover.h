@@ -21,13 +21,15 @@
 #ifndef _FERMI_MOVER_H_
 #define _FERMI_MOVER_H_
 
+#include <string>
+#include <unordered_map>
+
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Interaction/Target.h"
 #include "Physics/NuclearState/SRCNuclearRecoil.h"
 #include "Physics/NuclearState/SecondNucleonEmissionI.h"
-#include "Framework/Algorithm/AlgFactory.h"
 
 namespace genie {
 
@@ -62,7 +64,7 @@ private:
 
   const SecondNucleonEmissionI *  fSecondEmitter ; 
   /// Map with the corresponding NuclearModel to SecondNucleonEmissionI algorithm for each nuclear model.
-  std::unordered_map<std::string, const SecondNucleonEmissionI *> fFermiMoverMap;
+  std::unordered_map<std::string, const SecondNucleonEmissionI *> fSecondEmitterMap;
 
 };
 
