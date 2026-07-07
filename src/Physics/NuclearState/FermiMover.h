@@ -61,6 +61,8 @@ private:
   const NuclearModelI *  fNuclModel;   ///< nuclear model
 
   const SecondNucleonEmissionI *  fSecondEmitter ; 
+  /// Map with the correcpondent NuclearModel to SecondNucleonEmissionI algorithm for each nuclear model.
+  std::unordered_map<std::string, const SecondNucleonEmissionI *> fFermiMoverMap;
 
 };
 

@@ -18,11 +18,12 @@ SecondNucleonEmitter          alg     No         SubAlg to add a second nucleon
 <alg_conf>
 
   <param_set name="Default">
-     <param type="bool"   name="KeepHitNuclOnMassShell"> false                     </param>
-     <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default         </param> 
-     <!-- Only add SecondNucleonEmitter if one in specific is desired. Otherwise, 
-      the nuclear model will be used to determine the correct SecondNucleonEmitter that is desired. 
-     <param type="alg" name="SecondNucleonEmitter"> genie::SpectralFunction2p2h/Default </param> -->
+      <param type="bool"   name="KeepHitNuclOnMassShell"> false                     </param>
+      <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default         </param> 
+
+      <!-- Possible SecondNucleonEmitters for every different NuclearModel -->
+      <param type="string" name="NuclearModels">genie::LocalFGM;genie::FGMBodekRitchie;genie::EffectiveSF</param>
+      <param type="string" name="SecondNucleonEmitters">genie::SRCNuclearRecoil/Default;genie::SRCNuclearRecoil/Default;genie::SpectralFunction2p2h/Default</param>
   </param_set>
 
   <param_set name="NucOnShell">

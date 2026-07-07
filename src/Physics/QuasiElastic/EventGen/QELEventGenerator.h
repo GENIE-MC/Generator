@@ -67,6 +67,8 @@ private:
   /// The number of nucleons to sample from the nuclear model when choosing a maximum
   /// momentum to use in ComputeMaxXSec()
   int fMaxXSecNucleonThrows;
+  /// Map with the correcpondent NuclearModel to SecondNucleonEmissionI algorithm for each nuclear model.
+  std::unordered_map<std::string, const SecondNucleonEmissionI *> fFermiMoverMap;
 
 }; // class definition
 
