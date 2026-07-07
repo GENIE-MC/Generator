@@ -453,7 +453,7 @@ void QELEventGenerator::LoadConfig(void)
         const SecondNucleonEmissionI * emitter =
             dynamic_cast<const SecondNucleonEmissionI *>(alg);
         if (!emitter) {
-        LOG("FermiMover", pWARN)
+        LOG("QELEvent", pWARN)
             << "Could not load a valid SecondNucleonEmitter ('" << full
             << "') for nuclear model '" << nucl_model_names[i] << "' -- entry skipped";
             continue;
