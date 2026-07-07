@@ -9,6 +9,8 @@ Algorithm Configurable Parameters:
 ......................................................................................................
 Name               Type    Optional   Comment                          Default
 ......................................................................................................
+PreciseLeptonPol   bool     Yes        Do precise calculation of        No
+                                       lepton polarization
 XSec-Integrator    alg     No         xsection integration algorithm
 -->
 
@@ -18,6 +20,7 @@ XSec-Integrator    alg     No         xsection integration algorithm
 
      <param type="alg"  name="FormFactorsAlg">  genie::LwlynSmithFFDeltaS/Default </param>
      <param type="alg"  name="XSec-Integrator"> genie::QELXSec/Default            </param>
+     <param type="bool" name="PreciseLeptonPol"> true  </param>
   </param_set>
 </alg_conf>
 

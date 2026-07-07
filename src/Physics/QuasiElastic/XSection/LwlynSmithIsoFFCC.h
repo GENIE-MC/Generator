@@ -1,10 +1,11 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::MKFFCC
+\class    genie::LwlynSmithIsoFFCC
 
 \brief    Is a concrete implementation of the QELFormFactorsModelI:
-          Form Factors for MK SPP model.
+          Form Factors for Quasi Elastic CC vN scattering according to
+          Llewellyn-Smith model for isoscalar nucleon.
 
 
 \author   Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research \n
@@ -20,19 +21,19 @@
 */
 //____________________________________________________________________________
 
-#ifndef _MK_CC_FORM_FACTOR_MODEL_H_
-#define _MK_CC_FORM_FACTOR_MODEL_H_
+#ifndef _LLEWELLYN_SMITH_ISO_CC_FORM_FACTOR_MODEL_H_
+#define _LLEWELLYN_SMITH_ISO_CC_FORM_FACTOR_MODEL_H_
 
 #include "Physics/QuasiElastic/XSection/LwlynSmithFF.h"
 
 namespace genie {
 
-class MKFFCC : public LwlynSmithFF {
+class LwlynSmithIsoFFCC : public LwlynSmithFF {
 
 public:
-  MKFFCC();
-  MKFFCC(string config);
-  virtual ~MKFFCC();
+  LwlynSmithIsoFFCC();
+  LwlynSmithIsoFFCC(string config);
+  virtual ~LwlynSmithIsoFFCC();
 
   // QELFormFactorModelI interface implementation
   double F1V    (const Interaction * interaction) const;
@@ -40,6 +41,10 @@ public:
   double FA     (const Interaction * interaction) const;
   double Fp     (const Interaction * interaction) const;
   double tau    (const Interaction * interaction) const;
+  
+protected:
+  virtual void LoadConfig (void);
+  bool fIsCC;
   
   
 };

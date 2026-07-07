@@ -14,7 +14,7 @@ Author:  Igor Kakorin <kakorin@jinr.ru>, Joint Institute for Nuclear Research
 //____________________________________________________________________________
 
 #include "Framework/Conventions/Constants.h"
-#include "Physics/QuasiElastic/XSection/MKFFCC.h"
+#include "Physics/QuasiElastic/XSection/LwlynSmithIsoFFCC.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGCodes.h"
@@ -23,44 +23,72 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-MKFFCC::MKFFCC() :
-LwlynSmithFF("genie::MKFFCC")
+LwlynSmithIsoFFCC::LwlynSmithIsoFFCC() :
+LwlynSmithFF("genie::LwlynSmithIsoFFCC")
 {
 
 }
 //____________________________________________________________________________
-MKFFCC::MKFFCC(string config) :
-LwlynSmithFF("genie::MKFFCC", config)
+LwlynSmithIsoFFCC::LwlynSmithIsoFFCC(string config) :
+LwlynSmithFF("genie::LwlynSmithIsoFFCC", config)
 {
 
 }
 //____________________________________________________________________________
-MKFFCC::~MKFFCC()
+LwlynSmithIsoFFCC::~LwlynSmithIsoFFCC()
 {
 
 }
 //____________________________________________________________________________
-double MKFFCC::F1V(const Interaction * interaction) const
+double LwlynSmithIsoFFCC::F1V(const Interaction * interaction) const
 {
-  return LwlynSmithFF::F1V(interaction);
+  if (fIsCC)
+    return LwlynSmithFF::F1V(interaction);
+    
+  double F1p = this->F1P(interaction);
+  double F1n = this->F1N(interaction);
+  double _F1V = F1p + F1n;
+  return _F1V;
 }
 //____________________________________________________________________________
-double MKFFCC::xiF2V(const Interaction * interaction) const
+double LwlynSmithIsoFFCC::xiF2V(const Interaction * interaction) const
 {
-  return LwlynSmithFF::xiF2V(interaction);
+  if (fIsCC)
+    return LwlynSmithFF::xiF2V(interaction);
+  
+  double F2p = this->F2P(interaction);
+  double F2n = this->F2N(interaction);
+  double _xiF2V = F2p + F2n;
+  return _xiF2V;
 }
 //____________________________________________________________________________
-double MKFFCC::FA(const Interaction * interaction) const
+double LwlynSmithIsoFFCC::FA(const Interaction * interaction) const
 {
   return LwlynSmithFF::FA(interaction);
 }
 //____________________________________________________________________________
-double MKFFCC::Fp(const Interaction * interaction) const
+double LwlynSmithIsoFFCC::Fp(const Interaction * interaction) const
 {
-  return LwlynSmithFF::Fp(interaction);
+  // get momentum transfer
+  const Kinematics & kine = interaction->Kine();
+  double q2 = kine.q2();
+
+  // get struck nucleon mass & set pion mass
+  PDGLibrary * pdglib = PDGLibrary::Instance();
+  double M   = (pdglib->Find(kPdgProton)->Mass() + pdglib->Find(kPdgNeutron)->Mass())/2;
+  double M2  = M*M;
+  double Mpi  = kPionMass;
+  double Mpi2 = TMath::Power(Mpi, 2);
+
+  // calculate FA
+  double fa = this->FA(interaction);
+
+  // calculate Fp
+  double _Fp = 2. * M2 * fa/(Mpi2-q2);
+  return _Fp;
 }
 //____________________________________________________________________________
-double MKFFCC::tau(const Interaction * interaction) const
+double LwlynSmithIsoFFCC::tau(const Interaction * interaction) const
 {
 // computes q^2 / (4 * Misoscalar^2)
 
@@ -75,6 +103,11 @@ double MKFFCC::tau(const Interaction * interaction) const
   //-- calculate q^2 / (4*Mnuc^2)
   return q2/(4*M*M);
 }
-
+//____________________________________________________________________________
+void LwlynSmithIsoFFCC::LoadConfig(void)
+{
+  LwlynSmithFF::LoadConfig();
+  GetParamDef( "IsCCFormFactors", fIsCC, true);
+}
 
 

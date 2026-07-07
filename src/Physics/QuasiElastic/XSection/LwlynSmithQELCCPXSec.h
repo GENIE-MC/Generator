@@ -23,6 +23,7 @@
 #ifndef _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 #define _LLEWELLYN_SMITH_QELCC_CROSS_SECTION_H_
 
+
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
@@ -45,6 +46,7 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
+  TVector3 FinalLeptonPolarization (const Interaction* i) const;
 
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members

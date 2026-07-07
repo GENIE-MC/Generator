@@ -7,7 +7,6 @@
    For the class documentation see the corresponding header file.
    */
 //_________________________________________________________________________
-
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Messenger/Messenger.h"
@@ -23,11 +22,13 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Framework/Conventions/Constants.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include <TMath.h>
 
 
 using namespace genie;
+using namespace std::complex_literals;
 
 //_________________________________________________________________________
 SuSAv2QELPXSec::SuSAv2QELPXSec() : XSecAlgorithmI("genie::SuSAv2QELPXSec")
@@ -470,13 +471,12 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
 	xsec *= xsec_scale ;
 
-	if ( kps != kPSTlctl ) {
-		LOG("SuSAv2QE", pWARN)
-			<< "Doesn't support transformation from "
-			<< KinePhaseSpace::AsString(kPSTlctl) << " to "
-			<< KinePhaseSpace::AsString(kps);
-		xsec = 0.;
-	}
+    if ( kps != kPSTlctl ) 
+    {
+      // Compute the appropriate Jacobian for transformation to the requested phase space
+      double J = utils::kinematics::Jacobian(interaction, kPSTlctl, kps);
+      xsec *= J;
+    }
 
 	return xsec;
 }
@@ -605,6 +605,9 @@ void SuSAv2QELPXSec::LoadConfig(void)
 	GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
 	GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
 	GetParam( "QEL-EM-XSecScale", fXSecEMScale ) ;
+    
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
 	// Cross section model choice
 	int modelChoice;
@@ -663,4 +666,549 @@ void SuSAv2QELPXSec::LoadConfig(void)
 		exit(78) ;
 	}
 
+}
+//_________________________________________________________________________
+TVector3 SuSAv2QELPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{    
+    TVector3 pol(0, 0, 0);
+    const ProcessInfo& proc_info = interaction->ProcInfo();
+    if ( proc_info.IsEM() ) 
+    {
+        LOG("SuSAv2QE", pWARN) << "For EM processes doesn't work yet.";
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+    if (!fIsPreciseLeptonPolarization || proc_info.IsWeakNC()) 
+        return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+    const Kinematics&   kinematics = interaction -> Kine();
+    const InitialState& init_state = interaction -> InitState();
+    const Target& tgt = init_state.Tgt();
+    int target_pdg = tgt.Pdg();
+    int probe_pdg = interaction->InitState().ProbePdg();
+  
+    bool is_neutrino     = pdg::IsNeutrino(probe_pdg);
+    bool is_antineutrino = pdg::IsAntiNeutrino(probe_pdg);
+    
+    const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
+    
+    TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+    TLorentzVector neutrinoMom    = *tempNeutrino;
+    delete tempNeutrino;
+    const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+    
+    double Ev             = neutrinoMom.E();
+    double El             = leptonMom.E();
+    double ml             = leptonMom.M();
+    double Tl             = El - ml;
+    TVector3 neutrinoMom3 = neutrinoMom.Vect();
+    TVector3 leptonMom3   = leptonMom.Vect();
+    double pv             = neutrinoMom3.Mag();
+    double pl             = leptonMom3.Mag();
+    double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
+    double Q0             = 0;
+    double Q3             = 0;
+    genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
+
+    // *** Enforce the global Q^2 cut ***
+    double Q2min = genie::controls::kMinQ2Limit; // CC limit
+    //if ( interaction->ProcInfo().IsEM() ) 
+        //Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
+
+    // Neglect shift due to binding energy. The cut is on the actual
+    // value of Q^2, not the effective one to use in the tensor contraction.
+    double Q2 = Q3*Q3 - Q0*Q0;
+    if ( Q2 < Q2min )
+    {
+        LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+    
+
+    // ******************************
+    // Now choose which tesor to use
+    // ******************************
+    int tensor_pdg_susa = target_pdg;
+    int tensor_pdg_crpa = target_pdg;
+    int A_request = pdg::IonPdgCodeToA(target_pdg);
+    int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+    bool need_to_scale_susa = false;
+    bool need_to_scale_crpa = false;
+
+    // This gets a bit messy as the different models have different
+    // targets available and currently only SuSA does EM
+    HadronTensorType_t tensor_type_susa = kHT_Undefined;
+    HadronTensorType_t tensor_type_crpa = kHT_Undefined;
+    HadronTensorType_t tensor_type_blen = kHT_Undefined;
+
+    if ( is_neutrino ) 
+    {
+        tensor_type_susa = kHT_QE_Full;
+        tensor_type_blen = kHT_QE_SuSABlend;
+        // CRPA/HF tensors having q0 dependent binning, so are split
+        // CRPA
+        if (modelConfig == kMd_CRPA || modelConfig == kMd_CRPASuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_CRPA_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_CRPA_Medium;
+            else tensor_type_crpa = kHT_QE_CRPA_High;
+        }
+        // Hartree-Fock
+        if (modelConfig == kMd_HF || modelConfig == kMd_HFSuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_HF_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_HF_Medium;
+            else tensor_type_crpa = kHT_QE_HF_High;
+        }
+        if (modelConfig == kMd_CRPAPW || modelConfig == kMd_CRPAPWSuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_CRPAPW_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_CRPAPW_Medium;
+            else tensor_type_crpa = kHT_QE_CRPAPW_High;
+        }
+        // Hartree-Fock
+        if (modelConfig == kMd_HFPW || modelConfig == kMd_HFPWSuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_HFPW_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_HFPW_Medium;
+            else tensor_type_crpa = kHT_QE_HFPW_High;
+        }
+    }
+    else if ( is_antineutrino )
+    {
+        // SuSA implementation doesn't accoutn for asymmetry between protons
+        // and neutrons. In general this is a small effect.
+        tensor_type_susa = kHT_QE_Full;
+        //For the blending case, Ar40 is treated specially:
+        if(A_request == 40 && Z_request == 18)
+        {
+            tensor_type_blen = kHT_QE_SuSABlend_anu;
+        }
+        else tensor_type_blen = kHT_QE_SuSABlend;
+        // CRPA tensors having q0 dependent binning, so are split:
+        //CRPA
+        if (modelConfig == kMd_CRPA || modelConfig == kMd_CRPASuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_CRPA_anu_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_CRPA_anu_Medium;
+            else tensor_type_crpa = kHT_QE_CRPA_anu_High;
+        }
+        // Hartree-Fock
+        if (modelConfig == kMd_HF || modelConfig == kMd_HFSuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_HF_anu_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_HF_anu_Medium;
+            else tensor_type_crpa = kHT_QE_HF_anu_High;
+        }
+        if (modelConfig == kMd_CRPAPW || modelConfig == kMd_CRPAPWSuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_CRPAPW_anu_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_CRPAPW_anu_Medium;
+            else tensor_type_crpa = kHT_QE_CRPAPW_anu_High;
+        }
+        // Hartree-Fock
+        if (modelConfig == kMd_HFPW || modelConfig == kMd_HFPWSuSAv2Hybrid)
+        {
+            if(Q0<0.060) tensor_type_crpa = kHT_QE_HFPW_anu_Low;
+            else if(Q0<0.150) tensor_type_crpa = kHT_QE_HFPW_anu_Medium;
+            else tensor_type_crpa = kHT_QE_HFPW_anu_High;
+        }
+    }
+    //else 
+    //{
+        //if ( pdg::IsProton(hit_nuc_pdg) ) 
+        //{
+            //tensor_type_susa = kHT_QE_EM_proton;
+        //}
+        //else if( pdg::IsNeutron(hit_nuc_pdg) )
+        //{
+            //tensor_type_susa = kHT_QE_EM_neutron;
+        //}
+        //else 
+        //{
+            //tensor_type_susa = kHT_QE_EM;  	// default
+        //}
+    //}
+    else 
+    {
+        LOG("SuSAv2QE", pWARN) << "Doesn't work for processes other than weak ones.";
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+
+    double Eb_tgt=0;
+    double Eb_ten_susa=0;
+    double Eb_ten_crpa=0;
+
+    if ( A_request <= 4 ) 
+    {
+        // Use carbon tensor for very light nuclei. This is not ideal . . .
+        Eb_tgt = fEbHe;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtC12;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbC;
+    }
+    else if (A_request < 9) 
+    {
+        Eb_tgt=fEbLi;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtC12;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbC;
+    }
+    else if (A_request >= 9 && A_request < 15) 
+    {
+        Eb_tgt=fEbC;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtC12;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbC;
+    }
+    else if(A_request >= 15 && A_request < 22) 
+    {
+        Eb_tgt=fEbO;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtO16;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbO;
+    }
+    else if(A_request == 40 && Z_request == 18) 
+    {
+        // Treat the common non-isoscalar case specially
+        Eb_tgt=fEbAr;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = 1000180400;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbAr;
+    }
+    else if(A_request >= 22 && A_request < 40) 
+    {
+        Eb_tgt=fEbMg;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtO16;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbO;
+    }
+    else if(A_request >= 40 && A_request < 56) {
+        Eb_tgt=fEbAr;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtO16;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbO;
+    }
+    else if(A_request >= 56 && A_request < 119) 
+    {
+        Eb_tgt=fEbFe;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtO16;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbO;
+    }
+    else if(A_request >= 119 && A_request < 206) 
+    {
+        Eb_tgt=fEbSn;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtO16;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbO;
+    }
+    else if(A_request >= 206) 
+    {
+        Eb_tgt=fEbPb;
+        tensor_pdg_susa = kPdgTgtC12;
+        tensor_pdg_crpa = kPdgTgtO16;
+        Eb_ten_susa = fEbC;
+        Eb_ten_crpa = fEbO;
+    }
+    
+    if (tensor_pdg_susa != target_pdg) need_to_scale_susa = true;
+    if (tensor_pdg_crpa != target_pdg) need_to_scale_crpa = true;
+
+    // Finally we can now get the tensors we need
+    const LabFrameHadronTensorI* tensor_susa;
+    const LabFrameHadronTensorI* tensor_crpa;
+    const LabFrameHadronTensorI* tensor_blen;
+
+    if( modelConfig == kMd_SuSAv2 )
+    {
+        tensor_susa = dynamic_cast<const LabFrameHadronTensorI*>
+            ( fHadronTensorModel->GetTensor (tensor_pdg_susa, tensor_type_susa) );
+
+        if ( !tensor_susa ) 
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+
+    if( modelConfig == kMd_CRPASuSAv2Hybrid   || modelConfig == kMd_HFSuSAv2Hybrid ||
+        modelConfig == kMd_CRPAPWSuSAv2Hybrid || modelConfig == kMd_HFPWSuSAv2Hybrid ||
+        modelConfig == kMd_SuSAv2Blend)
+    {
+        tensor_blen = dynamic_cast<const LabFrameHadronTensorI*>
+            ( fHadronTensorModel->GetTensor (tensor_pdg_crpa, tensor_type_blen) );
+
+        if ( !tensor_blen ) 
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+
+    if( modelConfig != kMd_SuSAv2 && modelConfig != kMd_SuSAv2Blend)
+    {
+        tensor_crpa = dynamic_cast<const LabFrameHadronTensorI*>
+            ( fHadronTensorModel->GetTensor (tensor_pdg_crpa, tensor_type_crpa) );
+
+        if ( !tensor_crpa ) 
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+
+    // *****************************
+    // Q_value offset calculation
+    // *****************************
+
+    // SD: The Q-Value essentially corrects q0 to account for nuclear
+    // binding energy in the Valencia model but this effect is already
+    // in the SuSAv2 and CRPA/HF tensors so I'll set it to 0.
+    // However, if I want to scale I need to account for the altered
+    // binding energy. To first order I can use the Q_value for this
+    double Delta_Q_value_susa = Eb_tgt-Eb_ten_susa;
+    double Delta_Q_value_crpa = Eb_tgt-Eb_ten_crpa;
+    double Delta_Q_value_blen = Eb_tgt-Eb_ten_crpa;
+
+    // Apply Qvalue relative shift if needed:
+    if( fQvalueShifter ) 
+    {
+        // We have the option to add an additional shift on top of the binding energy correction
+        // The QvalueShifter, is a relative shift to the Q_value.
+        // The Q_value was already taken into account in the hadron tensor. Here we recalculate it
+        // to get the right absolute shift.
+        double tensor_Q_value_susa = genie::utils::mec::Qvalue(tensor_pdg_susa,probe_pdg);
+        double total_Q_value_susa = tensor_Q_value_susa + Delta_Q_value_susa ;
+        double Q_value_shift_susa = total_Q_value_susa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
+        double tensor_Q_value_crpa = genie::utils::mec::Qvalue(tensor_pdg_crpa,probe_pdg);
+        double total_Q_value_crpa = tensor_Q_value_crpa + Delta_Q_value_crpa ;
+        double Q_value_shift_crpa = total_Q_value_crpa * fQvalueShifter -> Shift( interaction->InitState().Tgt() ) ;
+
+        Delta_Q_value_susa += Q_value_shift_susa;
+        Delta_Q_value_crpa += Q_value_shift_crpa;
+        Delta_Q_value_blen += Q_value_shift_crpa;
+    }
+
+    // Set the xsec to zero for interactions with q0,q3 outside the requested range
+
+    if( modelConfig == kMd_SuSAv2)
+    {
+        double Q0min = tensor_susa->q0Min();
+        double Q0max = tensor_susa->q0Max();
+        double Q3min = tensor_susa->qMagMin();
+        double Q3max = tensor_susa->qMagMax();
+        if (Q0-Delta_Q_value_susa < Q0min || Q0-Delta_Q_value_susa > Q0max || Q3 < Q3min || Q3 > Q3max) 
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+    else if ( modelConfig == kMd_CRPA   || modelConfig == kMd_HF ||
+            modelConfig == kMd_CRPAPW || modelConfig == kMd_HFPW )
+    {
+        double Q0min = tensor_crpa->q0Min();
+        double Q0max = tensor_crpa->q0Max();
+        double Q3min = tensor_crpa->qMagMin();
+        double Q3max = tensor_crpa->qMagMax();
+        if (Q0-Delta_Q_value_crpa < Q0min || Q0-Delta_Q_value_crpa > Q0max || Q3 < Q3min || Q3 > Q3max)
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+    else if ( modelConfig == kMd_SuSAv2Blend)
+    {
+        double Q0min = tensor_blen->q0Min();
+        double Q0max = tensor_blen->q0Max();
+        double Q3min = tensor_blen->qMagMin();
+        double Q3max = tensor_blen->qMagMax();
+        if (Q0-Delta_Q_value_blen < Q0min || Q0-Delta_Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max) 
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+    else
+    { // hybrid (blending) cases. Low kinematics handled by CRPA/HF, high kinematics by blended SuSA
+        double Q0min = tensor_crpa->q0Min();
+        double Q0max = tensor_blen->q0Max();
+        double Q3min = tensor_crpa->qMagMin();
+        double Q3max = tensor_blen->qMagMax();
+        if (Q0-Delta_Q_value_crpa < Q0min || Q0-Delta_Q_value_blen > Q0max || Q3 < Q3min || Q3 > Q3max)
+        {
+            LOG("SuSAv2QE", pWARN) << "Can't calculate final lepton polarization.";
+            pol.SetBit(kPolarizationUndef);
+            return pol;
+        }
+    }
+
+    double W1_susa(0), W2_susa(0), W3_susa(0), W4_susa(0), W5_susa(0);
+    double W1_crpa(0), W2_crpa(0), W3_crpa(0), W4_crpa(0), W5_crpa(0);
+    double W1_blen(0), W2_blen(0), W3_blen(0), W4_blen(0), W5_blen(0);
+    
+    if ( modelConfig == kMd_SuSAv2 )
+    {
+        W1_susa = tensor_susa->W1(Q0 - Delta_Q_value_susa, Q3, M);
+        W2_susa = tensor_susa->W2(Q0 - Delta_Q_value_susa, Q3, M);
+        W3_susa = -tensor_susa->W3(Q0 - Delta_Q_value_susa, Q3, M);   // note invert sign
+        W4_susa = tensor_susa->W4(Q0 - Delta_Q_value_susa, Q3, M);
+        W5_susa = tensor_susa->W5(Q0 - Delta_Q_value_susa, Q3, M);
+
+        double fact_susa = XSecScaling(1.0, interaction, target_pdg, tensor_pdg_susa, need_to_scale_susa);
+        W1_susa *= fact_susa;
+        W2_susa *= fact_susa;
+        W3_susa *= fact_susa;
+        W4_susa *= fact_susa;
+        W5_susa *= fact_susa;
+    }
+    if ( modelConfig == kMd_CRPASuSAv2Hybrid   || modelConfig == kMd_HFSuSAv2Hybrid ||
+         modelConfig == kMd_CRPAPWSuSAv2Hybrid || modelConfig == kMd_HFPWSuSAv2Hybrid ||
+         modelConfig == kMd_SuSAv2Blend)
+    {
+        W1_blen = tensor_blen->W1(Q0 - Delta_Q_value_blen, Q3, M);
+        W2_blen = tensor_blen->W2(Q0 - Delta_Q_value_blen, Q3, M);
+        W3_blen = -tensor_blen->W3(Q0 - Delta_Q_value_blen, Q3, M);      // note invert sign
+        W4_blen = tensor_blen->W4(Q0 - Delta_Q_value_blen, Q3, M);
+        W5_blen = tensor_blen->W5(Q0 - Delta_Q_value_blen, Q3, M);
+
+        // The blended SuSAv2 calculation already gives the xsec per atom
+        // For the A-scaling below to make sense we need to transform them to per active nucleon
+        int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
+        int Z_tensor = pdg::IonPdgCodeToZ(tensor_pdg_crpa);
+        int N_tensor = A_tensor-Z_tensor;
+        double fact_blen = 1.0;
+        if ( pdg::IsNeutrino(probe_pdg) ) fact_blen *= 1.0/N_tensor;
+        else if ( pdg::IsAntiNeutrino(probe_pdg) ) fact_blen *= 1.0/Z_tensor;
+        fact_blen = XSecScaling(fact_blen, interaction, target_pdg, tensor_pdg_crpa, need_to_scale_crpa);
+        W1_blen *= fact_blen;
+        W2_blen *= fact_blen;
+        W3_blen *= fact_blen;
+        W4_blen *= fact_blen;
+        W5_blen *= fact_blen;
+    }
+    if( modelConfig != kMd_SuSAv2 && modelConfig != kMd_SuSAv2Blend)
+    {
+        W1_crpa = tensor_crpa->W1(Q0 - Delta_Q_value_crpa, Q3, M);
+        W2_crpa = tensor_crpa->W2(Q0 - Delta_Q_value_crpa, Q3, M);
+        W3_crpa = -tensor_crpa->W3(Q0 - Delta_Q_value_crpa, Q3, M);      // note invert sign
+        W4_crpa = tensor_crpa->W4(Q0 - Delta_Q_value_crpa, Q3, M);
+        W5_crpa = tensor_crpa->W5(Q0 - Delta_Q_value_crpa, Q3, M);
+
+        // The CRPA calculation already gives the xsec per atom
+        // For the A-scaling below to make sense we need to transform them to per active nucleon
+        int A_tensor = pdg::IonPdgCodeToA(tensor_pdg_crpa);
+        int Z_tensor = pdg::IonPdgCodeToZ(tensor_pdg_crpa);
+        int N_tensor = A_tensor-Z_tensor;
+        double fact_crpa = 1.0;
+        if ( pdg::IsNeutrino(probe_pdg) ) fact_crpa *= 1.0/N_tensor;
+        else if ( pdg::IsAntiNeutrino(probe_pdg) ) fact_crpa *= 1.0/Z_tensor;
+        fact_crpa = XSecScaling(fact_crpa, interaction, target_pdg, tensor_pdg_crpa, need_to_scale_crpa);
+        W1_crpa *= fact_crpa;
+        W2_crpa *= fact_crpa;
+        W3_crpa *= fact_crpa;
+        W4_crpa *= fact_crpa;
+        W5_crpa *= fact_crpa;
+    }
+    
+    // Apply blending if needed
+    double W1(0), W2(0), W3(0), W4(0), W5(0);
+
+    if ( modelConfig == kMd_SuSAv2 )
+    {      
+        W1 = W1_susa;
+        W2 = W2_susa;
+        W3 = W3_susa;
+        W4 = W4_susa;
+        W5 = W5_susa;
+        
+    }
+    if ( modelConfig == kMd_SuSAv2Blend )
+    {
+        W1 = W1_blen;
+        W2 = W2_blen;
+        W3 = W3_blen;
+        W4 = W4_blen;
+        W5 = W5_blen;
+    }
+    if( modelConfig == kMd_CRPA   || modelConfig == kMd_HF ||
+        modelConfig == kMd_CRPAPW || modelConfig == kMd_HFPW )
+    {
+        W1 = W1_crpa;
+        W2 = W2_crpa;
+        W3 = W3_crpa;
+        W4 = W4_crpa;
+        W5 = W5_crpa;
+    }
+    else if( modelConfig == kMd_CRPASuSAv2Hybrid   ||
+             modelConfig == kMd_HFSuSAv2Hybrid     ||
+             modelConfig == kMd_CRPAPWSuSAv2Hybrid ||
+             modelConfig == kMd_HFPWSuSAv2Hybrid )
+    {  
+        // blending cases
+        if(blendMode == 1) // Linear blending in q0
+            if (Q0 < q0BlendStart)
+            {
+                W1 = W1_crpa;
+                W2 = W2_crpa;
+                W3 = W3_crpa;
+                W4 = W4_crpa;
+                W5 = W5_crpa;
+            }
+            else if (Q0 > q0BlendEnd)
+            {
+                W1 = W1_blen;
+                W2 = W2_blen;
+                W3 = W3_blen;
+                W4 = W4_blen;
+                W5 = W5_blen;
+            }
+            else
+            {
+                double SuSAFrac = (Q0 - q0BlendStart) / (q0BlendEnd - q0BlendStart);
+                double CRPAFrac = 1 - SuSAFrac;
+                W1 = SuSAFrac*W1_blen + CRPAFrac*W1_crpa;
+                W2 = SuSAFrac*W2_blen + CRPAFrac*W2_crpa;
+                W3 = SuSAFrac*W3_blen + CRPAFrac*W3_crpa;
+                W4 = SuSAFrac*W4_blen + CRPAFrac*W4_crpa;
+                W5 = SuSAFrac*W5_blen + CRPAFrac*W5_crpa;
+            }
+        else if(blendMode == 2)
+        { // Exp blending in q (from Alexis)
+            double phi_q = (genie::constants::kPi / 2.) * (1 - 1./(1+std::exp( (Q3 - qBlendRef)/qBlendDel)) );
+            double sn2 = TMath::Sin(phi_q)*TMath::Sin(phi_q);
+            double cn2 = 1 - sn2;
+            W1 = sn2*W1_blen + cn2*W1_crpa;
+            W2 = sn2*W2_blen + cn2*W2_crpa;
+            W3 = sn2*W3_blen + cn2*W3_crpa;
+            W4 = sn2*W4_blen + cn2*W4_crpa;
+            W5 = sn2*W5_blen + cn2*W5_crpa;
+        }
+    }
+    
+    genie::utils::CalculatePolarizationVectorInTargetRestFrame(
+                                            pol, 
+                                            neutrinoMom, 
+                                            leptonMom,
+                                            is_neutrino, 
+                                            M, W1,W2,W3,W4,W5,0);
+
+    return pol;
 }

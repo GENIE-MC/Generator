@@ -148,6 +148,7 @@
   <priority msgstream="MuELoss">                       WARN   </priority>
   <priority msgstream="MultProb">                      WARN   </priority>
   <priority msgstream="Nieves">                        WARN   </priority>
+  <priority msgstream="SuSAv2QE">                      WARN   </priority>
   <priority msgstream="NucDeEx">                       WARN   </priority>
   <priority msgstream="NucleonDecay">                  WARN   </priority>
   <priority msgstream="ResonanceDecay">                WARN   </priority>

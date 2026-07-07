@@ -154,8 +154,8 @@ double genie::utils::kinematics::Jacobian(
        << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
 
-  double J=0;
-  bool forward;
+  double J = 0;
+  bool forward = true;
   const Kinematics & kine = i->Kine();
 
   // cover the simple case
@@ -321,14 +321,68 @@ double genie::utils::kinematics::Jacobian(
     // (it will be inverted below for the inverse transformation)
     J = W / ( 2. * pv * pl * M );
   }
+    
+  else if ( TransformMatched(fromps,tops, kPSxyfE, kPSTlctl, forward) )
+  {
+      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4();
+      TLorentzVector* pi4 = i->InitStatePtr()->TgtPtr()->HitNucP4Ptr();
+      TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
+      // mass of initial nucleon
+      double M = i->InitStatePtr()->TgtPtr()->HitNucMass();
+      
+      TVector3 beta = pi4->BoostVector();
+      kf4.Boost(-beta);
+      double nu = ki4->Energy() - kf4.Energy();
+      double Pf = kf4.Vect().Mag();
+      J = TMath::Abs(Pf/M/nu);
+      
+      delete ki4;
+  }
+  
+  else if ( TransformMatched(fromps,tops, kPSQ2vfE, kPSxyfE, forward) )
+  {
+      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
+      TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
+      double Ev     = ki4->Energy();
+      double l      = kf4.Vect().Mag();
+      J = Jacobian(i, kPSTlctl, kPSxyfE);
+      J = TMath::Abs(J*2*Ev*l);
+      
+      delete ki4;
+  }
+  
+  else if ( TransformMatched(fromps,tops, kPSQ2vfE, kPSTlctl, forward) )
+  {
+      TLorentzVector* ki4 = i->InitStatePtr()->GetProbeP4(genie::kRfLab);
+      TLorentzVector kf4(i->KinePtr()->FSLeptonP4());
+      double Ev     = ki4->Energy();
+      double l      = kf4.Vect().Mag();
+      J = TMath::Abs(2*Ev*l);
+      
+      delete ki4;
+  }
+  
+  else if ( TransformMatched(fromps,tops, kPSxyfE, kPSWQ2fE, forward) )
+  {
+      const InitialState & init_state = i->InitState();
+      double Ev = init_state.ProbeE(kRfHitNucRest);
+      double M  = init_state.Tgt().HitNucMass();
+      double M2 = M*M;
+      double W  = kine.W();
+      double W2 = W*W;
+      double Q2 = kine.Q2();
+      J = TMath::Abs( W/(Ev*M*(W2 + Q2 - M2)) );
+  }
 
   else {
      std::ostringstream msg;
      msg << "Can not compute Jacobian for transforming: "
        << KinePhaseSpace::AsString(fromps) << " --> "
        << KinePhaseSpace::AsString(tops);
-     SLOG("KineLimits", pFATAL) << "*** " << msg.str();
-     throw genie::exceptions::InteractionException(msg.str());
+      SLOG("KineLimits", pNOTICE) << msg.str() 
+                        << ". Set Jacbian equal to zero!";
+     //SLOG("KineLimits", pFATAL) << "*** " << msg.str();
+     //throw genie::exceptions::InteractionException(msg.str());
      //exit(1);
   }
 

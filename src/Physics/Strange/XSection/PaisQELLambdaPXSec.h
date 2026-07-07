@@ -48,6 +48,7 @@ public:
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
   bool   ValidKinematics (const Interaction * i) const;
+  TVector3 FinalLeptonPolarization (const Interaction* i) const;
 
   //-- override the Algorithm::Configure methods to load configuration
   //   data to private data members

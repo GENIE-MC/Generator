@@ -453,9 +453,10 @@ double genie::utils::nuclear::DensityGaus(
   ring = TMath::Min(ring, 0.3*a);
 
   double aeval = a + ring;
-  double norm  = 1./((5.568 + alf*8.353)*TMath::Power(a,3.));  //0.0132;
-  double b     = TMath::Power(r/aeval, 2.);
-  double dens  = norm * (1. + alf*b) * TMath::Exp(-b);
+  double a3    = a*a*a;
+  double norm  = 1/(5.568 + alf*8.353)/a3;  //0.0132;
+  double b     = TMath::Sq(r/aeval);
+  double dens  = norm*(1 + alf*b)*TMath::Exp(-b);
 
   LOG("Nuclear", pINFO) 
         << "r = " << r << ", norm = " << norm << ", dens = " << dens 
@@ -480,8 +481,9 @@ double genie::utils::nuclear::DensityWoodsSaxon(
   ring = TMath::Min(ring, 0.75*c);
 
   double ceval = c + ring;
-  double norm  = (3./(4.*kPi*TMath::Power(c,3)))*1./(1.+TMath::Power((kPi*z/c),2));
-  double dens  = norm / (1 + TMath::Exp((r-ceval)/z));
+  double c3    = c*c*c;
+  double norm  = 3/4./kPi/c3/(1 + TMath::Sq(kPi*z/c));
+  double dens  = norm/(1 + TMath::Exp((r - ceval)/z));
 
   LOG("Nuclear", pINFO) 
      << "r = " << r << ", norm = " << norm 

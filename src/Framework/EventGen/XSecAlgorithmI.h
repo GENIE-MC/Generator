@@ -18,11 +18,14 @@
 #ifndef _XSEC_ALGORITHM_I_H_
 #define _XSEC_ALGORITHM_I_H_
 
+#include "TVector3.h"
+
 #include "Framework/Algorithm/Algorithm.h"
 #include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/Interaction/Interaction.h"
 
 namespace genie {
+    const UInt_t kPolarizationUndef      = 1<<14; ///< if set, the lepton polarization is undefined
 
 class XSecAlgorithmI : public Algorithm {
 
@@ -31,6 +34,15 @@ public:
 
   //! Compute the cross section for the input interaction
   virtual double XSec (const Interaction* i, KinePhaseSpace_t k=kPSfE) const = 0;
+  
+  /**
+  * Returns final lepton polarization.
+  *
+  * NOTE:
+  * The returned vector may have the kPolarizationUndef bit set.
+  * The caller MUST check this flag before using the value.
+  */
+  virtual TVector3 FinalLeptonPolarization (const Interaction* i) const;
 
   //! Integrate the model over the kinematic phase space available to the
   //! input interaction (kinematical cuts can be included)
@@ -46,6 +58,8 @@ protected:
   XSecAlgorithmI();
   XSecAlgorithmI(string name);
   XSecAlgorithmI(string name, string config);
+  
+  bool fIsPreciseLeptonPolarization;
 };
 
 }       // genie namespace

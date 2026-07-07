@@ -49,6 +49,7 @@ public:
   double XSec(const Interaction* i, KinePhaseSpace_t k) const;
   double Integral(const Interaction* i) const;
   bool   ValidProcess(const Interaction* i) const;
+  TVector3 FinalLeptonPolarization (const Interaction* i) const;
 
   // override the Algorithm::Configure methods to load configuration
   // data to private data members
@@ -63,7 +64,7 @@ private:
   // Apply scaling of the first kind to the xsec
   // (A-scaling with tuning based on Fermi momentum)
   double XSecScaling(double xsec, const Interaction* i, int target_pdg, int tensor_pdg, bool need_to_scale) const;
-
+    
 
   /// External scaling factor for this cross section
   double fXSecCCScale;

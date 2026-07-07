@@ -7,14 +7,21 @@
           with RPA corrections
           Is a concrete implementation of the XSecAlgorithmI interface. \n
 
-\ref      Physical Review C 70, 055503 (2004)
+\ref      1. PRC70(2004)055503
+          2. EPJA25(2005)299-318
+          3. Phys.Rept.188(1990)79
+          4. CJP46(1996)0673-0720
 
 \author   Joe Johnston, University of Pittsburgh
           Steven Dytman, University of Pittsburgh
+          Igor Kakorin, JINR
 
 \created  April 2016
 
+\updated  March 2025
+
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -25,12 +32,13 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
-#include <complex>
-#include <Math/IFunction.h>
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Physics/NuclearState/PauliBlocker.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
 #include "Physics/Common/QvalueShifter.h"
+
+#include <vector>
+#include <complex>
 
 namespace genie {
 
@@ -54,9 +62,15 @@ public:
 
   // XSecAlgorithmI interface implementation
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
+  double d2XSec_dEldCosTheta (const Interaction * i) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
-
+  TVector3 FinalLeptonPolarization (const Interaction* i) const;
+  double IntegratedOverMomentumAll(const Interaction*, double,
+                                   double* RPL = nullptr,
+                                   double* RPP = nullptr,
+                                   double* R   = nullptr) const;
+  void ModelNuclParams(const Interaction* interaction, double r, double & kFi, double & kFf) const;
   // Override the Algorithm::Configure methods to load configuration
   // data to private data members
   void Configure (const Registry & config);
@@ -69,24 +83,24 @@ private:
   const QELFormFactorsModelI * fFormFactorsModel; ///<
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
-
+  
+  
   double                       fXSecCCScale;        ///< external xsec scaling factor for CC
   double                       fXSecNCScale;        ///< external xsec scaling factor for NC
   double                       fXSecEMScale;        ///< external xsec scaling factor for EM
   const QvalueShifter *        fQvalueShifter ;   ///< Optional algorithm to retrieve the qvalue shift for a given target
 
   double                       fhbarc;            ///< hbar*c in GeV*fm
-
+  
+  std::vector<double> fGLPoints;
+  std::vector<double> fGLWeights;
+  int                 fNumGLPoints;
+  
   // mutable for testing purposes only!
-  mutable bool                         fRPA;              ///< use RPA corrections
+  mutable bool                 fRPA;              ///< use RPA corrections
   bool                         fCoulomb;          ///< use Coulomb corrections
 
-  const NuclearModelI*         fNuclModel;        ///< Nuclear Model for integration
-  // Detect whether the nuclear model is local Fermi gas, and store
-  // the relativistic Fermi momentum table if not
-  bool                         fLFG;
-  const FermiMomentumTable *   fKFTable;
-  string                       fKFTableName;
+  string                       fLindhardFunction;
 
   /// Enum specifying the method to use when calculating the binding energy of
   /// the initial hit nucleon during spline generation
@@ -114,91 +128,43 @@ private:
   Nieves_Coulomb_Rmax_t fCoulombRmaxMode;
 
   //Functions needed to calculate XSec:
+  void InitGaussLegendre(int n, std::vector<double>& x, std::vector<double>& w);
 
   // Calculates values of CN, CT, CL, and imU, and stores them in the provided
   // variables. If target is not a nucleus, then CN, CN, and CL are all 1.0.
   // r must be in units of fm.
-  void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r,
-    bool is_neutrino, bool tgtIsNucleus, int tgt_pdgc, int A, int Z, int N,
-    bool hitNucIsProton, double & CN, double & CT, double & CL, double & imU,
-    double & t0, double & r00, bool assumeFreeNucleon) const;
+  void CNCTCLimUcalc(TLorentzVector qTildeP4, double M, double r, 
+    bool tgtIsNucleus, int A, int Z, int N, double & CN, double & CT, 
+    double & CL, bool assumeFreeNucleon) const;
 
-  //Equations to calculate the relativistic Lindhard function for Amunu
-  std::complex<double> relLindhardIm(double q0gev, double dqgev,
-				     double kFngev, double kFpgev,
-				     double M, bool isNeutrino,
-				     double & t0, double & r00) const;
-  std::complex<double> relLindhard(double q0gev, double dqgev,
-				   double kFgev, double M,
-				   bool isNeutrino,
-				   std::complex<double> relLindIm) const;
-  std::complex<double> ruLinRelX(double q0, double qm,
-				 double kf, double m) const;
-  std::complex<double> deltaLindhard(double q0gev, double dqgev,
-				     double rho, double kFgev) const;
-
+  //Relativistic Lindhard function as is in Fortran code provided by j.Nieves
+  // Ref.1, Eq.B2
+  double relLindhardIm(double q0, double dq, double kFn, double kFp, double M, bool isNeutrino) const;
+  // Ref.2, Eq.61
+  double ruLinRelX(double q0, double qm, double kf, double m) const;
+   
+  std::complex<double> LindhardNuclear(double q0, double dq, double kF, double M) const;
+  std::complex<double> LindhardDelta  (double q0, double dq, double kF, double M, double rho) const;
+                     
   // Potential for coulomb correction
   double vcr(const Target * target, double r) const;
-
-  //input must be length 4. Returns 1 if input is an even permutation of 0123,
-  //-1 if input is an odd permutation of 0123, and 0 if any two elements
-  //are equal
-  int leviCivita(int input[]) const;
+  
+  double MaximalRadius(const Target * target) const;
+  
+  inline int g(int a, int b) const///< metric g^{ab}=g_{ab}=diag(1,-1,-1,1)
+  {
+      return (a==b)*(2*(a==0) - 1);
+  }
+  inline int e(int a, int b, int c, int d) const ///< Levi-Chevita symbol, where e_{0123}=+1
+  {
+      return (b - a)*(c - a)*(d - a)*(c - b)*(d - b)*(d - c)/12;
+  }
 
   double LmunuAnumu(const TLorentzVector neutrinoMom,
     const TLorentzVector inNucleonMom, const TLorentzVector leptonMom,
     const TLorentzVector outNucleonMom, double M, bool is_neutrino,
     const Target& target, bool assumeFreeNucleon) const;
-
-  // NOTE: THE FOLLOWING CODE IS FOR TESTING PURPOSES ONLY
-  // Used to print tensor elements and various inputs for comparison to Nieves'
-  // fortran code
-  mutable bool                 fCompareNievesTensors;     ///< print tensors
-  mutable TString              fTensorsOutFile;   ///< file to print tensors to
-  mutable double               fVc,fCoulombFactor;
-  void CompareNievesTensors(const Interaction* i) const;
-  // END TESTING CODE
 };
 }       // genie namespace
-
-//____________________________________________________________________________
-/*!
-\class    genie::utils::gsl::wrap::NievesQELIntegrand
-
-\brief    Auxiliary scalar function for integration over the nuclear density
-          when calculaing the Coulomb correction in the Nieves QEL xsec model
-
-\author   Joe Johnston, University of Pittsburgh
-          Steven Dytman, University of Pittsburgh
-
-\created  June 03, 2016
-*/
-//____________________________________________________________________________
-
-namespace genie {
- namespace utils {
-  namespace gsl   {
-   namespace wrap   {
-
-    class NievesQELvcrIntegrand : public ROOT::Math::IBaseFunctionOneDim
-    {
-     public:
-      NievesQELvcrIntegrand(double Rcurr, int A, int Z);
-      ~NievesQELvcrIntegrand();
-       // ROOT::Math::IBaseFunctionOneDim interface
-       unsigned int                      NDim   (void)       const;
-       double                            DoEval (double rin) const;
-       ROOT::Math::IBaseFunctionOneDim * Clone  (void)       const;
-     private:
-       double fRcurr;
-       double fA;
-       double fZ;
-    };
-
-   } // wrap namespace
-  } // gsl namespace
- } // utils namespace
-} // genie namespace
-
 
 #endif

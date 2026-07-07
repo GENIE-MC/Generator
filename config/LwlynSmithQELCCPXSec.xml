@@ -14,6 +14,8 @@ XSec-Integrator    alg      No
 CabibboAngle       double   No         Cabibbo angle                    CommonParam[CKM]
 QEL-CC-XSecScale   double   yes        XSec Scaling factor for CC       1. 
 QEL-NC-XSecScale   double   yes        XSec Scaling factor for NC       1. 
+PreciseLeptonPol   bool     Yes        Do precise calculation of        No
+                                       lepton polarization
 
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
@@ -40,11 +42,15 @@ IntegralNuclearInfluenceCutoffEnergy double   No
 
      <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
      <param type="bool" name = "DoPauliBlocking"> true </param>
-
+     <param type="bool" name="PreciseLeptonPol"> true  </param>
   </param_set>
 
   <param_set name="Dipole"> 
      <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/Dipole </param>
+  </param_set>
+  
+  <param_set name="IsoscalarDipole"> 
+     <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithIsoFFCC/Dipole </param>
   </param_set>
 
   <!-- Legacy configuration for use with the historic default tunes (G00_X) -->
@@ -56,12 +62,15 @@ IntegralNuclearInfluenceCutoffEnergy double   No
 
   <param_set name="ZExp"> 
      <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/ZExp </param>
- 
+  </param_set>
+  
+  <param_set name="IsoscalarZExp"> 
+     <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithIsoFFCC/ZExp </param>
   </param_set>
 
+  <!-- This configuration is suitable only for nuclear targets -->
   <param_set name="RunningMA"> 
      <param type="alg"  name="FormFactorsAlg"> genie::LwlynSmithFFCC/RunningMA </param>
-
   </param_set>
 
 </alg_conf>

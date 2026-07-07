@@ -31,6 +31,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Physics/QuasiElastic/EventGen/QELEventGeneratorSuSA.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
 #include "Framework/Numerical/MathUtils.h"
@@ -276,10 +277,14 @@ void QELEventGeneratorSuSA::SelectLeptonKinematics (GHepRecord * event) const
   interaction->KinePtr()->Sety(gy, true);
   interaction->KinePtr()->Setx(gx, true);
   interaction->KinePtr()->SetW(gW, true);
+  interaction->KinePtr()->ClearRunningValues();
   interaction->KinePtr()->SetFSLeptonP4(p4l);
 
   // -- Lepton
   event->AddParticle( pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
+  
+  // Set its polarization
+  utils::SetPrimaryLeptonPolarization( event );
 
   LOG("QELEvent",pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
