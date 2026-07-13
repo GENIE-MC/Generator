@@ -15,7 +15,7 @@
 \created  April 2016
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -91,10 +91,6 @@ private:
   /// Enum specifying the method to use when calculating the binding energy of
   /// the initial hit nucleon during spline generation
   QELEvGen_BindingMode_t fIntegralNucleonBindingMode;
-
-  /// Cutoff lab-frame probe energy above which the effects of Fermi motion and
-  /// binding energy are ignored when computing the total cross section
-  double fEnergyCutOff;
 
   /// Whether to apply Pauli blocking in XSec()
   bool fDoPauliBlocking;
