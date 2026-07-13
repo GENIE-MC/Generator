@@ -32,6 +32,7 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/NuclearState/SpectralFunc.h"
 #include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/RandomGen.h"
 
 namespace {
@@ -52,24 +53,18 @@ using namespace genie::controls;
 //____________________________________________________________________________
 SpectralFunc::SpectralFunc() : NuclearModelI("genie::SpectralFunc")
 {
-
+  fFermiMoverInteractionType = kFermiMoveSpectralFunc;
 }
 //____________________________________________________________________________
 SpectralFunc::SpectralFunc(string config) :
   NuclearModelI("genie::SpectralFunc", config)
 {
-
+  fFermiMoverInteractionType = kFermiMoveSpectralFunc;
 }
 //____________________________________________________________________________
 SpectralFunc::~SpectralFunc()
 {
-  // Delete the TH2D objects from the spectral function map
-  std::map<std::pair<int,int>, TH2D*>::iterator begin = fSpectralFunctionMap.begin();
-  std::map<std::pair<int,int>, TH2D*>::iterator end = fSpectralFunctionMap.end();
-  for (std::map<std::pair<int,int>, TH2D*>::iterator iter = begin; iter != end; ++iter) {
-    TH2D* hist = iter->second;
-    if ( hist ) delete hist;
-  }
+  fSpectralFunctionMap.clear();
 }
 //____________________________________________________________________________
 bool SpectralFunc::GenerateNucleon(const Target& target) const
@@ -198,6 +193,8 @@ void SpectralFunc::LoadConfig(void)
   }
 
   fDataPath = data_path;
+
+  this->GetParamDef( "AllowElementMatch", fAllowElementMatch, false );
 }
 //____________________________________________________________________________
 TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
@@ -210,16 +207,95 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
   if ( my_iter != fSpectralFunctionMap.end() ) return my_iter->second;
 
   // If not, attempt to build it
-  std::string target_pdg_string = replace_with_std_to_string( target_pdg );
-  std::string hitnuc_pdg_string = replace_with_std_to_string( hitnuc_pdg );
+  std::string target_pdg_string = std::to_string( target_pdg );
+  std::string hitnuc_pdg_string = std::to_string( hitnuc_pdg );
 
   RgKey sf_key( "SpectFuncTable@Pdg=" + target_pdg_string + "_" + hitnuc_pdg_string );
   std::string data_filename;
   this->GetParamDef( sf_key, data_filename, std::string() );
 
   if ( data_filename.empty() ) {
-    LOG("SpectralFunc", pERROR) << "** The spectral function for target "
+    LOG("SpectralFunc", pNOTICE) << "** The spectral function for target "
       << target_pdg << " and hit nuc PDG " << hitnuc_pdg << " isn't available";
+
+    // If element matching is enabled, then check for a spectral function with
+    // the same proton number Z as the requested nuclide.
+    if ( fAllowElementMatch ) {
+
+      // Get the proton number for the requested target nuclide
+      int tZ = genie::pdg::IonPdgCodeToZ( target_pdg );
+
+      // Not all configured spectral functions may have been built yet, so rely
+      // on the owned Registry to see if a suitable definition exists in the
+      // Algorithm configuration
+      const auto& conf_map = this->GetConfig().GetItemMap();
+
+      // Search the configuration for a matching proton number Z and matching
+      // hit nucleon PDG code. Store the nuclear PDG code for the result if
+      // we find a match.
+      int element_match_pdg;
+      auto iter = std::find_if( conf_map.cbegin(), conf_map.cend(),
+        [ tZ, hitnuc_pdg, &element_match_pdg ]( const auto& conf_pair ) -> bool {
+          const std::string prefix = "SpectFuncTable@Pdg=";
+          const std::size_t prefix_size = prefix.size();
+
+          // Check that the current config key begins with the exact prefix above
+          const auto& key = conf_pair.first;
+          // If not, then it cannot be a match
+          if ( key.compare(0, prefix_size, prefix) != 0 ) return false;
+
+          // Find an underscore following the prefix
+          size_t underscore_pos = key.find( '_', prefix_size );
+          // If there is no underscore, then the current key is not a match
+          if ( underscore_pos == std::string::npos ) return false;
+
+          // Extract the string between the prefix and the underscore. Assume
+          // it is a string representation of a nuclear PDG code
+          std::string tgt_pdg_str = key.substr( prefix_size,
+            underscore_pos - prefix_size );
+
+          // Also extract the remainder of the string following the underscore.
+          // Assume it is a string representation of a nucleon PDG code
+          std::string nucleon_pdg_str = key.substr( underscore_pos + 1u );
+
+          // Convert the string representations to integers
+          int tgt_pdg = std::stoi( tgt_pdg_str );
+          int nucleon_pdg = std::stoi( nucleon_pdg_str );
+
+          // Extract the proton number for the current nuclide
+          int target_Z = genie::pdg::IonPdgCodeToZ( tgt_pdg );
+
+          if ( hitnuc_pdg == nucleon_pdg && tZ == target_Z ) {
+            element_match_pdg = tgt_pdg;
+            return true;
+          }
+          return false;
+        }
+      );
+
+      // If a match was found, use it to approximate the spectral function for
+      // the current nuclide of interest
+      if ( iter != conf_map.end() ) {
+        LOG("SpectralFunc", pNOTICE) << "Approximating the spectral function"
+          << " for target " << target_pdg << " with the one for target "
+          << element_match_pdg;
+
+        // Use recursion to retrieve or build the spectral function for the
+        // nuclide with the matching proton number
+        genie::Target temp_tgt( element_match_pdg );
+        temp_tgt.SetHitNucPdg( hitnuc_pdg );
+        TH2D* sf_ptr = this->SelectSpectralFunction( temp_tgt );
+
+        // Add an entry for the current nuclide to the map so we don't have to do
+        // the Z-based search again
+        fSpectralFunctionMap[ std::make_pair( hitnuc_pdg, target_pdg ) ] = sf_ptr;
+        return sf_ptr;
+      }
+    }
+
+    // Fail with an error if the user requests a spectral function that
+    // is not available
+    LOG("SpectralFunc", pERROR) << "Failed to load spectral function data";
     std::exit( 1 );
   }
 

@@ -81,6 +81,11 @@ public:
   /// The number of removal energy bins to use when making spectral function
   /// histograms
   int fNumYBins;
+
+  /// If this flag is true, then a cached spectral function with the same
+  /// proton number Z will be used when a perfect match is not available
+  /// for the requested nuclide.
+  bool fAllowElementMatch = false;
 };
 
 }      // genie namespace
