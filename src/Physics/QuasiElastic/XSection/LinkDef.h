@@ -33,7 +33,6 @@
 #pragma link C++ class genie::ZExpAxialFormFactorModel;
 #pragma link C++ class genie::ZExpELFormFactorModel;
 #pragma link C++ class genie::MArunAxialFormFactorModel;
-#pragma link C++ class genie::KuzminNaumov2016AxialFormFactorModel;
 #pragma link C++ class genie::MartiniQELPXSec;
 #pragma link C++ class genie::NievesQELCCPXSec;
 #pragma link C++ class genie::SuSAv2QELPXSec;

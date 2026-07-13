@@ -374,7 +374,7 @@ double genie::TabulatedLabFrameHadronTensor::dSigma_dT_dCosTheta_rosenbluth(
   double Tl      = interaction->Kine().GetKV(kKVTl);
   double cos_l   = interaction->Kine().GetKV(kKVctl);
   double ml      = interaction->FSPrimLepton()->Mass();
-   
+
   return dSigma_dT_dCosTheta_rosenbluth(probe_pdg, E_probe, m_probe, Tl, cos_l, ml,
     Q_value);
 }
@@ -494,15 +494,6 @@ double genie::TabulatedLabFrameHadronTensor::dSigma_dT_dCosTheta_rosenbluth(int 
     // k_final/El
     xsec= sig0*(VCC*RCC+2.*VCL*RCL+VLL*RLL+VT*RT+2.*VTP*RTP);
 
-    //std::cout << "xsec = " << xsec << std::endl;  
-    /*
-    std::cout << "All the info from the calc:" << std::endl;  
-    std::cout << "W00 is " << entry.W00 << " RCC = " << RCC << std::endl;
-    std::cout << "Wzz is " << entry.Wzz  << " RCL = " << RCL << std::endl;
-    std::cout << "W0z is " << entry.ReW0z  << " RLL = " << RLL << std::endl;
-    std::cout << "Wxx is " << entry.Wxx << " RT = " << RT << std::endl;
-    std::cout << "Wxy is " << entry.ImWxy  << " RTP = " << RTP << std::endl;
-    */
 
     // This should never happen using the full SuSAv2-MEC hadron tensors
     // but can trigger when using the tensors from the parameterisation
