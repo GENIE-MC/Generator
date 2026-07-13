@@ -35,17 +35,6 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Numerical/RandomGen.h"
 
-namespace {
-
-  // TODO: Replace this with std::to_string when we switch to C++11
-  std::string replace_with_std_to_string(int an_integer) {
-    std::ostringstream oss;
-    oss << an_integer;
-    return oss.str();
-  }
-
-}
-
 using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
@@ -64,6 +53,18 @@ SpectralFunc::SpectralFunc(string config) :
 //____________________________________________________________________________
 SpectralFunc::~SpectralFunc()
 {
+  // Delete the TH2D objects from the spectral function map
+  std::map< std::pair<int,int>, TH2D* >::iterator
+    begin = fSpectralFunctionMap.begin();
+  std::map< std::pair<int,int>, TH2D* >::iterator
+    end = fSpectralFunctionMap.end();
+  for ( std::map<std::pair<int,int>, TH2D*>::iterator iter = begin;
+    iter != end; ++iter )
+  {
+    TH2D* hist = iter->second;
+    if ( hist ) delete hist;
+  }
+
   fSpectralFunctionMap.clear();
 }
 //____________________________________________________________________________
@@ -295,7 +296,7 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
 
     // Fail with an error if the user requests a spectral function that
     // is not available
-    LOG("SpectralFunc", pERROR) << "Failed to load spectral function data";
+    LOG("SpectralFunc", pFATAL) << "Failed to load spectral function data";
     std::exit( 1 );
   }
 
@@ -336,7 +337,7 @@ TH2D* SpectralFunc::LoadSFDataFile(const std::string& full_file_name,
 
   // Check that the file exists and is readable
   if ( !in_file.good() ) {
-    LOG("SpectralFunc", pERROR) << "Could not read spectral function table"
+    LOG("SpectralFunc", pFATAL) << "Could not read spectral function table"
       << " from the file " << full_file_name;
     std::exit( 1 );
   }
