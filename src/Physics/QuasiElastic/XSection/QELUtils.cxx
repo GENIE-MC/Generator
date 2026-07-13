@@ -236,6 +236,7 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
   double probe_E_lab = interaction.InitState().ProbeE( genie::kRfLab );
 
   TVector3 beta = COMframe2Lab( interaction.InitState() );
+  if( beta.Mag2() >= 1.0 ) { return -1.1; } // remove unphysical events
   double gamma = 1. / std::sqrt(1. - beta.Mag2());
 
   double sqrt_s = interaction.InitState().CMEnergy();
