@@ -453,3 +453,51 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   p4Ni->SetE( ENi );
 
 }
+
+// Function takes ingoing and outgoing lepton and
+// std::vector<> of other 4 momenta
+// and rotates the system so that \vec{q} is along \hat{z}
+void genie::utils::Rotate_qvec_alongZ(TLorentzVector &probe_leptonP4,
+TLorentzVector &out_leptonP4, std::vector<TLorentzVector> &otherP4)
+{
+
+  TVector3 probeLMom3 = probe_leptonP4.Vect();
+  TVector3 outLMom3 = out_leptonP4.Vect();
+
+  std::vector<TVector3> otherMom3;
+
+  for (auto vect4: otherP4 ) {
+	TVector3 vectorPart(vect4.X(), vect4.Y(), vect4.Z());
+	otherMom3.push_back(vectorPart);
+  }
+
+  TVector3 q3Vec = probeLMom3 - outLMom3;
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 rot = ( q3Vec.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3Vec );
+
+  // Handle the edge case where q3Vec is along -z, so the
+  // cross product above vanishes
+  if ( q3Vec.Perp() == 0. && q3Vec.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = genie::constants::kPi;
+  }
+
+  // Rotate if the rotation vector is not 0
+  if ( rot.Mag() >= genie::controls::kASmallNum ) {
+
+    probeLMom3.Rotate(angle,rot);
+    probe_leptonP4.SetVect(probeLMom3);
+
+    outLMom3.Rotate(angle,rot);
+    out_leptonP4.SetVect(outLMom3);
+
+    for(int i = 0; i < otherP4.size(); i++) {
+    	otherMom3[i].Rotate(angle,rot);
+        otherP4[i].SetVect(otherMom3[i]);
+    }
+
+  }
+
+}
