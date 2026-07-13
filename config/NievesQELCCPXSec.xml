@@ -25,7 +25,6 @@ Name                                 Type     Optional   Comment                
 IntegralAverageOverNucleonMomentum   bool     Yes        Will be overridden to true if nuclear model is LFG   false
 IntegralNumberOfNucleonThrows        int      Yes        Number of nucleons to sample when computing splines  5000
 IntegralNuclearModel                 alg      No
-IntegralNuclearInfluenceCutoffEnergy double   Yes                                                             2.0
 RmaxMode                             string   Yes        Method to use to compute Rmax for integrating the    VertexGenerator
                                                          Coulomb potential in NievesQELCCPXSec::vcr()
 -->
@@ -40,8 +39,6 @@ RmaxMode                             string   Yes        Method to use to comput
     <param type="alg"  name="XSec-Integrator"> genie::NewQELXSec/Default </param>
     <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
     <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
-    <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy"> 1000000.0 </param>
-
     <param type="bool" name="RPA">             true                          </param>
     <param type="bool" name="Coulomb">         true                         </param>
     <param type="bool" name="PrintDebugData">  false                          </param>

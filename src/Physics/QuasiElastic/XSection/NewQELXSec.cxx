@@ -112,14 +112,8 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   // this case, just set up the nucleon at the origin, on-shell, and at rest,
   // then integrate over the angles and return the result.
 
-  // Also use this approach if we're over the "nuclear influence" cutoff
-  // energy for the probe. Beyond the cutoff, the effects of Fermi motion
-  // and the removal energy are assumed to be small enough to be neglected
-  double E_lab_cutoff = model->GetConfig()
-    .GetDouble("IntegralNuclearInfluenceCutoffEnergy");
-
   double probeE = interaction->InitState().ProbeE( kRfLab );
-  if ( !tgt->IsNucleus() || probeE > E_lab_cutoff ) {
+  if ( !tgt->IsNucleus() ) {
     tgt->SetHitNucPosition(0.);
 
     if ( tgt->IsNucleus() ) nucl_model->GenerateNucleon(*tgt, 0.);
