@@ -3,7 +3,7 @@
 
 \class    genie::BY21DISNuclearModel
 
-\brief    Uses DIS Nuclear Model Correction from the Updated Bodek-Yang Model 
+\brief    Uses DIS Nuclear Model Correction from the Updated Bodek-Yang Model
           Reference: arxiv.org/pdf/2108.09240 (Section 9)
 
 \author   J. Tena Vidal <julia.tena-vidal@ific.uv.es>
@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include "Physics/NuclearState/DISNuclearModelI.h"
+#include "Physics/DeepInelastic/NuclearModel/DISNuclearModelI.h"
 
 namespace genie {
 
@@ -39,7 +39,7 @@ public:
 private:
   void LoadConfig (void);
 
-  double f2HScale ;  //> BY21-NuclModel-2H-Scale  
+  double f2HScale ;  //> BY21-NuclModel-2H-Scale
   double f2Hf0 ;     //> BY21-NuclModel-2H-f0
   double f2Hf1 ;     //> BY21-NuclModel-2H-f1
   double f2Hf2 ;     //> BY21-NuclModel-2H-f2
@@ -67,7 +67,7 @@ private:
   double fAuf4 ;     //> BY21-NuclModel-Au-f4
   double fAuf5 ;     //> BY21-NuclModel-Au-f5
   double fAuf6 ;     //> BY21-NuclModel-Au-f6
-  
+
 };
 
 }         // genie namespace

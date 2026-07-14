@@ -2,7 +2,7 @@
 /*
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  J. Tena Vidal <julia.tena-vidal@ific.uv>
  Universitat de Valencia
@@ -12,7 +12,7 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/NuclearState/BY00DISNuclearModel.h"
+#include "Physics/DeepInelastic/NuclearModel/BY00DISNuclearModel.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 
 using std::ostringstream;
@@ -31,15 +31,15 @@ BY00DISNuclearModel::BY00DISNuclearModel(string config) :
 //____________________________________________________________________________
 
 double BY00DISNuclearModel::DISACorrection (const Interaction * interaction) const {
-  if ( !interaction ) return 0; 
+  if ( !interaction ) return 0;
   double f = 1.;
-  
+
   // Nuclear modification to Fi
   // The scaling variable can be overwritten to include corrections
 
   if( interaction->TestBit(kIAssumeFreeNucleon)   ) return 1.0;
   if( interaction->TestBit(kINoNuclearCorrection) ) return 1.0;
-  
+
   const Target & tgt  = interaction->InitState().Tgt();
 
   //   The x used for computing the DIS Nuclear correction factor should be the
