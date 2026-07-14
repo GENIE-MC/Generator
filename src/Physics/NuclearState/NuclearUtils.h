@@ -53,7 +53,7 @@ namespace nuclear
   double FmArea (double alpha, double beta, double kf, double pmax);
 
   double DISNuclFactor (double x, int A);
-  
+
   double Density           (double r, int A, double ring=0.);
   double DensityGaus       (double r, double ap, double alf, double ring=0.);
   double DensityWoodsSaxon (double r, double c, double z, double ring=0.);

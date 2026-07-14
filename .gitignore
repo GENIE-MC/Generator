@@ -2,7 +2,6 @@ bin/
 lib/
 doxygen/
 build-env.log
-install/
 src/make/Make.config
 src/make/Make.config_no_paths
 src/Framework/Conventions/GBuild.h
@@ -15,4 +14,3 @@ src/Framework/Conventions/GVersion.h
 *.rootmap
 *_ROOT_DICT_*
 *.swp
-install/*
