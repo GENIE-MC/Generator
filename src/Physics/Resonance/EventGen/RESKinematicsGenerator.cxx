@@ -141,6 +141,12 @@ void RESKinematicsGenerator::ProcessEventRecord(GHepRecord * evrec) const
         // method. Q2 with be transformed to QD2 to take out the dipole form.
         interaction->KinePtr()->SetW(W.min);
         Range1D_t Q2 = kps.Q2Lim_W();
+        if(Q2.max<=0. || Q2.min>=Q2.max){
+          LOG("RESKinematics", pNOTICE)
+             << "void EM Q2 window at W=" << W.min
+             << "  Q2.min=" << Q2.min << "  Q2.max=" << Q2.max;
+          continue;
+        }
         double Q2min  = -99.;
         if (is_em) 
             Q2min  = Q2.min + kASmallNum; 
