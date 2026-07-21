@@ -52,7 +52,7 @@ private:
 
   void LoadConfigData(void);
 
-  multimap<int,bool> GetHitQuarks(const Interaction * interaction) const;
+  multimap<int,bool> GetHitQuarks() const;
 
   bool fIsDM;
   bool fSetHitQuark;

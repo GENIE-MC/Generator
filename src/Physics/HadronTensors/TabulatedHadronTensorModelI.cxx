@@ -27,7 +27,9 @@
 #include "Framework/Utils/XmlParserUtils.h"
 
 namespace {
-
+  // NOTE: This function is currently unused in the codebase and was disabled
+  // during warning cleanup.
+  /*
   /// Converts a string to a genie::HadronTensorType_t value. If the string
   /// does not correspond to a valid tensor type, kHT_Undefined
   /// is returned, and the ok flag is set to false
@@ -129,6 +131,7 @@ namespace {
       return genie::kHT_Undefined;
     }
   }
+  */
 
   /// Converts a genie::HadronTensorType_t value to a string
   std::string tensor_type_to_string(genie::HadronTensorType_t htt)

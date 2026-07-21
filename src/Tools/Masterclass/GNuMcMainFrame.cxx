@@ -248,9 +248,7 @@ void GNuMcMainFrame::BuildFastSimScintCaloTab (void)
 // Build tab for displaying fast simulation results of scintillator calorimeter
 // response and for controlling simulation inputs.
 //
-  TGCompositeFrame * tf = 0;
-
-  tf = fViewerTabs->AddTab("FastSim/ScintCalo");
+  fViewerTabs->AddTab("FastSim/ScintCalo");
 
 }
 //______________________________________________________________________________
@@ -259,9 +257,7 @@ void GNuMcMainFrame::BuildFastSimCherenkovTab (void)
 // Build tab for displaying fast simulation results of Cherenkov detector
 // response and for controlling simulation inputs.
 //
-  TGCompositeFrame * tf = 0;
-
-  tf = fViewerTabs->AddTab("FastSim/Cherenkov");
+  fViewerTabs->AddTab("FastSim/Cherenkov");
 
 }
 //______________________________________________________________________________

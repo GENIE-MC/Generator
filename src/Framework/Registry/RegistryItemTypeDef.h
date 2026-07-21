@@ -43,6 +43,7 @@ typedef TTree *      RgTree;
 class RgAlg {
 public:
   RgAlg();
+  RgAlg(const RgAlg&) = default;
   RgAlg(string n, string c);
  ~RgAlg();
   friend ostream & operator << (ostream & stream, const RgAlg & alg);

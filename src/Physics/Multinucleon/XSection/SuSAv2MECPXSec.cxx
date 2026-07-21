@@ -51,7 +51,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
   int A_request = pdg::IonPdgCodeToA(target_pdg);
-  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+  //int Z_request = pdg::IonPdgCodeToZ(target_pdg);
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
@@ -128,7 +128,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // dinucleon was set we will calculate the cross-section for that
   // component only
 
-  bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
+  //bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
 
   // Compute the cross section using the hadron tensor
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);

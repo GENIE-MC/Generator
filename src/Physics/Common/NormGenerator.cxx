@@ -30,7 +30,7 @@ EventRecordVisitorI("genie::NormGenerator")
 
 }
 //___________________________________________________________________________
-NormGenerator::NormGenerator(string config):
+NormGenerator::NormGenerator(string /*config*/):
 EventRecordVisitorI("genie::NormGenerator")
 {
 
@@ -44,7 +44,7 @@ NormGenerator::~NormGenerator()
 void NormGenerator::ProcessEventRecord(GHepRecord * evrec) const
 {
   Interaction * interaction = evrec->Summary();
-  const InitialState & init_state = interaction -> InitState();
+  //const InitialState & init_state = interaction -> InitState();
 
   // Access cross section algorithm for running thread
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();

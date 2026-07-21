@@ -207,8 +207,12 @@ bool TuneId::CheckDirectory() {
   std::string pathlist = utils::xml::GetXMLPathList(false) ;
   std::vector<std::string> paths = utils::str::Split(pathlist,":;,");
 
-  string top_path = gSystem->ExpandPathName( paths[0].c_str() ) ;
-  string def_path = gSystem->ExpandPathName( utils::xml::GetXMLDefaultPath().c_str() ) ;
+  char* tmp = gSystem->ExpandPathName(paths[0].c_str());
+  std::string top_path = tmp;
+  delete[] tmp;
+  tmp = gSystem->ExpandPathName( utils::xml::GetXMLDefaultPath().c_str() ) ;
+  string def_path = tmp;
+  delete[] tmp;
 
   if ( top_path != def_path ) {
     fCustomSource = top_path ;
@@ -219,7 +223,9 @@ bool TuneId::CheckDirectory() {
 
   for ( size_t i=0; i< paths.size(); ++i ) {
     const char* tmppath = paths[i].c_str();
-    std::string onepath = gSystem->ExpandPathName(tmppath);
+    tmp = gSystem->ExpandPathName(tmppath);
+    std::string onepath = tmp;
+    delete[] tmp;
     string test = onepath + "/" + CMC() ;
     LOG("TuneId", pDEBUG) << " Testing  " << test << " directory" ;
     if ( utils::system::DirectoryExists( test.c_str() ) ) {

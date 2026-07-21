@@ -23,6 +23,7 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
 -->
 
 <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
+<!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
   <param_set name="Default"> 
 
     <param type="string"   name="CommonParam"> QuasiElastic  </param>
@@ -89,6 +90,6 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
         -->
 
   </param_set>
-
+  
 </alg_conf>
 
