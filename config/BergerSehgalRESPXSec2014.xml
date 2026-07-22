@@ -48,6 +48,7 @@ RES-Mb                      double  Yes   Mb parameter used for the GA calculati
   <param_set name="Default"> 
      
     <param type="string"  name="CommonParam"> WeakInt,NonResBackground,CKM,FermiGas </param>
+
     
      <!--
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

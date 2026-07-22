@@ -19,7 +19,7 @@
 \created  May 03, 2004
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -29,7 +29,7 @@
 #include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDF.h"
-#include "Physics/NuclearState/DISNuclearModelI.h"
+#include "Physics/DeepInelastic/NuclearModel/DISNuclearModelI.h"
 
 namespace genie {
 
@@ -73,7 +73,7 @@ protected:
   virtual void   KAxialFactors    (const Interaction * i, double & kuv,
                                      double & kdv, double & kus, double & kds, double &ks) const;
 
-  
+
                                      // configuration
   //
   double fQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
@@ -93,9 +93,9 @@ protected:
   double fSin2thw;           ///<
   bool   fUse2016Corrections;///< Use 2016 SF relation corrections
   double fLowQ2CutoffF1F2;   ///< Set min for relation between 2xF1 and F2
-  
+
   const DISNuclearModelI * fDISNuclCorr ; ///< model for nuclear factors (shadowing, anti-shadowing,...)
-  
+
   mutable double fF1;
   mutable double fF2;
   mutable double fF3;

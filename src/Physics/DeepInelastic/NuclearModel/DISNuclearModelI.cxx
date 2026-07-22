@@ -8,7 +8,7 @@
 */
 //____________________________________________________________________________
 
-#include "Physics/NuclearState/DISNuclearModelI.h"
+#include "Physics/DeepInelastic/NuclearModel/DISNuclearModelI.h"
 
 using namespace genie;
 
