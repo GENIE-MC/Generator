@@ -1,4 +1,3 @@
-//____________________________________________________________________________
 /*!
 
 \class    genie::QPMDISStrucFuncBase
@@ -20,7 +19,7 @@
 \created  May 03, 2004
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -30,6 +29,7 @@
 #include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDF.h"
+#include "Physics/DeepInelastic/NuclearModel/DISNuclearModelI.h"
 
 namespace genie {
 
@@ -63,17 +63,23 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
-  virtual double ScalingVar (const Interaction * i) const;
+  virtual double ScalingVar (const Interaction * i, double Mf = 0) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
-  virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
-  virtual void   KFactors   (const Interaction * i, double & kuv,
-                                     double & kdv, double & kus, double & kds) const;
-  // configuration
+  virtual double KCharm     (const Interaction * i, double Mf = 0) const;
+  virtual double H          (const Interaction * i) const;
+  virtual void   KVectorFactors   (const Interaction * i, double & kuv,
+                                     double & kdv, double & kus, double & kds, double &ks) const;
+  virtual void   KAxialFactors    (const Interaction * i, double & kuv,
+                                     double & kdv, double & kus, double & kds, double &ks) const;
+
+
+                                     // configuration
   //
-  double fQ2min;             ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
+  double fQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
   bool   fCharmOff;          ///< turn charm production off?
   bool   fIncludeR;          ///< include R (~FL) in DIS SF calculation?
+  bool   fIncludeH;          ///< include HO QCD corrections
   bool   fIncludeNuclMod;    ///< include nuclear factor (shadowing, anti-shadowing,...)?
   double fMc;                ///< charm mass used
   double fVcd;               ///< CKM element Vcd used
@@ -87,6 +93,8 @@ protected:
   double fSin2thw;           ///<
   bool   fUse2016Corrections;///< Use 2016 SF relation corrections
   double fLowQ2CutoffF1F2;   ///< Set min for relation between 2xF1 and F2
+
+  const DISNuclearModelI * fDISNuclCorr ; ///< model for nuclear factors (shadowing, anti-shadowing,...)
 
   mutable double fF1;
   mutable double fF2;
