@@ -18,7 +18,7 @@
 
 \created  August 16, 2013
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           or see $GENIE/LICENSE
 */
@@ -65,7 +65,6 @@ private:
   double fGmp0;
   double fGen0;
   double fGmn0;
-  //double fZ_An[11];
   std::vector<double> fZ_APn;
   std::vector<double> fZ_BPn;
   std::vector<double> fZ_ANn;

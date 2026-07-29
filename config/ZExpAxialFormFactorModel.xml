@@ -7,26 +7,22 @@ Configuration sets for the z-expansion axial form factor model.
 
 Algorithm Configurable Parameters:
 .........................................................................................
-Name        Type    Optional   Comment                    Default
+Name        Type        Optional   Comment                    Default
 .........................................................................................
-QEL-T0      double  Yes        z convergence parameter    GPL value: QEL-T0
-QEL-Z_A1    double  Yes        z expansion coefficient    GPL value: QEL-Z_A1
-QEL-Z_A2    double  Yes        z expansion coefficient    GPL value: QEL-Z_A2
-QEL-Z_A3    double  Yes        z expansion coefficient    GPL value: QEL-Z_A3
-QEL-Z_A4    double  Yes        z expansion coefficient    GPL value: QEL-Z_A4
-QEL-Z_A5    double  Yes        z expansion coefficient    GPL value: QEL-Z_A5
-QEL-Z_A6    double  Yes        z expansion coefficient    GPL value: QEL-Z_A6
-QEL-Z_A7    double  Yes        z expansion coefficient    GPL value: QEL-Z_A7
-QEL-Z_A8    double  Yes        z expansion coefficient    GPL value: QEL-Z_A8
-QEL-Z_A9    double  Yes        z expansion coefficient    GPL value: QEL-Z_A9
-QEL-Z_A10   double  Yes        z expansion coefficient    GPL value: QEL-Z_A10
-QEL-Kmax    int     Yes        max summation index        GPL value: QEL-Kmax
-QEL-Tcut    double  Yes        ??                         GPL value 
+QEL-T0      double      Yes        z convergence parameter    GPL value: QEL-T0
+QEL-Z_A     vec-double  Yes        z expansion coefficient    GPL value: QEL-Z_A
+QEL-Kmax    int         Yes        max summation index        GPL value: QEL-Kmax
+QEL-Tcut    double      Yes        ??                         GPL value 
 
-QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
+QEL-Q4limit bool        Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
+
+
+Only using for reweight
+ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL value: ZExpZAFF@CovarianceMatrix
 
 -->
 
+<!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
 <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
   <param_set name="Default"> 
 
@@ -38,27 +34,25 @@ QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
     <param type="double" name="QEL-T0">     -0.28   </param>
     <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
 
-    <param type="double" name="QEL-Z_A1">    2.30   </param>
-    <param type="double" name="QEL-Z_A2">   -0.6    </param>
-    <param type="double" name="QEL-Z_A3">   -3.8    </param>
-    <param type="double" name="QEL-Z_A4">    2.3    </param>
-    <!-- more factors can be added, if necessary according to Kmax --> 
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 2.30; -0.6; -3.8; 2.3 </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/1603.03048 --> 
+    <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_Deuterium.dat </param>
 
   </param_set>
 
-  <param_set name="minerva"> 
+  <param_set name="minerva">
 
     <param type="string"   name="CommonParam"> QuasiElastic  </param>
-    
+
     <param type="bool"   name="QEL-Q4limit"> true   </param>
     <param type="int"    name="QEL-Kmax">     2     </param>
 
     <param type="double" name="QEL-T0">   -0.5   </param>
     <param type="double" name="QEL-Tcut">  0.161604   </param> <!-- 9*m_pi0^2 -->
 
-    <param type="double" name="QEL-Z_A1">   1.65    </param>
-    <param type="double" name="QEL-Z_A2">  -0.94    </param>
-
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.64778080; -0.94181417 </param>
+    <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_minervaElementaryTarget.dat </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 -->
   </param_set>
 
   <param_set name="minervaNature"> 
@@ -71,26 +65,36 @@ QEL-Q4limit bool    Yes        1/Q^4 limit conditions     GPL value: QEL-Q4limit
     <param type="double" name="QEL-T0">   -0.75   </param>
     <param type="double" name="QEL-Tcut">  0.1764 </param> <!-- 9*m_pi^2 -->
 
-    <param type="double" name="QEL-Z_A1">   1.50    </param>
-    <param type="double" name="QEL-Z_A2">  -1.2     </param>
-    <param type="double" name="QEL-Z_A3">  -0.1     </param>
-    <param type="double" name="QEL-Z_A4">   0.2     </param>
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.50; -1.2; -0.1; 0.2 </param>
+    <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_minervaNature4x4.dat </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://www.nature.com/articles/s41586-022-05478-3 --> 
+    <!-- 
+        <param type="int"    name="QEL-Kmax">     2     </param>
+        <param type="vec-double" name="QEL-Z_A" delim=";"> 1.50; -1.2 </param>
+        <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_minervaNature2x2.dat </param>
+        -->
 
   </param_set>
 
-  <param_set name="lqcd"> 
+  <param_set name="lqcd">
 
     <param type="string"   name="CommonParam"> QuasiElastic  </param>
-    
+
     <param type="bool"   name="QEL-Q4limit"> true   </param>
     <param type="int"    name="QEL-Kmax">     2     </param>
 
     <param type="double" name="QEL-T0">    -0.5    </param>
     <param type="double" name="QEL-Tcut">  0.161604   </param>
+    <!-- LQCD fit from arXiv 2512.14097 v1 -->
+    <!--
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.72089706; -0.30982708 </param>
+    <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_LQCD.dat </param>
+    -->
+    <!-- LQCD fit from arXiv 2512.14097 v3 -->
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.70104640; -0.26324902 </param>
+    <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_LQCD_updated.dat </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 -->
 
-    <param type="double" name="QEL-Z_A1">   1.721     </param>
-    <param type="double" name="QEL-Z_A2">  -0.31      </param>
-  </param_set> 
+  </param_set>
 
 </alg_conf>
-
