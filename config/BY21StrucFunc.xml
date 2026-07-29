@@ -84,7 +84,7 @@ WeinbergAngle              double  No                                           
     <param type="bool"   name="IncludeH">           true  </param>
     <param type="bool"   name="IncludeNuclMod">     true  </param>
     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
-    <param type="bool"   name="Use2016Corrections"> true </param>
+    <param type="bool"   name="Use2016Corrections"> false </param>
     <param type="bool"   name="BY-IncludeKCharm">         true </param>
     <param type="bool"   name="BY-IncludeSlowRescaling"> true </param>
 
