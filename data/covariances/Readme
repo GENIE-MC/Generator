@@ -22,14 +22,14 @@ FormFactor/Axial/ - z-expansion axial form factor (ZExpAxialFormFactorModel)
       2x2 covariance from the fit to MINERvA hydrogen data,
       A. Meyer et al., arXiv:2512.14097, Eq. (32).
       Used by the "minerva" param_set.
-  AxialZExpFF_LQCD.dat
-      2x2 covariance from the LQCD-based fit,
-      A. Meyer et al., arXiv:2512.14097 v1.
-      Used by the "lqcd" param_set.
   AxialZExpFF_LQCD_updated.dat
       2x2 covariance from the updated LQCD-based fit,
       A. Meyer et al., arXiv:2512.14097 latest version, Eq. (40).
-      Used by the "lqcdUpdated" param_set.
+      Used by the "lqcd" param_set.
+      - AxialZExpFF_LQCD.dat
+        2x2 covariance from the LQCD-based fit,
+        A. Meyer et al., arXiv:2512.14097 v1.
+        Old version, comment out by default
   AxialZExpFF_minervaNature4x4.dat
       4x4 covariance from the MINERvA measurement, Nature 614, 48 (2023),
       Supplementary Tables 4-5 (kmax=8, lambda=0.13 fit).
