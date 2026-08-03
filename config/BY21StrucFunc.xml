@@ -89,7 +89,7 @@ WeinbergAngle              double  No                                           
     <param type="bool"   name="BY-IncludeSlowRescaling"> true </param>
 
     <!-- Turning off charm production, as it is accounted by a separate model -->
-    <param type="bool"   name="Charm-Prod-Off">     true  </param>
+    <param type="bool"   name="Charm-Prod-Off">     false  </param>
     
     <!-- Specify DIS nuclear correction to use
 	 In this case we use the A-Dependent parameterization by J.Gomez et. al. 

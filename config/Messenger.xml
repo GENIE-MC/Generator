@@ -32,7 +32,7 @@
   <!-- EDIT: add notification for DM EL algorithm -->
   <priority msgstream="AhrensDMEL">            WARN   </priority>
 
-  <priority msgstream="AlgFactory">            INFO   </priority>
+  <priority msgstream="AlgFactory">            DEBUG   </priority>
   <priority msgstream="Algorithm">             WARN   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
   <priority msgstream="AlvarezRusoCohPi">      WARN   </priority>
