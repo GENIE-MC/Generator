@@ -249,6 +249,7 @@
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
    <config alg="genie::BY00DISNuclearModel">         BY00DISNuclearModel.xml         </config>
    <config alg="genie::BY21DISNuclearModel">         BY21DISNuclearModel.xml         </config>
+   <config alg="genie::BYCharmXSec">                 BYCharmXSec.xml                 </config>
    <config alg="genie::JGDISNuclearModel">           JGDISNuclearModel.xml           </config>
    
 
