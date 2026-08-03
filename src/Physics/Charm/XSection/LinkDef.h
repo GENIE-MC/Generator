@@ -9,6 +9,6 @@
 #pragma link C++ class genie::AivazisCharmPXSecLO;
 #pragma link C++ class genie::KovalenkoQELCharmPXSec;
 #pragma link C++ class genie::SlowRsclCharmDISPXSecLO;
-#pragma link c++ class genie::BYCharmXSec;
+#pragma link C++ class genie::BYCharmXSec;
 
 #endif
