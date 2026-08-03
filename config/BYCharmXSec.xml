@@ -3,7 +3,7 @@
 
 <alg_conf>
   <param_set name="Default"> 
-         <param type="alg" name="DISAlg">           genie::BY21StrucFunc/Default      </param>
+         <param type="alg" name="DISAlg">           genie::KNOTunedQPMDISPXSec/BY2021       </param>
   </param_set>
 
 </alg_conf>

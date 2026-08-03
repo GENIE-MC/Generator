@@ -55,6 +55,6 @@ void BYCharmXSec::LoadConfig(void)
 {
   fDISModel = 0;
   fDISModel =
-      dynamic_cast<const QPMDISPXSec *>(this->SubAlg("DISAlg"));
+      dynamic_cast<const XSecAlgorithmI *>(this->SubAlg("DISAlg"));
   assert(fDISModel);
 }

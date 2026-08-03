@@ -2,7 +2,6 @@
 #define _BYCharmXSec_H
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/DeepInelastic/XSection/QPMDISPXSec.h"
 namespace genie {
 
 class QPMDISPXSec;
@@ -26,7 +25,7 @@ public:
 
 private:
 
-  const QPMDISPXSec * fDISModel ;
+  const XSecAlgorithmI * fDISModel ;
   void LoadConfig();
 };
 }
