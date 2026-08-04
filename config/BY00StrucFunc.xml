@@ -80,7 +80,7 @@ WeinbergAngle              double  No                                           
     <param type="bool"   name="Use2016Corrections"> true </param>
 
     <!-- Turning off charm production, as it is accounted by a separate model -->
-    <param type="bool"   name="Charm-Prod-Off">     true  </param>
+    <param type="bool"   name="Charm-Prod-Off">     false  </param>
 
     <!-- Specify DIS nuclear correction to use-->
     <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>

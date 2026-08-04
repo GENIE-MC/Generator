@@ -30,6 +30,7 @@
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDF.h"
 #include "Physics/NuclearState/DISNuclearModelI.h"
+#include "Physics/Charm/XSection/BYCharmXSec.h"
 
 namespace genie {
 
@@ -116,7 +117,7 @@ protected:
   mutable double fds_c;
   mutable double fs_c;
   mutable double fc_c;
-
+  friend class BYCharmXSec;
 };
 
 }         // genie namespace
