@@ -854,7 +854,8 @@ void INCLCascadeIntranuke::DecayResonance(GHepRecord *evrec) const{
 bool INCLCascadeIntranuke::BaryonNumberConservation(GHepRecord *evrec) const {
   int final_C = 0, final_A = 0;
   Target *tgt = evrec->Summary()->InitStatePtr()->TgtPtr();
-  int inital_C = evrec->Probe()->Charge() + tgt->Charge();
+  // GHepParticle::Charge() is in |e|/3 (TParticlePDG convention), Target::Charge() in +e
+  int inital_C = evrec->Probe()->Charge()/3. + tgt->Charge();
   int target_A = tgt->A();
   LOG("INCLCascadeIntranuke", pINFO) << "Inital states charge and A: " << inital_C << " " << target_A;
   TObjArrayIter piter(evrec);
