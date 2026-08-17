@@ -2,9 +2,11 @@
 #define _BYCharmXSec_H
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
-#include "Physics/DeepInelastic/XSection/DISStructureFunc.h"
-namespace genie {
+#include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
 
+namespace genie {
+class QPMDISStrucFuncBase;
+class XSecIntegratorI;
 
 class BYCharmXSec : public XSecAlgorithmI {
 public:
@@ -24,11 +26,12 @@ public:
 
 private:
   bool initilized = false;
-  const DISStructureFuncModelI * fDISSFModel ;
+  const QPMDISStrucFuncBase * fDISSFModel ;
   const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
-  mutable DISStructureFunc fDISSF;
+
   void LoadConfig();
   double fCCScale;            ///< cross section scaling factor
+  void Calculate(const Interaction * interaction) const;
   mutable double fF1;
   mutable double fF2;
   mutable double fF3;

@@ -241,7 +241,10 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   this -> CalcPDFs (interaction);
 
   // In the case of Charm CC DIS, we need a different treatment 
-  bool hasCharmContribution = (fdv_c * switch_dv   > 0) || (fds_c * switch_ds   > 0) || (fs_c  * switch_s    > 0) || (fc_c  * switch_cbar > 0) || (fc_c  * switch_c    > 0) || (fds_c * switch_dbar > 0) || (fs_c  * switch_sbar > 0);
+  bool hasCharmContribution = (fdv_c * switch_dv   > 0) 
+   || (fds_c * switch_ds   > 0) || (fs_c  * switch_s    > 0) 
+   || (fc_c  * switch_cbar > 0) || (fc_c  * switch_c    > 0)
+   || (fds_c * switch_dbar > 0) || (fs_c  * switch_sbar > 0);
   const bool applyCharmCorrection = is_CC && hasCharmContribution && !fCharmOff ;
 
   // KCH = 1 if below charm threshold
