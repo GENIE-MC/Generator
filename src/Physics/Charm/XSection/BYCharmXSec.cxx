@@ -155,81 +155,39 @@ double BYCharmXSec::Integral(const Interaction *interaction) const {
 //____________________________________________________________________________
 void BYCharmXSec::Calculate(const Interaction * interaction) const
 {
-  fDISSFModel->fPDF  -> Reset();
-  fDISSFModel->fPDFc -> Reset();
-
-  // Get the kinematical variables x,Q2 (could include corrections)
-  double x     = fDISSFModel->ScalingVar(interaction);
-  double Q2val = fDISSFModel->Q2(interaction);
-
-  // Get the hit nucleon mass (could be off-shell)
-  const Target & tgt = interaction->InitState().Tgt();
-  double M = tgt.HitNucP4().M();
-
-  // Get the Q2 for which PDFs will be evaluated
-  double Q2pdf = TMath::Max(Q2val, fDISSFModel->fQ2min);
-
-
-  fDISSFModel->fPDF->Calculate(x, Q2pdf);
-
-  // Check whether it is above charm threshold
-  bool above_charm = utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fDISSFModel->fMc);
-  LOG("BYCharm", pNOTICE) << "Above Charm Threshold " << above_charm;
-  double nucScale     = fDISSFModel->fIncludeNuclMod ? fDISSFModel->fDISNuclCorr->DISACorrection(interaction) : 1 ;
-  double fuv   = nucScale * fDISSFModel->fPDF  -> UpValence();
-  double fus   = nucScale * fDISSFModel->fPDF  -> UpSea();
-  double fdv   = nucScale * fDISSFModel->fPDF  -> DownValence();
-  double fds   = nucScale * fDISSFModel->fPDF  -> DownSea();
-  double fs    = nucScale * fDISSFModel->fPDF  -> Strange();
-  double fc    = nucScale * 0.;
-  double fuv_c = nucScale * fDISSFModel->fPDFc -> UpValence();   // will be 0 if < charm threshold
-  double fus_c = nucScale * fDISSFModel->fPDFc -> UpSea();       // ...
-  double fdv_c = nucScale * fDISSFModel->fPDFc -> DownValence(); // ...
-  double fds_c = nucScale * fDISSFModel->fPDFc -> DownSea();     // ...
-  double fs_c  = nucScale * fDISSFModel->fPDFc -> Strange();     // ...
-  double fc_c  = nucScale * fDISSFModel->fPDFc -> Charm();       // ...
-
-  // The above are the proton parton density function. Get the PDFs for the
-  // hit nucleon (p or n) by swapping u<->d if necessary
-
-  int nuc_pdgc = tgt.HitNucPdg();
-  bool isP = pdg::IsProton  (nuc_pdgc);
-  bool isN = pdg::IsNeutron (nuc_pdgc);
-  assert(isP  || isN);
-
-  double tmp = 0;
-  if (isN) {  // swap u <-> d
-    tmp = fuv;   fuv   = fdv;   fdv   = tmp;
-    tmp = fus;   fus   = fds;   fds   = tmp;
-    tmp = fuv_c; fuv_c = fdv_c; fdv_c = tmp;
-    tmp = fus_c; fus_c = fds_c; fds_c = tmp;
-  }
-  // Reset mutable members
+    // Reset mutable members
   fF1 = 0;
   fF2 = 0;
   fF3 = 0;
   fF4 = 0;
   fF5 = 0;
   fF6 = 0;
+  const InitialState & init_state = interaction->InitState();
+  const Target & tgt = init_state.Tgt();
+  double x     = fDISSFModel->ScalingVar(interaction);
+  double Q2val = fDISSFModel->Q2(interaction);
+  double M = tgt.HitNucP4().M();
+  double Q2pdf = TMath::Max(Q2val, fDISSFModel->fQ2min);
+  // Check whether it is above charm threshold
+  bool above_charm = utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fDISSFModel->fMc);
+  if (!above_charm){
+    return;
+  }
+  fDISSFModel->CalcPDFs(interaction);
 
   // Get process info & perform various checks
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
-  const InitialState & init_state = interaction->InitState();
 
-
+  int  nuc_pdgc    = tgt.HitNucPdg();
   int  probe_pdgc  = init_state.ProbePdg();
   bool is_p        = pdg::IsProton       ( nuc_pdgc    );
   bool is_n        = pdg::IsNeutron      ( nuc_pdgc    );
   bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
   bool is_lepton   = pdg::IsLepton       ( probe_pdgc  );
-  bool is_dm       = pdg::IsDarkMatter   ( probe_pdgc  );
   bool is_CC       = proc_info.IsWeakCC();
-  bool is_NC       = proc_info.IsWeakNC();
-  bool is_EM       = proc_info.IsEM();
-  bool is_dmi      = proc_info.IsDarkMatter();
 
-  if ( !is_lepton && !is_dm ) return;
+  if ( !is_nu || !is_nu) return;
   if ( !is_p && !is_n       ) return;
   if ( tgt.N() == 0 && is_n ) return;
   if ( tgt.Z() == 0 && is_p ) return;
@@ -293,18 +251,19 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
     if(is_nubar && is_CC && is_cbar) return;
     if(is_nubar && is_CC && is_d   ) return;
     if(is_nubar && is_CC && is_s   ) return;
+  } else {
+    return;
   }
 
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Applying all PDF K-factors abd scaling variable corrections
 
   fDISSFModel -> CalcPDFs (interaction);
-  bool hasCharmContribution = (fdv_c * switch_dv   > 0) 
-   || (fds_c * switch_ds   > 0) || (fs_c  * switch_s    > 0) 
-   || (fc_c  * switch_cbar > 0) || (fc_c  * switch_c    > 0)
-   || (fds_c * switch_dbar > 0) || (fs_c  * switch_sbar > 0);
+  bool hasCharmContribution = (fDISSFModel->fdv_c * switch_dv   > 0) 
+   || (fDISSFModel->fds_c * switch_ds   > 0) || (fDISSFModel->fs_c  * switch_s    > 0) 
+   || (fDISSFModel->fc_c  * switch_cbar > 0) || (fDISSFModel->fc_c  * switch_c    > 0)
+   || (fDISSFModel->fds_c * switch_dbar > 0) || (fDISSFModel->fs_c  * switch_sbar > 0);
   if (!hasCharmContribution){
-    LOG("BYCharm", pNOTICE) << "No charm contribution";
     return;
   }
 
@@ -325,9 +284,7 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   double kA_sea_d = 1.;
   double kA_sea_s = 1.;
 
-  if (isN){ 
-    // if target is neutron swap u <-> d
-    // like in this->calc
+  if (is_n){ 
     fDISSFModel->KVectorFactors(interaction, kV_val_d, kV_val_u, kV_sea_d, kV_sea_u, kV_sea_s);
     fDISSFModel->KAxialFactors (interaction, kA_val_d, kA_val_u, kA_sea_d, kA_sea_u, kA_sea_s);
   } else {
@@ -342,61 +299,37 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
 
     if (is_nu) {      
       // KA = KV for charm due to its mass
-      q    = ( switch_dv * fdv   * ( kV_val_d + kA_val_d ) 
-             + switch_ds * fds   * ( kV_sea_d + kA_sea_d ) ) * fDISSFModel->fVud2 ;
-      q   += ( switch_dv * fdv_c * ( kV_val_d + kV_val_d ) 
-             + switch_ds * fds_c * ( kV_sea_d + kV_sea_d ) ) * fDISSFModel->fVcd2 ;
-      q   +=   switch_s  * fs    * ( kV_sea_s + kA_sea_s )   * fDISSFModel->fVus2 ;
-      q   +=   switch_s  * fs_c  * ( kV_sea_s + kV_sea_s )   * fDISSFModel->fVcs2;
+      q    = ( switch_dv * fDISSFModel->fdv_c * ( kV_val_d + kV_val_d ) 
+             + switch_ds * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) ) * fDISSFModel->fVcd2 ;
+      q   +=   switch_s  * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s )   * fDISSFModel->fVcs2;
 
-      qbar  = switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fDISSFModel->fVud2;
-      qbar += switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fDISSFModel->fVus2;
-      qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fDISSFModel->fVcd2;
-      qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fDISSFModel->fVcs2;
+      qbar  = switch_cbar * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u ) * fDISSFModel->fVcd2;
+      qbar += switch_cbar * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u ) * fDISSFModel->fVcs2;
     } else if (is_nubar) {
-	    q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
-             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fDISSFModel->fVud2 ;
-	    q   += ( switch_uv * fuv  * ( kV_val_u + kA_val_u ) 
-             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fDISSFModel->fVus2 ;
-	    q   +=   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fDISSFModel->fVcd2;
-	    q   +=   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fDISSFModel->fVcs2;
+	    q    =   switch_c  * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u )   * fDISSFModel->fVcd2;
+	    q   +=   switch_c  * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u )   * fDISSFModel->fVcs2;
 
-	    qbar  = switch_dbar * fds_c * ( kV_sea_d + kV_sea_d ) * fDISSFModel->fVcd2;
-	    qbar += switch_dbar * fds   * ( kV_sea_d + kA_sea_d ) * fDISSFModel->fVud2;
-	    qbar += switch_sbar * fs    * ( kV_sea_s + kA_sea_s ) * fDISSFModel->fVus2;
-	    qbar += switch_sbar * fs_c  * ( kV_sea_s + kV_sea_s ) * fDISSFModel->fVcs2;
-    } else {
-	    return;
-    }
+	    qbar  = switch_dbar * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) * fDISSFModel->fVcd2;
+	    qbar += switch_sbar * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s ) * fDISSFModel->fVcs2;
+    } 
     
     F2val  = (q+qbar);
     
     if (is_nu) { 
-      q    = ( switch_dv * fdv   * sqrt( kV_val_d * kA_val_d ) 
-             + switch_ds * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fDISSFModel->fVud2;
-      q   +=   switch_s  * fs    * sqrt( kV_sea_s * kA_sea_s )   * fDISSFModel->fVus2;
-      q   += ( switch_dv * fdv_c * sqrt( kV_val_d * kV_val_d ) 
-             + switch_ds * fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2;
-      q   +=   switch_s  * fs_c  * sqrt( kV_sea_s * kV_sea_s )   * fDISSFModel->fVcs2;
+      q    = ( switch_dv * fDISSFModel->fdv_c * sqrt( kV_val_d * kV_val_d ) 
+             + switch_ds * fDISSFModel->fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2;
+      q   +=   switch_s  * fDISSFModel->fs_c  * sqrt( kV_sea_s * kV_sea_s )   * fDISSFModel->fVcs2;
       
-      qbar  = switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fDISSFModel->fVud2;
-      qbar += switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fDISSFModel->fVus2;
-      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fDISSFModel->fVcd2;
-      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fDISSFModel->fVcs2;
+      qbar  = switch_cbar * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) * fDISSFModel->fVcd2;
+      qbar += switch_cbar * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) * fDISSFModel->fVcs2;
     }
     else if (is_nubar) {
-	    q    = ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fDISSFModel->fVud2;
-	    q   += ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fDISSFModel->fVus2;
-	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fDISSFModel->fVcd2;
-	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fDISSFModel->fVcs2;
+	    q    = ( switch_c  * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fDISSFModel->fVcd2;
+	    q   += ( switch_c  * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fDISSFModel->fVcs2;
 
-	    qbar  = ( switch_dbar * fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2;
-	    qbar += ( switch_dbar * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fDISSFModel->fVud2;
-	    qbar += ( switch_sbar * fs    * sqrt( kV_sea_s * kA_sea_s ) ) * fDISSFModel->fVus2;
-	    qbar += ( switch_sbar * fs_c  * sqrt( kV_sea_s * kV_sea_s ) ) * fDISSFModel->fVcs2;
-    } else {
-	    return;
-    }
+	    qbar  = ( switch_dbar * fDISSFModel->fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2;
+	    qbar += ( switch_sbar * fDISSFModel->fs_c  * sqrt( kV_sea_s * kV_sea_s ) ) * fDISSFModel->fVcs2;
+    } 
 
     xF3val = 2*(q-qbar);
   }
@@ -405,9 +338,9 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   double r     = fDISSFModel->R         (interaction); // R ~ FL
   double H     = fDISSFModel->fIncludeH ? fDISSFModel->H(interaction) : 1;
 
-//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pNOTICE) << "R(=FL/2xF1) = " << r;
-//#endif
+#endif
   
   if(fDISSFModel->fUse2016Corrections) {
     const Kinematics & kinematics = interaction->Kine();
@@ -425,14 +358,15 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   else {
     double a = TMath::Power(x,2.) / TMath::Max(Q2val, fDISSFModel->fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
-    //double a = TMath::Power(x,2.) / Q2val;
-    //double c = (1. + 4. * kNucleonMass * a) / (1.+r);
-    // KCH neq 1 if above charm threshold and cc interactions
     fF3 = H * xF3val / x;
     fF2 = F2val;
     fF1 = fF2 * 0.5 * c / x;
     fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BYCharm", pNOTICE)
+     << "F1-F5 = "
+     << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5;
+#endif
 }
