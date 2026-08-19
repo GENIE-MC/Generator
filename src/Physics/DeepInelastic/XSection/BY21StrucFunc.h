@@ -50,7 +50,6 @@ protected:
   double ScalingVar (const Interaction * i, double Mf = 0 ) const;
   void   KVectorFactors (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const;
   void   KAxialFactors(const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const ;
-  
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double KCharm(const Interaction * i, double Mf = 0) const; // overrides QPMDISStrucFuncBase implementation

@@ -20,6 +20,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -284,4 +285,3 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   
   return R1998 ; 
 }
-
