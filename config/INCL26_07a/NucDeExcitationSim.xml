@@ -13,8 +13,8 @@ Name                    Type     Optional   Comment                     Default
 -->
 
   <param_set name="Default"> 
-    <param type="bool" name="DoCarbon"> true </param>
-    <param type="bool" name="DoArgon">  true </param>
+    <param type="bool" name="DoCarbon"> false </param> <!-- 2026-08-24: de-excitation photons OFF (Liang) -->
+    <param type="bool" name="DoArgon">  false </param>
   </param_set>
 
 </alg_conf>
