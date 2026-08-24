@@ -401,32 +401,43 @@ bool INCLCascadeIntranuke::decayOutgoingClusters(G4INCL::FinalState * finalState
 
 
 bool INCLCascadeIntranuke::decayMe(G4INCL::FinalState * finalState) const {
-  // Do the phase-space decay only if Z=0 or N=0
+  // Phase-space decay of the target remnant when it has Z=0 or N=0 (same criterion as
+  // G4INCL::Nucleus::decayMe). ClusterDecay::decay() mutates the remnant IN PLACE: it becomes
+  // its last nucleon (A=1, type Proton/Neutron/Lambda, real mass, on-shell lab momentum, E*=0)
+  // and only the other N-1 nucleons come back as new particles.
   if(incl_target->getA()<=1 || (incl_target->getZ()!=0 && (incl_target->getA()+incl_target->getS())!=incl_target->getZ()))
     return false;
 
-  // mother_list to track the particle participate interaction
+  const double now = incl_target->getStore()->getBook().getCurrentTime();
+  LOG("INCLCascadeIntranuke", pWARN) << "decayMe: phase-space decay of the target remnant A=" << incl_target->getA()
+    << " Z=" << incl_target->getZ() << " S=" << incl_target->getS();
+
+  // 1. snapshot the remnant BEFORE the in-place decay (consumed by fillEventRecord to write the
+  //    kIStPreDeExNuclearRemnant entry with the pre-decay species and four-momentum)
+  cascadeAction->snapshotTargetRemnant(incl_target, now);
+
+  // 2. decay
   G4INCL::ParticleList mother_list;
-
-  LOG("INCLCascadeIntranuke", pWARN) << "A and Z: " << incl_target->getA() << " " << incl_target->getZ();
-
-  mother_list.clear();
   mother_list.push_back(incl_target);
-  //backup_mother.clear();
-  //cascadeAction->fillStep(incl_target, backup_mother, G4INCL::kComposite, incl_target->getStore()->getBook().getCurrentTime());
   finalState->reset();
-
   ParticleList decayProducts = ClusterDecay::decay(incl_target);
   for(ParticleIter j=decayProducts.begin(), e=decayProducts.end(); j!=e; ++j){
     (*j)->setBiasCollisionVector(incl_target->getBiasCollisionVector());
-    //incl_target->getStore()->addToOutgoing(*j);
+    incl_target->getStore()->addToOutgoing(*j);   // as G4INCL::Nucleus::decayMe: the Store owns (and deletes) them
     finalState->addOutgoingParticle(*j);
   }
-  cascadeAction->fillEventRecord(finalState, mother_list, incl_target->getStore()->getBook().getCurrentTime(), G4INCL::DecayAvatarType);
-  LOG("INCLCascadeIntranuke", pWARN) << "A and Z: " << incl_target->getA() << " " << incl_target->getZ();
+  // 3. the surviving nucleon IS the mutated remnant object: an outgoing particle for the record,
+  //    but never handed to the Store's outgoing list (the Store would delete the Nucleus)
+  finalState->addOutgoingParticle(incl_target);
 
+  // 4. record: PreDeEx(17) from the snapshot + all N nucleons as kIStStableFinalState daughters
+  cascadeAction->fillEventRecord(finalState, mother_list, now, G4INCL::DecayAvatarType);
+
+  // 5. nothing is left to de-excite: ProcessEventRecord skips the remnant/de-excitation block
+  fRemnantFullyDecayed = true;
+  LOG("INCLCascadeIntranuke", pWARN) << "decayMe: done, " << decayProducts.size() + 1 << " nucleons recorded; leftover A="
+    << incl_target->getA() << " Z=" << incl_target->getZ() << " isCluster=" << incl_target->isCluster();
   return true;
-
 }
 
 bool INCLCascadeIntranuke::decayOutgoingNeutralKaon(G4INCL::FinalState * finalState) const{

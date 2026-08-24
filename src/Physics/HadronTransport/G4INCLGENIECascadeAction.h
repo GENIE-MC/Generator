@@ -64,6 +64,12 @@ namespace G4INCL {
       }
       void fillStep(Particle *par, std::vector<INCLRecord> &stepList, G4INCLFinalStateType type, double time);
       void fillEventRecord(FinalState *fs, ParticleList mother_list, double time, G4INCL::AvatarType avaType);
+      /// Snapshot the TARGET REMNANT (the G4INCL::Nucleus itself; decayMe() only) BEFORE
+      /// ClusterDecay::decay() mutates it in place into its last nucleon. The remnant is the only
+      /// decaying object that is never in the GHEP record; outgoing clusters are already recorded
+      /// when emitted and must NOT use this. Consumed (and cleared) by fillEventRecord() on the
+      /// decayMe DecayAvatarType step, matched by INCL ID, to emit the kIStPreDeExNuclearRemnant entry.
+      void snapshotTargetRemnant(Particle *remnant, double time);
 
     private:
       //std::ofstream *oFile;

@@ -87,7 +87,7 @@ using namespace std;
 
 INCLCascadeIntranuke::INCLCascadeIntranuke() :
   EventRecordVisitorI("genie::INCLCascadeIntranuke"),
-  theINCLConfig(0), theINCLModel(0), minRemnantSize(4),
+  theINCLConfig(0), theINCLModel(0), minRemnantSize(4), fRemnantFullyDecayed(false),
   cascadeAction(std::make_unique<G4INCL::GENIECascadeAction>())
 {
   LOG("INCLCascadeIntranuke", pDEBUG)
@@ -97,7 +97,7 @@ INCLCascadeIntranuke::INCLCascadeIntranuke() :
 //______________________________________________________________________________
 INCLCascadeIntranuke::INCLCascadeIntranuke(string config) :
   EventRecordVisitorI("genie::INCLCascadeIntranuke", config),
-  theINCLConfig(0), theINCLModel(0), minRemnantSize(4),
+  theINCLConfig(0), theINCLModel(0), minRemnantSize(4), fRemnantFullyDecayed(false),
   cascadeAction(std::make_unique<G4INCL::GENIECascadeAction>())
 {
   LOG("INCLCascadeIntranuke", pDEBUG)
@@ -283,6 +283,7 @@ void INCLCascadeIntranuke::ProcessEventRecord(GHepRecord * evrec)  const {
   incl_target = incl_nucleus->getNuclues();
   propagationModel =  incl_nucleus->getPropagationModel();
   incl_target->setParticleNucleusCollision();
+  fRemnantFullyDecayed = false;
   std::unique_ptr<G4INCL::FinalState> finalState(new FinalState);
 
   // passing the GHepRecord to cascadeAction
@@ -372,6 +373,12 @@ void INCLCascadeIntranuke::ProcessEventRecord(GHepRecord * evrec)  const {
   LOG("INCLCascadeIntranuke", pDEBUG) << "number of stable final state from cascade in INCL and GENIE record: stable_finalstate and n_outgoing: " << stable_finalstate << "  " << n_outgoing;
   
 
+  if(fRemnantFullyDecayed){
+    // decayMe() phase-space decayed the target remnant (Z==0 or N==0): the pre-de-excitation
+    // entry and every nucleon are already in the record; nothing is left to de-excite.
+    LOG("INCLCascadeIntranuke", pINFO) << "Target remnant fully decayed by decayMe(); skipping the remnant/de-excitation block";
+  }
+  else{
   // Get the 4-momentum of excited remnant
   double Rem_p2 = theEventInfo.pxRem[0]*theEventInfo.pxRem[0]
     + theEventInfo.pyRem[0]*theEventInfo.pyRem[0]
@@ -475,6 +482,7 @@ void INCLCascadeIntranuke::ProcessEventRecord(GHepRecord * evrec)  const {
     TLorentzVector p4rem(Rem_px, Rem_py, Rem_pz, Rem_E);
     evrec->AddParticle(rem_pdg, kIStFinalStateNuclearRemnant, remnant_id, -1, -1, -1, p4rem, TLorentzVector(0,0,0,0));
   }
+  } // end if(!fRemnantFullyDecayed)
 
   // check the baryon number conservation
   // FIXME: we don't consider any beyond SM in INCL FSI

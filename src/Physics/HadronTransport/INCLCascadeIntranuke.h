@@ -85,6 +85,10 @@ namespace genie {
 
       mutable double temfin;
       mutable int minRemnantSize;
+      /// Set by decayMe() when the target remnant itself was phase-space decayed (Z==0 or N==0):
+      /// all its nucleons are already in the record, so ProcessEventRecord() skips the
+      /// remnant/de-excitation block. Reset at the start of every event.
+      mutable bool fRemnantFullyDecayed;
       std::unique_ptr<G4INCL::GENIECascadeAction> cascadeAction;
       std::shared_ptr<G4INCL::IAvatar> fillFinalState(GHepRecord * event_rec, G4INCL::FinalState * finalState, std::vector<G4INCL::GENIEParticleRecord> *eventRecord) const;
       //void fillFinalStateNCEL(GHepRecord * event_rec, G4INCL::FinalState * finalState) const;

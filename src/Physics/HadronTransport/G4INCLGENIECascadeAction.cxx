@@ -49,6 +49,7 @@ namespace G4INCL {
     eventRecord.clear();
     tempFinalState.clear();
     stepFinalState.clear();
+    backup_mother.clear();   // no target-remnant snapshot may cross an event boundary
 
     const ProcessInfo & proc_info = evrec->Summary()->ProcInfo();
     // convert ghep event record to INCL Style.
@@ -206,6 +207,17 @@ namespace G4INCL {
     p4posi.SetT(time);
     stepList.emplace_back(par->getID(), ptype.getPDGCode(), -2, 0, type,  p4mom, p4posi, ptype.theType);
 
+  }
+
+  void GENIECascadeAction::snapshotTargetRemnant(Particle *remnant, double time){
+    // Cluster::getSpecies() reports theType==Composite with the current (A,Z,S), so the record
+    // carries the INCL composite code (A + 1000*Z - 1e6*S) and the pre-decay four-momentum.
+    backup_mother.clear();
+    this->fillStep(remnant, backup_mother, kComposite, time);
+    LOG("INCLCascadeIntranuke", pINFO) << "snapshotTargetRemnant: INCL ID " << remnant->getID()
+      << " A=" << remnant->getA() << " Z=" << remnant->getZ() << " S=" << remnant->getS()
+      << " composite code " << backup_mother.back().pdgid
+      << " E=" << backup_mother.back().p4mom.E() << " GeV";
   }
 
   void GENIECascadeAction::fillEventRecord(FinalState *fs, ParticleList mother_list, double time, G4INCL::AvatarType avaType){
@@ -370,24 +382,52 @@ namespace G4INCL {
         }
       }
       else if(avaType == G4INCL::DecayAvatarType){
-        LOG("INCLCascadeIntranuke", pWARN) << "From decayMe: ";
+        // The mother is NOT in the event-record history. The legitimate case is decayMe(): the
+        // target remnant itself (never a cascade particle, hence never in tempFinalState) was
+        // phase-space decayed, and decayMe() snapshotted it via snapshotTargetRemnant() BEFORE
+        // ClusterDecay::decay() turned it into its last nucleon. The snapshot is applied only to
+        // that remnant (matched by INCL ID). Any other decay whose mother was never registered
+        // (e.g. an outgoing cluster whose emission was not recorded) must not kill the job: its
+        // products are attached to the intermediate remnant nucleus (GHEP index 3, the convention
+        // used for the pre-de-excitation remnant) and enough is logged to find the root cause.
+        const int motherID = mother_list.empty() ? -1 : (*mother_list.begin())->getID();
+        const INCLRecord * snap = nullptr;
         for(auto imom = backup_mother.begin(); imom != backup_mother.end(); ++imom){
-          LOG("INCLCascadeIntranuke", pWARN) << "Mother pdgid: " << imom->pdgid;
-          if(!(imom->fsType == kComposite && imom->theType == G4INCL::Composite)){
-            LOG("INCLCascadeIntranuke", pFATAL) << "Is not a decay of a composite: " << imom->pdgid;
-            exit(1);
+          if(imom->fsType == kComposite && imom->theType == G4INCL::Composite && imom->global_index == motherID){
+            snap = &(*imom);
+            break;
           }
-          int A = imom->pdgid%1000;
-          int Z = (imom->pdgid/1000)%1000;
-          int S = (imom->pdgid/1000000)%1000;
+        }
+        if(snap){
+          int A = snap->pdgid%1000;
+          int Z = (snap->pdgid/1000)%1000;
+          int S = (snap->pdgid/1000000)%1000;
           int pdg = genie::pdg::IonPdgCode(A,Z,S,0);
           pdg = GENIEINCLUtil::INCLPDG_to_GHEPPDG(pdg, A, Z, S);
-          GHepParticle p(pdg, kIStPreDeExNuclearRemnant, 3, -1, -1, -1, imom->p4mom, imom->p4posi);
-          tempFinalState.emplace_back(imom->global_index, imom->pdgid, 3, index_++, imom->fsType, imom->p4mom, imom->p4posi);
+          LOG("INCLCascadeIntranuke", pINFO) << "decayMe: pre-decay target remnant A=" << A << " Z=" << Z
+            << " S=" << S << " -> PDG " << pdg;
+          GHepParticle p(pdg, kIStPreDeExNuclearRemnant, 3, -1, -1, -1, snap->p4mom, snap->p4posi);
+          tempFinalState.emplace_back(snap->global_index, snap->pdgid, 3, index_++, snap->fsType, snap->p4mom, snap->p4posi, snap->theType);
           evrec->AddParticle(p);
+          mother_position = index_ - 1;
         }
-        mother_position = index_ - 1;
-        LOG("INCLCascadeIntranuke", pWARN) << "the index of cluster : " << mother_position;
+        else{
+          mother_position = 3;
+          LOG("INCLCascadeIntranuke", pERROR)
+            << "fillEventRecord: the mother (INCL ID " << motherID << ") of a decay step is not in the"
+            << " event-record history and no target-remnant snapshot matches it; attaching "
+            << (created.size() + outgoing.size() + modified.size()) << " product(s) to the intermediate"
+            << " remnant nucleus (GHEP idx " << mother_position << "). mothers=" << mother_list.size()
+            << " created=" << created.size() << " outgoing=" << outgoing.size()
+            << " modified=" << modified.size() << " destroyed=" << destroyed.size();
+          for(auto ip = stepParticleList.begin(); ip != stepParticleList.end(); ++ip){
+            LOG("INCLCascadeIntranuke", pERROR) << "   step particle: INCL ID " << ip->global_index
+              << " INCL pdg " << ip->pdgid << " fsType " << ip->fsType << " INCL type " << ip->theType
+              << " E=" << ip->p4mom.E() << " GeV";
+          }
+        }
+        backup_mother.clear();   // the snapshot is single-use
+        LOG("INCLCascadeIntranuke", pINFO) << "the index of the decay mother : " << mother_position;
         for(auto ip = stepParticleList.begin(); ip != stepParticleList.end(); ++ip){
           if(ip->fsType == kMother || ip->fsType == kDestroyed) continue;
           LOG("INCLCascadeIntranuke", pNOTICE) << "created: " << created.size();
