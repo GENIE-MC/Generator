@@ -17,8 +17,10 @@ tune id `INCL26_07a_00_000`.
  - **FSI:** INCL intranuclear cascade, `genie::INCLCascadeIntranuke/Default`
    (`DeltaTransp-Enable` = true). Requires the INCL data environment from the
    `genie_inclxx` installation's `setup_env.sh`.
- - Pion-production parameters inherited from AR23_20i (originally G18_10a_02_11b);
-   de-excitation photons enabled (carbon/argon).
+ - Pion-production parameters inherited from AR23_20i (originally G18_10a_02_11b).
+ - **GENIE nuclear de-excitation photons OFF** (`NucDeExcitationSim`: `DoCarbon` = `DoArgon` = false,
+   changed 2026-08-24; AR23_20i has both true — previous file kept as `NucDeExcitationSim.xml.bak-deex-on`).
+   Nuclear de-excitation after the cascade is left entirely to INCL's ABLAXX.
 
 ## Files changed relative to AR23_20i
 
@@ -34,8 +36,8 @@ tune id `INCL26_07a_00_000`.
    local copies are byte-identical), so only `EventGenerator.xml` is needed locally.
  - `TuneGeneratorList.xml` — dropped the two charm threads (`DIS-CC-CHARM`,
    `QEL-CC-CHARM`); `NGenerators` 18 -> 16, generators renumbered contiguously.
- - `CommonParam.xml`, `MECInteractionListGenerator.xml`, `NucDeExcitationSim.xml`
-   — inherited from AR23_20i, unchanged.
+ - `NucDeExcitationSim.xml` — `DoCarbon`/`DoArgon` set to false (2026-08-24).
+ - `CommonParam.xml`, `MECInteractionListGenerator.xml` — inherited from AR23_20i, unchanged.
 
 ## Naming note
 
