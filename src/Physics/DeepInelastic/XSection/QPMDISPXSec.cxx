@@ -158,6 +158,17 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   if (interaction->TestBit(kIAssumeFreeNucleon))
     return xsec;
 
+
+  if( !fCharmOff ) {
+    interaction->ExclTagPtr()->SetCharm();
+    double xsec_charm = fCharmProdModel->XSec(interaction, kps);
+    interaction->ExclTagPtr()->UnsetCharm();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+    LOG("DISPXSec", pNOTICE) << "Subtracting charm piece: " << xsec_charm
+			   << " / out of " << xsec << ", at E = " << E;
+#endif
+    xsec = TMath::Max(0., xsec - xsec_charm);
+  }
   // Compute nuclear cross section (simple scaling here, corrections must
   // have been included in the structure functions)
   const Target &target = init_state.Tgt();
@@ -173,17 +184,6 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   // Subtract the inclusive charm production cross section if charm was used
   // in the total CCDIS calculation. This is accounted in a separate algorithm
   // If it was not used, do not substract.
-  if( !fCharmOff ) {
-    interaction->ExclTagPtr()->SetCharm();
-    double xsec_charm = fCharmProdModel->XSec(interaction, kps);
-    interaction->ExclTagPtr()->UnsetCharm();
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("DISPXSec", pNOTICE) << "Subtracting charm piece: " << xsec_charm
-			   << " / out of " << xsec << ", at E = " << E;
-#endif
-    xsec = TMath::Max(0., xsec - xsec_charm);
-  }
-  
   return xsec;
 }
 //____________________________________________________________________________
