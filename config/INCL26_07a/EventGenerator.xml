@@ -276,17 +276,21 @@ XSecModel                   alg     Yes  Cross section model used at the thread 
   </param_set>
 
   <param_set name="QEL-CC-LAMBDA">
+     <!-- 2026-08-24: the stock VertexGenerator/Default + FermiMover/Default pair was replaced by
+          NucleusGenerator/Default (= NucleusGenHybridStruck: INCL vertex + INCLNucleus::reset + FermiMover/Default),
+          the same initial-state module used by QEL-NC/RES/DIS in this tune. Without it INCLCascadeIntranuke ran the
+          cascade on the previous event's stale INCL nucleus for every nubar CC hyperon event -> BaryonNumberConservation
+          exit(1) (or a segfault on a dangling hit-nucleon pointer), killing the whole job. -->
      <param type="string" name="VldContext"> </param>
-     <param type="int"    name="NModules">   9                                                    </param>
+     <param type="int"    name="NModules">   8                                                    </param>
      <param type="alg"    name="Module-0">   genie::InitialStateAppender/Default                  </param>
-     <param type="alg"    name="Module-1">   genie::VertexGenerator/Default                       </param>
-     <param type="alg"    name="Module-2">   genie::FermiMover/Default                            </param>
-     <param type="alg"    name="Module-3">   genie::QELKinematicsGenerator/CC-Lambda-Default       </param>
-     <param type="alg"    name="Module-4">   genie::QELPrimaryLeptonGenerator/Default             </param>
-     <param type="alg"    name="Module-5">   genie::QELHadronicSystemGenerator/Default            </param>
-     <param type="alg"    name="Module-6">   genie::NucDeExcitationSim/Default                    </param>
-     <param type="alg"    name="Module-7">   genie::HadronTransporter/Default                     </param>
-     <param type="alg"    name="Module-8">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
+     <param type="alg"    name="Module-1">   genie::NucleusGenerator/Default                      </param>
+     <param type="alg"    name="Module-2">   genie::QELKinematicsGenerator/CC-Lambda-Default       </param>
+     <param type="alg"    name="Module-3">   genie::QELPrimaryLeptonGenerator/Default             </param>
+     <param type="alg"    name="Module-4">   genie::QELHadronicSystemGenerator/Default            </param>
+     <param type="alg"    name="Module-5">   genie::NucDeExcitationSim/Default                    </param>
+     <param type="alg"    name="Module-6">   genie::HadronTransporter/Default                     </param>
+     <param type="alg"    name="Module-7">   genie::UnstableParticleDecayer/AfterHadronTransport  </param>
      <param type="alg"    name="ILstGen">    genie::QELInteractionListGenerator/CC-Lambda-Default  </param>
   </param_set>
 

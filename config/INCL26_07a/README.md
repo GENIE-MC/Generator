@@ -34,6 +34,14 @@ tune id `INCL26_07a_00_000`.
    `QELEventGeneratorSM/Default` does not feed the INCL cascade. `QELEventGeneratorINCL`
    and `NucleusGenHybridStruck` resolve from the global `$GENIE/config` (SF26_22b's
    local copies are byte-identical), so only `EventGenerator.xml` is needed locally.
+   **2026-08-24:** the `QEL-CC-LAMBDA` thread (nubar CC quasi-elastic hyperon
+   production, Lambda/Sigma0/Sigma-) now uses `genie::NucleusGenerator/Default`
+   (= `NucleusGenHybridStruck`: INCL vertex + `INCLNucleus::reset` + `FermiMover/Default`,
+   the same initial-state module as QEL-NC/RES/DIS) instead of the stock
+   `VertexGenerator/Default` + `FermiMover/Default`. The stock pair never re-initialises
+   the INCL nucleus, so every hyperon event ran the cascade on the previous event's stale
+   nucleus and killed the job (`BaryonNumberConservation` exit(1), or a segfault on the
+   dangling hit-nucleon pointer) — ~7.5e-4 per rockbox spill.
  - `TuneGeneratorList.xml` — dropped the two charm threads (`DIS-CC-CHARM`,
    `QEL-CC-CHARM`); `NGenerators` 18 -> 16, generators renumbered contiguously.
  - `NucDeExcitationSim.xml` — `DoCarbon`/`DoArgon` set to false (2026-08-24).
