@@ -111,10 +111,8 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   double g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
   if (proc_info.IsEM()) {
     g2 = kAem2 * kPi2 / (2.0 * fSin48w * Q4);
-  } else if (proc_info.IsWeakCC()) {
+  } else if (proc_info.IsWeakCC() || proc_info.IsWeakNC()) {
     g2 = kGF2 * kMw2 * kMw2 / TMath::Power((Q2 + kMw2), 2);
-  } else if (proc_info.IsWeakNC()) {
-    g2 = kGF2 * kMz2 * kMz2 / TMath::Power((Q2 + kMz2), 2);
   } else {
     LOG("DISPXSec", pWARN) << "Requesting cross section for neither CC nor NC nor EM " << proc_info.InteractionTypeAsString() <<  "!";
   }
@@ -128,7 +126,7 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   double term5 = -1. * ml2 / (Mnuc * E);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pDEBUG) << "\nd2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2
+  LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2
                           << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
                           << term5 << ")*F5";
 #endif
@@ -138,12 +136,15 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   term3 *= fDISSF.F3();
   term4 *= fDISSF.F4();
   term5 *= fDISSF.F5();
-
+  LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy ~ "<< front_factor<<"*((" << term1 << ")*F1+(" << term2
+                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
+                          << term5 << ")*F5)";
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
+  //LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy = " << xsec;
   xsec = TMath::Max(xsec, 0.);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN] (E= " << E << ", x= " << x
+  LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy[FreeN] (E= " << E << ", x= " << x
                          << ", y= " << y << ") = " << xsec;
 #endif
 

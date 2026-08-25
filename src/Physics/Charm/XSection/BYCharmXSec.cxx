@@ -33,6 +33,9 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
  // Get kinematical & init-state parameters
   const Kinematics &kinematics = interaction->Kine();
   const ProcessInfo &proc_info = interaction->ProcInfo();
+  if (!proc_info.IsWeakCC()){
+    return 0.;
+  }
 
   double E = init_state.ProbeE(kRfHitNucRest);
   double ml = interaction->FSPrimLepton()->Mass();
@@ -44,9 +47,6 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double ml2 = ml * ml;
   double ml4 = ml2 * ml2;
   double Mnuc2 = Mnuc * Mnuc;
-
-
-
 
   bool is_nubar_cc =
       pdg::IsAntiNeutrino(init_state.ProbePdg()) && proc_info.IsWeakCC();
@@ -70,32 +70,28 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double term3 = sign * (x * y * (1 - y / 2) - y * ml2 / (4 * Mnuc * E));
   double term4 = x * y * ml2 / (2 * Mnuc * E) + ml4 / (4 * Mnuc2 * E2);
   double term5 = -1. * ml2 / (Mnuc * E);
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2
+                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
+                          << term5 << ")*F5";
+#endif
   term1 *= fF1;
   term2 *= fF2;
   term3 *= fF3;
   term4 *= fF4;
   term5 *= fF5;
-
+  LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy ~ "<< front_factor<<"*((" << term1 << ")*F1+(" << term2
+                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
+                          << term5 << ")*F5)";
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
+  //LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy = " << xsec;
   xsec = TMath::Max(xsec, 0.);
 
   if (kps != kPSxyfE) {
     double J = utils::kinematics::Jacobian(interaction, kPSxyfE, kps);
     xsec *= J;
   }
-
-  if (interaction->TestBit(kIAssumeFreeNucleon))
-    return xsec;
-
-  const Target &target = init_state.Tgt();
-  int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
-  xsec *= NNucl;
-  if( proc_info.IsWeakCC() )  xsec *= fCCScale;
-
   return xsec;
-
 }
 
 void BYCharmXSec::Configure(const Registry & config)
@@ -191,32 +187,22 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   if ( !is_p && !is_n       ) return;
   if ( tgt.N() == 0 && is_n ) return;
   if ( tgt.Z() == 0 && is_p ) return;
+  if ( !is_CC ) {return; }
 
-  // Flags switching on/off quark contributions so that this algorithm can be
-  // used for both l + N -> l' + X, and l + q -> l' + q' level calculations
 
-  double switch_uv    = 1.;
-  double switch_us    = 1.;
-  double switch_ubar  = 1.;
-  double switch_dv    = 1.;
-  double switch_ds    = 1.;
-  double switch_dbar  = 1.;
-  double switch_s     = 1.;
-  double switch_sbar  = 1.;
-  double switch_c     = 1.;
-  double switch_cbar  = 1.;
+  double switch_uv    = 0.;
+  double switch_us    = 0.;
+  double switch_ubar  = 0.;
+  double switch_dv    = 0.;
+  double switch_ds    = 0.;
+  double switch_dbar  = 0.;
+  double switch_s     = 0.;
+  double switch_sbar  = 0.;
+  double switch_c     = 0.;
+  double switch_cbar  = 0.;
+
   if(tgt.HitQrkIsSet()) {
 
-     switch_uv    = 0.;
-     switch_us    = 0.;
-     switch_ubar  = 0.;
-     switch_dv    = 0.;
-     switch_ds    = 0.;
-     switch_dbar  = 0.;
-     switch_s     = 0.;
-     switch_sbar  = 0.;
-     switch_c     = 0.;
-     switch_cbar  = 0.;
 
      int  qpdg = tgt.HitQrkPdg();
      bool sea  = tgt.HitSeaQrk();
@@ -365,8 +351,11 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  fDISSFModel->Calculate(interaction);
   LOG("BYCharm", pNOTICE)
      << "F1-F5 = "
-     << fF1 << ", " << fF2 << ", " << fF3 << ", " << fF4 << ", " << fF5;
+     << fF1 << " (" << fDISSFModel->F1() << "), " << fF2 << " (" << fDISSFModel->F2() 
+     << "), " << fF3  << " (" << fDISSFModel->F3() <<"), " << fF4 <<  " (" << fDISSFModel->F4() << "), " 
+     << fF5 << " (" << fDISSFModel->F5() << ")";
 #endif
 }

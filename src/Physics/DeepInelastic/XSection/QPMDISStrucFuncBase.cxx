@@ -176,29 +176,18 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   // Flags switching on/off quark contributions so that this algorithm can be
   // used for both l + N -> l' + X, and l + q -> l' + q' level calculations
 
-  double switch_uv    = 1.;
-  double switch_us    = 1.;
-  double switch_ubar  = 1.;
-  double switch_dv    = 1.;
-  double switch_ds    = 1.;
-  double switch_dbar  = 1.;
-  double switch_s     = 1.;
-  double switch_sbar  = 1.;
-  double switch_c     = 1.;
-  double switch_cbar  = 1.;
+  double switch_uv    = 0.;
+  double switch_us    = 0.;
+  double switch_ubar  = 0.;
+  double switch_dv    = 0.;
+  double switch_ds    = 0.;
+  double switch_dbar  = 0.;
+  double switch_s     = 0.;
+  double switch_sbar  = 0.;
+  double switch_c     = 0.;
+  double switch_cbar  = 0.;
 
   if(tgt.HitQrkIsSet()) {
-
-     switch_uv    = 0.;
-     switch_us    = 0.;
-     switch_ubar  = 0.;
-     switch_dv    = 0.;
-     switch_ds    = 0.;
-     switch_dbar  = 0.;
-     switch_s     = 0.;
-     switch_sbar  = 0.;
-     switch_c     = 0.;
-     switch_cbar  = 0.;
 
      int  qpdg = tgt.HitQrkPdg();
      bool sea  = tgt.HitSeaQrk();
