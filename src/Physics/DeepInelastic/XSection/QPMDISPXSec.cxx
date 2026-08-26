@@ -126,9 +126,25 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   double term5 = -1. * ml2 / (Mnuc * E);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2
-                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
-                          << term5 << ")*F5";
+  LOG("DISPXSec", pNOTICE)
+    << "DIS d2xsec/dxdy terms:\n"
+    << "  x       = " << x << "\n"
+    << "  y       = " << y << "\n"
+    << "  E       = " << E << "\n"
+    << "  Mnuc    = " << Mnuc << "\n"
+    << "  ml2     = " << ml2 << "\n"
+    << "  ml4     = " << ml4 << "\n"
+    << "  sign    = " << sign << "\n"
+    << "  F1      = " << fDISSF.F1() << "\n"
+    << "  F2      = " << fDISSF.F2() << "\n"
+    << "  F3      = " << fDISSF.F3() << "\n"
+    << "  F4      = " << fDISSF.F4() << "\n"
+    << "  F5      = " << fDISSF.F5() << "\n"
+    << "  coeff1  = " << term1 << "\n"
+    << "  coeff2  = " << term2 << "\n"
+    << "  coeff3  = " << term3 << "\n"
+    << "  coeff4  = " << term4 << "\n"
+    << "  coeff5  = " << term5 << "\n";
 #endif
 
   term1 *= fDISSF.F1();
@@ -136,11 +152,22 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   term3 *= fDISSF.F3();
   term4 *= fDISSF.F4();
   term5 *= fDISSF.F5();
-  LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy ~ "<< front_factor<<"*((" << term1 << ")*F1+(" << term2
-                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
-                          << term5 << ")*F5)";
+
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
-  //LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy = " << xsec;
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("DISPXSec", pNOTICE)
+    << "DIS d2xsec/dxdy contributions:\n"
+    << "  front_factor = " << front_factor << "\n"
+    << "  term1*F1     = " << term1 << "\n"
+    << "  term2*F2     = " << term2 << "\n"
+    << "  term3*F3     = " << term3 << "\n"
+    << "  term4*F4     = " << term4 << "\n"
+    << "  term5*F5     = " << term5 << "\n"
+    << "  sum          = " << (term1 + term2 + term3 + term4 + term5) << "\n"
+    << "  xsec         = " << xsec;
+#endif
+  
   xsec = TMath::Max(xsec, 0.);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -163,11 +190,15 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   if( !fCharmOff ) {
     interaction->ExclTagPtr()->SetCharm();
     double xsec_charm = fCharmProdModel->XSec(interaction, kps);
+    if (kps != kPSxyfE) {
+      double J = utils::kinematics::Jacobian(interaction, kPSxyfE, kps);
+      xsec_charm *= J;
+  }
     interaction->ExclTagPtr()->UnsetCharm();
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISPXSec", pNOTICE) << "Subtracting charm piece: " << xsec_charm
 			   << " / out of " << xsec << ", at E = " << E;
-#endif
+//#endif
     xsec = TMath::Max(0., xsec - xsec_charm);
   }
   // Compute nuclear cross section (simple scaling here, corrections must

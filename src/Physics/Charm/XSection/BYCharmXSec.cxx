@@ -71,19 +71,37 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   double term4 = x * y * ml2 / (2 * Mnuc * E) + ml4 / (4 * Mnuc2 * E2);
   double term5 = -1. * ml2 / (Mnuc * E);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2
-                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
-                          << term5 << ")*F5";
+  LOG("BYCharmXSec", pNOTICE)
+    << "DIS d2xsec/dxdy terms:\n"
+    << "  x       = " << x << "\n"
+    << "  y       = " << y << "\n"
+    << "  E       = " << E << "\n"
+    << "  Mnuc    = " << Mnuc << "\n"
+    << "  ml2     = " << ml2 << "\n"
+    << "  ml4     = " << ml4 << "\n"
+    << "  sign    = " << sign << "\n"
+    << "  F1      = " << fF1 << "\n"
+    << "  F2      = " << fF2 << "\n"
+    << "  F3      = " << fF3 << "\n"
+    << "  F4      = " << fF4 << "\n"
+    << "  F5      = " << fF5 << "\n"
+    << "  coeff1  = " << term1 << "\n"
+    << "  coeff2  = " << term2 << "\n"
+    << "  coeff3  = " << term3 << "\n"
+    << "  coeff4  = " << term4 << "\n"
+    << "  coeff5  = " << term5 << "\n";
 #endif
   term1 *= fF1;
   term2 *= fF2;
   term3 *= fF3;
   term4 *= fF4;
   term5 *= fF5;
-  LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy ~ "<< front_factor<<"*((" << term1 << ")*F1+(" << term2
-                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
-                          << term5 << ")*F5)";
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy ~ "<< front_factor << " (=" << g2 << "*" << Mnuc << "*"<<E << "/"<< kPi << ")*((" << term1 << ")+(" << term2
+                          << ")+(" << term3 << ")+(" << term4 << ")+("
+                          << term5 << ")) = " << xsec;
+#endif  
   //LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy = " << xsec;
   xsec = TMath::Max(xsec, 0.);
 
@@ -167,6 +185,14 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   // Check whether it is above charm threshold
   bool above_charm = utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fDISSFModel->fMc);
   if (!above_charm){
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+      double M2_   = TMath::Power(M,2);
+      double v_    = 0.5*Q2val/(M*x);
+      double W2_   = TMath::Max(0., M2_+2*M*v_-Q2val);
+      double W_    = TMath::Sqrt(W2_);
+      double Wmin_ = M + kLightestChmHad;
+    LOG("BYCharm", pNOTICE) << "Below Charm: x = " << x << " Q2 = " <<  Q2val << " M = " <<  M << " M_C = " << fDISSFModel->fMc << " W = " << W_ << " < Wmin " << Wmin_;
+#endif
     return;
   }
   fDISSFModel->CalcPDFs(interaction);
@@ -182,13 +208,31 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
   bool is_lepton   = pdg::IsLepton       ( probe_pdgc  );
   bool is_CC       = proc_info.IsWeakCC();
+  bool early_return =
+      (!is_nu && !is_nubar) ||
+      (!is_p && !is_n) ||
+      (tgt.N() == 0 && is_n) ||
+      (tgt.Z() == 0 && is_p) ||
+      (!is_CC);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BYCharm", pNOTICE)
+    << "DIS early-return checks:\n"
+    << "  is_nu = " << is_nu << "\n"
+    << "  is_nubar = " << is_nubar << "\n"    
+    << "  is_p  = " << is_p << "\n"
+    << "  is_n  = " << is_n << "\n"
+    << "  is_CC = " << is_CC << "\n"
+    << "  tgt.N() = " << tgt.N() << "\n"
+    << "  tgt.Z() = " << tgt.Z() << "\n"
+    << "  !is_nu && !is_nubar = " << (!is_nu && !is_nubar) << "\n"
+    << "  !is_p && !is_n   = " << (!is_p && !is_n) << "\n"
+    << "  tgt.N()==0 && is_n = " << (tgt.N() == 0 && is_n) << "\n"
+    << "  tgt.Z()==0 && is_p = " << (tgt.Z() == 0 && is_p) << "\n"
+    << "  !is_CC = " << (!is_CC)
+    << "  TOTAL EARLY RETURN     = " << (early_return ? "True" : "False");
+#endif
 
-  if ( !is_nu || !is_nu) return;
-  if ( !is_p && !is_n       ) return;
-  if ( tgt.N() == 0 && is_n ) return;
-  if ( tgt.Z() == 0 && is_p ) return;
-  if ( !is_CC ) {return; }
-
+  if (early_return) return;
 
   double switch_uv    = 0.;
   double switch_us    = 0.;
@@ -238,6 +282,9 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
     if(is_nubar && is_CC && is_d   ) return;
     if(is_nubar && is_CC && is_s   ) return;
   } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BYCharm", pNOTICE) << "Target not set";
+#endif
     return;
   }
 
@@ -245,14 +292,16 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   // Applying all PDF K-factors abd scaling variable corrections
 
   fDISSFModel -> CalcPDFs (interaction);
-  bool hasCharmContribution = (fDISSFModel->fdv_c * switch_dv   > 0) 
-   || (fDISSFModel->fds_c * switch_ds   > 0) || (fDISSFModel->fs_c  * switch_s    > 0) 
-   || (fDISSFModel->fc_c  * switch_cbar > 0) || (fDISSFModel->fc_c  * switch_c    > 0)
-   || (fDISSFModel->fds_c * switch_dbar > 0) || (fDISSFModel->fs_c  * switch_sbar > 0);
-  if (!hasCharmContribution){
-    return;
-  }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("BYCharm", pNOTICE) << "Charm contribution: " 
+   << " dv "   << fDISSFModel->fdv_c << " " << switch_dv   << " "
+   << " ds "   << fDISSFModel->fds_c << " " << switch_ds   << " " 
+   << " s "    << fDISSFModel->fs_c  << " " << switch_s    << " " 
+   << " cbar " << fDISSFModel->fc_c  << " " << switch_cbar << " " 
+   << " c "    << fDISSFModel->fc_c  << " " << switch_c    << " "
+   << " dbar " << fDISSFModel->fds_c << " " << switch_dbar << " " 
+   << " sbar " << fDISSFModel->fs_c  << " " << switch_sbar << " ";
+#endif
   // KCH = 1 if below charm threshold
   double KCH = 1.0;
   KCH = fDISSFModel->KCharm(interaction, fDISSFModel->fMc);  

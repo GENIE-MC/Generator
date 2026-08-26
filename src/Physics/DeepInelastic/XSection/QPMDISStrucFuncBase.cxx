@@ -226,9 +226,18 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Applying all PDF K-factors abd scaling variable corrections
-
   this -> CalcPDFs (interaction);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("DISSF", pNOTICE) << "Contribution: " 
+   << " dv "   << fdv_c << " " << switch_dv   << " "
+   << " ds "   << fds_c << " " << switch_ds   << " " 
+   << " s "    << fs_c  << " " << switch_s    << " " 
+   << " cbar " << fc_c  << " " << switch_cbar << " " 
+   << " c "    << fc_c  << " " << switch_c    << " "
+   << " dbar " << fds_c << " " << switch_dbar << " " 
+   << " sbar " << fs_c  << " " << switch_sbar << " ";
 
+#endif
   // In the case of Charm CC DIS, we need a different treatment 
   bool hasCharmContribution = (fdv_c * switch_dv   > 0) 
    || (fds_c * switch_ds   > 0) || (fs_c  * switch_s    > 0) 
