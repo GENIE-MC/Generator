@@ -16,7 +16,7 @@
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 */
 //____________________________________________________________________________
 
@@ -61,16 +61,14 @@ private:
   const XSecIntegratorI *      fXSecIntegrator;   ///<
   double                       fCos8c2;           ///< cos^2(cabibbo angle)
 
-  double                       fXSecCCScale;        ///< external xsec scaling factor for CC 
+  double                       fXSecCCScale;        ///< external xsec scaling factor for CC
   double                       fXSecNCScale;        ///< external xsec scaling factor for NC
   double                       fXSecEMScale;        ///< external xsec scaling factor for EM
 
   // Variables for integrating
   const NuclearModelI *        fNuclModel;
-  bool   fLFG;                         ///< If the nuclear model is lfg alway average over nucleons
+  bool   fLFG;                         ///< If the nuclear model is lfg always average over nucleons
   bool   fDoAvgOverNucleonMomentum;    ///< Average cross section over hit nucleon monentum?
-  double fEnergyCutOff;                ///< Average only for energies below this cutoff defining
-                                       ///< the region where nuclear modeling details do matter
 
   /// Enum specifying the method to use when calculating the binding energy of
   /// the initial hit nucleon during spline generation
