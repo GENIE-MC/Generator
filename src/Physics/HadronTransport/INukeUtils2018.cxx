@@ -631,6 +631,7 @@ void genie::utils::intranuke2018::PreEquilibrium(
   // decay a clone particle
   GHepParticle * t = new GHepParticle(*(ev->Particle(f_loc)));
   t->SetFirstMother(f_loc);
+  t->SetLastMother(-1);  // in case mother had 2 mothers
   //next statement was in Alex Bell's original code - PreEq, then Equilibrium using particle with highest energy.  Note it gets IST=kIStIntermediateState.
   //genie::utils::intranuke2018::Equilibrium(ev,t,RemnA,RemnZ,RemnP4,DoFermi,FermiFac,Nuclmodel,NucRmvE,mode);
 

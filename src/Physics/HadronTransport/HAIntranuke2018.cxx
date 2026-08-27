@@ -3,7 +3,6 @@
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
-
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
          Alex Bell, Pittsburgh Univ.

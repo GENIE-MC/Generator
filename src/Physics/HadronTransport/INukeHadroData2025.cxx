@@ -2,7 +2,6 @@
 /*
  Copyright (c) 2003-2024, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
