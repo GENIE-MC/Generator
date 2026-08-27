@@ -793,7 +793,7 @@ void HAIntranuke2025::Inelastic(
       GHepParticle s3(*p);
 
       bool success = utils::intranuke2025::PionProduction(
-         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel);
+         ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4, fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel,fPiProdThreeBodyBias);
 
       if (success){
         LOG ("HAIntranuke2025",pINFO) << " successful pion production fate";
@@ -1584,6 +1584,8 @@ void HAIntranuke2025::LoadConfig(void)
   GetParamDef( "FSI-Nucleon-FracAbsScale",       fNucleonFracAbsScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-FracPiProdScale",    fNucleonFracPiProdScale, 1.0 ) ;
 
+  GetParamDef( "FSI-PiProd-ThreeBodyBias", fPiProdThreeBodyBias, 0.0 );
+
   // report
   LOG("HAIntranuke2025", pINFO) << "Settings for INTRANUKE mode: " << INukeMode::AsString(kIMdHA);
   LOG("HAIntranuke2025", pINFO) << "R0          = " << fR0 << " fermi";
@@ -1599,6 +1601,7 @@ void HAIntranuke2025::LoadConfig(void)
   LOG("HAIntranuke2025", pINFO) << "DoFermi?    = " << ((fDoFermi)?(true):(false));
   LOG("HAIntranuke2025", pINFO) << "DoCmpndNuc? = " << ((fDoCompoundNucleus)?(true):(false));
   LOG("HAIntranuke2025", pINFO) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
+  LOG("HAIntranuke2025", pINFO) << "PiProdBias = " << fPiProdThreeBodyBias;
 }
 //___________________________________________________________________________
 /*
