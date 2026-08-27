@@ -114,6 +114,7 @@
   <priority msgstream="GLRES">                 FATAL </priority>
   <priority msgstream="HadTransp">             FATAL </priority>
   <priority msgstream="HadronicVtx">           FATAL </priority>
+  <priority msgstream="HadronTensors">         FATAL   </priority>
   <priority msgstream="HybridHad">             FATAL </priority>
   <priority msgstream="IBD">                   FATAL </priority>
   <priority msgstream="IMDXSec">               FATAL </priority>
@@ -182,6 +183,7 @@
   <priority msgstream="QELEvent">              FATAL </priority>
   <priority msgstream="QELHadronicVtx">        FATAL </priority>
   <priority msgstream="QELKinematics">         FATAL </priority>
+  <priority msgstream="UnifiedQE">             FATAL   </priority>
   <priority msgstream="SPPEventGen">           FATAL  </priority>
   <priority msgstream="RESXSec">               FATAL </priority>
   <priority msgstream="RESPXSec">              FATAL </priority>
@@ -227,6 +229,7 @@
   <priority msgstream="HEDISKinematics">       FATAL </priority>
   <priority msgstream="HEDISStrucFunc">        FATAL </priority>
   <priority msgstream="LeptoHad">              FATAL </priority>
+  <priority msgstream="LeptonTensor">          FATAL   </priority>
 
   <priority msgstream="gevgen">              FATAL </priority>
   <priority msgstream="gevgen_dm">           FATAL </priority>
