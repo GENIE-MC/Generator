@@ -227,6 +227,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Applying all PDF K-factors abd scaling variable corrections
   this -> CalcPDFs (interaction);
+  fPDFc->Print(std::cout);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pNOTICE) << "Contribution: " 
    << " dv "   << fdv_c << " " << switch_dv   << " "
@@ -287,7 +288,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   //
 
   double F2val=0, xF3val=0;
-
+  
   // ***  NEUTRAL CURRENT
 
   // Include DM in NC
@@ -640,7 +641,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   fds_c = nucScale * fPDFc -> DownSea();     // ...
   fs_c  = nucScale * fPDFc -> Strange();     // ...
   fc_c  = nucScale * fPDFc -> Charm();       // ...
-
+  
   // The above are the proton parton density function. Get the PDFs for the
   // hit nucleon (p or n) by swapping u<->d if necessary
 

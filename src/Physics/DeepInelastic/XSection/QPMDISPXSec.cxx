@@ -128,6 +128,7 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISPXSec", pNOTICE)
     << "DIS d2xsec/dxdy terms:\n"
+    << "  Q2      = " << interaction->Kine().Q2() << "\n"
     << "  x       = " << x << "\n"
     << "  y       = " << y << "\n"
     << "  E       = " << E << "\n"
@@ -190,10 +191,6 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   if( !fCharmOff ) {
     interaction->ExclTagPtr()->SetCharm();
     double xsec_charm = fCharmProdModel->XSec(interaction, kps);
-    if (kps != kPSxyfE) {
-      double J = utils::kinematics::Jacobian(interaction, kPSxyfE, kps);
-      xsec_charm *= J;
-  }
     interaction->ExclTagPtr()->UnsetCharm();
 //#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISPXSec", pNOTICE) << "Subtracting charm piece: " << xsec_charm

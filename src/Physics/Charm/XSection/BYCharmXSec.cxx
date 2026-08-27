@@ -73,6 +73,7 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BYCharmXSec", pNOTICE)
     << "DIS d2xsec/dxdy terms:\n"
+    << "  Q2      = " << interaction->Kine().Q2() << "\n"
     << "  x       = " << x << "\n"
     << "  y       = " << y << "\n"
     << "  E       = " << E << "\n"
@@ -98,9 +99,16 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   term5 *= fF5;
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy ~ "<< front_factor << " (=" << g2 << "*" << Mnuc << "*"<<E << "/"<< kPi << ")*((" << term1 << ")+(" << term2
-                          << ")+(" << term3 << ")+(" << term4 << ")+("
-                          << term5 << ")) = " << xsec;
+  LOG("BYCharmXSec", pNOTICE)
+    << "DIS d2xsec/dxdy contributions:\n"
+    << "  front_factor = " << front_factor << "\n"
+    << "  term1*F1     = " << term1 << "\n"
+    << "  term2*F2     = " << term2 << "\n"
+    << "  term3*F3     = " << term3 << "\n"
+    << "  term4*F4     = " << term4 << "\n"
+    << "  term5*F5     = " << term5 << "\n"
+    << "  sum          = " << (term1 + term2 + term3 + term4 + term5) << "\n"
+    << "  xsec         = " << xsec;
 #endif  
   //LOG("BYCharmXSec", pNOTICE) << "d2xsec/dxdy = " << xsec;
   xsec = TMath::Max(xsec, 0.);
@@ -196,7 +204,7 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
     return;
   }
   fDISSFModel->CalcPDFs(interaction);
-
+  fDISSFModel->fPDFc->Print(std::cout);
   // Get process info & perform various checks
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
 
@@ -291,7 +299,6 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Applying all PDF K-factors abd scaling variable corrections
 
-  fDISSFModel -> CalcPDFs (interaction);
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BYCharm", pNOTICE) << "Charm contribution: " 
    << " dv "   << fDISSFModel->fdv_c << " " << switch_dv   << " "
