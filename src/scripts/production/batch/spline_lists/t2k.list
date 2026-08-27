@@ -7,7 +7,7 @@
 50
 
 # number of knots (logaritmically spaced from threshold to maximum energy)
-400
+100
 
 # list of neutrino PDG codes
  12 # nue
