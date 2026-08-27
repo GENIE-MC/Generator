@@ -1,57 +1,46 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
- For the full text of the license visit http://copyright.genie-mc.org
+  Copyright (c) 2003-2025, The GENIE Collaboration
+  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <c.andreopoulos \at cern.ch>
- University of Liverpool
+  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+  University of Liverpool
 */
 //____________________________________________________________________________
 
-#include <TMath.h>
+#include "Math/AdaptiveIntegratorMultiDim.h"
 #include <Math/IFunction.h>
 #include <Math/IntegratorMultiDim.h>
-#include "Math/AdaptiveIntegratorMultiDim.h"
+#include <TMath.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Framework/Conventions/GBuild.h"
-#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Conventions/Controls.h"
+#include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Units.h"
-#include "Physics/DeepInelastic/XSection/DISXSec.h"
-#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/Numerical/GSLUtils.h"
+#include "Framework/Numerical/MathUtils.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
-#include "Framework/Utils/RunOpt.h"
-#include "Framework/Numerical/MathUtils.h"
-#include "Framework/Utils/Range1.h"
 #include "Framework/Utils/Cache.h"
 #include "Framework/Utils/CacheBranchFx.h"
+#include "Framework/Utils/Range1.h"
+#include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/XSecSplineList.h"
-#include "Framework/Numerical/GSLUtils.h"
+#include "Physics/DeepInelastic/XSection/DISXSec.h"
+#include "Physics/XSectionIntegration/GSLXSecFunc.h"
 
 using namespace genie;
 using namespace genie::controls;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-DISXSec::DISXSec() :
-XSecIntegratorI("genie::DISXSec")
-{
-
-}
+DISXSec::DISXSec() : XSecIntegratorI("genie::DISXSec") {}
 //____________________________________________________________________________
-DISXSec::DISXSec(string config) :
-XSecIntegratorI("genie::DISXSec", config)
-{
-
-}
+DISXSec::DISXSec(string config) : XSecIntegratorI("genie::DISXSec", config) {}
 //____________________________________________________________________________
-DISXSec::~DISXSec()
-{
-
-}
+DISXSec::~DISXSec() {}
 //____________________________________________________________________________
 double DISXSec::Integrate(
                  const XSecAlgorithmI * model, const Interaction * in) const
@@ -77,7 +66,7 @@ double DISXSec::Integrate(
   // If yes, calculate the nuclear cross section based on that value.
   //
   XSecSplineList * xsl = XSecSplineList::Instance();
-  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() ) {
+  if(init_state.Tgt().IsNucleus() && !xsl->IsEmpty() && !fDISNuclCorr ) {
     Interaction * interaction = new Interaction(*in);
     Target * target = interaction->InitStatePtr()->TgtPtr();
     if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
@@ -104,7 +93,7 @@ double DISXSec::Integrate(
   // at any subsequent call.
   //
   bool precalc_bare_xsec = RunOpt::Instance()->BareXSecPreCalc();
-  if(precalc_bare_xsec) {
+  if(precalc_bare_xsec && ( !fDISNuclCorr || !init_state.Tgt().IsNucleus() )) {
      Cache * cache = Cache::Instance();
      Interaction * interaction = new Interaction(*in);
      string key = this->CacheBranchName(model,interaction);
@@ -130,9 +119,8 @@ double DISXSec::Integrate(
     //
      Interaction * interaction = new Interaction(*in);
      interaction->SetBit(kISkipProcessChk);
-//   interaction->SetBit(kISkipKinematicChk);
 
-     // **Important note**
+     // **Important note** - TO DISCUSS !!
      // Based on discussions with Hugh at the GENIE mini-workshop / RAL - July '07
      // The DIS nuclear corrections re-distribute the strength in x,y but do not
      // affect the total cross-section They should be disabled at this step.
@@ -140,15 +128,16 @@ double DISXSec::Integrate(
      // Since nuclear corrections don't need to be included at this stage, all the
      // nuclear cross sections can be trivially built from the free nucleon ones.
      //
-     interaction->SetBit(kINoNuclearCorrection);
+     if( !fDISNuclCorr ) interaction->SetBit(kINoNuclearCorrection);
 
      Range1D_t Wl  = kps.WLim();
      Range1D_t Q2l = kps.Q2Lim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__     
      LOG("DISXSec", pINFO)
             << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
      LOG("DISXSec", pINFO)
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
-
+#endif
      bool phsp_ok =
           (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
             Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
@@ -163,6 +152,14 @@ double DISXSec::Integrate(
 
        double abstol = 1; //We mostly care about relative tolerance.
        ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+
+      if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+          ROOT::Math::AdaptiveIntegratorMultiDim * cast =
+	        dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
+        assert(cast);
+        cast->SetMinPts(fGSLMinEval);
+      }
+
        double kine_min[2] = { Wl.min, Q2l.min };
        double kine_max[2] = { Wl.max, Q2l.max };
        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
@@ -178,151 +175,156 @@ double DISXSec::Integrate(
   return 0;
 }
 //____________________________________________________________________________
-void DISXSec::Configure(const Registry & config)
-{
+void DISXSec::Configure(const Registry &config) {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISXSec::Configure(string config)
-{
+void DISXSec::Configure(string config) {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void DISXSec::LoadConfig(void)
-{
+void DISXSec::LoadConfig(void) {
   // Get GSL integration type & relative tolerance
-  GetParamDef("gsl-integration-type", fGSLIntgType, string("adaptive") ) ;
-  GetParamDef( "gsl-relative-tolerance", fGSLRelTol, 1E-2 ) ;
+  GetParamDef("gsl-integration-type", fGSLIntgType, string("adaptive"));
+  GetParamDef("gsl-relative-tolerance", fGSLRelTol, 1E-2);
 
-  int max_eval, min_eval ;
-  GetParamDef( "gsl-max-eval", max_eval, 500000 ) ;
-  GetParamDef( "gsl-min-eval", min_eval, 10000 ) ;
+  int max_eval, min_eval;
+  GetParamDef("gsl-max-eval", max_eval, 500000);
+  GetParamDef("gsl-min-eval", min_eval, 10000);
 
-  fGSLMaxEval  = (unsigned int) max_eval ;
-  fGSLMinEval  = (unsigned int) min_eval ;
+  fGSLMaxEval = (unsigned int)max_eval;
+  fGSLMinEval = (unsigned int)min_eval;
 
   // Energy range for cached splines
-  GetParam( "GVLD-Emin", fVldEmin) ;
-  GetParam( "GVLD-Emax", fVldEmax) ;
+  GetParam("GVLD-Emin", fVldEmin);
+  GetParam("GVLD-Emax", fVldEmax);
 
+  // This is set to false by default for historical reasons.
+  // The new option set this to true which distorts sigma/E
+  // Set this to false to keep the historical behavior flat sigma/E
+  GetParamDef("DIS-NuclCorr", fDISNuclCorr, false);
 }
 //____________________________________________________________________________
-void DISXSec::CacheFreeNucleonXSec(
-          const XSecAlgorithmI * model, const Interaction * interaction) const
-{
+void DISXSec::CacheFreeNucleonXSec(const XSecAlgorithmI *model,
+                                   const Interaction *interaction) const {
   LOG("DISXSec", pWARN)
       << "Wait while computing/caching free nucleon DIS xsections first...";
 
   // Create the cache branch
-  Cache * cache = Cache::Instance();
-  string key = this->CacheBranchName(model,interaction);
-  CacheBranchFx * cache_branch =
-           dynamic_cast<CacheBranchFx *> (cache->FindCacheBranch(key));
+  Cache *cache = Cache::Instance();
+  string key = this->CacheBranchName(model, interaction);
+  CacheBranchFx *cache_branch =
+      dynamic_cast<CacheBranchFx *>(cache->FindCacheBranch(key));
   assert(!cache_branch);
   cache_branch = new CacheBranchFx("DIS XSec");
   cache->AddCacheBranch(key, cache_branch);
 
   // Tweak interaction to be on a free nucleon target
-  Target * target = interaction->InitStatePtr()->TgtPtr();
+  Target *target = interaction->InitStatePtr()->TgtPtr();
   int nucpdgc = target->HitNucPdg();
-  if(pdg::IsProton(nucpdgc)) { target->SetId(kPdgTgtFreeP); }
-  else                       { target->SetId(kPdgTgtFreeN); }
+  if (pdg::IsProton(nucpdgc)) {
+    target->SetId(kPdgTgtFreeP);
+  } else {
+    target->SetId(kPdgTgtFreeN);
+  }
 
   // Compute threshold
-  const KPhaseSpace & kps = interaction->PhaseSpace();
+  const KPhaseSpace &kps = interaction->PhaseSpace();
   double Ethr = kps.Threshold();
 
   // Compute the number of spline knots - use at least 10 knots per decade
   // && at least 40 knots in the full energy range
-  const double Emin       = fVldEmin/3.;
-  const double Emax       = fVldEmax*3.;
-  const int    nknots_min = (int) (10*(TMath::Log(Emax) - TMath::Log(Emin)));
-  const int    nknots     = TMath::Max(40, nknots_min);
+  const double Emin = fVldEmin / 3.;
+  const double Emax = fVldEmax * 3.;
+  const int nknots_min = (int)(10 * (TMath::Log(Emax) - TMath::Log(Emin)));
+  const int nknots = TMath::Max(40, nknots_min);
 
   // Distribute the knots in the energy range as is being done in the
   // XSecSplineList so that the energy threshold is treated correctly
   // in the spline - see comments there in.
-  double * E = new double[nknots];
-  int nkb = (Ethr>Emin) ? 5 : 0; // number of knots <  threshold
-  int nka = nknots-nkb;          // number of knots >= threshold
+  double *E = new double[nknots];
+  int nkb = (Ethr > Emin) ? 5 : 0; // number of knots <  threshold
+  int nka = nknots - nkb;          // number of knots >= threshold
   // knots < energy threshold
-  double dEb =  (Ethr>Emin) ? (Ethr - Emin) / nkb : 0;
-  for(int i=0; i<nkb; i++) {
-      E[i] = Emin + i*dEb;
+  double dEb = (Ethr > Emin) ? (Ethr - Emin) / nkb : 0;
+  for (int i = 0; i < nkb; i++) {
+    E[i] = Emin + i * dEb;
   }
   // knots >= energy threshold
-  double E0  = TMath::Max(Ethr,Emin);
-  double dEa = (TMath::Log10(Emax) - TMath::Log10(E0)) /(nka-1);
-  for(int i=0; i<nka; i++) {
-      E[i+nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
+  double E0 = TMath::Max(Ethr, Emin);
+  double dEa = (TMath::Log10(Emax) - TMath::Log10(E0)) / (nka - 1);
+  for (int i = 0; i < nka; i++) {
+    E[i + nkb] = TMath::Power(10., TMath::Log10(E0) + i * dEa);
   }
 
   // Create the integrand
-  ROOT::Math::IBaseFunctionMultiDim * func =
-     new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
+  ROOT::Math::IBaseFunctionMultiDim *func =
+      new utils::gsl::d2XSec_dWdQ2_E(model, interaction);
 
   // Compute the cross section at the given set of knots
-  for(int ie=0; ie<nknots; ie++) {
+  for (int ie = 0; ie < nknots; ie++) {
     double Ev = E[ie];
-    TLorentzVector p4(0,0,Ev,Ev);
+    TLorentzVector p4(0, 0, Ev, Ev);
     interaction->InitStatePtr()->SetProbeP4(p4);
     double xsec = 0.;
     if(Ev>Ethr+kASmallNum) {
        Range1D_t Wl  = kps.WLim();
        Range1D_t Q2l = kps.Q2Lim();
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
        LOG("DISXSec", pINFO)
             << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
        LOG("DISXSec", pINFO)
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
-
+#endif
        bool phsp_ok =
           (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
             Wl.min >= 0. &&  Wl.max >= 0. &&  Wl.max >=  Wl.min);
 
-       if(phsp_ok) {
-         ROOT::Math::IntegrationMultiDim::Type ig_type =
-             utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
-         double abstol = 1; //We mostly care about relative tolerance.
-         ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol, fGSLMaxEval);
+      if (phsp_ok) {
+        ROOT::Math::IntegrationMultiDim::Type ig_type =
+            utils::gsl::IntegrationNDimTypeFromString(fGSLIntgType);
+        double abstol = 1; // We mostly care about relative tolerance.
+        ROOT::Math::IntegratorMultiDim ig(*func, ig_type, abstol, fGSLRelTol,
+                                          fGSLMaxEval);
 
-         if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
-            ROOT::Math::AdaptiveIntegratorMultiDim * cast =
-              dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim*>( ig.GetIntegrator() );
-            assert(cast);
-            cast->SetMinPts(fGSLMinEval);
-         }
+        if (ig_type == ROOT::Math::IntegrationMultiDim::kADAPTIVE) {
+          ROOT::Math::AdaptiveIntegratorMultiDim *cast =
+              dynamic_cast<ROOT::Math::AdaptiveIntegratorMultiDim *>(
+                  ig.GetIntegrator());
+          assert(cast);
+          cast->SetMinPts(fGSLMinEval);
+        }
 
-         double kine_min[2] = { Wl.min, Q2l.min };
-         double kine_max[2] = { Wl.max, Q2l.max };
-         xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
-       }// phase space limits ok?
-    }//Ev>threshold
+        double kine_min[2] = {Wl.min, Q2l.min};
+        double kine_max[2] = {Wl.max, Q2l.max};
+        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
+      } // phase space limits ok?
+    } // Ev>threshold
 
     LOG("DISXSec", pNOTICE)
-       << "Caching: XSec[DIS] (E = " << Ev << " GeV) = "
-       << xsec / (1E-38 * units::cm2) << " x 1E-38 cm^2";
-    cache_branch->AddValues(Ev,xsec);
-  }//ie
+        << "Caching: XSec[DIS] (E = " << Ev
+        << " GeV) = " << xsec / (1E-38 * units::cm2) << " x 1E-38 cm^2";
+    cache_branch->AddValues(Ev, xsec);
+  } // ie
 
   // Create the spline
   cache_branch->CreateSpline();
 
-  delete [] E;
+  delete[] E;
   delete func;
 }
 //____________________________________________________________________________
-string DISXSec::CacheBranchName(
-          const XSecAlgorithmI * model, const Interaction * interaction) const
-{
-// Build a unique name for the cache branch
+string DISXSec::CacheBranchName(const XSecAlgorithmI *model,
+                                const Interaction *interaction) const {
+  // Build a unique name for the cache branch
 
-  Cache * cache = Cache::Instance();
+  Cache *cache = Cache::Instance();
 
   string algkey = model->Id().Key();
-  string ikey   = interaction->AsString();
-  string key    = cache->CacheBranchKey(algkey, ikey);
+  string ikey = interaction->AsString();
+  string key = cache->CacheBranchKey(algkey, ikey);
   return key;
 }
 //____________________________________________________________________________

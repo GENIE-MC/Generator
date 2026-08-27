@@ -340,7 +340,7 @@ double QPMDMDISStrucFuncBase::Q2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-double QPMDMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
+double QPMDMDISStrucFuncBase::ScalingVar(const Interaction* interaction, double /*fM*/) const
 {
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections
