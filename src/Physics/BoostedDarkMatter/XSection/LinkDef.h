@@ -14,4 +14,14 @@
 #pragma link C++ class genie::DMDISXSec;
 #pragma link C++ class genie::DMElectronXSec;
 
+#pragma link C++ class genie::DMRESPXSec;
+#pragma link C++ class genie::DMRESXSec;
+#pragma link C++ class genie::DMRESXSecFast;
+#pragma link C++ class genie::DMRESXSecWithCacheFast;
+#pragma link C++ class genie::FKRDM;
+#pragma link C++ class genie::RSHelicityAmplModelDMn;
+#pragma link C++ class genie::RSHelicityAmplModelDMp;
+#pragma link C++ class genie::RSHelicityAmplModelDMI;
+#pragma link C++ class genie::RSHelicityAmplDM;
+
 #endif

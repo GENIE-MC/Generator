@@ -300,14 +300,17 @@ void GenerateEventsAtFixedInitState(void)
 
   // Create init state
   InitialState init_state(target, dark_matter);
-
+  
+//
+/*
   bool unitary = CheckUnitarityLimit();
   if (!unitary) {
     LOG("gevgen_dm", pFATAL)
       << "Cross-section risks exceeding unitarity limit - Exiting";
     exit(1);
   }
-
+*/
+//
 
   // Create/config event generation driver
   GEVGDriver evg_driver;

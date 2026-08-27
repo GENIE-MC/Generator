@@ -63,6 +63,11 @@ bool GAtmoFlux::GenerateNext(void)
      double wght = this->Weight();
 
      bool accept = (E<=Emax && E>=Emin && wght>0);
+     
+     LOG("Flux", pDEBUG) << "Neutrino w/ energy : " << E;
+     LOG("Flux", pDEBUG) << "Max : " << Emax;
+     LOG("Flux", pDEBUG) << "Min : " << Emin;
+     LOG("Flux", pDEBUG) << "Weight : " << wght;
      if(accept) return true;
   }
   return false;
