@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <typeinfo>
 
 #include <TParticlePDG.h>
 
@@ -172,20 +173,20 @@ void Decayer::LoadConfig(void)
     int pdgc = atoi(kv[1].c_str());
     TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
     if ( ! p ) {
-      LOG("Decay",pFATAL) << "No PDGLibrary entry for pdgc=" << pdgc
-                          << " (" << kv[1].c_str()
-                          << "), check CommonDecay.xml";
+      LOG("Decay",pFATAL)
+        << "DecayPaticleWithCode: no PDGLibrary entry for pdgc=" << pdgc
+        << " (" << kv[1].c_str() << "), check CommonDecay.xml";
       continue;
     }
     if(decay) {
        LOG("Decay", pDEBUG)
-            << "Configured to decay " <<  p->GetName();
+            << "Configured to uninhibit all decays for " <<  p->GetName();
        fParticlesToDecay.push_back(pdgc);
        this->UnInhibitDecay(pdgc);
     }
     else {
        LOG("Decay", pDEBUG)
-            << "Configured to inhibit decays for  " <<  p->GetName();
+            << "Configured to inhibit all decays for  " <<  p->GetName();
        fParticlesNotToDecay.push_back(pdgc);
        this->InhibitDecay(pdgc);
     }// decay?
@@ -197,19 +198,31 @@ void Decayer::LoadConfig(void)
   kiter = klist.begin();
   for( ; kiter != klist.end(); ++kiter) {
     RgKey key = *kiter;
-    if(GetConfig().GetBool(key)) {
-      string filtkey = utils::str::FilterString("InhibitDecay/", key);
-      vector<string> kv = utils::str::Split(filtkey,",");
-      assert(kv.size()==2);
-      int pdgc = atoi(utils::str::FilterString("Particle=",kv[0]).c_str());
-      int dc   = atoi(utils::str::FilterString("Channel=", kv[1]).c_str());
-      TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
-      if(!p) continue;
+    string filtkey = utils::str::FilterString("InhibitDecay/", key);
+    vector<string> kv = utils::str::Split(filtkey,",");
+    assert(kv.size()==2);
+    int pdgc = atoi(utils::str::FilterString("Particle=",kv[0]).c_str());
+    int dc   = atoi(utils::str::FilterString("Channel=", kv[1]).c_str());
+    TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
+    if(!p) continue;
+    bool inhibit = GetConfig().GetBool(key);
+    if ( dc >= p->NDecayChannels() ) {
+      LOG("Decay", pWARN)
+        << "Attempted to " << (inhibit?"":"un") << "inhibit decay channel "
+        << dc << " of " << p->GetName() << "(" << pdgc << ") which doesn't exist";
+      continue;
+    }
+    if(inhibit) {
       LOG("Decay", pINFO)
-         << "Configured to inhibit " <<  p->GetName()
-         << "'s decay channel " << dc;
+        << "Configured to inhibit " <<  p->GetName()
+        << "'s decay channel " << dc;
       this->InhibitDecay(pdgc, p->DecayChannel(dc));
-    }//val[key]=true?
+    } else {
+      LOG("Decay", pINFO)
+        << "Configured to uninhibit " <<  p->GetName()
+        << "'s decay channel " << dc;
+      this->UnInhibitDecay(pdgc, p->DecayChannel(dc));
+    }
   }//key iterator
 
 
@@ -223,5 +236,36 @@ void Decayer::LoadConfig(void)
        << "\nConfigured to inhibit decays of: " << fParticlesNotToDecay
        << "\n";
   }
+
+  // Print out decay info about a particles decay channels if requested
+  //
+  klist = GetConfig().FindKeys("PrintParticleDecayChannels=");
+  kiter = klist.begin();
+  for( ; kiter != klist.end(); ++kiter) {
+    RgKey key = *kiter;
+    bool doprint = GetConfig().GetBool(key);
+    vector<string> kv = utils::str::Split(key,"=");
+    assert(kv.size()==2);
+    int pdgc = atoi(kv[1].c_str());
+    TParticlePDG * p = PDGLibrary::Instance()->Find(pdgc);
+    if ( ! p ) {
+      LOG("Decay",pFATAL)
+        << "PrintParticleDecayChannels: no PDGLibrary entry for pdgc=" << pdgc
+        << " (" << kv[1].c_str() << "), check CommonDecay.xml";
+      continue;
+    }
+    LOG("Decay",pINFO) << "PrintDecayInfo for pdgc=" << pdgc
+                       << " (" << kv[1].c_str()
+                       << ") " << (doprint?"yes":"no");
+    if (doprint) { this->PrintDecayChannelInfo(pdgc); }
+  }
+
+}
+//___________________________________________________________________________
+void Decayer::PrintDecayChannelInfo(int pdgc) const
+{
+  LOG("Decay",pWARN)
+    << "No implementation for PrintDecayInfo(" << pdgc << ") for "
+    << typeid(*this).name(); 
 }
 //___________________________________________________________________________
