@@ -14,31 +14,32 @@
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
-#include "Physics/HadronTensors/SuSAv2MECHadronTensorModel.h"
+#include "Physics/HadronTensors/MartiniMECHadronTensorModel.h"
 #include "Physics/HadronTensors/LabFrameHadronTensorI.h"
-#include "Physics/Multinucleon/XSection/SuSAv2MECPXSec.h"
+#include "Physics/Multinucleon/XSection/MartiniEricsonChanfrayMarteauMECPXSec2024.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
-#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Physics/XSectionIntegration/XSecIntegratorI.h"
 
 using namespace genie;
 
+
 //_________________________________________________________________________
-SuSAv2MECPXSec::SuSAv2MECPXSec() : XSecAlgorithmI("genie::SuSAv2MECPXSec")
+MartiniEricsonChanfrayMarteauMECPXSec2024::MartiniEricsonChanfrayMarteauMECPXSec2024() : XSecAlgorithmI("genie::MartiniEricsonChanfrayMarteauMECPXSec2024")
 {
 }
 //_________________________________________________________________________
-SuSAv2MECPXSec::SuSAv2MECPXSec(string config)
-  : XSecAlgorithmI("genie::SuSAv2MECPXSec", config)
+MartiniEricsonChanfrayMarteauMECPXSec2024::MartiniEricsonChanfrayMarteauMECPXSec2024(string config)
+  : XSecAlgorithmI("genie::MartiniEricsonChanfrayMarteauMECPXSec2024", config)
 {
 }
 //_________________________________________________________________________
-SuSAv2MECPXSec::~SuSAv2MECPXSec()
+MartiniEricsonChanfrayMarteauMECPXSec2024::~MartiniEricsonChanfrayMarteauMECPXSec2024()
 {
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::XSec(const Interaction* interaction,
+double MartiniEricsonChanfrayMarteauMECPXSec2024::XSec(const Interaction* interaction,
   KinePhaseSpace_t kps) const
 {
   // Don't try to do the calculation if we've been handed an interaction that
@@ -46,7 +47,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   if ( !this->ValidProcess(interaction) ) return 0.;
 
   if ( kps != kPSTlctl ) {
-    LOG("SuSAv2MEC", pWARN)
+    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN)
       << "Doesn't support transformation from "
       << KinePhaseSpace::AsString(kPSTlctl) << " to "
       << KinePhaseSpace::AsString(kps);
@@ -59,7 +60,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
   int A_request = pdg::IonPdgCodeToA(target_pdg);
-  //int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
@@ -76,11 +77,64 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     //pn_tensor_type = kHT_MEC_EM;
   }
 
-  // Currently we only have the relative pair contributions for C12.
-  int tensor_pdg = kPdgTgtC12;
+  int tensor_pdg = target_pdg;
+  if ( ! fHadronTensorModel->GetTensor(tensor_pdg, genie::kHT_MEC_FullAll) )
+  {
+
+    if ( A_request == 4 && Z_request == 2 ) {
+      tensor_pdg = kPdgTgtC12;
+      // This is for helium 4, but use carbon tensor
+      // the use of nuclear density parameterization is suspicious
+      // but some users (MINERvA) need something not nothing.
+      // The pn will be exactly 1/3, but pp and nn will be ~1/4
+      // Because the combinatorics are different.
+      // Could do lithium beryllium boron which you don't need
+    }
+    else if (A_request < 9) {
+      // refuse to do D, T, He3, Li, and some Be, B
+      // actually it would work technically, maybe except D, T
+      MAXLOG("MartiniEricsonChanfrayMarteauMEC", pWARN, 10)
+          << "Asked to scale to deuterium through boron "
+          << target_pdg << " nope, lets not do that.";
+      return 0;
+    }
+    else if (A_request >= 9 && A_request < 15) {
+      tensor_pdg = kPdgTgtC12;
+    }
+    else if (A_request >= 15 && A_request < 22) {
+      tensor_pdg = kPdgTgtO16;
+    }
+    else if (A_request >= 22 && A_request < 33) {
+      // of special interest, this gets Al27 and Si28
+      tensor_pdg = kPdgTgtO16;
+    }
+    else if (A_request >= 33 && A_request < 50) {
+      // of special interest, this gets Ar40 and Ti48
+      tensor_pdg = kPdgTgtCa40;
+    }
+    else if (A_request >= 50 && A_request < 90) {
+      // pseudoFe56, also covers many other ferrometals and Ge
+      tensor_pdg = kPdgTgtCa40;
+    }
+    else if (A_request >= 90 && A_request < 160) {
+      // use Ba112 = PseudoCd.  Row5 of Periodic table useless. Ag, Xe?
+      tensor_pdg = kPdgTgtCa40;
+    }
+    else if (A_request >= 160) {
+      // use Rf208 = pseudoPb
+      tensor_pdg = kPdgTgtCa40;
+    }
+    else {
+      MAXLOG("MartiniEricsonChanfrayMarteauMEC", pWARN, 10)
+          << "Asked to scale to a nucleus "
+          << target_pdg << " which we don't know yet.";
+      return 0;
+    }
+  }
+
   if(tensor_pdg != target_pdg) need_to_scale = true;
 
-  // The SuSAv2-MEC hadron tensors are defined using the same conventions
+  // The MartiniEricsonChanfrayMarteau-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
   const LabFrameHadronTensorI* tensor
@@ -89,7 +143,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
-    LOG("SuSAv2MEC", pWARN) << "Failed to load a hadronic tensor for the"
+    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN) << "Failed to load a hadronic tensor for the"
       " nuclide " << tensor_pdg;
     return 0.;
   }
@@ -124,8 +178,8 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
   double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  if ( interaction->ProcInfo().IsEM() )
+    Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
 
   // Neglect shift due to binding energy. The cut is on the actual
   // value of Q^2, not the effective one to use in the tensor contraction.
@@ -136,7 +190,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // dinucleon was set we will calculate the cross-section for that
   // component only
 
-  //bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
+  bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
 
   // Compute the cross section using the hadron tensor
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
@@ -150,19 +204,15 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
     const FermiMomentumTable * kft = kftp->GetTable(fKFTable);
     double KF_tgt = kft->FindClosestKF(target_pdg, kPdgProton);
     double KF_ten = kft->FindClosestKF(tensor_pdg, kPdgProton);
-    LOG("SuSAv2MEC", pDEBUG) << "KF_tgt = " << KF_tgt;
-    LOG("SuSAv2MEC", pDEBUG) << "KF_ten = " << KF_ten;
+    LOG("MartiniEricsonChanfrayMarteauMEC", pDEBUG) << "KF_tgt = " << KF_tgt;
+    LOG("MartiniEricsonChanfrayMarteauMEC", pDEBUG) << "KF_ten = " << KF_ten;
     double A_ten  = pdg::IonPdgCodeToA(tensor_pdg);
     double scaleFact = (A_request/A_ten)*(KF_tgt/KF_ten)*(KF_tgt/KF_ten);
     xsec *= scaleFact;
   }
 
   // Apply given overall scaling factor
-
-  const ProcessInfo& proc_info = interaction->ProcInfo();
-  if( proc_info.IsWeakCC() ) xsec *= fXSecCCScale;
-  else if( proc_info.IsWeakNC() ) xsec *= fXSecNCScale;
-  else if( proc_info.IsEM() ) xsec *= fXSecEMScale;
+  xsec *= fXSecScale;
 
   // Scale given a scaling algorithm:
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
@@ -170,7 +220,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   return xsec;
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
+double MartiniEricsonChanfrayMarteauMECPXSec2024::PairRatio(const Interaction* interaction,
   const std::string& final_state_ratio) const
 {
 
@@ -196,36 +246,36 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
     pp_tensor_type = kHT_MEC_EM_pp;
   }
 
-  // The SuSAv2-MEC hadron tensors are defined using the same conventions
+  // The MartiniEricsonChanfrayMarteau-MEC hadron tensors are defined using the same conventions
   // as the Valencia MEC model, so we can use the same sort of tensor
   // object to describe them.
   const LabFrameHadronTensorI* tensor
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+        fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, tensor_type) );
 
   const LabFrameHadronTensorI* tensor_pn
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    pn_tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>(
+        fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, pn_tensor_type) );
 
   const LabFrameHadronTensorI* tensor_pp
-    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(kPdgTgtC12,
-    pp_tensor_type) );
+    = dynamic_cast<const LabFrameHadronTensorI*>( 
+      fPairRatioHadronTensorModel->GetTensor(kPdgTgtC12, pp_tensor_type) );
 
   // If retrieving the tensor failed, complain and return zero
   if ( !tensor ) {
-    LOG("SuSAv2MEC", pWARN) << "Failed to load a hadronic tensor for the"
+    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN) << "Failed to load a hadronic tensor for the"
       " nuclide " << kPdgTgtC12;
     return 0.;
   }
 
   if ( !tensor_pn ) {
-    LOG("SuSAv2MEC", pWARN) << "Failed to load pn hadronic tensor for the"
+    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN) << "Failed to load pn hadronic tensor for the"
       " nuclide " << kPdgTgtC12;
     return 0.;
   }
 
   if ( !tensor_pp && interaction->ProcInfo().IsEM() ) {
-    LOG("SuSAv2MEC", pWARN) << "Failed to load pp hadronic tensor for the"
+    LOG("MartiniEricsonChanfrayMarteauMEC", pWARN) << "Failed to load pp hadronic tensor for the"
       " nuclide " << kPdgTgtC12;
     return 0.;
   }
@@ -258,7 +308,11 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
   // Compute the cross section using the hadron tensor
   double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
 
-  double ratio;
+  if (xsec_all <= 0.) {
+    return 0.8;  // default pn fraction when SuSAv2 tensor has no coverage
+  } 
+
+  double ratio = 0.;
 
   if (final_state_ratio == "pnFraction") { // pnFraction will be calculated by default
     double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
@@ -281,17 +335,16 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
     ratio = pp_ratio;
 
   }
-
   return ratio;
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::Integral(const Interaction* interaction) const
+double MartiniEricsonChanfrayMarteauMECPXSec2024::Integral(const Interaction* interaction) const
 {
   double xsec = fXSecIntegrator->Integrate(this,interaction);
   return xsec;
 }
 //_________________________________________________________________________
-bool SuSAv2MECPXSec::ValidProcess(const Interaction* interaction) const
+bool MartiniEricsonChanfrayMarteauMECPXSec2024::ValidProcess(const Interaction* interaction) const
 {
   if ( interaction->TestBit(kISkipProcessChk) ) return true;
 
@@ -314,7 +367,7 @@ bool SuSAv2MECPXSec::ValidProcess(const Interaction* interaction) const
   return true;
 }
 //_________________________________________________________________________
-double SuSAv2MECPXSec::Qvalue(const Interaction & interaction ) const
+double MartiniEricsonChanfrayMarteauMECPXSec2024::Qvalue(const Interaction & interaction ) const
 {
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
@@ -340,26 +393,22 @@ double SuSAv2MECPXSec::Qvalue(const Interaction & interaction ) const
     Eb_tgt=fEbC; Eb_ten=fEbC;
   }
   else if(A_request >= 15 && A_request < 22) {
-    //tensor_pdg = kPdgTgtO16;
-    // Oxygen tensor has some issues - xsec @ 50 GeV = 45.2835 x 1E-38 cm^2
-    // This is ~ 24 times higher than C
-    // I think it's just a missing scale factor but I need to check.
-    Eb_tgt=fEbO; Eb_ten=fEbC;
+    Eb_tgt=fEbO; Eb_ten=fEbO;
   }
   else if(A_request >= 22 && A_request < 40) {
-    Eb_tgt=fEbMg; Eb_ten=fEbC;
+    Eb_tgt=fEbMg; Eb_ten=fEbO;
   }
   else if(A_request >= 40 && A_request < 56) {
-    Eb_tgt=fEbAr; Eb_ten=fEbC;
+    Eb_tgt=fEbCa; Eb_ten=fEbCa;
   }
   else if(A_request >= 56 && A_request < 119) {
-    Eb_tgt=fEbFe; Eb_ten=fEbC;
+    Eb_tgt=fEbFe; Eb_ten=fEbCa;
   }
   else if(A_request >= 119 && A_request < 206) {
-    Eb_tgt=fEbSn; Eb_ten=fEbC;
+    Eb_tgt=fEbSn; Eb_ten=fEbCa;
   }
   else if(A_request >= 206) {
-    Eb_tgt=fEbPb; Eb_ten=fEbC;
+    Eb_tgt=fEbPb; Eb_ten=fEbCa;
   }
 
   // SD: The Q-Value essentially corrects q0 to account for nuclear
@@ -398,36 +447,41 @@ double SuSAv2MECPXSec::Qvalue(const Interaction & interaction ) const
   return Delta_Q_value ;
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::Configure(const Registry& config)
+void MartiniEricsonChanfrayMarteauMECPXSec2024::Configure(const Registry& config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //____________________________________________________________________________
-void SuSAv2MECPXSec::Configure(std::string config)
+void MartiniEricsonChanfrayMarteauMECPXSec2024::Configure(std::string config)
 {
   Algorithm::Configure(config);
   this->LoadConfig();
 }
 //_________________________________________________________________________
-void SuSAv2MECPXSec::LoadConfig(void)
+void MartiniEricsonChanfrayMarteauMECPXSec2024::LoadConfig(void)
 {
   bool good_config = true ;
   // Cross section scaling factor
-  GetParamDef("MEC-CC-XSecScale", fXSecCCScale, 1.) ;
-  GetParamDef("MEC-NC-XSecScale", fXSecNCScale, 1.) ;
-  GetParamDef("MEC-EM-XSecScale", fXSecEMScale, 1.) ;
+  GetParamDef("MEC-XSecScale", fXSecScale, 1.) ;
 
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
     good_config = false ;
-    LOG("SuSAv2MECPXSec", pERROR) << "The required HadronTensorAlg does not exist. AlgoID is : " << SubAlg("HadronTensorAlg")->Id();
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required HadronTensorAlg does not exist. AlgoID is : " << SubAlg("HadronTensorAlg")->Id();
+  }
+
+  // Load SuSAv2 hadron tensor model for pair ratio calculation
+  fPairRatioHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("PairRatioHadronTensorAlg") );
+  if( !fPairRatioHadronTensorModel ) {
+    good_config = false ;
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required PairRatioHadronTensorAlg does not exist. AlgoID is : " << SubAlg("PairRatioHadronTensorAlg")->Id();
   }
 
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI*> (this->SubAlg("NumericalIntegrationAlg"));
   if( !fXSecIntegrator ) {
     good_config = false ;
-    LOG("SuSAv2MECPXSec", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgId is : " << SubAlg("NumericalIntegrationAlg")->Id() ;
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required NumericalIntegrationAlg does not exist. AlgId is : " << SubAlg("NumericalIntegrationAlg")->Id() ;
   }
 
   //Fermi momentum tables for scaling
@@ -453,7 +507,7 @@ void SuSAv2MECPXSec::LoadConfig(void)
     fMECScaleAlg = dynamic_cast<const XSecScaleI *> ( this->SubAlg("MECScaleAlg") );
     if( !fMECScaleAlg ) {
       good_config = false ;
-      LOG("Susav2MECPXSec", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
+      LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required MECScaleAlg cannot be casted. AlgID is : " << SubAlg("MECScaleAlg")->Id() ;
     }
   }
 
@@ -463,13 +517,13 @@ void SuSAv2MECPXSec::LoadConfig(void)
     fQvalueShifter = dynamic_cast<const QvalueShifter *> ( this->SubAlg("QvalueShifterAlg") );
     if( !fQvalueShifter ) {
       good_config = false ;
-      LOG("SuSAv2MECPXSec", pERROR) << "The required QvalueShifterAlg does not exist. AlgId is : " << SubAlg("QvalueShifterAlg")->Id() ;
+      LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pERROR) << "The required QvalueShifterAlg does not exist. AlgId is : " << SubAlg("QvalueShifterAlg")->Id() ;
     }
   }
 
   if( ! good_config ) {
-    LOG("SuSAv2MECPXSec", pERROR) << "Configuration has failed.";
-    exit(78) ;
+    LOG("MartiniEricsonChanfrayMarteauMECPXSec2024", pFATAL) << "Configuration has failed.";
+    exit(-1) ;
   }
 
 }
