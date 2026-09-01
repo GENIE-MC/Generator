@@ -109,10 +109,7 @@ double KovalenkoQELCharmPXSec::XSec(
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  //----- Nuclear cross section (simple scaling here)
-  int nuc   = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nuc)) ? target.Z() : target.N();
-  xsec *= NNucl;
+
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("QELCharmXSec", pINFO)

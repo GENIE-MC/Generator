@@ -204,7 +204,9 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
     return;
   }
   fDISSFModel->CalcPDFs(interaction);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   fDISSFModel->fPDFc->Print(std::cout);
+#endif
   // Get process info & perform various checks
   const ProcessInfo &  proc_info  = interaction->ProcInfo();
 

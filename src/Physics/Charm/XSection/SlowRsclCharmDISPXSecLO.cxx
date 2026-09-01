@@ -144,9 +144,6 @@ double SlowRsclCharmDISPXSecLO::XSec(
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
 
-  //----- Nuclear cross section (simple scaling here)
-  int NNucl = (isP) ? target.Z() : target.N();
-  xsec *= NNucl;
 
   return xsec;
 }
