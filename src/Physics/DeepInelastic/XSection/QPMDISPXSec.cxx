@@ -192,10 +192,10 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
     interaction->ExclTagPtr()->SetCharm();
     double xsec_charm = fCharmProdModel->XSec(interaction, kps);
     interaction->ExclTagPtr()->UnsetCharm();
-//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("DISPXSec", pNOTICE) << "Subtracting charm piece: " << xsec_charm
 			   << " / out of " << xsec << ", at E = " << E;
-//#endif
+#endif
     xsec = TMath::Max(0., xsec - xsec_charm);
   }
   // Compute nuclear cross section (simple scaling here, corrections must

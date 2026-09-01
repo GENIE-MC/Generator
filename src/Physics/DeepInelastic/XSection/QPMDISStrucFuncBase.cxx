@@ -227,8 +227,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Applying all PDF K-factors abd scaling variable corrections
   this -> CalcPDFs (interaction);
-  fPDFc->Print(std::cout);
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  fPDFc->Print(std::cout);
   LOG("DISSF", pNOTICE) << "Contribution: " 
    << " dv "   << fdv_c << " " << switch_dv   << " "
    << " ds "   << fds_c << " " << switch_ds   << " " 
@@ -350,45 +351,70 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   }
   
   // ***  CHARGED CURRENT
+
+  // ***  CHARGED CURRENT
   if(is_CC) {
     double q=0, qbar=0;
 
-   if (is_nu) {      
+    if (is_nu) {
       // KA = KV for charm due to its mass
-      q    = ( switch_dv * fdv_c * ( kV_val_d + kV_val_d ) 
+      q    = ( switch_dv * fdv   * ( kV_val_d + kA_val_d )
+             + switch_ds * fds   * ( kV_sea_d + kA_sea_d ) ) * fVud2 ;
+      q   += ( switch_dv * fdv_c * ( kV_val_d + kV_val_d )
              + switch_ds * fds_c * ( kV_sea_d + kV_sea_d ) ) * fVcd2 ;
+      q   +=   switch_s  * fs    * ( kV_sea_s + kA_sea_s )   * fVus2 ;
       q   +=   switch_s  * fs_c  * ( kV_sea_s + kV_sea_s )   * fVcs2;
 
-      qbar  = switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcd2;
+      qbar  = switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * ( kV_sea_u + kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcd2;
       qbar += switch_cbar * fc_c * ( kV_sea_u + kV_sea_u ) * fVcs2;
     } else if (is_nubar) {
-	    q    =   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fVcd2;
+	    q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u )
+             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVud2 ;
+	    q   += ( switch_uv * fuv  * ( kV_val_u + kA_val_u )
+             + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVus2 ;
+	    q   +=   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fVcd2;
 	    q   +=   switch_c  * fc_c * ( kV_sea_u + kV_sea_u )   * fVcs2;
 
 	    qbar  = switch_dbar * fds_c * ( kV_sea_d + kV_sea_d ) * fVcd2;
+	    qbar += switch_dbar * fds   * ( kV_sea_d + kA_sea_d ) * fVud2;
+	    qbar += switch_sbar * fs    * ( kV_sea_s + kA_sea_s ) * fVus2;
 	    qbar += switch_sbar * fs_c  * ( kV_sea_s + kV_sea_s ) * fVcs2;
-    } 
-    
+    } else {
+	    return;
+    }
+
     F2val  = (q+qbar);
-    
-    if (is_nu) { 
-      q    = ( switch_dv * fdv_c * sqrt( kV_val_d * kV_val_d ) 
+
+    if (is_nu) {
+      q    = ( switch_dv * fdv   * sqrt( kV_val_d * kA_val_d )
+             + switch_ds * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+      q   +=   switch_s  * fs    * sqrt( kV_sea_s * kA_sea_s )   * fVus2;
+      q   += ( switch_dv * fdv_c * sqrt( kV_val_d * kV_val_d )
              + switch_ds * fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fVcd2;
       q   +=   switch_s  * fs_c  * sqrt( kV_sea_s * kV_sea_s )   * fVcs2;
-      
-      qbar  = switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fVcd2;
+
+      qbar  = switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVud2;
+      qbar += switch_ubar * fus  * sqrt( kV_sea_u * kA_sea_u ) * fVus2;
+      qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fVcd2;
       qbar += switch_cbar * fc_c * sqrt( kV_sea_u * kV_sea_u ) * fVcs2;
     }
     else if (is_nubar) {
-	    q    = ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fVcd2;
+	    q    = ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVud2;
+	    q   += ( switch_uv * fuv * sqrt( kV_val_u * kA_val_u ) + switch_us * fus * sqrt( kV_sea_u * kA_sea_u ) ) * fVus2;
+	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fVcd2;
 	    q   += ( switch_c  * fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fVcs2;
 
 	    qbar  = ( switch_dbar * fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fVcd2;
+	    qbar += ( switch_dbar * fds   * sqrt( kV_sea_d * kA_sea_d ) ) * fVud2;
+	    qbar += ( switch_sbar * fs    * sqrt( kV_sea_s * kA_sea_s ) ) * fVus2;
 	    qbar += ( switch_sbar * fs_c  * sqrt( kV_sea_s * kV_sea_s ) ) * fVcs2;
-    } 
+    } else {
+	    return;
+    }
 
     xF3val = 2*(q-qbar);
-  
   }
 
   // ***  ELECTROMAGNETIC
@@ -560,6 +586,9 @@ double QPMDISStrucFuncBase::R(const Interaction * interaction) const
 //____________________________________________________________________________
 void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  interaction->Print(std::cout);
+#endif
   // Clean-up previous calculation
   fPDF  -> Reset();
   fPDFc -> Reset();
