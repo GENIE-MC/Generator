@@ -30,9 +30,15 @@ using namespace genie;
 void genie::utils::app_init::RandGen(long int seed)
 {
   // Set random number seed, if a value was set at the command-line.
-  if(seed > 0) {
-    RandomGen::Instance()->SetSeed(seed);
-  }
+  if( ! RandomGen::IsInitialized() ) {
+    if(seed > 0) { 
+      RandomGen::Instance(seed);
+    } else RandomGen::Instance();
+  } else {
+    if(seed > 0) {
+      RandomGen::Instance()->SetSeed(seed);
+    }
+  } // if first initialisation
 }
 //___________________________________________________________________________
 void genie::utils::app_init::XSecTable (string inpfile, bool require_table)

@@ -273,6 +273,9 @@ int main(int argc, char ** argv)
 void Initialize()
 {
 
+  // Seed should always be initialised first.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gevgen", pFATAL) << " No TuneId in RunOption";
     exit(-1);
@@ -283,7 +286,6 @@ void Initialize()
   // messenger thresholds, cache file
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
-  utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::XSecTable(gOptInpXSecFile, false);
 
   // Set GHEP print level
