@@ -199,10 +199,10 @@ KNOTunedQPMDISPXSec::DISRESJoinSuppressionFactor(const Interaction *in) const {
     Ro = 0.0;
   else
     Ro = 1.0;
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISXSec", pDEBUG) << "DIS/RES Join: DIS xsec suppr. (W=" << Wo
                          << ") = " << Ro;
-
+#endif
   return Ro;
 }
 //____________________________________________________________________________

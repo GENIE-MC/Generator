@@ -186,8 +186,11 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   // If requested return the free nucleon xsec even for input nuclear tgt
   if (interaction->TestBit(kIAssumeFreeNucleon))
     return xsec;
-
-
+  const Target &target = init_state.Tgt();
+  int nucpdgc = target.HitNucPdg();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+  xsec *= NNucl;
+/*
   if( !fCharmOff ) {
     interaction->ExclTagPtr()->SetCharm();
     double xsec_charm = fCharmProdModel->XSec(interaction, kps);
@@ -198,12 +201,10 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
 #endif
     xsec = TMath::Max(0., xsec - xsec_charm);
   }
+  */
   // Compute nuclear cross section (simple scaling here, corrections must
   // have been included in the structure functions)
-  const Target &target = init_state.Tgt();
-  int nucpdgc = target.HitNucPdg();
-  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
-  xsec *= NNucl;
+
 
   // Apply scaling / if required to reach well known asymmptotic value
   if( proc_info.IsWeakCC() )  xsec *= fCCScale;

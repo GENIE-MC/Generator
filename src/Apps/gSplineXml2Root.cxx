@@ -839,7 +839,7 @@ void SaveGraphsToRootFile(void)
 
        const Spline * spl = evg_driver.XSecSpline(interaction);
 
-       if(xcls.IsCharmEvent()) continue;
+       //if(xcls.IsCharmEvent()) continue;
 
        if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
          for(int i=0; i<kNSplineP; i++) {

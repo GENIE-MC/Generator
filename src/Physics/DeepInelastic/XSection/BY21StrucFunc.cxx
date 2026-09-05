@@ -208,9 +208,9 @@ double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
   // For a simple modification of Bjorken x, chi'=x(1+Mf2/Q2), the correction factor is equivalent
   // to KCharm, defined in Sec 8 of https://arxiv.org/pdf/2108.09240
   // In our case, to keep it general, we define it explicitly as x/chi_w
-  if( !fIncludeKCharm ) return 1.;
+  if( !fIncludeKCharm || Mf == 0) return 1.;
   
-  double K = interaction->Kine().x()/ScalingVar(interaction, fMc);
+  double K = interaction->Kine().x()/ScalingVar(interaction, Mf);
 
   return K;
   

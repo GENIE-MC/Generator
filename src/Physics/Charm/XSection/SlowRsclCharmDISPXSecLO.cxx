@@ -143,7 +143,8 @@ double SlowRsclCharmDISPXSecLO::XSec(
 
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
-
+  int NNucl = (isP) ? target.Z() : target.N();
+  xsec *= NNucl;
 
   return xsec;
 }

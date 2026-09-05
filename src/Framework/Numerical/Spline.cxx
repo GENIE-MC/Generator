@@ -374,8 +374,10 @@ double Spline::Evaluate(double x) const
     bool is0n = this->ClosestKnotValueIsZero(x, "-");
 
     if(!is0p && !is0n) {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       // both knots (on the left and right are non-zero) - just interpolate
       LOG("Spline", pDEBUG) << "Point is between non-zero knots";
+#endif
       if (fInterpolatorType == "TSpline3")
         y = fInterpolator->Eval(x);
       else if (fInterpolatorType == "TSpline5")
@@ -389,9 +391,11 @@ double Spline::Evaluate(double x) const
         LOG("Spline", pDEBUG) << "Point is between zero knots";
         y=0;
       } else {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         // just 1 neighboring knot has y=0 - do a linear interpolation
         LOG("Spline", pDEBUG)
           << "Point has zero" << (is0n ? " left " : " right ") << "knot";
+#endif
         double xpknot=0, ypknot=0, xnknot=0, ynknot=0;
         this->FindClosestKnot(x, xnknot, ynknot, "-");
         this->FindClosestKnot(x, xpknot, ypknot, "+");
@@ -400,19 +404,21 @@ double Spline::Evaluate(double x) const
       }
     }
 
-  } else {
+  } 
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  else {
     LOG("Spline", pDEBUG) << "x = " << x
      << " is not within spline range [" << fXMin << ", " << fXMax << "]";
   }
-
+#endif
   if(y<0 && !fYCanBeNegative) {
     LOG("Spline", pINFO) << "Negative y (" << y << ")";
     LOG("Spline", pINFO) << "x = " << x;
     LOG("Spline", pINFO) << "spline range [" << fXMin << ", " << fXMax << "]";
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Spline(x = " << x << ") = " << y;
-
+#endif
   return y;
 }
 //___________________________________________________________________________

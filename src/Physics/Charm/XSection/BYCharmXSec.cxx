@@ -29,7 +29,7 @@ using namespace genie::constants;
 double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) const {
 
   const InitialState & init_state = interaction->InitState();
-  const Target & tgt = init_state.Tgt();
+  const Target & target = init_state.Tgt();
  // Get kinematical & init-state parameters
   const Kinematics &kinematics = interaction->Kine();
   const ProcessInfo &proc_info = interaction->ProcInfo();
@@ -117,6 +117,12 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
     double J = utils::kinematics::Jacobian(interaction, kPSxyfE, kps);
     xsec *= J;
   }
+  if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
+
+
+  int nucpdgc = target.HitNucPdg();
+  int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
+  xsec *= NNucl;
   return xsec;
 }
 
@@ -189,7 +195,7 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   double x     = fDISSFModel->ScalingVar(interaction);
   double Q2val = fDISSFModel->Q2(interaction);
   double M = tgt.HitNucP4().M();
-  double Q2pdf = TMath::Max(Q2val, fDISSFModel->fQ2min);
+  //double Q2pdf = TMath::Max(Q2val, fDISSFModel->fQ2min);
   // Check whether it is above charm threshold
   bool above_charm = utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fDISSFModel->fMc);
   if (!above_charm){
@@ -216,7 +222,7 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
   bool is_n        = pdg::IsNeutron      ( nuc_pdgc    );
   bool is_nu       = pdg::IsNeutrino     ( probe_pdgc  );
   bool is_nubar    = pdg::IsAntiNeutrino ( probe_pdgc  );
-  bool is_lepton   = pdg::IsLepton       ( probe_pdgc  );
+  //bool is_lepton   = pdg::IsLepton       ( probe_pdgc  );
   bool is_CC       = proc_info.IsWeakCC();
   bool early_return =
       (!is_nu && !is_nubar) ||
@@ -244,9 +250,9 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
 
   if (early_return) return;
 
-  double switch_uv    = 0.;
-  double switch_us    = 0.;
-  double switch_ubar  = 0.;
+  //double switch_uv    = 0.;
+  //double switch_us    = 0.;
+  //double switch_ubar  = 0.;
   double switch_dv    = 0.;
   double switch_ds    = 0.;
   double switch_dbar  = 0.;
@@ -261,8 +267,8 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
      int  qpdg = tgt.HitQrkPdg();
      bool sea  = tgt.HitSeaQrk();
 
-     bool is_u    = pdg::IsUQuark     (qpdg);
-     bool is_ubar = pdg::IsAntiUQuark (qpdg);
+     //bool is_u    = pdg::IsUQuark     (qpdg);
+     //bool is_ubar = pdg::IsAntiUQuark (qpdg);
      bool is_d    = pdg::IsDQuark     (qpdg);
      bool is_dbar = pdg::IsAntiDQuark (qpdg);
      bool is_s    = pdg::IsSQuark     (qpdg);
@@ -270,10 +276,10 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
      bool is_c    = pdg::IsCQuark     (qpdg);
      bool is_cbar = pdg::IsAntiCQuark (qpdg);
 
-     if      (!sea && is_u   ) { switch_uv   = 1; }
-     else if ( sea && is_u   ) { switch_us   = 1; }
-     else if ( sea && is_ubar) { switch_ubar = 1; }
-     else if (!sea && is_d   ) { switch_dv   = 1; }
+     //if      (!sea && is_u   ) { switch_uv   = 1; }
+     //else if ( sea && is_u   ) { switch_us   = 1; }
+     //else if ( sea && is_ubar) { switch_ubar = 1; }
+     if (!sea && is_d   ) { switch_dv   = 1; }
      else if ( sea && is_d   ) { switch_ds   = 1; }
      else if ( sea && is_dbar) { switch_dbar = 1; }
      else if ( sea && is_s   ) { switch_s    = 1; }
@@ -283,11 +289,11 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
      else return;
 
      // make sure user inputs make sense
-    if(is_nu    && is_CC && is_u   ) return;
+    //if(is_nu    && is_CC && is_u   ) return;
     if(is_nu    && is_CC && is_c   ) return;
     if(is_nu    && is_CC && is_dbar) return;
     if(is_nu    && is_CC && is_sbar) return;
-    if(is_nubar && is_CC && is_ubar) return;
+    //if(is_nubar && is_CC && is_ubar) return;
     if(is_nubar && is_CC && is_cbar) return;
     if(is_nubar && is_CC && is_d   ) return;
     if(is_nubar && is_CC && is_s   ) return;

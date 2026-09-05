@@ -64,11 +64,11 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
-  virtual double ScalingVar (const Interaction * i, double Mf = 0) const;
+  virtual double ScalingVar (const Interaction * i, double /*Mf*/ = 0) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
-  virtual double KCharm     (const Interaction * i, double Mf = 0) const;
-  virtual double H          (const Interaction * i) const;
+  virtual double KCharm     (const Interaction * /*i*/, double /*Mf */= 0) const;
+  virtual double H          (const Interaction * /*i*/) const;
   virtual void   KVectorFactors   (const Interaction * i, double & kuv,
                                      double & kdv, double & kus, double & kds, double &ks) const;
   virtual void   KAxialFactors    (const Interaction * i, double & kuv,
