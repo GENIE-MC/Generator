@@ -26,25 +26,14 @@ namespace genie {
 
 //____________________________________________________________________________
 RandomGen * RandomGen::fInstance = 0;
+bool RandomGen::fInitialized = false;
 //____________________________________________________________________________
-RandomGen::RandomGen()
+RandomGen::RandomGen() : fCurrSeed(kDefaultRandSeed)
 {
   LOG("Rndm", pINFO) << "RandomGen late initialization";
 
-  fInitalized = false;
+  fInitialized = false;
   fInstance = 0;
-/*
-  // try to get this job's random number seed from the environment
-  const char * seed = gSystem->Getenv("GSEED");
-  if(seed) {
-    LOG("Rndm", pDEBUG) << "Reading RandomNumGenerator seed env. var $GSEED";
-    fCurrSeed = atoi(seed);
-  } else {
-    LOG("Rndm", pINFO) << "Env. var. $GSEED is not set. Using default seed";
-    fCurrSeed = kDefaultRandSeed; // default seed number
-  }
-  this->InitRandomGenerators(fCurrSeed);
-*/
 
   if ( gSystem->Getenv("GSEED") ) {
     LOG("Rndm", pFATAL)
@@ -59,10 +48,40 @@ RandomGen::RandomGen()
     exit(1);
   }
 
-  fCurrSeed = kDefaultRandSeed; // a default seed number is set a init
   this->InitRandomGenerators(fCurrSeed);
 
-  fInitalized = true;
+  fInitialized = true;
+}
+//____________________________________________________________________________
+RandomGen::RandomGen(long int seed) : fCurrSeed(seed)
+{
+  LOG("Rndm", pINFO) << "RandomGen late initialization";
+
+  fInitialized = false;
+  fInstance = 0;
+
+  if ( gSystem->Getenv("GSEED") ) {
+    LOG("Rndm", pFATAL)
+      << "\n\n"
+      << "************************************************************************************** \n"
+      << "The random number seed is no longer set via the $GSEED variable.\n"
+      << "Please use the --seed option implemented in all GENIE apps or, if you access RandomGen \n"
+      << "directly in your user code, use RandomGen::SetSeed(long int seed).\n"
+      << "Unset $GSEED to continue running GENIE. \n"
+      << "************************************************************************************** \n";
+    gAbortingInErr = true;
+    exit(1);
+  }
+
+  this->InitRandomGenerators(fCurrSeed);
+
+  fInitialized = true;
+}
+//____________________________________________________________________________
+void RandomGen::InitRandomGenerators(long int seed)
+{
+  fRandom3 = new TRandom3();
+  this->SetSeed(seed);
 }
 //____________________________________________________________________________
 RandomGen::~RandomGen()
@@ -77,19 +96,33 @@ RandomGen * RandomGen::Instance()
     static RandomGen::Cleaner cleaner;
     cleaner.DummyMethodAndSilentCompiler();
 
-    fInstance = new RandomGen;
+    fInstance = new RandomGen();
   }
   return fInstance;
+
+}
+//____________________________________________________________________________
+RandomGen * RandomGen::Instance(long int seed)
+{
+  if(fInstance == 0) {
+    static RandomGen::Cleaner cleaner;
+    cleaner.DummyMethodAndSilentCompiler();
+
+    fInstance = new RandomGen(seed);
+  }
+  return fInstance;
+
+}
+//____________________________________________________________________________
+bool RandomGen::IsInitialized()
+{
+  return fInitialized;
 }
 //____________________________________________________________________________
 void RandomGen::SetSeed(long int seed)
 {
   LOG("Rndm", pNOTICE)
-     << "Setting"
-     << ((fInitalized) ? " " : " default ")
-     << "random number seed"
-     << ((fInitalized) ? ": " : " at random number generator initialization: ")
-     << seed;
+     << "Setting random number seed: " << seed;
 
   // Set the seed number for all internal GENIE random number generators
   this->RndKine ().SetSeed(seed);
@@ -128,12 +161,6 @@ void RandomGen::SetSeed(long int seed)
 #ifdef __GENIE_PYTHIA6_ENABLED__
   LOG("Rndm", pINFO) << "PYTHIA6  seed = " << pythia6->GetMRPY(1);
 #endif
-}
-//____________________________________________________________________________
-void RandomGen::InitRandomGenerators(long int seed)
-{
-  fRandom3 = new TRandom3();
-  this->SetSeed(seed);
 }
 //____________________________________________________________________________
 } // genie namespace
