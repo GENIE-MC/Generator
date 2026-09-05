@@ -155,6 +155,9 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
@@ -182,7 +185,6 @@ int main(int argc, char ** argv)
 
         // Init
         utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
-        utils::app_init::RandGen(gOptRanSeed);
         utils::app_init::XSecTable(gOptInpXSecFile, false);
 
         // Get list of neutrinos and nuclear targets

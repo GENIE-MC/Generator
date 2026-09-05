@@ -161,6 +161,9 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
@@ -170,7 +173,6 @@ int main(int argc, char ** argv)
   // Init random number generator generator with user-specified seed number,
   // set user-specified mesg thresholds, set user-specified GHEP print-level
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
-  utils::app_init::RandGen(gOptRanSeed);
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   // Build the incident hadron kinetic energy spectrum, if required
