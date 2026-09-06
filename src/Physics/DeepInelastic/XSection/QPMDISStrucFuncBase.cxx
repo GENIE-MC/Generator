@@ -609,7 +609,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
        
        double xc = ScalingVar(interaction, fMc);
        if(xc<0 || xc>1) {
-          LOG("DISSF", pINFO) << "Unphys. slow rescaling var: xc = " << xc;
+          LOG("DISSF", pWARN) << "Unphys. slow rescaling var: xc = " << xc;
        } else {
           // compute PDFs at (xc,Q2)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
