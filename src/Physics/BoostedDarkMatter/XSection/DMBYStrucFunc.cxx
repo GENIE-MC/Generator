@@ -92,7 +92,7 @@ void DMBYStrucFunc::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double DMBYStrucFunc::ScalingVar(const Interaction * interaction) const
+double DMBYStrucFunc::ScalingVar(const Interaction * interaction, double /*Mf*/ ) const
 {
 // Overrides QPMDMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 

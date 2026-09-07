@@ -150,7 +150,8 @@
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::QPMDISStrucFunc">                         QPMDISStrucFunc.xml                         </config>
-   <config alg="genie::BYStrucFunc">                             BYStrucFunc.xml                             </config>
+   <config alg="genie::BY00StrucFunc">                           BY00StrucFunc.xml                           </config>
+   <config alg="genie::BY21StrucFunc">                           BY21StrucFunc.xml                           </config>
    <config alg="genie::RSHelicityAmplModelCC">                   RSHelicityAmplModelCC.xml                   </config>
    <config alg="genie::RSHelicityAmplModelNCp">                  RSHelicityAmplModelNCp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
@@ -248,6 +249,10 @@
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
+   <config alg="genie::BY00DISNuclearModel">         BY00DISNuclearModel.xml         </config>
+   <config alg="genie::BY21DISNuclearModel">         BY21DISNuclearModel.xml         </config>
+   <config alg="genie::JGDISNuclearModel">           JGDISNuclearModel.xml           </config>
+   
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
    <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>

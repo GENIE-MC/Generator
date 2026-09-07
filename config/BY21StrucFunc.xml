@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the BY21StrucFunc DISStructureFuncModelI
+
+Algorithm Configurable Parameters:
+....................................................................................................
+Name                       Type    Opt   Comment                                Default
+....................................................................................................
+BY-A                       double  No    Bodek-Yang scaling var param A         
+By-B                       double  No    Bodek-Yang scaling var param B         
+BY-CsU                     double  No    Bodek-Yang u sea K factor param        
+BY-CsD                     double  No    Bodek-Yang d sea K factor param        
+BY-Cv1U                    double  No    Bodek-Yang u val K factor param        
+BY-Cv2U                    double  No    Bodek-Yang u val K factor param        
+BY-Cv1D                    double  No    Bodek-Yang d val K factor param        
+BY-Cv2D                    double  No    Bodek-Yang d val K factor param        
+BY-PsA                     double  No    Bodek-Yang P sea axial param
+BY-PvA                     double  No    Bodek-Yang P sea valance param
+BY-PsC                     double  No    Bodek-Yang C sea axial param
+BY-CaLW-nu                 double  No    Low-q0 axial neutrino parameter
+BY-CaLW-nubar              double  No    Low-q0 axial anti-neutrino parameter
+BY-H0                      double  No    Bodek-Yang high order QCD parameter
+BY-H1                      double  No    Bodek-Yang high order QCD parameter
+BY-H2                      double  No    Bodek-Yang high order QCD parameter
+BY-H3                      double  No    Bodek-Yang high order QCD parameter
+BY-RQ2min                  double  No    Bodek-Yang Q2 below corrections are applied
+BY-IncludeH                bool    Yes   Bodek-Yang H(x,Q2) correction applied to F3(x,Q2)    True 
+BY-IncludeAxial            bool    Yes   Bodek-Yang K axial factors are different to Vector   True
+BY-IncludeKCharm           bool    Yes   Bodek-Yang K Charm correction                        True 
++++ This model inherits from QPMDISStrucFunc and calls its configure
++++ The following parameters have to be the same as in QPMDISStrucFunc.xml
+
+PDF-Set                    alg     No    PDF model
+Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
+Charm-Prod-Off             bool    Yes   charm production is turned off         false
+PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
+IncludeR                   bool    No    include R factor?              
+IncludeNuclMod             bool    No    include nuclear factor?            
+CKM-Vcd                    double  No                                           CommonParam[CKM]
+CKM-Vcs                    double  No                                           CommonParam[CKM]
+CKM-Vud                    double  No                                           CommonParam[CKM]
+CKM-Vus                    double  No                                           CommonParam[CKM]
+LowQ2CutoffF1F2            double  No    min for F1/F2 SF relation             
+WeinbergAngle              double  No                                           CommonParam[WeakInt]
+-->
+
+<alg_conf>
+
+  <param_set name="Default"> 
+    <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
+    <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+    <param type="double" name="BY-A">     0.621   </param>
+    <param type="double" name="BY-B">     0.380   </param>
+    <param type="double" name="BY-CvLW">  0.218   </param>
+    <param type="double" name="BY-CsU">   0.369   </param>
+    <param type="double" name="BY-CsD">   0.561   </param>
+    <param type="double" name="BY-Cv1U">  0.417   </param>
+    <param type="double" name="BY-Cv2U">  0.264   </param>
+    <param type="double" name="BY-Cv1D">  0.341   </param>
+    <param type="double" name="BY-Cv2D">  0.323   </param>
+    <param type="double" name="BY-CsS">   0.561   </param>
+    <param type="double" name="BY-PsA">   0.55   </param>
+    <param type="double" name="BY-PvA">   0.30   </param>
+    <param type="double" name="BY-CsA">   0.75   </param>
+    <param type="double" name="BY-CaLW-nu"> 0.436 </param>
+    <param type="double" name="BY-CaLW-nubar"> 0.654 </param>
+    <param type="double" name="BY-H0">    0.914   </param>
+    <param type="double" name="BY-H1">    0.296   </param>
+    <param type="double" name="BY-H2">    -0.374   </param>
+    <param type="double" name="BY-H3">    0.165   </param>
+    <param type="double" name="BY-RQ2min">    0.3   </param>
+    <param type="double" name="EL-Mv"> 0.71     </param>
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Switches controlling the DIS structure function calculation. Those switches specify whether to:
+	 - include an R (~FL) factor into the calculation
+	 - include a nuclear factor (accounting for shadowing/anti-shadowing)
+	 - include corrections for calculating relation between 2xF1 and F2
+	 - Select value for Q2 cutoff in relation between 2xF1 and F2
+    -->
+    <param type="bool"   name="IncludeR"> true  </param>
+    <param type="bool"   name="IncludeH"> true  </param>
+    <param type="bool"   name="IncludeNuclMod"> true  </param>
+    <param type="double" name="LowQ2CutoffF1F2"> 0.8   </param>
+    <param type="bool"   name="Use2016Corrections"> true </param>
+    <param type="bool"   name="BY-IncludeKCharm"> true </param>
+    <param type="bool"   name="BY-IncludeSlowRescaling"> true </param>
+    <param type="bool"   name="BY-IncludeAxial"> true </param>
+
+    <!-- Turning off charm production, as it is accounted by a separate model -->
+    <param type="bool"   name="Charm-Prod-Off">     true  </param>
+    
+    <!-- Specify DIS nuclear correction to use
+	 In this case we use the A-Dependent parameterization by J.Gomez et. al. 
+    -->
+    <param type="alg" name="DISNuclModel">  genie::JGDISNuclearModel/Default </param>
+  </param_set>
+
+  <param_set name="GRV98_2021">
+    <param type="alg" name="DISNuclModel">  genie::BY21DISNuclearModel/Default </param>
+  </param_set>
+
+  <param_set name="GRV98_2000">
+    <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
+  </param_set>
+</alg_conf>
+

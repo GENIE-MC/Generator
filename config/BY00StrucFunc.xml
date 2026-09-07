@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-Configuration for the BYStrucFunc DISStructureFuncModelI
+Configuration for the BY00StrucFunc DISStructureFuncModelI
 
 Algorithm Configurable Parameters:
 ....................................................................................................
@@ -39,30 +39,51 @@ WeinbergAngle              double  No                                           
   <param_set name="Default"> 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
 
-     <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+    <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
 
-     <param type="double" name="BY-A">     0.538   </param>
-     <param type="double" name="BY-B">     0.305   </param>
-     <param type="double" name="BY-CsU">   0.363   </param>
-     <param type="double" name="BY-CsD">   0.621   </param>
-     <param type="double" name="BY-Cv1U">  0.291   </param>
-     <param type="double" name="BY-Cv2U">  0.189   </param>
-     <param type="double" name="BY-Cv1D">  0.202   </param>
-     <param type="double" name="BY-Cv2D">  0.255   </param>
+    <param type="double" name="BY-A">     0.538   </param>
+    <param type="double" name="BY-B">     0.305   </param>
+    <param type="double" name="BY-CsU">   0.363   </param>
+    <param type="double" name="BY-CsD">   0.621   </param>
+    <param type="double" name="BY-Cv1U">  0.291   </param>
+    <param type="double" name="BY-Cv2U">  0.189   </param>
+    <param type="double" name="BY-Cv1D">  0.202   </param>
+    <param type="double" name="BY-Cv2D">  0.255   </param>
 
-     <!-- 
-	  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	  Switches controlling the DIS structure function calculation. Those switches specify whether to:
-	  - include an R (~FL) factor into the calculation
-	  - include a nuclear factor (accounting for shadowing/anti-shadowing)
-	  - include corrections for calculating relation between 2xF1 and F2
-	  - Select value for Q2 cutoff in relation between 2xF1 and F2
-     -->
-     <param type="bool"   name="IncludeR">           true  </param>
-     <param type="bool"   name="IncludeNuclMod">     true  </param>
-     <param type="bool"   name="Use2016Corrections"> false </param>
-     <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
-     
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Switches controlling the DIS structure function calculation. Those switches specify whether to:
+	 - include an R (~FL) factor into the calculation
+	 - include a nuclear factor (accounting for shadowing/anti-shadowing)
+	 - include corrections for calculating relation between 2xF1 and F2
+	 - Select value for Q2 cutoff in relation between 2xF1 and F2
+    -->
+    <param type="bool"   name="IncludeR">           true  </param>
+    <param type="bool"   name="IncludeNuclMod">     true  </param>
+    <param type="bool"   name="Use2016Corrections"> false </param>
+    <param type="double" name="LowQ2CutoffF1F2">    0.8   </param>
+
+    <!-- Specify DIS nuclear correction to use-->
+    <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
+  </param_set>
+
+  <param_set name="BY2000">
+    <!-- Table 2 from https://arxiv.org/pdf/2108.09240, vector parameters only -->
+    <param type="double" name="BY-A">     0.621   </param>
+    <param type="double" name="BY-B">     0.380   </param>
+    <param type="double" name="BY-CsU">   0.369   </param>
+    <param type="double" name="BY-CsD">   0.561   </param>
+    <param type="double" name="BY-Cv1U">  0.417   </param>
+    <param type="double" name="BY-Cv2U">  0.264   </param>
+    <param type="double" name="BY-Cv1D">  0.341   </param>
+    <param type="double" name="BY-Cv2D">  0.323   </param>
+    <param type="bool"   name="Use2016Corrections"> true </param>
+
+    <!-- Turning off charm production, as it is accounted by a separate model -->
+    <param type="bool"   name="Charm-Prod-Off">     true  </param>
+
+    <!-- Specify DIS nuclear correction to use-->
+    <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
   </param_set>
 
 </alg_conf>

@@ -62,6 +62,8 @@ private:
   double fNCScale;            ///< cross section scaling factor
   double fEMScale;            ///< cross section scaling factor
   double fSin48w;           ///< sin^4(Weingberg angle)
+
+  bool   fCharmOff;          ///< turn charm production off?
 };
 
 }       // genie namespace

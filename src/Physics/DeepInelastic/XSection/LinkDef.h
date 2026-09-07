@@ -13,7 +13,8 @@
 #pragma link C++ class genie::KNOTunedQPMDISPXSec;
 
 #pragma link C++ class genie::BYPDF;
-#pragma link C++ class genie::BYStrucFunc;
+#pragma link C++ class genie::BY00StrucFunc;
+#pragma link C++ class genie::BY21StrucFunc;
 
 #pragma link C++ class genie::DISStructureFunc;
 #pragma link C++ class genie::DISStructureFuncModelI;

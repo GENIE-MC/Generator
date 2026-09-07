@@ -97,6 +97,12 @@ University of Liverpool
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/Default            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/Default            </param>
 
+  <!-- Bodek Yang 2021 corrections -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
+  -->
   <!-- Historical Rein-Sehegal model -->
   <!--
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::ReinSehgalCOHPiPXSec/Default   </param>
