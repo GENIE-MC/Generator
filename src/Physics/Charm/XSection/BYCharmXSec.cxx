@@ -250,16 +250,12 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
 
   if (early_return) return;
 
-  //double switch_uv    = 0.;
-  //double switch_us    = 0.;
-  //double switch_ubar  = 0.;
   double switch_dv    = 0.;
   double switch_ds    = 0.;
   double switch_dbar  = 0.;
   double switch_s     = 0.;
   double switch_sbar  = 0.;
-  double switch_c     = 0.;
-  double switch_cbar  = 0.;
+
 
   if(tgt.HitQrkIsSet()) {
 
@@ -273,8 +269,7 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
      bool is_dbar = pdg::IsAntiDQuark (qpdg);
      bool is_s    = pdg::IsSQuark     (qpdg);
      bool is_sbar = pdg::IsAntiSQuark (qpdg);
-     bool is_c    = pdg::IsCQuark     (qpdg);
-     bool is_cbar = pdg::IsAntiCQuark (qpdg);
+
 
      //if      (!sea && is_u   ) { switch_uv   = 1; }
      //else if ( sea && is_u   ) { switch_us   = 1; }
@@ -284,17 +279,10 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
      else if ( sea && is_dbar) { switch_dbar = 1; }
      else if ( sea && is_s   ) { switch_s    = 1; }
      else if ( sea && is_sbar) { switch_sbar = 1; }
-     else if ( sea && is_c   ) { switch_c    = 1; }
-     else if ( sea && is_cbar) { switch_cbar = 1; }
      else return;
 
-     // make sure user inputs make sense
-    //if(is_nu    && is_CC && is_u   ) return;
-    if(is_nu    && is_CC && is_c   ) return;
     if(is_nu    && is_CC && is_dbar) return;
     if(is_nu    && is_CC && is_sbar) return;
-    //if(is_nubar && is_CC && is_ubar) return;
-    if(is_nubar && is_CC && is_cbar) return;
     if(is_nubar && is_CC && is_d   ) return;
     if(is_nubar && is_CC && is_s   ) return;
   } else {
@@ -312,8 +300,6 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
    << " dv "   << fDISSFModel->fdv_c << " " << switch_dv   << " "
    << " ds "   << fDISSFModel->fds_c << " " << switch_ds   << " " 
    << " s "    << fDISSFModel->fs_c  << " " << switch_s    << " " 
-   << " cbar " << fDISSFModel->fc_c  << " " << switch_cbar << " " 
-   << " c "    << fDISSFModel->fc_c  << " " << switch_c    << " "
    << " dbar " << fDISSFModel->fds_c << " " << switch_dbar << " " 
    << " sbar " << fDISSFModel->fs_c  << " " << switch_sbar << " ";
 #endif
@@ -350,35 +336,26 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
     if (is_nu) {      
       // KA = KV for charm due to its mass
       q    = ( switch_dv * fDISSFModel->fdv_c * ( kV_val_d + kV_val_d ) 
-             + switch_ds * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) ) * fDISSFModel->fVcd2 ;
-      q   +=   switch_s  * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s )   * fDISSFModel->fVcs2;
+             + switch_ds * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) ) * fDISSFModel->fVcd2
+             + switch_s  * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s )   * fDISSFModel->fVcs2;
 
-      qbar  = switch_cbar * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u ) * fDISSFModel->fVcd2;
-      qbar += switch_cbar * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u ) * fDISSFModel->fVcs2;
     } else if (is_nubar) {
-	    q    =   switch_c  * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u )   * fDISSFModel->fVcd2;
-	    q   +=   switch_c  * fDISSFModel->fc_c * ( kV_sea_u + kV_sea_u )   * fDISSFModel->fVcs2;
 
 	    qbar  = switch_dbar * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) * fDISSFModel->fVcd2;
-	    qbar += switch_sbar * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s ) * fDISSFModel->fVcs2;
+	          + switch_sbar * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s ) * fDISSFModel->fVcs2;
     } 
     
     F2val  = (q+qbar);
-    
+    q=0, qbar=0;
     if (is_nu) { 
       q    = ( switch_dv * fDISSFModel->fdv_c * sqrt( kV_val_d * kV_val_d ) 
-             + switch_ds * fDISSFModel->fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2;
-      q   +=   switch_s  * fDISSFModel->fs_c  * sqrt( kV_sea_s * kV_sea_s )   * fDISSFModel->fVcs2;
-      
-      qbar  = switch_cbar * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) * fDISSFModel->fVcd2;
-      qbar += switch_cbar * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) * fDISSFModel->fVcs2;
+             + switch_ds * fDISSFModel->fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2
+             + switch_s  * fDISSFModel->fs_c  * sqrt( kV_sea_s * kV_sea_s )   * fDISSFModel->fVcs2;
+       
     }
     else if (is_nubar) {
-	    q    = ( switch_c  * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fDISSFModel->fVcd2;
-	    q   += ( switch_c  * fDISSFModel->fc_c * sqrt( kV_sea_u * kV_sea_u ) ) * fDISSFModel->fVcs2;
-
-	    qbar  = ( switch_dbar * fDISSFModel->fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2;
-	    qbar += ( switch_sbar * fDISSFModel->fs_c  * sqrt( kV_sea_s * kV_sea_s ) ) * fDISSFModel->fVcs2;
+	    qbar  = ( switch_dbar * fDISSFModel->fds_c * sqrt( kV_sea_d * kV_sea_d ) ) * fDISSFModel->fVcd2
+	          + ( switch_sbar * fDISSFModel->fs_c  * sqrt( kV_sea_s * kV_sea_s ) ) * fDISSFModel->fVcs2;
     } 
 
     xF3val = 2*(q-qbar);

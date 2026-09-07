@@ -192,18 +192,6 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec *= NNucl;
-/*
-  if( !fCharmOff ) {
-    interaction->ExclTagPtr()->SetCharm();
-    double xsec_charm = fCharmProdModel->XSec(interaction, kps);
-    interaction->ExclTagPtr()->UnsetCharm();
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("DISPXSec", pNOTICE) << "Subtracting charm piece: " << xsec_charm
-			   << " / out of " << xsec << ", at E = " << E;
-#endif
-    xsec = TMath::Max(0., xsec - xsec_charm);
-  }
-  */
   // Compute nuclear cross section (simple scaling here, corrections must
   // have been included in the structure functions)
 
@@ -281,8 +269,6 @@ void QPMDISPXSec::LoadConfig(void) {
   GetParam("DIS-NC-XSecScale", fNCScale);
   GetParam("DIS-EM-XSecScale", fEMScale);
 
-  // Compute only charm?
-  GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
   
   // sin^4(theta_weinberg)
   double thw;
