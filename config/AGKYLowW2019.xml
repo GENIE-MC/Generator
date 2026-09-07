@@ -169,7 +169,7 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
 
   <param_set name="Default-Decaying">
     <param type="bool" name="ForceDecays">  true                                 </param>
-    <param type="alg"  name="Decayer">      genie::Pythia6Decayer2023/Default    </param>
+    <param type="alg"  name="Decayer">      genie::Pythia8Decayer2023/Default    </param>
   </param_set>
 
   <param_set name="Old">
@@ -179,7 +179,7 @@ KNO-PhaseSpDec-ReweightParm       double  Yes   parameter controlling the reweig
 
   <param_set name="Old-Decaying">
      <param type="bool" name="ForceDecays">           true                            </param>
-     <param type="alg"  name="Decayer">               genie::Pythia6Decayer2023/Default   </param>
+     <param type="alg"  name="Decayer">               genie::Pythia8Decayer2023/Default   </param>
      <param type="bool" name="KNO-UseBaryonPdfs-xFpT2">   false                           </param>
      <param type="bool" name="KNO-PhaseSpDec-Reweight">   false                           </param>
   </param_set>
