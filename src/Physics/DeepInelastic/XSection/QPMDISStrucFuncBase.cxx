@@ -254,7 +254,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   double kA_sea_s = 1.;
 
   bool isN = pdg::IsNeutron (nuc_pdgc);
-  if (isN){ 
+  if (isN){
     // if target is neutron swap u <-> d
     // like in this->calc
     this->KVectorFactors(interaction, kV_val_d, kV_val_u, kV_sea_d, kV_sea_u, kV_sea_s);
@@ -264,7 +264,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     this->KAxialFactors (interaction, kA_val_u, kA_val_d, kA_sea_u, kA_sea_d, kA_sea_s);
   }
 
-  
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "K-Factors:";
   LOG("DISSF", pDEBUG) << "U: kV_val_u = " << kV_val_u << ", kV_sea_u = " << kV_sea_u;
@@ -272,7 +272,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
   LOG("DISSF", pDEBUG) << "D: kV_val_d = " << kV_val_d << ", kV_sea_d = " << kV_sea_d;
   LOG("DISSF", pDEBUG) << "D: kA_val_d = " << kA_val_d << ", kA_sea_d = " << kA_sea_d;
 #endif
-  
+
   //
   // Compute structure functions for the EM, NC and CC cases
   //
@@ -316,14 +316,14 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     qb2        += switch_cbar * fc  * ( kV_sea_u * gvu2 + kA_sea_u * gau2);
     qb2        += switch_dbar * fds * ( kV_sea_d * gvd2 + kA_sea_d * gad2);
     qb2        += switch_sbar * fs  * ( kV_sea_s * gvd2 + kA_sea_s * gad2);
-    
+
     double q3   = switch_uv * sqrt( kV_val_u * kA_val_u ) * fuv * (gvu*gau);
     q3         += switch_us * sqrt( kV_sea_u * kA_sea_u ) * fus * (gvu*gau);
     q3         += switch_c  * sqrt( kV_sea_u * kA_sea_u ) * fc  * (gvu*gau);
     q3         += switch_dv * sqrt( kV_val_d * kA_val_d ) * fdv * (gvd*gad);
     q3         += switch_ds * sqrt( kV_sea_d * kA_sea_d ) * fds * (gvd*gad);
     q3         += switch_s  * sqrt( kV_sea_s * kA_sea_s ) * fs  * (gvd*gad);
-   
+
 
     double qb3  = switch_ubar * sqrt( kV_sea_u * kA_sea_u )  * fus * (gvu*gau);
     qb3        += switch_cbar * sqrt( kV_sea_u * kA_sea_u )  * fc  * (gvu*gau);
@@ -338,7 +338,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     F2val  = q2 + qb2;
     xF3val = 2.0 * (q3-qb3);
   }
-  
+
   // ***  CHARGED CURRENT
 
   // ***  CHARGED CURRENT
@@ -429,7 +429,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DISSF", pDEBUG) << "R(=FL/2xF1) = " << r;
 #endif
-  
+
   if(fUse2016Corrections) {
     //It was confirmed by A.Bodek that the modified scaling variable
     //should just be used to compute the strucure functions F2 and xF3,
@@ -600,7 +600,6 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
     LOG("DISSF", pDEBUG)
       << "The event is above the charm threshold (mcharm = " << fMc << ")";
 #endif
-
        // compute the slow rescaling var
        double xc = ScalingVar(interaction, fMc);
        if(xc<0 || xc>1) {
@@ -615,7 +614,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
        }
   }//above charm thr?
 
-  
+
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   else {
     LOG("DISSF", pDEBUG)

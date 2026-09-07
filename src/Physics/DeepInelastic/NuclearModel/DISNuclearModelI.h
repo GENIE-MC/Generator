@@ -5,7 +5,7 @@
 
 \brief    Pure abstract base class.
           Defines the EMCModelI interface to be implemented by any physics
-          model describing the ratio of l-A DIS cross-sections with respect to 
+          model describing the ratio of l-A DIS cross-sections with respect to
 	  the free nucleon calculation
 
 \author   J. Tena Vidal <julia.tena-vidal@ific.uv.es>
@@ -48,7 +48,7 @@ protected:
   DISNuclearModelI();
   DISNuclearModelI(string name);
   DISNuclearModelI(string name, string config);
-  
+
 };
 
 }         // genie namespace

@@ -21,7 +21,7 @@
 
 #include <string>
 
-#include "Physics/NuclearState/DISNuclearModelI.h"
+#include "Physics/DeepInelastic/NuclearModel/DISNuclearModelI.h"
 
 namespace genie {
 
