@@ -240,16 +240,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
    << " sbar " << fs_c  << " " << switch_sbar << " ";
 
 #endif
-  // In the case of Charm CC DIS, we need a different treatment 
-  bool hasCharmContribution = (fdv_c * switch_dv   > 0) 
-   || (fds_c * switch_ds   > 0) || (fs_c  * switch_s    > 0) 
-   || (fc_c  * switch_cbar > 0) || (fc_c  * switch_c    > 0)
-   || (fds_c * switch_dbar > 0) || (fs_c  * switch_sbar > 0);
-  const bool applyCharmCorrection = is_CC && hasCharmContribution && !fCharmOff ;
 
-  // KCH = 1 if below charm threshold
-  double KCH = 1.0;
-  if (applyCharmCorrection) KCH = KCharm(interaction, fMc);  
   
   // Compute the K factors
   double kV_val_u = 1.;
@@ -444,9 +435,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double a = TMath::Power(bjx,2.) / TMath::Max(Q2val, fLowQ2CutoffF1F2);
     double c = (1. + 4. * kNucleonMass2 * a) / (1.+r);
 
-    fF3 = H * KCH * xF3val/bjx;
+    fF3 = H * xF3val/bjx;
     fF2 = F2val;
-    fF1 = fF2 * KCH * 0.5 * c / bjx;
+    fF1 = fF2 * 0.5 * c / bjx;
     fF5 = fF2 * 0.5 / bjx;           // Albright-Jarlskog relation
     fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
   }
