@@ -351,9 +351,9 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
              + switch_ds   * fds * ( kV_sea_d + kA_sea_d ) ) * fVud2
              + switch_s    * fs  * ( kV_sea_s + kA_sea_s )   * fVus2;
       qbar  =  switch_cbar * fc  * ( kV_sea_u + kV_sea_u )   * fVcd2
-            =  switch_cbar * fc  * ( kV_sea_u + kV_sea_u )   * fVcs2
-            =  switch_ubar * fus * ( kV_sea_u + kA_sea_u )   * fVud2
-            =  switch_ubar * fus * ( kV_sea_u + kA_sea_u )   * fVus2;
+            +  switch_cbar * fc  * ( kV_sea_u + kV_sea_u )   * fVcs2
+            +  switch_ubar * fus * ( kV_sea_u + kA_sea_u )   * fVud2
+            +  switch_ubar * fus * ( kV_sea_u + kA_sea_u )   * fVus2;
     } else if (is_nubar) {
 	    q    = ( switch_uv * fuv  * ( kV_val_u + kA_val_u )
              + switch_us * fus  * ( kV_sea_u + kA_sea_u ) ) * fVud2
@@ -362,7 +362,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
 	           + switch_c  * fc   * ( kV_sea_u + kV_sea_u )   * fVcd2
 	           + switch_c  * fc   * ( kV_sea_u + kV_sea_u )   * fVcs2;
 	    qbar = switch_dbar * fds  * ( kV_sea_d + kA_sea_d )   * fVud2
-	         + switch_sbar * fs  * ( kV_sea_s + kA_sea_s )   * fVus2;
+	         + switch_sbar * fs   * ( kV_sea_s + kA_sea_s )   * fVus2;
     } else {
 	    return;
     }
@@ -405,14 +405,16 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     double sq13 = TMath::Power(1./3., 2.);
 
     double qu   = sq23 * ( switch_uv   * fuv * kV_val_u + switch_us * fus * kV_sea_u ) ;
+    double qc   = sq23 * ( switch_c    * fc  * kV_sea_u) ;
     double qd   = sq13 * ( switch_dv   * fdv * kV_val_d + switch_ds * fds * kV_sea_d ) ;
     double qs   = sq13 * ( switch_s    * fs  * kV_sea_s ) ;
     double qbu  = sq23 * ( switch_ubar * fus * kV_sea_u );
+    double qbc  = sq23 * ( switch_cbar * fc  * kV_sea_u );
     double qbd  = sq13 * ( switch_dbar * fds * kV_sea_d );
     double qbs  = sq13 * ( switch_sbar * fs  * kV_sea_s );
 
-    double q    = qu  + qd  + qs;
-    double qbar = qbu + qbd + qbs;
+    double q    = qu  + qd  + qs + qc;
+    double qbar = qbu + qbd + qbs + qbc;
 
     F2val  = q + qbar;
     xF3val = 0.;
