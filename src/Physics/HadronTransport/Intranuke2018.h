@@ -153,6 +153,9 @@ protected:
   double       fNucleonFracAbsScale;
   double       fNucleonFracPiProdScale;
 
+  /// Bias parameter used to adjust pion production distribution away from pure
+  /// three-body phase space
+  double       fPiProdThreeBodyBias;
 };
 
 }      // genie namespace

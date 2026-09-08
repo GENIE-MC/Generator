@@ -52,7 +52,7 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
     <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
     <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
 
- 
+
 
     <param type="double" name="HAINUKE-DelRPion">        0.0   </param>
     <param type="double" name="HAINUKE-DelRNucleon">     0.0   </param>
@@ -74,7 +74,7 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
     <param type="double" name="FSI-Nucleon-FracAbsScale">     1.000 </param>
     <param type="double" name="FSI-Nucleon-FracPiProdScale">  1.000 </param>
     -->
-    
+
   </param_set>
 
 </alg_conf>
