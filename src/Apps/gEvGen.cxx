@@ -273,7 +273,7 @@ int main(int argc, char ** argv)
 void Initialize()
 {
 
-  // Seed should always be initialised first.
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
   utils::app_init::RandGen(gOptRanSeed);
 
   if ( ! RunOpt::Instance()->Tune() ) {
@@ -282,7 +282,7 @@ void Initialize()
   }
   RunOpt::Instance()->BuildTune();
 
-  // Initialization of random number generators, cross-section table,
+  // Initialization of cross-section table,
   // messenger thresholds, cache file
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
