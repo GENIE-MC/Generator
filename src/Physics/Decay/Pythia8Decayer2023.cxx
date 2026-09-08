@@ -262,13 +262,7 @@ void Pythia8Decayer2023::Initialize(void) const
   long int seed = rnd->GetSeed();
   gPythia->readString("Random::setSeed = on");
   gPythia->settings.mode("Random:seed",seed);
-
-  LOG("Pythia8Decay", pFATAL)
-    << "Setting PYTHIA8 seed -> " << seed;
-
-
-  // Pythia8 only allows one initialisation unless you specifically ask for re-init with a file.
-  if( ! gPythia->settings.getIsInit() ) { gPythia->init(); }
+  gPythia->init();
 
   LOG("Pythia8Decay", pINFO)
     << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
