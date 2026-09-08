@@ -150,8 +150,9 @@ bool   gWriteOutPlots;   // write out a postscript file with plots
 double gEmin;
 double gEmax;
 bool gInlogE;
-int    kNP       = 0;
-int    kNSplineP = 0;
+int    kNP       = 50;
+int    kNSplineP = 50;
+bool kNPset = false;
 const int    kPsType   = 111;  // ps type: portrait
 
 //____________________________________________________________________________
@@ -195,7 +196,7 @@ void LoadSplines(void)
   XSecSplineList * splist = XSecSplineList::Instance();
   XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
   assert(ist == kXmlOK);
-  if (kNP != 0 && kNSplineP != 0) return;
+  if (kNPset) return;
   const auto *keys = splist->GetSplineKeys();
 
   if (!keys) return; 
@@ -1493,6 +1494,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gspl2root", pINFO) << "Reading number of desired knots";
     kNP       = parser.ArgAsInt('n');
     kNSplineP = parser.ArgAsInt('n');
+    kNPset = true;
   }
   // probe PDG code:
   if( parser.OptionExists('p') ) {
