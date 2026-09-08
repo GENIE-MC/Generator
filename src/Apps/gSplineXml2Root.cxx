@@ -150,8 +150,8 @@ bool   gWriteOutPlots;   // write out a postscript file with plots
 double gEmin;
 double gEmax;
 bool gInlogE;
-int    kNP       = 300;
-int    kNSplineP = 1000;
+int    kNP       = 0;
+int    kNSplineP = 0;
 const int    kPsType   = 111;  // ps type: portrait
 
 //____________________________________________________________________________
@@ -195,6 +195,15 @@ void LoadSplines(void)
   XSecSplineList * splist = XSecSplineList::Instance();
   XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
   assert(ist == kXmlOK);
+  if (kNP != 0 && kNSplineP != 0) return;
+  const auto *keys = splist->GetSplineKeys();
+
+  if (!keys) return; 
+  for (const std::string &name : *keys) {
+    const Spline *s = splist->GetSpline(name);
+    kNP = std::max(s->NKnots(), kNP);
+    kNSplineP = kNP;
+  }
 }
 //____________________________________________________________________________
 GEVGDriver GetEventGenDriver(void)
@@ -1480,7 +1489,11 @@ void GetCommandLineArgs(int argc, char ** argv)
     PrintSyntax();
     exit(1);
   }
-
+  if (parser.OptionExists('n')){
+    LOG("gspl2root", pINFO) << "Reading number of desired knots";
+    kNP       = parser.ArgAsInt('n');
+    kNSplineP = parser.ArgAsInt('n');
+  }
   // probe PDG code:
   if( parser.OptionExists('p') ) {
     LOG("gspl2root", pINFO) << "Reading probe PDG code";
