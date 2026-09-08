@@ -113,6 +113,7 @@ int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
   utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
 

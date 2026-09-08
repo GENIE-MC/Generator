@@ -81,6 +81,7 @@ RandomGen::RandomGen(long int seed) : fCurrSeed(seed)
 void RandomGen::InitRandomGenerators(long int seed)
 {
   fRandom3 = new TRandom3();
+  fCurrSeed = seed;
   this->SetSeed(seed);
 }
 //____________________________________________________________________________
@@ -125,6 +126,7 @@ void RandomGen::SetSeed(long int seed)
      << "Setting random number seed: " << seed;
 
   // Set the seed number for all internal GENIE random number generators
+  fCurrSeed = seed;
   this->RndKine ().SetSeed(seed);
   this->RndHadro().SetSeed(seed);
   this->RndDec  ().SetSeed(seed);
