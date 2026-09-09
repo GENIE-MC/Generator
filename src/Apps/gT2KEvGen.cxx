@@ -526,6 +526,8 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
+  utils::app_init::RandGen(gOptRanSeed);
 
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
@@ -533,11 +535,10 @@ int main(int argc, char ** argv)
   }
   RunOpt::Instance()->BuildTune();
 
-  // Initialization of random number generators, cross-section table,
+  // Initialization of cross-section table,
   // messenger thresholds, cache file
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
-  utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::XSecTable(gOptInpXSecFile, true);
 
   // Set GHEP print level
