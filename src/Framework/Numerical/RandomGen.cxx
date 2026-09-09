@@ -19,6 +19,9 @@
 #ifdef __GENIE_PYTHIA6_ENABLED__
 #include <TPythia6.h>
 #endif
+#ifdef __GENIE_PYTHIA8_ENABLED__
+#include "Framework/Utils/Pythia8Singleton.h"
+#endif
 
 using namespace genie::controls;
 
@@ -81,6 +84,7 @@ RandomGen::RandomGen(long int seed) : fCurrSeed(seed)
 void RandomGen::InitRandomGenerators(long int seed)
 {
   fRandom3 = new TRandom3();
+  fCurrSeed = seed;
   this->SetSeed(seed);
 }
 //____________________________________________________________________________
@@ -125,6 +129,7 @@ void RandomGen::SetSeed(long int seed)
      << "Setting random number seed: " << seed;
 
   // Set the seed number for all internal GENIE random number generators
+  fCurrSeed = seed;
   this->RndKine ().SetSeed(seed);
   this->RndHadro().SetSeed(seed);
   this->RndDec  ().SetSeed(seed);
@@ -145,6 +150,12 @@ void RandomGen::SetSeed(long int seed)
   TPythia6 * pythia6 = TPythia6::Instance();
   pythia6->SetMRPY(1, seed);
 #endif
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+  gPythia->readString("Random::setSeed = on");
+  gPythia->settings.mode("Random:seed",seed);
+  gPythia->init();
+#endif
 
   LOG("Rndm", pINFO) << "RndKine  seed = " << this->RndKine ().GetSeed();
   LOG("Rndm", pINFO) << "RndHadro seed = " << this->RndHadro().GetSeed();
@@ -160,6 +171,9 @@ void RandomGen::SetSeed(long int seed)
   LOG("Rndm", pINFO) << "gRandom  seed = " << gRandom->GetSeed();
 #ifdef __GENIE_PYTHIA6_ENABLED__
   LOG("Rndm", pINFO) << "PYTHIA6  seed = " << pythia6->GetMRPY(1);
+#endif
+#ifdef __GENIE_PYTHIA8_ENABLED__
+  LOG("Rndm", pINFO) << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
 #endif
 }
 //____________________________________________________________________________

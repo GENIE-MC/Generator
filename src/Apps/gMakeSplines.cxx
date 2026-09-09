@@ -147,7 +147,7 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
-  // Seed should always be initialised first.
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
   utils::app_init::RandGen(gOptRanSeed);
 
   if ( ! RunOpt::Instance()->Tune() ) {
