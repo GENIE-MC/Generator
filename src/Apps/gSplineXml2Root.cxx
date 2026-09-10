@@ -150,8 +150,9 @@ bool   gWriteOutPlots;   // write out a postscript file with plots
 double gEmin;
 double gEmax;
 bool gInlogE;
-int    kNP       = 50;
-int    kNSplineP = 50;
+int    kNP       = 0;
+int    kNSplineP = 0;
+string interpolation = "TSpline3";
 bool kNPset = false;
 const int    kPsType   = 111;  // ps type: portrait
 
@@ -196,14 +197,15 @@ void LoadSplines(void)
   XSecSplineList * splist = XSecSplineList::Instance();
   XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
   assert(ist == kXmlOK);
+  splist->SetInterpolationType(interpolation);
   if (kNPset) return;
-  const auto *keys = splist->GetSplineKeys();
+  const std::vector<std::string> *keys = splist->GetSplineKeys();
 
   if (!keys) return; 
   for (const std::string &name : *keys) {
     const Spline *s = splist->GetSpline(name);
-    kNP = std::max(s->NKnots(), kNP);
-    kNSplineP = kNP;
+    kNP = std::max(s->NKnots()-1, kNP);
+    kNSplineP = kNP + 1;
   }
 }
 //____________________________________________________________________________
@@ -1491,9 +1493,9 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
   if (parser.OptionExists('n')){
-    LOG("gspl2root", pINFO) << "Reading number of desired knots";
+    LOG("gspl2root", pINFO) << "Reading number of knots";
     kNP       = parser.ArgAsInt('n');
-    kNSplineP = parser.ArgAsInt('n');
+    kNSplineP = parser.ArgAsInt('n') - 1;
     kNPset = true;
   }
   // probe PDG code:
@@ -1516,6 +1518,11 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Unspecified target PDG code - Exiting";
     PrintSyntax();
     exit(1);
+  }
+
+  if( parser.OptionExists('x') ) {
+    LOG("gspl2root", pINFO) << "Reading interpolation type";
+    interpolation = parser.ArgAsString('x');
   }
 
   // min,max neutrino energy

@@ -608,5 +608,19 @@ void XSecSplineList::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
+void XSecSplineList::SetInterpolationType(string type){
+for (map<string, map<string, Spline *> >::iterator outer = fSplineMap.begin();
+     outer != fSplineMap.end(); ++outer)
+{
+    const string &firstKey = outer->first;
+    for (map<string, Spline *>::iterator inner = outer->second.begin();
+         inner != outer->second.end(); ++inner) {
+        inner->second->SetType(type);
+
+
+    }
+}
+}
+
 
 } // genie namespace

@@ -362,7 +362,9 @@ bool Spline::IsWithinValidRange(double x) const
 //___________________________________________________________________________
 double Spline::Evaluate(double x) const
 {
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("Spline", pDEBUG) << "Evaluating spline at point x = " << x;
+#endif
   assert(!TMath::IsNaN(x));
 
   double y = 0;
@@ -388,19 +390,20 @@ double Spline::Evaluate(double x) const
       // at least one of the neighboring knots has y=0
       if(is0p && is0n) {
         // both neighboring knots have y=0
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("Spline", pDEBUG) << "Point is between zero knots";
+#endif
         y=0;
       } else {
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-        // just 1 neighboring knot has y=0 - do a linear interpolation
-        LOG("Spline", pDEBUG)
-          << "Point has zero" << (is0n ? " left " : " right ") << "knot";
-#endif
         double xpknot=0, ypknot=0, xnknot=0, ynknot=0;
         this->FindClosestKnot(x, xnknot, ynknot, "-");
         this->FindClosestKnot(x, xpknot, ypknot, "+");
-        if(is0n) y = ypknot * (x-xnknot)/(xpknot-xnknot);
-        else     y = ynknot * (x-xnknot)/(xpknot-xnknot);
+        y = ynknot + (ypknot - ynknot) * (x - xnknot) / (xpknot - xnknot);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+        // just 1 neighboring knot has y=0 - do a linear interpolation
+        LOG("Spline", pWARN)
+          << "Point has zero" << (is0n ? " left " : " right ") << "knot, x = " << x << ", y = " << y;
+#endif
       }
     }
 

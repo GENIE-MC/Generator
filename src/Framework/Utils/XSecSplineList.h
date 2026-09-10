@@ -78,7 +78,7 @@ public:
   // The results of the following methods depend on the current tune setting
   string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
   const vector<string> * GetSplineKeys(void) const;
-
+  void SetInterpolationType(string type);
 
   // XSecSplineList options
   void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)
