@@ -247,7 +247,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
     steady_clock::time_point start = steady_clock::now();
 
-    xsec[i] = alg->Integral(interaction);
+    xsec[i] = TMath::Max(alg->Integral(interaction), 0.);
 
     steady_clock::time_point end = steady_clock::now();
 

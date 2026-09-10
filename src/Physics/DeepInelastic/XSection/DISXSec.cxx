@@ -165,6 +165,9 @@ double DISXSec::Integrate(
        xsec = ig.Integral(kine_min, kine_max) * (1E-38 * units::cm2);
        delete func;
      }//phase space ok?
+     else {
+      LOG("DISXSec", pWARN) << "PhaseSpace is not ok for (E = " << Ev << " GeV)";
+     }
 
      LOG("DISXSec", pINFO)  << "XSec[DIS] (E = " << Ev << " GeV) = " << xsec;
 
