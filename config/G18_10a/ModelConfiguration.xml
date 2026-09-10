@@ -92,17 +92,17 @@ University of Liverpool
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
   -->
-
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/Default            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/Default            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/Default            </param>
-
+ <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/BY2000            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/BY2000            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/BY2000            </param>
+   -->
   <!-- Bodek Yang 2021 corrections -->
-  <!--
+
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
-  -->
+
   <!-- Historical Rein-Sehegal model -->
   <!--
   <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::ReinSehgalCOHPiPXSec/Default   </param>
@@ -129,7 +129,7 @@ University of Liverpool
   <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         genie::NuElectronPXSec/Default        </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM">   genie::KovalenkoQELCharmPXSec/Default </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM">   genie::AivazisCharmPXSecLO/CC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM">   genie::BYCharmXSec/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-SINGLEK"> genie::AlamSimoAtharVacasSKPXSec2014/Default </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-LAMBDA">  genie::PaisQELLambdaPXSec/Default     </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">     genie::H3AMNuGammaPXSec/Default       </param>

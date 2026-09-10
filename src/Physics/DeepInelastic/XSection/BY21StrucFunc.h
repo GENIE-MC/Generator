@@ -50,7 +50,6 @@ protected:
   double ScalingVar (const Interaction * i, double Mf = 0 ) const;
   void   KVectorFactors (const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const;
   void   KAxialFactors(const Interaction * i, double & kuv, double & kdv, double & kus, double & kds, double & kss ) const ;
-  
   double R(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double H(const Interaction * interaction) const ; // overrides QPMDISStrucFuncBase implementation
   double KCharm(const Interaction * i, double Mf = 0) const; // overrides QPMDISStrucFuncBase implementation
@@ -81,6 +80,27 @@ protected:
   bool   fIncludeH; ///< Include H correction 
   bool   fIncludeAxial; ///< Include difference between A and V;
   bool   fIncludeKCharm; ///< Include KCharm correction
+
+  // R1998 is defined as the average of Ra, Rb and Rc, each parameterized to accomodate new data at low x
+  // arXiv:hep-ex/9808028
+  double a1 = 0.0485;
+  double a2 = 0.5470;
+  double a3 = 2.0621;
+  double a4 = -0.3804;
+  double a5 = 0.5090;
+  double a6 = -0.0285;
+  double b1 = 0.0481;
+  double b2 = 0.6114;
+  double b3 = -0.3509;
+  double b4 = -0.4611;
+  double b5 = 0.7172;
+  double b6 = -0.0317;
+  double c1 = 0.0577;
+  double c2 = 0.4644;
+  double c3 = 1.8288;
+  double c4 = 12.3708;
+  double c5 = -43.1043;
+  double c6 = 41.7415;
 
 };
 

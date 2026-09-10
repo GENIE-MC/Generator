@@ -20,6 +20,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/Utils/KineUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -207,9 +208,9 @@ double BY21StrucFunc::KCharm(const Interaction * interaction, double Mf) const {
   // For a simple modification of Bjorken x, chi'=x(1+Mf2/Q2), the correction factor is equivalent
   // to KCharm, defined in Sec 8 of https://arxiv.org/pdf/2108.09240
   // In our case, to keep it general, we define it explicitly as x/chi_w
-  if( !fIncludeKCharm ) return 1.;
+  if( !fIncludeKCharm) return 1.;
   
-  double K = interaction->Kine().x()/ScalingVar(interaction, fMc);
+  double K = interaction->Kine().x()/ScalingVar(interaction, Mf);
 
   return K;
   
@@ -240,34 +241,14 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   
   double Theta = 1 + 12.0 * ( Q2 / (Q2+1.) ) * pow(0.125,2)/(pow(0.125,2)+x2);
   
-  // R1998 is defined as the average of Ra, Rb and Rc, each parameterized to accomodate new data at low x
-  // arXiv:hep-ex/9808028
-  const double a1 = 0.0485;
-  const double a2 = 0.5470;
-  const double a3 = 2.0621;
-  const double a4 = -0.3804;
-  const double a5 = 0.5090;
-  const double a6 = -0.0285;
   
   double Ra = (a1 * Theta / TMath::Log(Q2/0.04) ) ;
   Ra += a2 * ( 1 + a4 * x + a5 * x2 ) * pow( x, a6 ) / pow( Q8 + pow(a3,4), 1./4. ) ;
 
-  const double b1 = 0.0481;
-  const double b2 = 0.6114;
-  const double b3 = -0.3509;
-  const double b4 = -0.4611;
-  const double b5 = 0.7172;
-  const double b6 = -0.0317;
 
   double Rb = b1 * Theta / TMath::Log(Q2/0.04) ;
   Rb += (b2 / Q2 + b3 / (Q4 + 0.09) ) * (1 + b4*x + b5*x2) * pow(x,b6);
 	 
-  const double c1 = 0.0577;
-  const double c2 = 0.4644;
-  const double c3 = 1.8288;
-  const double c4 = 12.3708;
-  const double c5 = -43.1043;
-  const double c6 = 41.7415;
   double Q2thr = c4*x + c5*x2 + c6*x3;
   double Rc = c1 * Theta / TMath::Log( Q2/0.04 ) ;
   Rc += c2 / sqrt( pow(Q2 - Q2thr,2) + pow(c3,2));
@@ -284,4 +265,3 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   
   return R1998 ; 
 }
-

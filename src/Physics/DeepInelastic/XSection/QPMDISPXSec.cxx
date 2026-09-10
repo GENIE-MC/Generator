@@ -128,9 +128,26 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   double term5 = -1. * ml2 / (Mnuc * E);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pDEBUG) << "\nd2xsec/dxdy ~ (" << term1 << ")*F1+(" << term2
-                          << ")*F2+(" << term3 << ")*F3+(" << term4 << ")*F4+("
-                          << term5 << ")*F5";
+  LOG("DISPXSec", pNOTICE)
+    << "DIS d2xsec/dxdy terms:\n"
+    << "  Q2      = " << interaction->Kine().Q2() << "\n"
+    << "  x       = " << x << "\n"
+    << "  y       = " << y << "\n"
+    << "  E       = " << E << "\n"
+    << "  Mnuc    = " << Mnuc << "\n"
+    << "  ml2     = " << ml2 << "\n"
+    << "  ml4     = " << ml4 << "\n"
+    << "  sign    = " << sign << "\n"
+    << "  F1      = " << fDISSF.F1() << "\n"
+    << "  F2      = " << fDISSF.F2() << "\n"
+    << "  F3      = " << fDISSF.F3() << "\n"
+    << "  F4      = " << fDISSF.F4() << "\n"
+    << "  F5      = " << fDISSF.F5() << "\n"
+    << "  coeff1  = " << term1 << "\n"
+    << "  coeff2  = " << term2 << "\n"
+    << "  coeff3  = " << term3 << "\n"
+    << "  coeff4  = " << term4 << "\n"
+    << "  coeff5  = " << term5 << "\n";
 #endif
 
   term1 *= fDISSF.F1();
@@ -140,10 +157,24 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   term5 *= fDISSF.F5();
 
   double xsec = front_factor * (term1 + term2 + term3 + term4 + term5);
+
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("DISPXSec", pNOTICE)
+    << "DIS d2xsec/dxdy contributions:\n"
+    << "  front_factor = " << front_factor << "\n"
+    << "  term1*F1     = " << term1 << "\n"
+    << "  term2*F2     = " << term2 << "\n"
+    << "  term3*F3     = " << term3 << "\n"
+    << "  term4*F4     = " << term4 << "\n"
+    << "  term5*F5     = " << term5 << "\n"
+    << "  sum          = " << (term1 + term2 + term3 + term4 + term5) << "\n"
+    << "  xsec         = " << xsec;
+#endif
+  
   xsec = TMath::Max(xsec, 0.);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN] (E= " << E << ", x= " << x
+  LOG("DISPXSec", pNOTICE) << "d2xsec/dxdy[FreeN] (E= " << E << ", x= " << x
                          << ", y= " << y << ") = " << xsec;
 #endif
 
@@ -157,13 +188,13 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   // If requested return the free nucleon xsec even for input nuclear tgt
   if (interaction->TestBit(kIAssumeFreeNucleon))
     return xsec;
-
-  // Compute nuclear cross section (simple scaling here, corrections must
-  // have been included in the structure functions)
   const Target &target = init_state.Tgt();
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
   xsec *= NNucl;
+  // Compute nuclear cross section (simple scaling here, corrections must
+  // have been included in the structure functions)
+
 
   // Apply scaling / if required to reach well known asymmptotic value
   if( proc_info.IsWeakCC() )  xsec *= fCCScale;
@@ -173,17 +204,6 @@ double QPMDISPXSec::XSec(const Interaction *interaction,
   // Subtract the inclusive charm production cross section if charm was used
   // in the total CCDIS calculation. This is accounted in a separate algorithm
   // If it was not used, do not substract.
-  if( !fCharmOff ) {
-    interaction->ExclTagPtr()->SetCharm();
-    double xsec_charm = fCharmProdModel->XSec(interaction, kps);
-    interaction->ExclTagPtr()->UnsetCharm();
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-    LOG("DISPXSec", pINFO) << "Subtracting charm piece: " << xsec_charm
-			   << " / out of " << xsec;
-#endif
-    xsec = TMath::Max(0., xsec - xsec_charm);
-  }
-  
   return xsec;
 }
 //____________________________________________________________________________
@@ -249,8 +269,6 @@ void QPMDISPXSec::LoadConfig(void) {
   GetParam("DIS-NC-XSecScale", fNCScale);
   GetParam("DIS-EM-XSecScale", fEMScale);
 
-  // Compute only charm?
-  GetParamDef( "Charm-Prod-Off", fCharmOff, false ) ;
   
   // sin^4(theta_weinberg)
   double thw;
