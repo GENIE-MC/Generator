@@ -25,7 +25,7 @@ BY00DISNuclearModel::BY00DISNuclearModel() :
 
 //____________________________________________________________________________
 
-BY00DISNuclearModel::BY00DISNuclearModel(string config) :
+BY00DISNuclearModel::BY00DISNuclearModel(string /*config*/) :
   DISNuclearModelI("genie::BY00DISNuclearModel"){}
 
 //____________________________________________________________________________

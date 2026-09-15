@@ -29,7 +29,7 @@ class BY21DISNuclearModel : public DISNuclearModelI {
 
 public:
   BY21DISNuclearModel();
-  BY21DISNuclearModel(string config);
+  BY21DISNuclearModel(string /*config*/);
   virtual ~BY21DISNuclearModel() {};
 
   double DISACorrection (const Interaction * interaction) const ;

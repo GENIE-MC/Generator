@@ -29,6 +29,7 @@
 #include "Physics/DeepInelastic/XSection/DISStructureFuncModelI.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDF.h"
+#include "Physics/Charm/XSection/BYCharmXSec.h"
 #include "Physics/DeepInelastic/NuclearModel/DISNuclearModelI.h"
 
 namespace genie {
@@ -63,11 +64,11 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
-  virtual double ScalingVar (const Interaction * i, double Mf = 0) const;
+  virtual double ScalingVar (const Interaction * i, double /*Mf*/ = 0) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
-  virtual double KCharm     (const Interaction * i, double Mf = 0) const;
-  virtual double H          (const Interaction * i) const;
+  virtual double KCharm     (const Interaction * /*i*/, double /*Mf */= 0) const;
+  virtual double H          (const Interaction * /*i*/) const;
   virtual void   KVectorFactors   (const Interaction * i, double & kuv,
                                      double & kdv, double & kus, double & kds, double &ks) const;
   virtual void   KAxialFactors    (const Interaction * i, double & kuv,
@@ -77,7 +78,6 @@ protected:
                                      // configuration
   //
   double fQ2min;          ///< min Q^2 allowed for PDFs: PDF(Q2<Q2min):=PDF(Q2min)
-  bool   fCharmOff;          ///< turn charm production off?
   bool   fIncludeR;          ///< include R (~FL) in DIS SF calculation?
   bool   fIncludeH;          ///< include HO QCD corrections
   bool   fIncludeNuclMod;    ///< include nuclear factor (shadowing, anti-shadowing,...)?
@@ -116,7 +116,7 @@ protected:
   mutable double fds_c;
   mutable double fs_c;
   mutable double fc_c;
-
+  friend class BYCharmXSec;
 };
 
 }         // genie namespace

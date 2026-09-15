@@ -102,10 +102,10 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
     pdf.gl   = 0.;
     return pdf;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GRV98LO", pDEBUG)
     << "Inputs x = " << x << ", Q2 = " << Q2;
-
+#endif
   // apply kinematical limits
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
   if(Q2 <= 0.8) Q2 = 0.80001;
