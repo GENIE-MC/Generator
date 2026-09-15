@@ -18,6 +18,7 @@
 #pragma link C++ class genie::NucBindEnergyAggregator;
 
 #pragma link C++ class genie::Intranuke;
+#pragma link C++ class genie::IntranukeBase;
 #pragma link C++ class genie::HAIntranuke;
 #pragma link C++ class genie::Intranuke2018;
 #pragma link C++ class genie::Intranuke2025;

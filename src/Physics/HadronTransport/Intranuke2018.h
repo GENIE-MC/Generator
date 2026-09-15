@@ -51,7 +51,7 @@ class PDGCodeList;
 class HNIntranuke2018;
 class HAIntranuke2018;
 
-class Intranuke2018 : public EventRecordVisitorI {
+class Intranuke2018 : public IntranukeBase {
 
 friend class IntranukeTester;
 
