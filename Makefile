@@ -97,6 +97,7 @@ physics-neutrino-scattering-modes: FORCE
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/DeepInelastic/NuclearModel       &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) &&   \
@@ -416,6 +417,7 @@ endif
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic/EventGen
+	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/DeepInelastic/NuclearModel
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Diffractive
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Diffractive/XSection
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Physics/Diffractive/EventGen
@@ -489,6 +491,7 @@ copy-install-files: FORCE
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) install && \
+	cd ${GENIE}/src/Physics/DeepInelastic/NuclearModel       &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) install && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) install && \
@@ -551,6 +554,7 @@ purge: FORCE
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) purge && \
+	cd ${GENIE}/src/Physics/DeepInelastic/NuclearModel       &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) purge && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) purge && \
@@ -614,6 +618,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) clean && \
+	cd ${GENIE}/src/Physics/DeepInelastic/NuclearModel       &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) clean && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) clean && \
@@ -702,6 +707,7 @@ endif
 	cd ${GENIE}/src/Physics/Decay                            &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) distclean && \
+	cd ${GENIE}/src/Physics/DeepInelastic/NuclearModel       &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/Diffractive/EventGen             &&  $(MAKE) distclean && \
 	cd ${GENIE}/src/Physics/HELepton/XSection                &&  $(MAKE) distclean && \

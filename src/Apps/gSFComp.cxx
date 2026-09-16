@@ -652,7 +652,7 @@ void GetAlgorithms(void)
      if(vsf.size() != 2) {
         LOG("gsfcomp", pFATAL) 
            << "Need to specify both a structire function algorithm name and configuration "
-           << "as in genie::BYStrucFunc/Default";
+           << "as in genie::BY00StrucFunc/Default";
         gAbortingInErr = true;
         exit(1);
      } 
