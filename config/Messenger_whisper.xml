@@ -219,6 +219,10 @@
   <priority msgstream="HEDISKinematics">       FATAL </priority>
   <priority msgstream="HEDISStrucFunc">        FATAL </priority>
   <priority msgstream="LeptoHad">              FATAL </priority>
+  <priority msgstream="Pythia8Decay">          FATAL </priority>
+  <priority msgstream="AGCharmPythia8Hadro2023"> FATAL </priority>
+  <priority msgstream="INukeNucleonCorr">      FATAL </priority>
+
 
   <priority msgstream="gevgen">              FATAL </priority>
   <priority msgstream="gevgen_dm">           FATAL </priority>
