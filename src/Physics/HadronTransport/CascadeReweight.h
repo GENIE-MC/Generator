@@ -43,14 +43,14 @@ public :
 private:
   void LoadConfig     (void); ///< read configuration from xml file
 
-  static const std::map<INukeFateHN_t,string> & GetEINukeFateKeysMap( void ) {
-    static const std::map<INukeFateHN_t,string> map_keys { {kIHNFtNoInteraction,"NoInteraction"},{kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},{kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
+  static const std::map<INukeFateHN2018_t,string> & GetEINukeFateKeysMap( void ) {
+    static const std::map<INukeFateHN2018_t,string> map_keys { {kIHN18FtNoInteraction,"NoInteraction"},{kIHN18FtCEx,"CEx"}, {kIHN18FtElas,"Elastic"}, {kIHN18FtInelas,"Inelastic"},{kIHN18FtAbs,"Abs"}, {kIHN18FtCmp,"Cmp"} } ;
     return map_keys ; 
   }
 
   // Class member
-  std::map< INukeFateHN_t, double > fDefaultMap ; // fate, weight 
-  std::map< INukeFateHN_t, map<int,double> > fFateWeightsMap ; // < fate, <pdg,weight> > 
+  std::map< INukeFateHN2018_t, double > fDefaultMap ; // fate, weight 
+  std::map< INukeFateHN2018_t, map<int,double> > fFateWeightsMap ; // < fate, <pdg,weight> > 
 
 };
 
