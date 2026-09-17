@@ -57,14 +57,14 @@ public:
 // in natural units, all x-section splines included here are evaluated in
 // kinetic energies given in MeV and return the x-section value in mbarns
 
-  double XSec (int hpdgc, int tgt, int nprod, INukeFateHN_t rxnType, double ke, double costh) const;
+  double XSec (int hpdgc, int tgt, int nprod, INukeFateHNLeg_t rxnType, double ke, double costh) const;
 
-  double Frac (int hpdgc, INukeFateHA_t fate, double ke) const;
-  double XSec (int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const;
-  //  double Frac (int hpdgc, INukeFateHA_t fate, double ke) const;
-  double Frac (int hpdgc, INukeFateHN_t fate, double ke, int targA=0, int targZ=0) const;
-  double IntBounce       (const GHepParticle* p, int target, int s1, INukeFateHN_t fate);
-  //int    AngleAndProduct (const GHepParticle* p, int target, double &angle, INukeFateHN_t fate);
+  double Frac (int hpdgc, INukeFateHALeg_t fate, double ke) const;
+  double XSec (int hpdgc, INukeFateHNLeg_t fate, double ke, int targA, int targZ) const;
+  //  double Frac (int hpdgc, INukeFateHALeg_t fate, double ke) const;
+  double Frac (int hpdgc, INukeFateHNLeg_t fate, double ke, int targA=0, int targZ=0) const;
+  double IntBounce       (const GHepParticle* p, int target, int s1, INukeFateHNLeg_t fate);
+  //int    AngleAndProduct (const GHepParticle* p, int target, double &angle, INukeFateHNLeg_t fate);
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // hN mode hadron x-section splines

@@ -66,7 +66,7 @@ double CascadeReweight::GetEventWeight(const GHepRecord &event) const {
     // Get particle fate
     auto fate_rescatter = p->RescatterCode();
     // Only look at particles that had FSI
-    if (fate_rescatter < 0 || fate_rescatter == kIHN18FtUndefined)
+    if (fate_rescatter < 0 || fate_rescatter == kIHNFtUndefined)
       continue;
     INukeFateHN2018_t fate = (INukeFateHN2018_t)fate_rescatter;
 
