@@ -19,6 +19,7 @@
 #define _CASCADE_REWEIGHT_H_
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Conventions/GBuild.h"
 #include "Physics/HadronTransport/INukeHadroFates2018.h" 
 
 namespace genie {
@@ -44,7 +45,7 @@ private:
   void LoadConfig     (void); ///< read configuration from xml file
 
   static const std::map<INukeFateHN2018_t,string> & GetEINukeFateKeysMap( void ) {
-    static const std::map<INukeFateHN2018_t,string> map_keys { {kIHN18FtNoInteraction,"NoInteraction"},{kIHN18FtCEx,"CEx"}, {kIHN18FtElas,"Elastic"}, {kIHN18FtInelas,"Inelastic"},{kIHN18FtAbs,"Abs"}, {kIHN18FtCmp,"Cmp"} } ;
+    static const std::map<INukeFateHN2018_t,string> map_keys { {kIHNFtNoInteraction,"NoInteraction"},{kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},{kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
     return map_keys ; 
   }
 

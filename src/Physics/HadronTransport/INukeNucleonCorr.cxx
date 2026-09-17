@@ -173,7 +173,7 @@ double INukeNucleonCorr :: AvgCorrection (const double rho, const int A, const i
     TLorentzVector outNucl1, outNucl2, RemnP4; // final 4-momenta
 
     // random scattering angle
-    double C3CM = INukeHadroData2018::Instance()->IntBounce (&incomingParticle, targetPdg, pdg, kIHN18FtElas);
+    double C3CM = INukeHadroData2018::Instance()->IntBounce (&incomingParticle, targetPdg, pdg, kIHNFtElas);
 
     // generate kinematics
     utils::intranuke2018::TwoBodyKinematics (mass, targetMass, p, target, outNucl1, outNucl2, C3CM, RemnP4);

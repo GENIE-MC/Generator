@@ -154,7 +154,7 @@ void HNIntranuke2018::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
       // store the fate
       ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
 
-      if(fate == kIHN18FtUndefined)
+      if(fate == kIHNFtUndefined)
 	{
 	  LOG("HNIntranuke2018", pERROR) << "** Couldn't select a fate";
 	  LOG("HNIntranuke2018", pERROR) << "** Num Protons: " << fRemnZ 
@@ -171,12 +171,12 @@ void HNIntranuke2018::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
 	<< "Selected " << p->Name() << " fate: " << INukeHadroFates2018::AsString(fate);
 
       // handle the reaction
-      if(fate == kIHN18FtCEx || fate == kIHN18FtElas)
+      if(fate == kIHNFtCEx || fate == kIHNFtElas)
 	{
 	  this->ElasHN(ev,p,fate);
 	}
-      else if(fate == kIHN18FtAbs)                         {this-> AbsorbHN(ev,p,fate);}
-      else if(fate == kIHN18FtInelas && pdgc != kPdgGamma)
+      else if(fate == kIHNFtAbs)                         {this-> AbsorbHN(ev,p,fate);}
+      else if(fate == kIHNFtInelas && pdgc != kPdgGamma)
 	{
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	  LOG("HNIntranuke2018", pDEBUG)
@@ -186,10 +186,10 @@ void HNIntranuke2018::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
 
 	  this-> InelasticHN(ev,p);
 	}
-      else if(fate == kIHN18FtInelas && pdgc == kPdgGamma) {this-> GammaInelasticHN(ev,p,fate);}
-      else if(fate == kIHN18FtCmp)  LOG("HNIntranuke2018", pFATAL) << "The PreEquilibrium and Compound Nucleus code are experimental, should not be used";
+      else if(fate == kIHNFtInelas && pdgc == kPdgGamma) {this-> GammaInelasticHN(ev,p,fate);}
+      else if(fate == kIHNFtCmp)  LOG("HNIntranuke2018", pFATAL) << "The PreEquilibrium and Compound Nucleus code are experimental, should not be used";
 //{utils::intranuke2018::PreEquilibrium(ev,p,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHN);}
-      else if(fate == kIHN18FtNoInteraction)
+      else if(fate == kIHNFtNoInteraction)
 	{
 	  p->SetStatus(kIStStableFinalState);
 	  ev->AddParticle(*p);
@@ -231,14 +231,14 @@ INukeFateHN2018_t HNIntranuke2018::HadronFateHN(const GHepParticle * p) const
     //
     if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
 
-       double frac_cex      = this->FateWeight(pdgc, kIHN18FtCEx)
-	                            * fHadroData2018->Frac(pdgc, kIHN18FtCEx,     ke, fRemnA, fRemnZ);
-       double frac_elas     = this->FateWeight(pdgc, kIHN18FtElas)
-	                            * fHadroData2018->Frac(pdgc, kIHN18FtElas,    ke, fRemnA, fRemnZ);
-       double frac_inel     = this->FateWeight(pdgc, kIHN18FtInelas)
-	                            * fHadroData2018->Frac(pdgc, kIHN18FtInelas,  ke, fRemnA, fRemnZ);
-       double frac_abs      = this->FateWeight(pdgc, kIHN18FtAbs)
-	                            * fHadroData2018->Frac(pdgc, kIHN18FtAbs,     ke, fRemnA, fRemnZ);
+       double frac_cex      = this->FateWeight(pdgc, kIHNFtCEx)
+	                            * fHadroData2018->Frac(pdgc, kIHNFtCEx,     ke, fRemnA, fRemnZ);
+       double frac_elas     = this->FateWeight(pdgc, kIHNFtElas)
+	                            * fHadroData2018->Frac(pdgc, kIHNFtElas,    ke, fRemnA, fRemnZ);
+       double frac_inel     = this->FateWeight(pdgc, kIHNFtInelas)
+	                            * fHadroData2018->Frac(pdgc, kIHNFtInelas,  ke, fRemnA, fRemnZ);
+       double frac_abs      = this->FateWeight(pdgc, kIHNFtAbs)
+	                            * fHadroData2018->Frac(pdgc, kIHNFtAbs,     ke, fRemnA, fRemnZ);
 
        frac_cex     *= fNucCEXFac;    // scaling factors
        frac_abs     *= fNucAbsFac;
@@ -246,10 +246,10 @@ INukeFateHN2018_t HNIntranuke2018::HadronFateHN(const GHepParticle * p) const
        if(pdgc==kPdgPi0) frac_abs*= 0.665;  //isospin factor
 
        LOG("HNIntranuke2018", pNOTICE)
-	 << "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtCEx)     << "} = " << frac_cex
-	 << "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtElas)    << "} = " << frac_elas
-	 << "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtInelas)  << "} = " << frac_inel
-	 << "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtAbs)     << "} = " << frac_abs;
+	 << "\n frac{" << INukeHadroFates2018::AsString(kIHNFtCEx)     << "} = " << frac_cex
+	 << "\n frac{" << INukeHadroFates2018::AsString(kIHNFtElas)    << "} = " << frac_elas
+	 << "\n frac{" << INukeHadroFates2018::AsString(kIHNFtInelas)  << "} = " << frac_inel
+	 << "\n frac{" << INukeHadroFates2018::AsString(kIHNFtAbs)     << "} = " << frac_abs;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
@@ -264,31 +264,31 @@ INukeFateHN2018_t HNIntranuke2018::HadronFateHN(const GHepParticle * p) const
 
        double cf=0; // current fraction
 
-       if(r < (cf += frac_cex     )) return kIHN18FtCEx;    //cex
-       if(r < (cf += frac_elas    )) return kIHN18FtElas;   //elas
-       if(r < (cf += frac_inel    )) return kIHN18FtInelas; //inelas
-       if(r < (cf += frac_abs     )) return kIHN18FtAbs;    //abs
+       if(r < (cf += frac_cex     )) return kIHNFtCEx;    //cex
+       if(r < (cf += frac_elas    )) return kIHNFtElas;   //elas
+       if(r < (cf += frac_inel    )) return kIHNFtInelas; //inelas
+       if(r < (cf += frac_abs     )) return kIHNFtAbs;    //abs
 
        LOG("HNIntranuke2018", pWARN) 
          << "No selection after going through all fates! " 
                      << "Total fraction = " << tf << " (r = " << r << ")";
        ////////////////////////////
-       return kIHN18FtUndefined;
+       return kIHNFtUndefined;
     }
 
     // handle nucleons
     else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
 
-      double frac_elas     = this->FateWeight(pdgc, kIHN18FtElas)
-	                           * fHadroData2018->Frac(pdgc, kIHN18FtElas,   ke, fRemnA, fRemnZ);
-      double frac_inel     = this->FateWeight(pdgc, kIHN18FtInelas)
-	                           * fHadroData2018->Frac(pdgc, kIHN18FtInelas, ke, fRemnA, fRemnZ);
-      double frac_cmp      = this->FateWeight(pdgc, kIHN18FtCmp)
-	                           * fHadroData2018->Frac(pdgc, kIHN18FtCmp,    ke, fRemnA , fRemnZ);
+      double frac_elas     = this->FateWeight(pdgc, kIHNFtElas)
+	                           * fHadroData2018->Frac(pdgc, kIHNFtElas,   ke, fRemnA, fRemnZ);
+      double frac_inel     = this->FateWeight(pdgc, kIHNFtInelas)
+	                           * fHadroData2018->Frac(pdgc, kIHNFtInelas, ke, fRemnA, fRemnZ);
+      double frac_cmp      = this->FateWeight(pdgc, kIHNFtCmp)
+	                           * fHadroData2018->Frac(pdgc, kIHNFtCmp,    ke, fRemnA , fRemnZ);
 
       LOG("HNIntranuke2018", pINFO)
-	<< "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtElas)    << "} = " << frac_elas
-	<< "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtInelas)  << "} = " << frac_inel;
+	<< "\n frac{" << INukeHadroFates2018::AsString(kIHNFtElas)    << "} = " << frac_elas
+	<< "\n frac{" << INukeHadroFates2018::AsString(kIHNFtInelas)  << "} = " << frac_inel;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_elas     +
@@ -302,32 +302,32 @@ INukeFateHN2018_t HNIntranuke2018::HadronFateHN(const GHepParticle * p) const
 #endif
 
        double cf=0; // current fraction
-       if(r < (cf += frac_elas    )) return kIHN18FtElas;    // elas
-       if(r < (cf += frac_inel    )) return kIHN18FtInelas;  // inelas
-       if(r < (cf += frac_cmp     )) return kIHN18FtCmp;     // cmp
+       if(r < (cf += frac_elas    )) return kIHNFtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHNFtInelas;  // inelas
+       if(r < (cf += frac_cmp     )) return kIHNFtCmp;     // cmp
 
        LOG("HNIntranuke2018", pWARN) 
          << "No selection after going through all fates! "
                         << "Total fraction = " << tf << " (r = " << r << ")";
        //////////////////////////
-       return kIHN18FtUndefined;
+       return kIHNFtUndefined;
     }
 
     // handle gamma -- does not currently consider the elastic case
-    else if (pdgc==kPdgGamma)  return kIHN18FtInelas;
+    else if (pdgc==kPdgGamma)  return kIHNFtInelas;
     // Handle kaon -- elastic + charge exchange
     else if (pdgc==kPdgKP){
-       double frac_cex      = this->FateWeight(pdgc, kIHN18FtCEx)
-	                            * fHadroData2018->Frac(pdgc, kIHN18FtCEx,     ke, fRemnA, fRemnZ);
-       double frac_elas     = this->FateWeight(pdgc, kIHN18FtElas)
-	                            * fHadroData2018->Frac(pdgc, kIHN18FtElas,    ke, fRemnA, fRemnZ);
+       double frac_cex      = this->FateWeight(pdgc, kIHNFtCEx)
+	                            * fHadroData2018->Frac(pdgc, kIHNFtCEx,     ke, fRemnA, fRemnZ);
+       double frac_elas     = this->FateWeight(pdgc, kIHNFtElas)
+	                            * fHadroData2018->Frac(pdgc, kIHNFtElas,    ke, fRemnA, fRemnZ);
 
        //       frac_cex     *= fNucCEXFac;    // scaling factors
        //       frac_elas    *= fNucQEFac;   // Flor - Correct scaling factors?
 
        LOG("HNIntranuke", pINFO)
-          << "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates2018::AsString(kIHN18FtElas)    << "} = " << frac_elas;
+          << "\n frac{" << INukeHadroFates2018::AsString(kIHNFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates2018::AsString(kIHNFtElas)    << "} = " << frac_elas;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
@@ -340,24 +340,24 @@ INukeFateHN2018_t HNIntranuke2018::HadronFateHN(const GHepParticle * p) const
 
        double cf=0; // current fraction
 
-       if(r < (cf += frac_cex     )) return kIHN18FtCEx;    //cex
-       if(r < (cf += frac_elas    )) return kIHN18FtElas;   //elas
+       if(r < (cf += frac_cex     )) return kIHNFtCEx;    //cex
+       if(r < (cf += frac_elas    )) return kIHNFtElas;   //elas
 
        LOG("HNIntranuke", pWARN) 
          << "No selection after going through all fates! " 
                      << "Total fraction = " << tf << " (r = " << r << ")";
        ////////////////////////////
-       return kIHN18FtUndefined;
+       return kIHNFtUndefined;
     }//End K+
 
     /*else if (pdgc==kPdgKM){
 
-       return kIHN18FtElas;
+       return kIHNFtElas;
     }//End K-*/
 
   }//iterations
 
-  return kIHN18FtUndefined;
+  return kIHNFtUndefined;
 }
 
 //___________________________________________________________________________
@@ -376,11 +376,11 @@ double HNIntranuke2018::FateWeight(int pdgc, INukeFateHN2018_t fate) const
     }
   else
     {
-      if (fate == kIHN18FtCEx && pdgc==kPdgPiP ) { return (nn>=1) ? 1. : 0.; }
-      if (fate == kIHN18FtCEx && pdgc==kPdgPiM ) { return (np>=1) ? 1. : 0.; }
-      if (fate == kIHN18FtCEx && pdgc==kPdgKP  ) { return (nn>=1) ? 1. : 0.; } //Added, changed np to nn
-      if (fate == kIHN18FtAbs)      { return ((nn>=1) && (np>=1)) ? 1. : 0.; }
-      if (fate == kIHN18FtCmp )     { return ((pdgc==kPdgProton||pdgc==kPdgNeutron)&&fDoCompoundNucleus&&fRemnA>5) ? 1. : 0.; }
+      if (fate == kIHNFtCEx && pdgc==kPdgPiP ) { return (nn>=1) ? 1. : 0.; }
+      if (fate == kIHNFtCEx && pdgc==kPdgPiM ) { return (np>=1) ? 1. : 0.; }
+      if (fate == kIHNFtCEx && pdgc==kPdgKP  ) { return (nn>=1) ? 1. : 0.; } //Added, changed np to nn
+      if (fate == kIHNFtAbs)      { return ((nn>=1) && (np>=1)) ? 1. : 0.; }
+      if (fate == kIHNFtCmp )     { return ((pdgc==kPdgProton||pdgc==kPdgNeutron)&&fDoCompoundNucleus&&fRemnA>5) ? 1. : 0.; }
 
     }
   return 1.;
@@ -400,7 +400,7 @@ void HNIntranuke2018::AbsorbHN(
 #endif
 
   // check fate
-  if(fate!=kIHN18FtAbs)
+  if(fate!=kIHNFtAbs)
     {
       LOG("HNIntranuke2018", pWARN)
         << "AbsorbHN() cannot handle fate: " << INukeHadroFates2018::AsString(fate);
@@ -668,7 +668,7 @@ void HNIntranuke2018::ElasHN(
     << " whose fate is : " << INukeHadroFates2018::AsString(fate);
 #endif
 
-  if(fate!=kIHN18FtCEx && fate!=kIHN18FtElas)
+  if(fate!=kIHNFtCEx && fate!=kIHNFtElas)
     {
       LOG("HNIntranuke2018", pWARN)
 	<< "ElasHN() cannot handle fate: " << INukeHadroFates2018::AsString(fate);
@@ -687,7 +687,7 @@ void HNIntranuke2018::ElasHN(
   // -- Unless, of course, the fate is CEx,
   // -- in which case the target may be deterministic
   // Also assign scattered particle code
-  if(fate==kIHN18FtCEx)
+  if(fate==kIHNFtCEx)
     {
       if(pcode==kPdgPiP)      {tcode = kPdgNeutron; scode = kPdgPi0; s2code = kPdgProton;}
       else if(pcode==kPdgPiM) {tcode = kPdgProton;  scode = kPdgPi0; s2code = kPdgNeutron;}
@@ -812,7 +812,7 @@ void HNIntranuke2018::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFat
     << " whose fate is : " << INukeHadroFates2018::AsString(fate);
 #endif
 
-  if(fate!=kIHN18FtInelas && p->Pdg()!=kPdgGamma)
+  if(fate!=kIHNFtInelas && p->Pdg()!=kPdgGamma)
     {
       LOG("HNIntranuke2018", pWARN)
 	<< "GammaInelasticHN() cannot handle fate: " << INukeHadroFates2018::AsString(fate);
@@ -1034,7 +1034,7 @@ INukeFateHN2018_t HNIntranuke2018::HadronFateOset () const
   LOG("HNIntranuke2018", pNOTICE) << "  frac cex  = " << fractionCex;
   LOG("HNIntranuke2018", pNOTICE) << "  frac elas = " << fractionElas << " }";
 
-  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHN18FtAbs;
-  else if (randomNumber < fractionAbsorption + fractionCex) return kIHN18FtCEx;
-  else return kIHN18FtElas;
+  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHNFtAbs;
+  else if (randomNumber < fractionAbsorption + fractionCex) return kIHNFtCEx;
+  else return kIHNFtElas;
 }

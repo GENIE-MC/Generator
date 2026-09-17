@@ -1,6 +1,5 @@
 //____________________________________________________________________________
 /*!
-
 \class    genie::Intranuke
 
 \brief    The INTRANUKE intranuclear hadron transport MC.
@@ -40,7 +39,7 @@ to improve accuracy.  Also, smooth results to avoid discontinuities.
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HadronTransport/INukeMode.h"
-#include "Physics/HadronTransport/INukeHadroFates2025.h"
+#include "Physics/HadronTransport/INukeHadroFates2018.h"
 #include "Physics/HadronTransport/Intranuke2025.h"
 
 class TLorentzVector;
@@ -73,11 +72,11 @@ private:
   void  SimulateHadronicFinalState           (GHepRecord* ev, GHepParticle* p) const;
   void  SimulateHadronicFinalStateKinematics (GHepRecord* ev, GHepParticle* p) const;
 
-  INukeFateHA2025_t HadronFateHA     (const GHepParticle* p) const;
-  //INukeFateHA2025_t HadronFateOset   (void) const;
-  void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA2025_t fate) const;
-  void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA2025_t fate) const;
-  void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHA2025_t fate) const;
+  INukeFateHA2018_t HadronFateHA     (const GHepParticle* p) const;
+  //INukeFateHA2018_t HadronFateOset   (void) const;
+  void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA2018_t fate) const;
+  void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA2018_t fate) const;
+  void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHA2018_t fate) const;
   double        PiBounce         (void) const;
   double        PnBounce         (void) const;
   int           HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;           
