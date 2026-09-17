@@ -447,7 +447,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF3 = H * xF3val/bjx;
     fF2 = F2val;
     fF1 = fF2 * 0.5 * c / bjx;
-    fF5 = fF2 * 0.5 / bjx;           // Albright-Jarlskog relation
+    fF5 = fF2 * 0.5 / bjx;           // Albright-Jarlskog relation https://journals.aps.org/prd/pdf/10.1103/PhysRevD.105.033010
     fF4 = 0.;                // Nucl.Phys.B 84, 467 (1975)
   }
   else {
@@ -459,7 +459,7 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     fF3 = H * xF3val / x;
     fF2 = F2val;
     fF1 = fF2 * 0.5 * c / x;
-    fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation
+    fF5 = fF2 * 0.5 / x;         // Albright-Jarlskog relation https://journals.aps.org/prd/pdf/10.1103/PhysRevD.105.033010
     fF4 = 0.;              // Nucl.Phys.B 84, 467 (1975)
   }
 
