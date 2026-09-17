@@ -36,7 +36,7 @@
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Physics/HadronTransport/INukeMode.h"
-#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeHadroFates2025.h"
 #include "Physics/HadronTransport/Intranuke2025.h"
 
 class TLorentzVector;
@@ -68,13 +68,13 @@ private:
 
   // methods specific to intranuke HN-mode
   void          SimulateHadronicFinalState (GHepRecord* ev, GHepParticle* p) const;
-  INukeFateHN_t HadronFateHN      (const GHepParticle* p) const;
-  INukeFateHN_t HadronFateOset () const;
-  double        FateWeight        (int pdgc, INukeFateHN_t fate) const;
-  void          ElasHN	          (GHepRecord* ev, GHepParticle* p, INukeFateHN_t fate) const;
-  void          AbsorbHN	  (GHepRecord* ev, GHepParticle* p, INukeFateHN_t fate) const;
+  INukeFateHN2025_t HadronFateHN      (const GHepParticle* p) const;
+  INukeFateHN2025_t HadronFateOset () const;
+  double        FateWeight        (int pdgc, INukeFateHN2025_t fate) const;
+  void          ElasHN	          (GHepRecord* ev, GHepParticle* p, INukeFateHN2025_t fate) const;
+  void          AbsorbHN	  (GHepRecord* ev, GHepParticle* p, INukeFateHN2025_t fate) const;
   void          InelasticHN	  (GHepRecord* ev, GHepParticle* p) const;
-  void          GammaInelasticHN  (GHepRecord* ev, GHepParticle* p, INukeFateHN_t fate) const;
+  void          GammaInelasticHN  (GHepRecord* ev, GHepParticle* p, INukeFateHN2025_t fate) const;
   bool          HandleCompoundNucleusHN (GHepRecord* ev, GHepParticle* p) const;
   int           HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;
 

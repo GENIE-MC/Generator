@@ -123,12 +123,12 @@ void HAIntranuke2025::SimulateHadronicFinalState(
   }
 
   // select a fate for the input particle
-  INukeFateHA_t fate = this->HadronFateHA(p);
+  INukeFateHA2025_t fate = this->HadronFateHA(p);
 
   // store the fate
   ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
 
-  if(fate == kIHAFtUndefined) {
+  if(fate == kIHA25FtUndefined) {
      LOG("HAIntranuke2025", pERROR) << "** Couldn't select a fate";
      p->SetStatus(kIStStableFinalState);
      ev->AddParticle(*p);
@@ -146,7 +146,7 @@ void HAIntranuke2025::SimulateHadronicFinalStateKinematics(
   GHepRecord* ev, GHepParticle* p) const
 {
   // get stored fate
-  INukeFateHA_t fate = (INukeFateHA_t)
+  INukeFateHA2025_t fate = (INukeFateHA2025_t)
       ev->Particle(p->FirstMother())->RescatterCode();
 
    LOG("HAIntranuke2025", pINFO)
@@ -158,22 +158,22 @@ void HAIntranuke2025::SimulateHadronicFinalStateKinematics(
   try
     {
       fNumIterations++;
-      /*      if (fate == kIHAFtElas)
+      /*      if (fate == kIHA25FtElas)
         {
           this->ElasHA(ev,p,fate);
         }
         else */
-        if (fate == kIHAFtInelas || fate == kIHAFtCEx)
+        if (fate == kIHA25FtInelas || fate == kIHA25FtCEx)
           {
             this->InelasticHA(ev,p,fate);
           }
-        else if (fate == kIHAFtAbs || fate == kIHAFtPiProd)
+        else if (fate == kIHA25FtAbs || fate == kIHA25FtPiProd)
           {
             this->Inelastic(ev,p,fate);
           }
-        else if (fate == kIHAFtCmp) //(suarez edit, 17 July, 2017: cmp)
+        else if (fate == kIHA25FtCmp) //(suarez edit, 17 July, 2017: cmp)
           {
-            LOG("HAIntranuke2025", pWARN) << "Running PreEquilibrium for kIHAFtCmp";
+            LOG("HAIntranuke2025", pWARN) << "Running PreEquilibrium for kIHA25FtCmp";
             LOG("HAIntranuke2025", pFATAL) << "The PreEquilibrium and Compound Nucleus code are experimental, should not be used";
             utils::intranuke2025::PreEquilibrium(ev,p,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fNuclmodel,fNucRmvE,kIMdHA); //should be kiMdHA or HN?
           }
@@ -199,7 +199,7 @@ void HAIntranuke2025::SimulateHadronicFinalStateKinematics(
     }
 }
 //___________________________________________________________________________
-INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
+INukeFateHA2025_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
 {
 // Select a hadron fate in HA mode
 //
@@ -223,17 +223,17 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
     //
    if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
 
-     double frac_cex      = fHadroData2025->FracADep(pdgc, kIHAFtCEx,     ke, nuclA);
-     //     double frac_elas     = fHadroData2025->FracADep(pdgc, kIHAFtElas,    ke, nuclA);
-     double frac_inel     = fHadroData2025->FracADep(pdgc, kIHAFtInelas,  ke, nuclA);
-     double frac_abs      = fHadroData2025->FracADep(pdgc, kIHAFtAbs,     ke, nuclA);
-     double frac_piprod   = fHadroData2025->FracADep(pdgc, kIHAFtPiProd,  ke, nuclA);
+     double frac_cex      = fHadroData2025->FracADep(pdgc, kIHA25FtCEx,     ke, nuclA);
+     //     double frac_elas     = fHadroData2025->FracADep(pdgc, kIHA25FtElas,    ke, nuclA);
+     double frac_inel     = fHadroData2025->FracADep(pdgc, kIHA25FtInelas,  ke, nuclA);
+     double frac_abs      = fHadroData2025->FracADep(pdgc, kIHA25FtAbs,     ke, nuclA);
+     double frac_piprod   = fHadroData2025->FracADep(pdgc, kIHA25FtPiProd,  ke, nuclA);
      LOG("HAIntranuke2025", pDEBUG)
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtCEx)     << "} = " << frac_cex
-       //          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtInelas)  << "} = " << frac_inel
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtCEx)     << "} = " << frac_cex
+       //          << "\n frac{" << INukeHadroFates::AsString(kIHA25FtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtPiProd)  << "} = " << frac_piprod;
 
      // apply external tweaks to fractions
      frac_cex    *= fPionFracCExScale;
@@ -295,11 +295,11 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke2025", pDEBUG) << "r = " << r << " (max = " << tf << ")";
 #endif
        double cf=0; // current fraction
-       if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
-       //       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
-       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
-       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
-       if(r < (cf += frac_piprod  )) return kIHAFtPiProd;  // pi prod
+       if(r < (cf += frac_cex     )) return kIHA25FtCEx;     // cex
+       //       if(r < (cf += frac_elas    )) return kIHA25FtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHA25FtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHA25FtAbs;     // abs
+       if(r < (cf += frac_piprod  )) return kIHA25FtPiProd;  // pi prod
 
        LOG("HAIntranuke2025", pWARN)
          << "No selection after going through all fates! "
@@ -308,20 +308,20 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
 
     // handle nucleons
     else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
-      double frac_cex      = fHadroData2025->FracAIndep(pdgc, kIHAFtCEx,    ke);
-      //double frac_elas     = fHadroData2025->FracAIndep(pdgc, kIHAFtElas,   ke);
-      double frac_inel     = fHadroData2025->FracAIndep(pdgc, kIHAFtInelas, ke);
-      double frac_abs      = fHadroData2025->FracAIndep(pdgc, kIHAFtAbs,    ke);
-      double frac_pipro    = fHadroData2025->FracAIndep(pdgc, kIHAFtPiProd, ke);
-      double frac_cmp      = fHadroData2025->FracAIndep(pdgc, kIHAFtCmp   , ke);
+      double frac_cex      = fHadroData2025->FracAIndep(pdgc, kIHA25FtCEx,    ke);
+      //double frac_elas     = fHadroData2025->FracAIndep(pdgc, kIHA25FtElas,   ke);
+      double frac_inel     = fHadroData2025->FracAIndep(pdgc, kIHA25FtInelas, ke);
+      double frac_abs      = fHadroData2025->FracAIndep(pdgc, kIHA25FtAbs,    ke);
+      double frac_pipro    = fHadroData2025->FracAIndep(pdgc, kIHA25FtPiProd, ke);
+      double frac_cmp      = fHadroData2025->FracAIndep(pdgc, kIHA25FtCmp   , ke);
 
       LOG("HAIntranuke2025", pINFO)
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtCEx)     << "} = " << frac_cex
-        // << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtInelas)  << "} = " << frac_inel
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtPiProd)  << "} = " << frac_pipro
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtCmp)     << "} = " << frac_cmp; //suarez edit, cmp
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtCEx)     << "} = " << frac_cex
+        // << "\n frac{" << INukeHadroFates::AsString(kIHA25FtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtPiProd)  << "} = " << frac_pipro
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtCmp)     << "} = " << frac_cmp; //suarez edit, cmp
 
       // apply external tweaks to fractions
       frac_cex    *= fNucleonFracCExScale;
@@ -349,12 +349,12 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke2025", pDEBUG) << "r = " << r << " (max = " << tf << ")";
 #endif
        double cf=0; // current fraction
-       if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
-       //if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
-       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
-       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
-       if(r < (cf += frac_pipro   )) return kIHAFtPiProd;  // pi prod
-       if(r < (cf += frac_cmp     )) return kIHAFtCmp;  //suarez edit, cmp
+       if(r < (cf += frac_cex     )) return kIHA25FtCEx;     // cex
+       //if(r < (cf += frac_elas    )) return kIHA25FtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHA25FtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHA25FtAbs;     // abs
+       if(r < (cf += frac_pipro   )) return kIHA25FtPiProd;  // pi prod
+       if(r < (cf += frac_cmp     )) return kIHA25FtCmp;  //suarez edit, cmp
 
        LOG("HAIntranuke2025", pWARN)
          << "No selection after going through all fates! "
@@ -362,12 +362,12 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
     }
     // handle kaons SD: only K+, remove K- in following statement
     else if (pdgc==kPdgKP) {
-       double frac_inel     = fHadroData2025->FracAIndep(pdgc, kIHAFtInelas,  ke);
-       double frac_abs      = fHadroData2025->FracAIndep(pdgc, kIHAFtAbs,     ke);
+       double frac_inel     = fHadroData2025->FracAIndep(pdgc, kIHA25FtInelas,  ke);
+       double frac_abs      = fHadroData2025->FracAIndep(pdgc, kIHA25FtAbs,     ke);
 
        LOG("HAIntranuke2025", pDEBUG)
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtInelas)  << "} = " << frac_inel
-          << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtAbs)     << "} = " << frac_abs;
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtInelas)  << "} = " << frac_inel
+          << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtAbs)     << "} = " << frac_abs;
        // compute total fraction (can be <1 if fates have been switched off)
        double tf =  frac_inel     +
          frac_abs;
@@ -376,12 +376,12 @@ INukeFateHA_t HAIntranuke2025::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke2025", pDEBUG) << "r = " << r << " (max = " << tf << ")";
 #endif
        double cf=0; // current fraction
-       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
-       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
+       if(r < (cf += frac_inel    )) return kIHA25FtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHA25FtAbs;     // abs
     }
   }//iterations
 
-  return kIHAFtUndefined;
+  return kIHA25FtUndefined;
 }
 //___________________________________________________________________________
 double HAIntranuke2025::PiBounce(void) const
@@ -490,7 +490,7 @@ double HAIntranuke2025::PnBounce(void) const
 }
 //___________________________________________________________________________
 void HAIntranuke2025::ElasHA(GHepRecord* ev, GHepParticle* p,
-                             INukeFateHA_t fate ) const
+                             INukeFateHA2025_t fate ) const
 {
   // scatters particle within nucleus, copy of hN code meant to run only once
   // in hA mode
@@ -499,7 +499,7 @@ void HAIntranuke2025::ElasHA(GHepRecord* ev, GHepParticle* p,
     << "ElasHA() is invoked for a : " << p->Name()
     << " whose fate is : " << INukeHadroFates2025::AsString(fate);
 
-  /*  if(fate!=kIHAFtElas)
+  /*  if(fate!=kIHA25FtElas)
     {
       LOG("HAIntranuke2025", pWARN)
         << "ElasHA() cannot handle fate: " << INukeHadroFates::AsString(fate);
@@ -562,7 +562,7 @@ void HAIntranuke2025::ElasHA(GHepRecord* ev, GHepParticle* p,
 }
 //___________________________________________________________________________
 void HAIntranuke2025::InelasticHA(
-        GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+        GHepRecord* ev, GHepParticle* p, INukeFateHA2025_t fate) const
 {
   // charge exch and inelastic - scatters particle within nucleus, hA version
   // each are treated as quasielastic, particle scatters off single nucleon
@@ -575,7 +575,7 @@ void HAIntranuke2025::InelasticHA(
   if(ev->Probe() ) {
     LOG("HAIntranuke2025", pINFO) << " probe KE = " << ev->Probe()->KinE();
   }
-  if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
+  if(fate!=kIHA25FtCEx && fate!=kIHA25FtInelas)
     {
       LOG("HAIntranuke2025", pWARN)
         << "InelasticHA() cannot handle fate: " << INukeHadroFates2025::AsString(fate);
@@ -591,15 +591,15 @@ void HAIntranuke2025::InelasticHA(
   double ppcnt = (double) fRemnZ / (double) fRemnA; // % of protons
 
   // Select a hadron fate in HN mode
-  INukeFateHN_t h_fate;
-  if (fate == kIHAFtCEx) h_fate = kIHNFtCEx;
-  else                   h_fate = kIHNFtElas;
+  INukeFateHN2025_t h_fate;
+  if (fate == kIHA25FtCEx) h_fate = kIHN25FtCEx;
+  else                   h_fate = kIHN25FtElas;
 
   // Select a target randomly, weighted to #
   // -- Unless, of course, the fate is CEx,
   // -- in which case the target may be deterministic
   // Also assign scattered particle code
-  if(fate==kIHAFtCEx)
+  if(fate==kIHA25FtCEx)
     {
       if(pcode==kPdgPiP)         {tcode = kPdgNeutron; scode = kPdgPi0; s2code = kPdgProton;}
       else if(pcode==kPdgPiM)    {tcode = kPdgProton;  scode = kPdgPi0; s2code = kPdgNeutron;}
@@ -748,7 +748,7 @@ void HAIntranuke2025::InelasticHA(
 }
 //___________________________________________________________________________
 void HAIntranuke2025::Inelastic(
-          GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+          GHepRecord* ev, GHepParticle* p, INukeFateHA2025_t fate) const
 {
 
   // Aaron Meyer (05/25/10)
@@ -785,7 +785,7 @@ void HAIntranuke2025::Inelastic(
   PDGCodeList list(allow_dup); // list of final state particles
 
   // only absorption/pipro fates allowed
-  if (fate == kIHAFtPiProd) {
+  if (fate == kIHA25FtPiProd) {
 
       GHepParticle s1(*p);
       GHepParticle s2(*p);
@@ -817,7 +817,7 @@ void HAIntranuke2025::Inelastic(
       }
   }
 
-  else if (fate==kIHAFtAbs)
+  else if (fate==kIHA25FtAbs)
 //  tuned for pions - mixture of 2-body and many-body
 //   use same for kaons as there is no guidance
     {
@@ -858,7 +858,7 @@ void HAIntranuke2025::Inelastic(
         {  // pi d -> N N, probability determined empirically with McKeown et al (Phys Rev C24, 211 (1984))  data
            // parameters have energy and angle dependence for proton prouction for pi+ and pi-
 
-          INukeFateHN_t fate_hN=kIHNFtAbs;
+          INukeFateHN2025_t fate_hN=kIHN25FtAbs;
           int t1code,t2code,scode,s2code;
           double ppcnt = (double) fRemnZ / (double) fRemnA; // % of protons
 
@@ -1604,7 +1604,7 @@ void HAIntranuke2025::LoadConfig(void)
 }
 //___________________________________________________________________________
 /*
-INukeFateHA_t HAIntranuke2025::HadronFateOset () const
+INukeFateHA2025_t HAIntranuke2025::HadronFateOset () const
 {
   const double fractionAbsorption = osetUtils::currentInstance->
                                     getAbsorptionFraction();
@@ -1614,11 +1614,11 @@ INukeFateHA_t HAIntranuke2025::HadronFateOset () const
   const double randomNumber  = randomGenerator->RndFsi().Rndm();
 
   LOG("HAIntranuke2025", pINFO)
-    << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtCEx)     << "} = " << fractionCex
-    << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtInelas)  << "} = " << 1-fractionCex-fractionAbsorption
-    << "\n frac{" << INukeHadroFates2025::AsString(kIHAFtAbs)     << "} = " << fractionAbsorption;
-  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHAFtAbs;
-  else if (randomNumber < fractionAbsorption + fractionCex) return kIHAFtCEx;
-  else return kIHAFtInelas;
+    << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtCEx)     << "} = " << fractionCex
+    << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtInelas)  << "} = " << 1-fractionCex-fractionAbsorption
+    << "\n frac{" << INukeHadroFates2025::AsString(kIHA25FtAbs)     << "} = " << fractionAbsorption;
+  if (randomNumber < fractionAbsorption && fRemnA > 1) return kIHA25FtAbs;
+  else if (randomNumber < fractionAbsorption + fractionCex) return kIHA25FtCEx;
+  else return kIHA25FtInelas;
 }
 */
