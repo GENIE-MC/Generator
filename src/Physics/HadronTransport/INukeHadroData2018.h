@@ -57,12 +57,12 @@ public:
 // in natural units, all x-section splines included here are evaluated in
 // kinetic energies given in MeV and return the x-section value in mbarns
 
-  double XSec (int hpdgc, int tgt, int nprod, INukeFateHN_t rxnType, double ke, double costh) const;
-  double XSec (int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const;
-  double FracADep (int hpdgc, INukeFateHA_t fate, double ke, int targA) const;
-  double FracAIndep (int hpdgc, INukeFateHA_t fate, double ke) const;
-  double Frac (int hpdgc, INukeFateHN_t fate, double ke, int targA=0, int targZ=0) const;
-  double IntBounce       (const GHepParticle* p, int target, int s1, INukeFateHN_t fate);
+  double XSec (int hpdgc, int tgt, int nprod, INukeFateHN2018_t rxnType, double ke, double costh) const;
+  double XSec (int hpdgc, INukeFateHN2018_t fate, double ke, int targA, int targZ) const;
+  double FracADep (int hpdgc, INukeFateHA2018_t fate, double ke, int targA) const;
+  double FracAIndep (int hpdgc, INukeFateHA2018_t fate, double ke) const;
+  double Frac (int hpdgc, INukeFateHN2018_t fate, double ke, int targA=0, int targZ=0) const;
+  double IntBounce       (const GHepParticle* p, int target, int s1, INukeFateHN2018_t fate);
 
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
