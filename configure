@@ -19,7 +19,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf5 --disable-flux-drivers)\n\n";
   print "    pythia6              Use the PYTHIA6 MC generator, assumed to be incl. w/ ROOT   default: enabled  \n";
   print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
-  print "    rw-2018              Use INTRANUKE 2018 for reweighting instead of 2025          default: disabled \n";
+  print "    rw-2018              Use INTRANUKE 2018 for reweighting instead of 2025          default: enabled  \n";
   print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
   print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
@@ -154,14 +154,9 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
-<<<<<<< HEAD
 my $gopt_enable_pythia6              = "YES";
 my $gopt_enable_pythia8              = "NO";
-=======
-my $gopt_enable_pythia6              = "NO";
-my $gopt_enable_pythia8              = "YES";
-my $gopt_enable_rw2018               = "NO";
->>>>>>> 46c36116b (Reworked the guards: fates identical in hA2018 and 2025. Rename the old fates as legacy instead to prevent collision of enums)
+my $gopt_enable_rw2018               = "YES";
 my $gopt_enable_lhapdf5              = "YES";
 my $gopt_enable_lhapdf6              = "NO";
 my $gopt_enable_apfel                = "NO";
