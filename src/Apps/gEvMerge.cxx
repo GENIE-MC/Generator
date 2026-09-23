@@ -21,6 +21,8 @@
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/RunOpt.h"
 #include "Framework/Utils/StringUtils.h"
+#include "Framework/GHEP/GHepRecord.h"
+#include "Framework/GHEP/GHepParticle.h"
 
 using namespace genie;
 
@@ -34,6 +36,7 @@ NtpMCFormat_t kDefOptNtpFormat = kNFGHEP;
 long int gOptRanSeed = -1;
 Long_t gOptRunNu = 0;
 std::string gOutFileName;
+std::vector<std::string> inputfiles;
 NtpMCTreeMultiHeader head;
 
 int main(int argc, char **argv) {
@@ -63,8 +66,8 @@ void GetCommandLineArgs(int argc, char **argv) {
 
   if (parser.OptionExists('i')) {
     std::string files = parser.ArgAsString('i');
-    head.inputfiles = utils::str::Split(files, ",");
-    if (head.inputfiles.empty()) {
+    inputfiles = utils::str::Split(files, ",");
+    if (inputfiles.empty()) {
       LOG("gEvMerge", pFATAL) << "No input files given";
       gAbortingInErr = true;
       std::exit(1);
@@ -79,21 +82,21 @@ void GetCommandLineArgs(int argc, char **argv) {
   }
 
   std::vector<std::string> valid_files;
-  for (const std::string &file : head.inputfiles) {
+  for (const std::string &file : inputfiles) {
     if (!file.empty()) {
       valid_files.push_back(file);
     }
   }
-  head.inputfiles.swap(valid_files);
-  if (head.inputfiles.empty()) {
+  inputfiles.swap(valid_files);
+  if (inputfiles.empty()) {
     LOG("gEvMerge", pFATAL) << "No valid input files given";
     gAbortingInErr = true;
     std::exit(1);
   }
   LOG("gEvMerge", pNOTICE) << "Output file: " << gOutFileName;
   LOG("gEvMerge", pNOTICE) << "Number of input files: "
-                           << head.inputfiles.size();
-  for (const std::string &file : head.inputfiles) {
+                           << inputfiles.size();
+  for (const std::string &file : inputfiles) {
     LOG("gEvMerge", pINFO) << "  " << file;
   }
 }
@@ -104,7 +107,8 @@ void MergeFiles(void) {
   ntpw.CustomizeFilename(gOutFileName);
   ntpw.Initialize();
   Long64_t ievt = 0;
-  for (const std::string &filename : head.inputfiles) {
+  for (const std::string &filename : inputfiles) {
+    std::set<int> nu;
     LOG("gEvMerge", pNOTICE) << "Opening input file: " << filename;
 
     TFile fin(filename.c_str(), "READ");
@@ -128,7 +132,7 @@ void MergeFiles(void) {
     } else {
       LOG("gEvMerge", pINFO) << "Input header for " << filename << ":\n"
                              << *thdr;
-      head.heads.push_back(*thdr);
+      
     }
     NtpMCEventRecord *mcrec = nullptr;
     if (er_tree->SetBranchAddress("gmcrec", &mcrec) < 0) {
@@ -168,13 +172,18 @@ void MergeFiles(void) {
 
         continue;
       }
+      nu.insert(mcrec->event->Probe()->Pdg());
       ntpw.AddEventRecord(static_cast<int>(ievt), mcrec->event);
 
       ++ievt;
     }
 
     if (ievt > first_output_event) {
-      head.indices.push_back(std::make_pair(first_output_event, ievt - 1));
+      head.insertHead(*thdr, 
+        filename, 
+        nu, 
+        std::make_pair(first_output_event, ievt - 1)
+        );
       LOG("gEvMerge", pNOTICE)
           << "Merged " << (ievt - first_output_event) << " events from "
           << filename << " -> output events [" << first_output_event << ", "
