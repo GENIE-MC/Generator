@@ -195,6 +195,7 @@ void MergeFiles(void) {
                            << gOutFileName;
   ntpw.Save();
   TFile * fOutFile = TFile::Open(gOutFileName.c_str(),"UPDATE");
+  std::cout << head << std::endl;
   head.Write("MultiHead");
   fOutFile->Write();
   fOutFile->Close();

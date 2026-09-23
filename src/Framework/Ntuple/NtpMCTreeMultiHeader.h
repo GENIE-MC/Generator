@@ -13,7 +13,7 @@
 namespace genie {
 
 class NtpMCTreeMultiHeader : public TObject {
-public:
+  public:
     NtpMCTreeMultiHeader() = default;
     ~NtpMCTreeMultiHeader() = default;
 
@@ -26,6 +26,7 @@ public:
     std::set<int> getNeutrinos(size_t i) const;
 
     const NtpMCTreeHeader getHead(size_t i) const;
+    void PrintToStream(ostream & stream) const;
 
     void insertHead(
         NtpMCTreeHeader head,
@@ -52,6 +53,7 @@ private:
 
     ClassDef(NtpMCTreeMultiHeader, 1)
 };
+ostream & operator << (ostream & stream, const NtpMCTreeMultiHeader & hdr);
 
 } // namespace genie
 
