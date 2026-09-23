@@ -152,6 +152,8 @@ void RandomGen::SetSeed(long int seed)
 #endif
 #ifdef __GENIE_PYTHIA8_ENABLED__
   Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
+  gPythia->readString("ProcessLevel:all = off");
+  gPythia->readString("Print:quiet = on");
   gPythia->readString("Random::setSeed = on");
   gPythia->settings.mode("Random:seed",seed);
   gPythia->init();
