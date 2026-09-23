@@ -262,10 +262,10 @@ void Pythia8Decayer2023::Initialize(void) const
   long int seed = rnd->GetSeed();
   gPythia->readString("Random::setSeed = on");
   gPythia->settings.mode("Random:seed",seed);
+  gPythia->init();
+
   LOG("Pythia8Decay", pINFO)
     << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
-
-  gPythia->init();
 
   // shut off decays of pi0's as we want Geant4 to handle them
   // if other immediate decay products should be handled by Geant4,
