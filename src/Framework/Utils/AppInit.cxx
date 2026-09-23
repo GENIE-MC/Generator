@@ -35,7 +35,7 @@ void genie::utils::app_init::RandGen(long int seed)
       RandomGen::Instance(seed);
     } else RandomGen::Instance();
   } else {
-    if(seed > 0) {
+    if(seed >= 0) {
       RandomGen::Instance()->SetSeed(seed);
     }
   } // if first initialisation
