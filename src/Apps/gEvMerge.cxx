@@ -16,6 +16,7 @@
 #include "Framework/Ntuple/NtpMCEventRecord.h"
 #include "Framework/Ntuple/NtpMCFormat.h"
 #include "Framework/Ntuple/NtpMCTreeHeader.h"
+#include "Framework/Ntuple/NtpMCTreeMultiHeader.h"
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Framework/Utils/CmdLnArgParser.h"
 #include "Framework/Utils/RunOpt.h"
@@ -23,21 +24,7 @@
 
 using namespace genie;
 
-struct MultiHead : public TObject { // TODO: move to framework
 
-  std::vector<std::string> inputfiles;
-
-  // [first event, last event] in the merged output corresponding
-  // to each input file.
-  std::vector<std::pair<Long64_t, Long64_t>> indices;
-
-  // generated neutrinos each run.
-  std::vector<std::vector<int>> neutrinos;
-
-  // Store the headers of all input files.
-  std::vector<NtpMCTreeHeader> heads;
-
-};
 
 void GetCommandLineArgs(int argc, char **argv);
 void MergeFiles(void);
@@ -47,7 +34,7 @@ NtpMCFormat_t kDefOptNtpFormat = kNFGHEP;
 long int gOptRanSeed = -1;
 Long_t gOptRunNu = 0;
 std::string gOutFileName;
-MultiHead head;
+NtpMCTreeMultiHeader head;
 
 int main(int argc, char **argv) {
   GetCommandLineArgs(argc, argv);
@@ -74,8 +61,8 @@ void GetCommandLineArgs(int argc, char **argv) {
     std::exit(1);
   }
 
-  if (parser.OptionExists('f')) {
-    std::string files = parser.ArgAsString('f');
+  if (parser.OptionExists('i')) {
+    std::string files = parser.ArgAsString('i');
     head.inputfiles = utils::str::Split(files, ",");
     if (head.inputfiles.empty()) {
       LOG("gEvMerge", pFATAL) << "No input files given";
@@ -198,6 +185,11 @@ void MergeFiles(void) {
   LOG("gEvMerge", pNOTICE) << "Writing " << ievt << " total events to "
                            << gOutFileName;
   ntpw.Save();
+  TFile * fOutFile = TFile::Open(gOutFileName.c_str(),"UPDATE");
+  head.Write("MultiHead");
+  fOutFile->Write();
+  fOutFile->Close();
+  
   LOG("gEvMerge", pNOTICE) << "Merge completed successfully";
 }
 
@@ -208,7 +200,7 @@ void PrintSyntax(void) {
       << "\n"
       << "\n      gevmerge [-h]"
       << "\n"
-      << "               -f input_file1.root,input_file2.root,..."
+      << "               -i input_file1.root,input_file2.root,..."
       << "\n"
       << "               -o outfile_name.root"
       << "\n"
