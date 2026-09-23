@@ -28,6 +28,25 @@ BY-RQ2min                  double  No    Bodek-Yang Q2 below corrections are app
 BY-IncludeH                bool    Yes   Bodek-Yang H(x,Q2) correction applied to F3(x,Q2)    True 
 BY-IncludeAxial            bool    Yes   Bodek-Yang K axial factors are different to Vector   True
 BY-IncludeKCharm           bool    Yes   Bodek-Yang K Charm correction                        True 
+
+BY-fa1                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.0485
+BY-fa2                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.5470
+BY-fa3                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   2.0621
+BY-fa4                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   -0.3804
+BY-fa5                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.5090
+BY-fa6                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   -0.0285
+BY-fb1                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.0481
+BY-fb2                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.6114
+BY-fb3                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   -0.3509
+BY-fb4                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   -0.4611
+BY-fb5                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.7172
+BY-fb6                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   -0.0317
+BY-fc1                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.0577
+BY-fc2                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   0.4644
+BY-fc3                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   1.8288
+BY-fc4                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   12.3708
+BY-fc5                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   -43.1043
+BY-fc6                     double    YES Nuclear Correction parameter[arXiv:hep-ex/9808028]   41.7415
 +++ This model inherits from QPMDISStrucFunc and calls its configure
 +++ The following parameters have to be the same as in QPMDISStrucFunc.xml
 
@@ -70,6 +89,29 @@ WeinbergAngle              double  No                                           
     <param type="double" name="BY-H3">    0.165   </param>
     <param type="double" name="BY-RQ2min">    0.3   </param>
     <param type="double" name="EL-Mv"> 0.71     </param>
+
+
+    <param type="double" name="BY-fa1"> 0.0485      </param>
+    <param type="double" name="BY-fa2"> 0.5470      </param>
+    <param type="double" name="BY-fa3"> 2.0621      </param>
+    <param type="double" name="BY-fa4"> -0.3804     </param>
+    <param type="double" name="BY-fa5"> 0.5090      </param>
+    <param type="double" name="BY-fa6"> -0.0285     </param>
+    <param type="double" name="BY-fb1"> 0.0481      </param>
+    <param type="double" name="BY-fb2"> 0.6114      </param>
+    <param type="double" name="BY-fb3"> -0.3509     </param>
+    <param type="double" name="BY-fb4"> -0.4611     </param>
+    <param type="double" name="BY-fb5"> 0.7172      </param>
+    <param type="double" name="BY-fb6"> -0.0317     </param>
+    <param type="double" name="BY-fc1"> 0.0577      </param>
+    <param type="double" name="BY-fc2"> 0.4644      </param>
+    <param type="double" name="BY-fc3"> 1.8288      </param>
+    <param type="double" name="BY-fc4"> 12.3708     </param>
+    <param type="double" name="BY-fc5"> -43.1043     </param>
+    <param type="double" name="BY-fc6"> 41.7415     </param>
+
+
+
     <!-- 
 	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	 Switches controlling the DIS structure function calculation. Those switches specify whether to:

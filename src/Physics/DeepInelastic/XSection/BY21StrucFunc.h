@@ -83,24 +83,24 @@ protected:
 
   // R1998 is defined as the average of Ra, Rb and Rc, each parameterized to accomodate new data at low x
   // arXiv:hep-ex/9808028
-  double a1 = 0.0485;
-  double a2 = 0.5470;
-  double a3 = 2.0621;
-  double a4 = -0.3804;
-  double a5 = 0.5090;
-  double a6 = -0.0285;
-  double b1 = 0.0481;
-  double b2 = 0.6114;
-  double b3 = -0.3509;
-  double b4 = -0.4611;
-  double b5 = 0.7172;
-  double b6 = -0.0317;
-  double c1 = 0.0577;
-  double c2 = 0.4644;
-  double c3 = 1.8288;
-  double c4 = 12.3708;
-  double c5 = -43.1043;
-  double c6 = 41.7415;
+  double fa1 = 0.0485;
+  double fa2 = 0.5470;
+  double fa3 = 2.0621;
+  double fa4 = -0.3804;
+  double fa5 = 0.5090;
+  double fa6 = -0.0285;
+  double fb1 = 0.0481;
+  double fb2 = 0.6114;
+  double fb3 = -0.3509;
+  double fb4 = -0.4611;
+  double fb5 = 0.7172;
+  double fb6 = -0.0317;
+  double fc1 = 0.0577;
+  double fc2 = 0.4644;
+  double fc3 = 1.8288;
+  double fc4 = 12.3708;
+  double fc5 = -43.1043;
+  double fc6 = 41.7415;
 
 };
 

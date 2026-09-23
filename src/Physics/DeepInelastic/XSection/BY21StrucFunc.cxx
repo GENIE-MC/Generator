@@ -94,6 +94,27 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParamDef( "BY-IncludeH", fIncludeH, true );
   GetParamDef( "BY-IncludeKCharm", fIncludeKCharm, true );
   GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
+
+
+  GetParam("BY-fa1", fa1, 0.0485);
+  GetParam("BY-fa2", fa2, 0.5470);
+  GetParam("BY-fa3", fa3, 2.0621);
+  GetParam("BY-fa4", fa4, -0.3804);
+  GetParam("BY-fa5", fa5, 0.5090);
+  GetParam("BY-fa6", fa6, -0.0285);
+  GetParam("BY-fb1", fb1, 0.0481);
+  GetParam("BY-fb2", fb2, 0.6114);
+  GetParam("BY-fb3", fb3, -0.3509);
+  GetParam("BY-fb4", fb4, -0.4611);
+  GetParam("BY-fb5", fb5, 0.7172);
+  GetParam("BY-fb6", fb6, -0.0317);
+  GetParam("BY-fc1", fc1, 0.0577);
+  GetParam("BY-fc2", fc2, 0.4644);
+  GetParam("BY-fc3", fc3, 1.8288);
+  GetParam("BY-fc4", fc4, 12.3708);
+  GetParam("BY-fc5", fc5, -43.1043);
+  GetParam("BY-fc6", fc6, 41.7415);
+
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -242,16 +263,16 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   double Theta = 1 + 12.0 * ( Q2 / (Q2+1.) ) * pow(0.125,2)/(pow(0.125,2)+x2);
   
   
-  double Ra = (a1 * Theta / TMath::Log(Q2/0.04) ) ;
-  Ra += a2 * ( 1 + a4 * x + a5 * x2 ) * pow( x, a6 ) / pow( Q8 + pow(a3,4), 1./4. ) ;
+  double Ra = (fa1 * Theta / TMath::Log(Q2/0.04) ) ;
+  Ra += fa2 * ( 1 + fa4 * x + fa5 * x2 ) * pow( x, fa6 ) / pow( Q8 + pow(fa3,4), 1./4. ) ;
 
 
-  double Rb = b1 * Theta / TMath::Log(Q2/0.04) ;
-  Rb += (b2 / Q2 + b3 / (Q4 + 0.09) ) * (1 + b4*x + b5*x2) * pow(x,b6);
+  double Rb = fb1 * Theta / TMath::Log(Q2/0.04) ;
+  Rb += (fb2 / Q2 + fb3 / (Q4 + 0.09) ) * (1 + fb4*x + fb5*x2) * pow(x,fb6);
 	 
-  double Q2thr = c4*x + c5*x2 + c6*x3;
-  double Rc = c1 * Theta / TMath::Log( Q2/0.04 ) ;
-  Rc += c2 / sqrt( pow(Q2 - Q2thr,2) + pow(c3,2));
+  double Q2thr = fc4*x + fc5*x2 + fc6*x3;
+  double Rc = fc1 * Theta / TMath::Log( Q2/0.04 ) ;
+  Rc += fc2 / sqrt( pow(Q2 - Q2thr,2) + pow(fc3,2));
   
   double R1998 = (Ra + Rb + Rc) / 3. ;
       
