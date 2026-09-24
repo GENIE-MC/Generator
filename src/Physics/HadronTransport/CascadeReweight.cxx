@@ -68,7 +68,7 @@ double CascadeReweight::GetEventWeight(const GHepRecord &event) const {
     // Only look at particles that had FSI
     if (fate_rescatter < 0 || fate_rescatter == kIHNFtUndefined)
       continue;
-    INukeFateHN_t fate = (INukeFateHN_t)fate_rescatter;
+    INukeFateHN2018_t fate = (INukeFateHN2018_t)fate_rescatter;
 
     // Read map weight:
     const auto map_it = fFateWeightsMap.find(fate);
@@ -110,9 +110,9 @@ void CascadeReweight::LoadConfig(void) {
 
   // Create vector with list of possible keys (follows the order of the fates
   // enumeration)
-  std::map<INukeFateHN_t, string> EINukeFate_map_keys = GetEINukeFateKeysMap();
+  std::map<INukeFateHN2018_t, string> EINukeFate_map_keys = GetEINukeFateKeysMap();
 
-  for (map<INukeFateHN_t, string>::iterator it_keys =
+  for (map<INukeFateHN2018_t, string>::iterator it_keys =
            EINukeFate_map_keys.begin();
        it_keys != EINukeFate_map_keys.end(); it_keys++) {
     // Find fate specifications

@@ -139,12 +139,12 @@ void HAIntranuke::SimulateHadronicFinalState(
   }
 
   // select a fate for the input particle
-  INukeFateHA_t fate = this->HadronFateHA(p);
+  INukeFateHALeg_t fate = this->HadronFateHA(p);
 
   // store the fate
   ev->Particle(p->FirstMother())->SetRescatterCode((int)fate);
 
-  if(fate == kIHAFtUndefined) {
+  if(fate == kIHALegFtUndefined) {
      LOG("HAIntranuke", pERROR) << "** Couldn't select a fate";
      p->SetStatus(kIStStableFinalState);
      ev->AddParticle(*p);
@@ -162,7 +162,7 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   GHepRecord* ev, GHepParticle* p) const
 {
   // get stored fate
-  INukeFateHA_t fate = (INukeFateHA_t) 
+  INukeFateHALeg_t fate = (INukeFateHALeg_t) 
       ev->Particle(p->FirstMother())->RescatterCode();
 
    LOG("HAIntranuke", pINFO)
@@ -174,16 +174,16 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   try
   {
      fNumIterations++;
-     if (fate == kIHAFtElas)
+     if (fate == kIHALegFtElas)
      { 
         this->ElasHA(ev,p,fate);
      }
      else 
-     if (fate == kIHAFtInelas || fate == kIHAFtCEx) 
+     if (fate == kIHALegFtInelas || fate == kIHALegFtCEx) 
      {
         this->InelasticHA(ev,p,fate);
      }
-     else if (fate == kIHAFtAbs || fate == kIHAFtPiProd)
+     else if (fate == kIHALegFtAbs || fate == kIHALegFtPiProd)
      {
 	  this->Inelastic(ev,p,fate);
      }
@@ -209,7 +209,7 @@ void HAIntranuke::SimulateHadronicFinalStateKinematics(
   }
 }
 //___________________________________________________________________________
-INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
+INukeFateHALeg_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
 {
 // Select a hadron fate in HA mode
 //
@@ -230,18 +230,18 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
     //
     if (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0) {
 
-       double frac_cex      = fHadroData->Frac(pdgc, kIHAFtCEx,     ke);
-       double frac_elas     = fHadroData->Frac(pdgc, kIHAFtElas,    ke);
-       double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
-       double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
-       double frac_piprod   = fHadroData->Frac(pdgc, kIHAFtPiProd,  ke);
+       double frac_cex      = fHadroData->Frac(pdgc, kIHALegFtCEx,     ke);
+       double frac_elas     = fHadroData->Frac(pdgc, kIHALegFtElas,    ke);
+       double frac_inel     = fHadroData->Frac(pdgc, kIHALegFtInelas,  ke);
+       double frac_abs      = fHadroData->Frac(pdgc, kIHALegFtAbs,     ke);
+       double frac_piprod   = fHadroData->Frac(pdgc, kIHALegFtPiProd,  ke);
 
        LOG("HAIntranuke", pINFO) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
-	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtInelas)  << "} = " << frac_inel
+	  << "\n frac{" << INukeHadroFates::AsString(kIHALegFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtPiProd)  << "} = " << frac_piprod;
 
        // apply external tweaks to fractions
        frac_cex    *= fPionFracCExScale;
@@ -257,11 +257,11 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        frac_piprod *= frac_rescale;
 
        LOG("HAIntranuke", pINFO) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
-	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_piprod;
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtInelas)  << "} = " << frac_inel
+	  << "\n frac{" << INukeHadroFates::AsString(kIHALegFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtPiProd)  << "} = " << frac_piprod;
           
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
@@ -275,11 +275,11 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
 #endif
        double cf=0; // current fraction
-       if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
-       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
-       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
-       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
-       if(r < (cf += frac_piprod  )) return kIHAFtPiProd;  // pi prod
+       if(r < (cf += frac_cex     )) return kIHALegFtCEx;     // cex
+       if(r < (cf += frac_elas    )) return kIHALegFtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHALegFtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHALegFtAbs;     // abs
+       if(r < (cf += frac_piprod  )) return kIHALegFtPiProd;  // pi prod
 
        LOG("HAIntranuke", pWARN) 
          << "No selection after going through all fates! " 
@@ -289,11 +289,11 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
     // handle nucleons
     else if (pdgc==kPdgProton || pdgc==kPdgNeutron) {
 
-       double frac_cex      = fHadroData->Frac(pdgc, kIHAFtCEx,     ke);
-       double frac_elas     = fHadroData->Frac(pdgc, kIHAFtElas,    ke);
-       double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
-       double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
-       double frac_pipro    = fHadroData->Frac(pdgc, kIHAFtPiProd, ke);
+       double frac_cex      = fHadroData->Frac(pdgc, kIHALegFtCEx,     ke);
+       double frac_elas     = fHadroData->Frac(pdgc, kIHALegFtElas,    ke);
+       double frac_inel     = fHadroData->Frac(pdgc, kIHALegFtInelas,  ke);
+       double frac_abs      = fHadroData->Frac(pdgc, kIHALegFtAbs,     ke);
+       double frac_pipro    = fHadroData->Frac(pdgc, kIHALegFtPiProd, ke);
 
        // apply external tweaks to fractions
        frac_cex    *= fNucleonFracCExScale;
@@ -309,11 +309,11 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        frac_pipro  *= frac_rescale;
 
        LOG("HAIntranuke", pDEBUG) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtCEx)     << "} = " << frac_cex
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtElas)    << "} = " << frac_elas
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
-	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtPiProd)  << "} = " << frac_pipro;
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtCEx)     << "} = " << frac_cex
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtElas)    << "} = " << frac_elas
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtInelas)  << "} = " << frac_inel
+	  << "\n frac{" << INukeHadroFates::AsString(kIHALegFtAbs)     << "} = " << frac_abs
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtPiProd)  << "} = " << frac_pipro;
 
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
@@ -327,11 +327,11 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
 #endif
        double cf=0; // current fraction
-       if(r < (cf += frac_cex     )) return kIHAFtCEx;     // cex
-       if(r < (cf += frac_elas    )) return kIHAFtElas;    // elas
-       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
-       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
-       if(r < (cf += frac_pipro   )) return kIHAFtPiProd;  // pi prod 
+       if(r < (cf += frac_cex     )) return kIHALegFtCEx;     // cex
+       if(r < (cf += frac_elas    )) return kIHALegFtElas;    // elas
+       if(r < (cf += frac_inel    )) return kIHALegFtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHALegFtAbs;     // abs
+       if(r < (cf += frac_pipro   )) return kIHALegFtPiProd;  // pi prod 
 
        LOG("HAIntranuke", pWARN) 
          << "No selection after going through all fates! "
@@ -339,11 +339,11 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
     }
     // handle kaons
     else if (pdgc==kPdgKP || pdgc==kPdgKM) {
-       double frac_inel     = fHadroData->Frac(pdgc, kIHAFtInelas,  ke);
-       double frac_abs      = fHadroData->Frac(pdgc, kIHAFtAbs,     ke);
+       double frac_inel     = fHadroData->Frac(pdgc, kIHALegFtInelas,  ke);
+       double frac_abs      = fHadroData->Frac(pdgc, kIHALegFtAbs,     ke);
        LOG("HAIntranuke", pDEBUG) 
-          << "\n frac{" << INukeHadroFates::AsString(kIHAFtInelas)  << "} = " << frac_inel
-	  << "\n frac{" << INukeHadroFates::AsString(kIHAFtAbs)     << "} = " << frac_abs;
+          << "\n frac{" << INukeHadroFates::AsString(kIHALegFtInelas)  << "} = " << frac_inel
+	  << "\n frac{" << INukeHadroFates::AsString(kIHALegFtAbs)     << "} = " << frac_abs;
        // compute total fraction (can be <1 if fates have been switched off)
        double tf =  frac_inel     +  
 	 frac_abs;
@@ -352,12 +352,12 @@ INukeFateHA_t HAIntranuke::HadronFateHA(const GHepParticle * p) const
        LOG("HAIntranuke", pDEBUG) << "r = " << r << " (max = " << tf << ")";
 #endif
        double cf=0; // current fraction
-       if(r < (cf += frac_inel    )) return kIHAFtInelas;  // inelas
-       if(r < (cf += frac_abs     )) return kIHAFtAbs;     // abs
+       if(r < (cf += frac_inel    )) return kIHALegFtInelas;  // inelas
+       if(r < (cf += frac_abs     )) return kIHALegFtAbs;     // abs
     }
   }//iterations
 
-  return kIHAFtUndefined; 
+  return kIHALegFtUndefined; 
 }
 //___________________________________________________________________________
 double HAIntranuke::PiBounce(void) const
@@ -466,7 +466,7 @@ double HAIntranuke::PnBounce(void) const
 }
 //___________________________________________________________________________
 void HAIntranuke::ElasHA(
-         GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+         GHepRecord* ev, GHepParticle* p, INukeFateHALeg_t fate) const
 {
   // scatters particle within nucleus, copy of hN code meant to run only once
   // in hA mode
@@ -477,7 +477,7 @@ void HAIntranuke::ElasHA(
     << " whose fate is : " << INukeHadroFates::AsString(fate);
 #endif
 
-  if(fate!=kIHAFtElas)
+  if(fate!=kIHALegFtElas)
     {
       LOG("HAIntranuke", pWARN)
 	<< "ElasHA() cannot handle fate: " << INukeHadroFates::AsString(fate);
@@ -540,7 +540,7 @@ void HAIntranuke::ElasHA(
 }
 //___________________________________________________________________________
 void HAIntranuke::InelasticHA(
-	GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+	GHepRecord* ev, GHepParticle* p, INukeFateHALeg_t fate) const
 {
   // charge exch and inelastic - scatters particle within nucleus, hA version
   // each are treated as quasielastic, particle scatters off single nucleon
@@ -553,7 +553,7 @@ void HAIntranuke::InelasticHA(
   if(ev->Probe() ) {
     LOG("HAIntranuke", pINFO) << " probe KE = " << ev->Probe()->KinE();
   }
-  if(fate!=kIHAFtCEx && fate!=kIHAFtInelas)
+  if(fate!=kIHALegFtCEx && fate!=kIHALegFtInelas)
     {
       LOG("HAIntranuke", pWARN)
 	<< "InelasticHA() cannot handle fate: " << INukeHadroFates::AsString(fate);
@@ -569,15 +569,15 @@ void HAIntranuke::InelasticHA(
   double ppcnt = (double) fRemnZ / (double) fRemnA; // % of protons
 
   // Select a hadron fate in HN mode
-  INukeFateHN_t h_fate;
-  if (fate == kIHAFtCEx) h_fate = kIHNFtCEx;
-  else                   h_fate = kIHNFtElas;
+  INukeFateHNLeg_t h_fate;
+  if (fate == kIHALegFtCEx) h_fate = kIHNLegFtCEx;
+  else                   h_fate = kIHNLegFtElas;
 
   // Select a target randomly, weighted to #
   // -- Unless, of course, the fate is CEx,
   // -- in which case the target may be deterministic
   // Also assign scattered particle code
-  if(fate==kIHAFtCEx)
+  if(fate==kIHALegFtCEx)
     {
       if(pcode==kPdgPiP)         {tcode = kPdgNeutron; scode = kPdgPi0; s2code = kPdgProton;}
       else if(pcode==kPdgPiM)    {tcode = kPdgProton;  scode = kPdgPi0; s2code = kPdgNeutron;}
@@ -702,7 +702,7 @@ void HAIntranuke::InelasticHA(
 }
 //___________________________________________________________________________
 void HAIntranuke::Inelastic(
-          GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const
+          GHepRecord* ev, GHepParticle* p, INukeFateHALeg_t fate) const
 {
 
   // Aaron Meyer (05/25/10)
@@ -739,7 +739,7 @@ void HAIntranuke::Inelastic(
   PDGCodeList list(allow_dup); // list of final state particles
 
   // only absorption/pipro fates allowed
-  if (fate == kIHAFtPiProd) {
+  if (fate == kIHALegFtPiProd) {
 
       GHepParticle s1(*p);
       GHepParticle s2(*p);
@@ -771,7 +771,7 @@ void HAIntranuke::Inelastic(
       }
   }
 
-  else if (fate==kIHAFtAbs)   
+  else if (fate==kIHALegFtAbs)   
 //  tuned for pions - mixture of 2-body and many-body
 //   use same for kaons as there is no guidance
     {
@@ -811,7 +811,7 @@ void HAIntranuke::Inelastic(
       if (pdg::IsPion(pdgc) && rnd->RndFsi().Rndm()<1.14*(.903-0.00189*fRemnA)*(1.35-0.00467*ke))
 	{  // pi d -> N N, probability determined empirically with McKeown data
 
-	  INukeFateHN_t fate_hN=kIHNFtAbs;
+	  INukeFateHNLeg_t fate_hN=kIHNLegFtAbs;
 	  int t1code,t2code,scode,s2code;
 	  double ppcnt = (double) fRemnZ / (double) fRemnA; // % of protons
 
