@@ -536,9 +536,9 @@ SOMINF        =
 EXTRALIBS     =
 endif
 
-# LINUX / 64-bit arm / linuxarm64
+# LINUX / 64-bit / linuxarm64 / linuxriscv64
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(strip $(ARCH)),linuxarm64)
+ifneq (,$(filter $(strip $(ARCH)),linuxarm64 linuxriscv64))
 ARCH_OK       = YES
 CXXFLAGS      = -W -Wall -fPIC -Wshadow \
     $(ROOT_FLAGS) \
