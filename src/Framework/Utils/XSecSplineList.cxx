@@ -249,7 +249,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
     steady_clock::time_point start = steady_clock::now();
 
-    xsec[i] = alg->Integral(interaction);
+    xsec[i] = TMath::Max(alg->Integral(interaction), 0.);
 
     steady_clock::time_point end = steady_clock::now();
 
@@ -617,4 +617,19 @@ std::vector< std::string > XSecSplineList::GetLoadedTunes() const {
   return tunes;
 }
 //___________________________________________________________________________
+void XSecSplineList::SetInterpolationType(string type){
+for (map<string, map<string, Spline *> >::iterator outer = fSplineMap.begin();
+     outer != fSplineMap.end(); ++outer)
+{
+    const string &firstKey = outer->first;
+    for (map<string, Spline *>::iterator inner = outer->second.begin();
+         inner != outer->second.end(); ++inner) {
+        inner->second->SetType(type);
+
+
+    }
+}
+}
+//___________________________________________________________________________
+
 } // genie namespace

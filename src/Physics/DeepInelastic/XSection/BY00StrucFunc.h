@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::BYStrucFunc
+\class    genie::BY00StrucFunc
 
 \brief    Bodek Yang structure function model
 
@@ -17,8 +17,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
-#define _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_H_
+#ifndef _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_00_H_
+#define _BODEK_YANG_STRUCTURE_FUNCTION_MODEL_00_H_
 
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
 #include "Framework/Interaction/Interaction.h"
@@ -26,12 +26,12 @@
 
 namespace genie {
 
-class BYStrucFunc : public QPMDISStrucFuncBase {
+class BY00StrucFunc : public QPMDISStrucFuncBase {
 
 public:
-  BYStrucFunc();
-  BYStrucFunc(string config);
-  virtual ~BYStrucFunc();
+  BY00StrucFunc();
+  BY00StrucFunc(string config);
+  virtual ~BY00StrucFunc();
 
   // overload Algorithm::Configure() to read the config. registry
   // at the algorithm initialization and set private data members
@@ -45,9 +45,11 @@ protected:
 
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
-  double ScalingVar (const Interaction * i) const;
-  void   KFactors   (const Interaction * i, double & kuv,
-                         double & kdv, double & kus, double & kds) const;
+  double ScalingVar (const Interaction * i, double Mf) const;
+  void   KVectorFactors   (const Interaction * i, double & kuv,
+                         double & kdv, double & kus, double & kds, double & ks) const;
+  void   KAxialFactors    (const Interaction * i, double & kuv,
+                         double & kdv, double & kus, double & kds, double & ks) const;
 
   // Bodek-Yang model-specific parameters
 
