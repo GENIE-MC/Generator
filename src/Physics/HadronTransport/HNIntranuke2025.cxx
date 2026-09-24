@@ -3,7 +3,7 @@
 /*
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
+
 
  Author: Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
@@ -18,22 +18,22 @@
  @ Nov 30, 2007 - SD
    Changed the hadron tracking algorithm to take into account the radial
    nuclear density dependence. Using the somewhat empirical approach of
-   increasing the nuclear radius by a const (tunable) number times the tracked 
-   particle's de Broglie wavelength as this helps getting the hadron+nucleus 
+   increasing the nuclear radius by a const (tunable) number times the tracked
+   particle's de Broglie wavelength as this helps getting the hadron+nucleus
    cross sections right.
  @ Mar 08, 2008 - CA
    Fixed code retrieving the remnant nucleus which stopped working as soon as
    simulation of nuclear de-excitation started pushing photons in the target
    nucleus daughter list.
  @ Jun 20, 2008 - CA
-   Fix a mem leak: The (clone of the) GHepParticle being re-scattered was not 
+   Fix a mem leak: The (clone of the) GHepParticle being re-scattered was not
    deleted after it was added at the GHEP event record.
  @ Jul 15, 2010 - AM
    The hN mode is now implemented in Intranuke. Similar to hA mode, but particles
    produced by reactions are stepped through the nucleus like probe particles.
    Particles react with nucleons instead of the entire nucleus, and final states
    are determined after reactions are finished, not before.
- @ Dec 15, 2014 - SD, Nick Geary 
+ @ Dec 15, 2014 - SD, Nick Geary
    Update fates to include Compound Nucleus final state correctly.
  @ Jan 9, 2015 - SD, NG, Tomek Golan
    Added 2014 version of INTRANUKE codes (new class) for independent development.
@@ -114,9 +114,9 @@ HNIntranuke2025::~HNIntranuke2025()
 //___________________________________________________________________________
 void HNIntranuke2025::ProcessEventRecord(GHepRecord * evrec) const
 {
-  LOG("HNIntranuke2025", pNOTICE) 
+  LOG("HNIntranuke2025", pNOTICE)
      << "************ Running hN2025 MODE INTRANUKE ************";
-     
+
   Intranuke2025::ProcessEventRecord(evrec);
 
   LOG("HNIntranuke2025", pINFO) << "Done with this event";
@@ -137,7 +137,7 @@ void HNIntranuke2025::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
   bool is_pion    = (pdgc==kPdgPiP || pdgc==kPdgPiM || pdgc==kPdgPi0);
   bool is_kaon    = (pdgc==kPdgKP);
   bool is_baryon  = (pdgc==kPdgProton || pdgc==kPdgNeutron);
-  bool is_gamma   = (pdgc==kPdgGamma);										
+  bool is_gamma   = (pdgc==kPdgGamma);
   if(!(is_pion || is_baryon  || is_gamma || is_kaon))
     {
       LOG("HNIntranuke2025", pERROR) << "** Cannot handle particle: " << p->Name();
@@ -154,7 +154,7 @@ void HNIntranuke2025::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
       if(fate == kIHNFtUndefined)
 	{
 	  LOG("HNIntranuke2025", pERROR) << "** Couldn't select a fate";
-	  LOG("HNIntranuke2025", pERROR) << "** Num Protons: " << fRemnZ 
+	  LOG("HNIntranuke2025", pERROR) << "** Num Protons: " << fRemnZ
 				     << ",  Num Neutrons: "<<(fRemnA-fRemnZ);
 	  LOG("HNIntranuke2025", pERROR) << "** Particle: " << "\n" << (*p);
 	  //LOG("HNIntranuke2025", pERROR) << "** Event Record: " << "\n" << (*ev);
@@ -173,7 +173,7 @@ void HNIntranuke2025::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
 	  this->ElasHN(ev,p,fate);
 	}
       else if(fate == kIHNFtAbs)                         {this-> AbsorbHN(ev,p,fate);}
-      else if(fate == kIHNFtInelas && pdgc != kPdgGamma) 
+      else if(fate == kIHNFtInelas && pdgc != kPdgGamma)
 	{
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
 	  LOG("HNIntranuke2025", pDEBUG)
@@ -196,7 +196,7 @@ void HNIntranuke2025::SimulateHadronicFinalState(GHepRecord* ev, GHepParticle* p
   catch(exceptions::INukeException exception)
     {
       this->SimulateHadronicFinalState(ev,p);
-       LOG("HNIntranuke2025", pNOTICE) 
+       LOG("HNIntranuke2025", pNOTICE)
          << "retry call to SimulateHadronicFinalState ";
        LOG("HNIntranuke2025", pNOTICE) << exception;
 
@@ -216,8 +216,8 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
   bool isPion = (pdgc == kPdgPiP or pdgc == kPdgPi0 or pdgc == kPdgPiM);
 
   if (isPion and fUseOset and ke < 350.0) return HadronFateOset ();
- 
-  LOG("HNIntranuke2025", pNOTICE) 
+
+  LOG("HNIntranuke2025", pNOTICE)
    << "Selecting hN fate for " << p->Name() << " with KE = " << ke << " MeV";
 
    // try to generate a hadron fate
@@ -242,7 +242,7 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        frac_elas    *= fNucQEFac;
        if(pdgc==kPdgPi0) frac_abs*= 0.665;  //isospin factor
 
-       LOG("HNIntranuke2025", pNOTICE) 
+       LOG("HNIntranuke2025", pNOTICE)
 	 << "\n frac{" << INukeHadroFates2025::AsString(kIHNFtCEx)     << "} = " << frac_cex
 	 << "\n frac{" << INukeHadroFates2025::AsString(kIHNFtElas)    << "} = " << frac_elas
 	 << "\n frac{" << INukeHadroFates2025::AsString(kIHNFtInelas)  << "} = " << frac_inel
@@ -251,7 +251,7 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        // compute total fraction (can be <1 if fates have been switched off)
        double tf = frac_cex      +
                    frac_elas     +
-                   frac_inel     +  
+                   frac_inel     +
                    frac_abs;
 
        double r = tf * rnd->RndFsi().Rndm();
@@ -264,10 +264,10 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        if(r < (cf += frac_cex     )) return kIHNFtCEx;    //cex
        if(r < (cf += frac_elas    )) return kIHNFtElas;   //elas
        if(r < (cf += frac_inel    )) return kIHNFtInelas; //inelas
-       if(r < (cf += frac_abs     )) return kIHNFtAbs;    //abs   
+       if(r < (cf += frac_abs     )) return kIHNFtAbs;    //abs
 
-       LOG("HNIntranuke2025", pWARN) 
-         << "No selection after going through all fates! " 
+       LOG("HNIntranuke2025", pWARN)
+         << "No selection after going through all fates! "
                      << "Total fraction = " << tf << " (r = " << r << ")";
        ////////////////////////////
        return kIHNFtUndefined;
@@ -283,7 +283,7 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
       double frac_cmp      = this->FateWeight(pdgc, kIHNFtCmp)
 	                           * fHadroData2025->Frac(pdgc, kIHNFtCmp,    ke, fRemnA , fRemnZ);
 
-      LOG("HNIntranuke2025", pINFO) 
+      LOG("HNIntranuke2025", pINFO)
 	<< "\n frac{" << INukeHadroFates2025::AsString(kIHNFtElas)    << "} = " << frac_elas
 	<< "\n frac{" << INukeHadroFates2025::AsString(kIHNFtInelas)  << "} = " << frac_inel;
 
@@ -310,7 +310,7 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        return kIHNFtUndefined;
     }
 
-    // handle gamma -- does not currently consider the elastic case 
+    // handle gamma -- does not currently consider the elastic case
     else if (pdgc==kPdgGamma)  return kIHNFtInelas;
     // Handle kaon -- elastic + charge exchange
     else if (pdgc==kPdgKP){
@@ -322,7 +322,7 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        //       frac_cex     *= fNucCEXFac;    // scaling factors
        //       frac_elas    *= fNucQEFac;   // Flor - Correct scaling factors?
 
-       LOG("HNIntranuke", pINFO) 
+       LOG("HNIntranuke", pINFO)
           << "\n frac{" << INukeHadroFates2025::AsString(kIHNFtCEx)     << "} = " << frac_cex
           << "\n frac{" << INukeHadroFates2025::AsString(kIHNFtElas)    << "} = " << frac_elas;
 
@@ -338,10 +338,10 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        double cf=0; // current fraction
 
        if(r < (cf += frac_cex     )) return kIHNFtCEx;    //cex
-       if(r < (cf += frac_elas    )) return kIHNFtElas;   //elas  
+       if(r < (cf += frac_elas    )) return kIHNFtElas;   //elas
 
-       LOG("HNIntranuke", pWARN) 
-         << "No selection after going through all fates! " 
+       LOG("HNIntranuke", pWARN)
+         << "No selection after going through all fates! "
                      << "Total fraction = " << tf << " (r = " << r << ")";
        ////////////////////////////
        return kIHNFtUndefined;
@@ -365,7 +365,7 @@ double HNIntranuke2025::FateWeight(int pdgc, INukeFateHN_t fate) const
 
   int np = fRemnZ;
   int nn = fRemnA - fRemnZ;
- 
+
   if (np < 1 && nn < 1)
     {
       LOG("HNIntranuke2025", pERROR) << "** Nothing left in nucleus!!! **";
@@ -387,7 +387,7 @@ void HNIntranuke2025::AbsorbHN(
     GHepRecord * ev, GHepParticle * p, INukeFateHN_t fate) const
 {
   // handles pi+d->2p, pi-d->nn, pi0 d->pn absorbtion, all using pi+d values
-  
+
   int pdgc = p->Pdg();
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
@@ -428,7 +428,7 @@ void HNIntranuke2025::AbsorbHN(
 
   // Library instance for reference
   PDGLibrary * pLib = PDGLibrary::Instance();
- 
+
   // Handle fermi target
   Target target(ev->TargetNucleus()->Pdg());
 
@@ -508,6 +508,7 @@ void HNIntranuke2025::AbsorbHN(
       return;
     }
 */ 
+
   // assign proper masses
   M1   = pLib->Find(pcode) ->Mass();
   M2_1 = pLib->Find(t1code)->Mass();
@@ -515,14 +516,14 @@ void HNIntranuke2025::AbsorbHN(
   M3   = pLib->Find(scode) ->Mass();
   M4   = pLib->Find(s2code)->Mass();
 
-  // handle fermi momentum 
+  // handle fermi momentum
   if(fDoFermi)
     {
       target.SetHitNucPdg(t1code);
       fNuclmodel->GenerateNucleon(target);
       tP2_1L=fFermiFac * fNuclmodel->Momentum3();
       E2_1L = TMath::Sqrt(tP2_1L.Mag2() + M2_1*M2_1);
- 
+
       target.SetHitNucPdg(t2code);
       fNuclmodel->GenerateNucleon(target);
       tP2_2L=fFermiFac * fNuclmodel->Momentum3();
@@ -543,7 +544,7 @@ void HNIntranuke2025::AbsorbHN(
   // adjust p to reflect scattering
   // get random scattering angle
   C3CM = fHadroData2025->IntBounce(p,t1code,scode,fate);
-    if (C3CM<-1.) 
+    if (C3CM<-1.)
     {
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
@@ -728,7 +729,7 @@ void HNIntranuke2025::ElasHN(
 
   // get random scattering angle
   double C3CM = fHadroData2025->IntBounce(p,tcode,scode,fate);
-  if (C3CM<-1.) 
+  if (C3CM<-1.)
     {
       p->SetStatus(kIStStableFinalState);
       ev->AddParticle(*p);
@@ -741,7 +742,7 @@ void HNIntranuke2025::ElasHN(
   double Mt = t->Mass();
   //t->SetMomentum(TLorentzVector(0,0,0,Mt));
   t->SetRemovalEnergy(0);
-  // handle fermi momentum 
+  // handle fermi momentum
   if(fDoFermi)
     {
       // Handle fermi target
@@ -788,24 +789,24 @@ void HNIntranuke2025::ElasHN(
 void HNIntranuke2025::InelasticHN(GHepRecord* ev, GHepParticle* p) const
 {
   // Aaron Meyer (Jan 2010)
-  // Updated version of InelasticHN 
+  // Updated version of InelasticHN
 
-  GHepParticle s1(*p);  
+  GHepParticle s1(*p);
   GHepParticle s2(*p);
   GHepParticle s3(*p);
   s2.SetRemovalEnergy(0);
   s3.SetRemovalEnergy(0);
-  
-  
-  
-  if (utils::intranuke2025::PionProduction(ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel))
+
+
+
+  if (utils::intranuke2025::PionProduction(ev,p,&s1,&s2,&s3,fRemnA,fRemnZ,fRemnP4,fDoFermi,fFermiFac,fFermiMomentum,fNuclmodel,fPiProdThreeBodyBias))
 	{
 	  // set status of particles and return
-	  
+
 	  s1.SetStatus(kIStHadronInTheNucleus);
 	  s2.SetStatus(kIStHadronInTheNucleus);
 	  s3.SetStatus(kIStHadronInTheNucleus);
-	  
+
 	  ev->AddParticle(s1);
 	  ev->AddParticle(s2);
 	  ev->AddParticle(s3);
@@ -821,7 +822,7 @@ void HNIntranuke2025::InelasticHN(GHepRecord* ev, GHepParticle* p) const
 
 }
 //___________________________________________________________________________
-void HNIntranuke2025::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFateHN_t fate) const     
+void HNIntranuke2025::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFateHN_t fate) const
 {
   // This function handles pion photoproduction reactions
 
@@ -870,7 +871,7 @@ void HNIntranuke2025::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFat
       << "Error: could not determine particle final states";
     ev->AddParticle(*p);
     return;
-  }    
+  }
 
   LOG("HNIntranuke2025", pNOTICE)
     << "GammaInelastic fate: " << INukeHadroFates2025::AsString(fate);
@@ -883,7 +884,7 @@ void HNIntranuke2025::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFat
   t->SetPdgCode(tcode);
   double Mt = t->Mass();
 
-  // handle fermi momentum 
+  // handle fermi momentum
   if(fDoFermi)
     {
       // Handle fermi target
@@ -930,7 +931,7 @@ int HNIntranuke2025::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
 
   // handle compound nucleus option
   // -- Call the PreEquilibrium function
-  if( fDoCompoundNucleus && IsInNucleus(p) && pdg::IsNeutronOrProton(p->Pdg())) 
+  if( fDoCompoundNucleus && IsInNucleus(p) && pdg::IsNeutronOrProton(p->Pdg()))
     {  // random number generator
   //unused var - quiet compiler warning//RandomGen * rnd = RandomGen::Instance();
 
@@ -1006,6 +1007,8 @@ void HNIntranuke2025::LoadConfig(void)
   GetParamDef( "FSI-NeutralPion-MFPScale",       fNeutralPionMFPScale,    1.0 ) ;
   GetParamDef( "FSI-Nucleon-MFPScale",           fNucleonMFPScale,        1.0 ) ;
 
+  GetParamDef( "FSI-PiProd-ThreeBodyBias", fPiProdThreeBodyBias, 0.0 );
+
   // report
   LOG("HNIntranuke2025", pINFO) << "Settings for Intranuke2025 mode: " << INukeMode::AsString(kIMdHN);
   LOG("HNIntranuke2025", pWARN) << "R0          = " << fR0 << " fermi";
@@ -1026,6 +1029,7 @@ void HNIntranuke2025::LoadConfig(void)
   LOG("HNIntranuke2025", pWARN) << "XsecNNCorr? = " << ((fXsecNNCorr)?(true):(false));
   LOG("HNIntranuke2025", pWARN) << "FSI-ChargedPion-MFPScale     = " << fChPionMFPScale;
   LOG("HNIntranuke2025", pWARN) << "FSI-NeutralPion-MFPScale     = " << fNeutralPionMFPScale;
+  LOG("HNIntranuke2025", pWARN) << "PiProdBias  = " << fPiProdThreeBodyBias;
 }
 //___________________________________________________________________________
 
