@@ -68,7 +68,34 @@ namespace utils {
                       double W4,
                       double W5,
                       double W6);
-                        
+
+  void CalculatePolarizationVectorInLeptonRestFrame(
+                      TVector3 & polarization,
+                      const TLorentzVector & neutrinoMom,
+                      const TLorentzVector & leptonMom, 
+                      bool isLeftPolarized,
+                      double M,
+                      double W1,
+                      double W2,
+                      double W3,
+                      double W4,
+                      double W5);
+
+  TVector3 TransformLeptonRestFramePolarizationVectorToLabFrame(
+    const TVector3 & neutrinoMomLab,
+    const TVector3 & leptonMomLab,
+    const TVector3 & polarizationRest
+  );
+
+  TVector3 SetPolarizationVectorDirection(
+    double PL,
+    double PP,
+    double PT,
+    const TVector3 & neutrinoMom,
+    const TVector3 & leptonMom
+  );
+
+  void EnsurePhysicalPolarizationVector(TVector3 & polarization);
 
   inline int g(int a, int b) ///< metric g^{ab}=g_{ab}=diag(1,-1,-1,1)
   {

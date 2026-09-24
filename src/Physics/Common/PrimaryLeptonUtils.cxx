@@ -53,14 +53,14 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
   fsl->SetPolarization(xsec_alg->FinalLeptonPolarization(interaction));
     
   LOG("LeptonicVertex", pINFO)
-    << "Setting polarization angles for particle: " << fsl->Name();
+    << "Setting polarization for particle: " << fsl->Name();
 
   if ( fsl->PolzIsSet() ) {
     LOG("LeptonicVertex", pINFO)
       << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
       << ", Azimuthal = " << fsl->PolzAzimuthAngle();
   }
-  
+
 }
 //___________________________________________________________________________
 void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
@@ -163,16 +163,18 @@ void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
   std::complex<double> rhopm = LWpm/LWppmm;
   std::complex<double> rhomp = LWmp/LWppmm;
   std::complex<double> rhomm = LWmm/LWppmm;
+
+  // Compute the longitudinal (L), perpendicular (P) and transverse (T) components of the polarization vector,
+  // relative to the neutrino-lepton scattering plane
   double PL = std::real(rhopp - rhomm);
   double PP = std::real(rhopm + rhomp);
   double PT = std::imag(rhomp - rhopm);
-  
-  TVector3 neutrinoMom3 = neutrinoMom.Vect();                                          
-  TVector3 leptonMom3 = leptonMom.Vect();
-  TVector3 Pz = leptonMom3.Unit();
-  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
-  TVector3 Py = Pz.Cross(Px);
-  polarization = PT*Px + PP*Py + PL*Pz;
+
+  // Now align the polarization vector with the physical coordinate system
+  polarization = SetPolarizationVectorDirection(PL, PP, PT, neutrinoMom.Vect(), leptonMom.Vect());
+
+  // Physicality check
+  EnsurePhysicalPolarizationVector(polarization);
 }
 //____________________________________________________________________________
 void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
@@ -254,6 +256,10 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
                       double W6
 )
 {
+
+  // Main reference: https://arxiv.org/abs/hep-ph/0312107
+  // Another equivalent reference is https://arxiv.org/pdf/hep-ph/0305324 (assumes W6=0) 
+
   double ml = leptonMomTRF.M();
   double ml2 = ml*ml;
   double M2 = M*M;
@@ -275,18 +281,56 @@ void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
       polarization.SetBit(kPolarizationUndef);
       return;
   }
+
+  // Compute the longitudinal (L), perpendicular (P) and transverse (T) components of the polarization vector,
+  // relative to the neutrino-lepton scattering plane
   double PL    = sign*(2*aux1m*(W1 - aux1*W4) + aux1p*W2 - sign*(aux2*aux1m + aux1*cost)*W3 - aux1*cost*W5)/R;
   double PP    = sign*ml*sint*(2*W1 - W2 -sign*Ev*W3/M - ml2*W4/M2 + El*W5/M)/2/M/R;
   double PT    = - ml*Pl*sint*W6/2/M2/R;
   
-  
-  TVector3 neutrinoMomTRF3 = neutrinoMomTRF.Vect();                                          
-  TVector3 leptonMomTRF3 = leptonMomTRF.Vect();
-  TVector3 Pz = leptonMomTRF3.Unit();
-  TVector3 Px = neutrinoMomTRF3.Cross(leptonMomTRF3).Unit();
-  TVector3 Py = Pz.Cross(Px);
-  polarization = PT*Px + PP*Py + PL*Pz;
+  // Now align the polarization vector with the physical coordinate system
+  polarization = SetPolarizationVectorDirection(PL, PP, PT, neutrinoMomTRF.Vect(), leptonMomTRF.Vect());
+
+  // Physicality check
+  EnsurePhysicalPolarizationVector(polarization);
 }
 //____________________________________________________________________________
+TVector3 genie::utils::SetPolarizationVectorDirection(
+  double PL, // Longitudinal component of rest frame polarization
+  double PP, // Perpendicular component of rest frame polarization
+  double PT, // Transverse component of rest frame polarization
+  const TVector3 & neutrinoMom,
+  const TVector3 & leptonMom
+)
+{
+  /*
+    Rest frame polarization is defined such that:
+     (a) The longitudinal (L) component is along the lepton momentum direction
+     (b) The transverse (T) component is normal to the nu-lepton scattering plane, defined by p_nu x p_l
+     (c) The perpendicular (P) component forms a right handed coordinate syetm with the L and T components
 
+    Notes:
+      - The L and P components are thus by definition in the nu-lepton scattering plane
+      - The T component is out of the scattering plane, and is 0 in the the Standard Model (W6=0)
+  */
 
+  TVector3 Pz = leptonMom.Unit(); // Lepton direction
+  TVector3 Px = neutrinoMom.Cross(leptonMom).Unit(); // Normal to scattering plane
+  TVector3 Py = Pz.Cross(Px); // Form right handed coordinate system
+
+  TVector3 polarization = PT*Px + PP*Py + PL*Pz;
+
+  return polarization;
+}
+//____________________________________________________________________________
+void genie::utils::EnsurePhysicalPolarizationVector(TVector3 & polarization) {
+  /*
+    Ensure the polarization vector has a physical magnitude, e.g. <= 1.
+    Clip it to 1 if necessary (can sometimes slightly exceed this due to numerical factors)
+  */ 
+
+  if(polarization.Mag() > 1) {
+    polarization = polarization * (1. / polarization.Mag());
+  }
+}
+//____________________________________________________________________________

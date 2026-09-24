@@ -178,7 +178,7 @@ private:
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector (GeV)
   TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t from the moment of the primary interaction in ys(yocto second = 10^-24 s)
-  TVector3         fPolarization;   ///< polarization vector of final lepton
+  TVector3         fPolarization;   ///< polarization vector
   double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)
   bool             fIsBound;        ///< 'is it a bound particle?' flag
 

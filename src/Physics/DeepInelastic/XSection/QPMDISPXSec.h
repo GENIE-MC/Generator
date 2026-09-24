@@ -41,6 +41,7 @@ public:
   double XSec            (const Interaction * i, KinePhaseSpace_t k) const;
   double Integral        (const Interaction * i) const;
   bool   ValidProcess    (const Interaction * i) const;
+  TVector3 FinalLeptonPolarization (const Interaction* i) const override;
 
   // overload the Algorithm::Configure() methods to load private data
   // members from configuration options
@@ -51,6 +52,7 @@ private:
   void   LoadConfig                  (void);
 
   mutable DISStructureFunc fDISSF;
+  mutable DISStructureFunc fDISSFNucleon;
   bool                     fInInitPhase;
 
   const DISStructureFuncModelI * fDISSFModel;         ///< SF model
