@@ -1,0 +1,22 @@
+#
+# Specify all possible initial states requiored for the comparisons to HERMES data
+# so that all necessary cross-section splines can be build. 
+#
+
+# maximum energy (GeV)
+50
+
+# number of knots (logaritmically spaced from threshold to maximum energy)
+100
+
+# list of neutrino PDG codes
+ 11 # e-
+-11 # e+
+
+# list of target PDG codes
+1000010020  # H2
+1000020040  # He4
+1000070140  # N14
+1000100200  # Ne20
+1000360840  # Kr84
+1000541320  # Xe132
