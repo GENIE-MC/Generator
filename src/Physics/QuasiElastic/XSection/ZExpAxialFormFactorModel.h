@@ -19,7 +19,7 @@
 
 \created  August 16, 2013
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 
 */
@@ -60,8 +60,7 @@ private:
   double fT0;
   double fTcut;
   double fFA0;
-  //double fZ_An[11];
-  double* fZ_An;
+  std::vector<double> fZ_An;
 };
 
 }         // genie namespace

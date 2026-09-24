@@ -40,6 +40,7 @@ typedef enum EFermiMoverInteractionType {
   kFermiMoveEffectiveSF1p1h,
   kFermiMoveEffectiveSF2p2h_eject,
   kFermiMoveEffectiveSF2p2h_noeject,
+  kFermiMoveSpectralFunc,
 } FermiMoverInteractionType_t;  
 
 class NuclearModel {

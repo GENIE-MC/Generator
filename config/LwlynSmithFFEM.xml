@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for Llewellyn-Smith QEL EM form factors
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type     Optional   Comment                     Default
+..........................................................................................................
+ElasticFormFactorsModel       alg      No         Elastic form factors model  CommonParam[ElasticFF]
+UseElFFTransverseEnhancement  bool     No                                     CommonParam[ElasticFF]
+TransverseEnhancement         alg      No         TransverseEnhancement model CommonParam[ElasticFF]
+AxialFormFactorModel          alg      No         Axial form factor model     
+AnomMagnMoment-P              double   No                                     CommonParam[MagnMoments]
+AnomMagnMoment-N              double   No                                     CommonParam[MagnMoments]
+WeinbergAngle                 double   No         Weinberg angle              CommonParam[WeakInt]
+SU3-D                         double   No                                     CommonParam[StrongInt]
+SU3-F                         double   No                                     CommonParam[StrongInt]
+-->
+
+  <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> WeakInt,MagnMoments,StrongInt,ElasticFF </param>
+
+    <!-- Dummy axial form factor model required since this class inherits from LwlynSmithFF.
+         All axial form factors are set to zero by LwlynSmithFFEM. -->
+    <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+
+  </param_set>
+
+</alg_conf>

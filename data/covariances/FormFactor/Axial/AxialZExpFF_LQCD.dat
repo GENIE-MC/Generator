@@ -1,0 +1,5 @@
+% error matrix for z expansion axial form factor
+% based on A. Meyer et al (MINERvA), arXiv 2512.14097 v1 (LQCD kmax=6, the 2 free parameters)
+% | an | an is a 2x2 matrix
+0.00265598 -0.00562374
+-0.00562374 0.01596000

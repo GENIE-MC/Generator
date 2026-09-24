@@ -120,7 +120,7 @@ double LwlynSmithQELCCPXSec::XSec(
   // Apply given scaling factor
   double xsec_scale = 1 ;
   const ProcessInfo& proc_info = interaction->ProcInfo();
-  
+
   if( proc_info.IsWeakCC() ) xsec_scale = fXSecCCScale;
   else if( proc_info.IsWeakNC() ) xsec_scale = fXSecNCScale;
   xsec *= xsec_scale ;
@@ -325,7 +325,7 @@ double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
   }
 
   double E = in->InitState().ProbeE(kRfHitNucRest);
-  if(fLFG || E < fEnergyCutOff) {
+  if( fLFG ) {
     // clone the input interaction so as to tweak the
     // hit nucleon 4-momentum in the averaging loop
     Interaction in_curr(*in);
@@ -454,11 +454,6 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   GetParamDef( "IntegralAverageOverNucleonMomentum", average_over_nuc_mom, false ) ;
   // Always average over initial nucleons if the nuclear model is LFG
   fDoAvgOverNucleonMomentum = fLFG || average_over_nuc_mom ;
-
-  fEnergyCutOff = 0.;
-
-  // Get averaging cutoff energy
-  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.0 ) ;
 
   // Method to use to calculate the binding energy of the initial hit nucleon when
   // generating splines

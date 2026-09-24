@@ -641,10 +641,13 @@ void ZExpELFormFactorModel::LoadConfig(void )
   GetParam( "QEL-T0", fT0 ) ;
   GetParam( "QEL-Tcut", fTcut ) ;
 
-  GetParam( "QEL-Gep0", fGep0 ) ;
-  GetParam( "QEL-Gmp0", fGmp0 ) ;
-  GetParam( "QEL-Gen0", fGen0 ) ;
-  GetParam( "QEL-Gmn0", fGmn0 ) ;
+  // Q^2 = 0 normalizations: electric charges are fixed, magnetic moments
+  // come from the MagnMoments common parameter list
+  // fGep0 and Gen0 is hardcode in here
+  fGep0 = 1.;
+  fGen0 = 0.;
+  GetParam( "AnomMagnMoment-P", fGmp0 ) ;
+  GetParam( "AnomMagnMoment-N", fGmn0 ) ;
   assert(fKmax > 0);
 
   // z expansion coefficients
