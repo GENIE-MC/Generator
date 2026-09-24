@@ -9,26 +9,30 @@ Configurable Parameters:
 ....................................................................................................
 Name                       Type    Opt   Comment                                Default
 ....................................................................................................
+BY-Delta                   bool    Yes   Apply correction to u/d valance dist.  True
 BY-X0                      double  No    Bodek-Yang param X0                    
 BY-X1                      double  No    Bodek-Yang param X1                    
 BY-X2                      double  No    Bodek-Yang param X2                    
 PDF-Q2min                  double  Yes   Min Q2 for PDF evaluation              from "Uncorr-PDF-Set" register
 Uncorr-PDF-Set             alg     No    Uncorrected PDF model 
+BY-UpScale                 double  Yes   Scaling the up pdf distribution. Default 0.
+By-DownScale               double  Yes   Scaling the down pdf distribution. Default 0.
 -->
 
-  <param_set name="Default"> 
-
+<param_set name="Default">
+  
     <param type="double" name="BY-X0">   -0.00817 </param>
     <param type="double" name="BY-X1">    0.0506  </param>
     <param type="double" name="BY-X2">    0.0798  </param>
+    <param type="double" name="BY-UpScale"> 0. </param>
+    <param type="double" name="BY-DownScale">    0.0  </param>
+    <param type="bool"   name="BY-Delta"> true </param>
     
     <param type="alg" name="Uncorr-PDF-Set">  genie::GRV98LO/Default </param>
 
   </param_set>
 
-
   <param_set name="Optional"> 
-    
     <param type="alg" name="Uncorr-PDF-Set">  genie::LHAPDF5/GRVLO  </param>
 
   </param_set>

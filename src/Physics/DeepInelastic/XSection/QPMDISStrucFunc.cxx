@@ -8,28 +8,19 @@
 */
 //____________________________________________________________________________
 
-#include "Framework/Messenger/Messenger.h"
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFunc.h"
+#include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 
 //____________________________________________________________________________
-QPMDISStrucFunc::QPMDISStrucFunc() :
-QPMDISStrucFuncBase("genie::QPMDISStrucFunc")
-{
-
-}
+QPMDISStrucFunc::QPMDISStrucFunc()
+    : QPMDISStrucFuncBase("genie::QPMDISStrucFunc") {}
 //____________________________________________________________________________
-QPMDISStrucFunc::QPMDISStrucFunc(string config):
-QPMDISStrucFuncBase("genie::QPMDISStrucFunc", config)
-{
-
-}
+QPMDISStrucFunc::QPMDISStrucFunc(string config)
+    : QPMDISStrucFuncBase("genie::QPMDISStrucFunc", config) {}
 //____________________________________________________________________________
-QPMDISStrucFunc::~QPMDISStrucFunc()
-{
-
-}
+QPMDISStrucFunc::~QPMDISStrucFunc() {}
 //____________________________________________________________________________

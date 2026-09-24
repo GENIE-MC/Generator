@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the BY DIS Nuclear model 2000. 
+In this version, parameters are hardcoded. This model is kept for historical reasons.                                                                        
+This model is not advised, as a new version of this parameterization is available in BY21DISNuclearModel 
+
+Configurable Parameters:
+...............................................................................................................................................
+Name                            Type    Optional   Comment                     
+...............................................................................................................................................
+BY00-NuclModel-2H-Scale         double  No         Overall scaling factor applied to deuterium to free nucleon correction
+BY00-NuclModel-2H-f0            double  No         Constant multiplying x_F^0 contribution of the 2H to free nucleon parameterization 
+BY00-NuclModel-2H-f1            double  No         Constant multiplying x_F^1 contribution of the 2H to free nucleon parameterization 
+BY00-NuclModel-2H-f2            double  No         Constant multiplying x_F^2 contribution of the 2H to free nucleon parameterization 
+BY00-NuclModel-2H-f3            double  No         Constant multiplying x_F^3 contribution of the 2H to free nucleon parameterization 
+BY00-NuclModel-2H-f4            double  No         Constant multiplying x_F^4 contribution of the 2H to free nucleon parameterization 
+BY00-NuclModel-2H-f5            double  No         Constant multiplying x_F^5 contribution of the 2H to free nucleon parameterization 
+
+BY00-NuclModel-Fe-f0            double  No         Constant used in the Isoscalar Iron to Deuterium parameterization
+BY00-NuclModel-Fe-f1            double  No         Constant used in the Isoscalar Iron to Deuterium parameterization
+BY00-NuclModel-Fe-f2            double  No         Constant used in the Isoscalar Iron to Deuterium parameterization
+BY00-NuclModel-Fe-f3            double  No         Constant used in the Isoscalar Iron to Deuterium parameterization
+BY00-NuclModel-Fe-f4            double  No         Constant used in the Isoscalar Iron to Deuterium parameterization
+-->
+
+ <param_set name="Default"> 
+   <param type="double" name="BY00-NuclModel-2H-Scale">  0.985   </param>
+   <param type="double" name="BY00-NuclModel-2H-f0">     1       </param>
+   <param type="double" name="BY00-NuclModel-2H-f1">     0.422   </param>
+   <param type="double" name="BY00-NuclModel-2H-f2">     -2.745  </param>
+   <param type="double" name="BY00-NuclModel-2H-f3">     7.570   </param>
+   <param type="double" name="BY00-NuclModel-2H-f4">     -10.335 </param>
+   <param type="double" name="BY00-NuclModel-2H-f5">     5.422   </param>
+
+   <param type="double" name="BY00-NuclModel-Fe-f0">     1.096   </param>
+   <param type="double" name="BY00-NuclModel-Fe-f1">    -0.364    </param>
+   <param type="double" name="BY00-NuclModel-Fe-f2">    -0.278    </param>
+   <param type="double" name="BY00-NuclModel-Fe-f3">    -21.94    </param>
+   <param type="double" name="BY00-NuclModel-Fe-f4">     2.722     </param>
+      
+ </param_set>
+
+</alg_conf>
