@@ -941,6 +941,7 @@ int HNIntranuke2025::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
             {
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
+              sp->SetLastMother(-1);  // in case mother had 2 mothers
 	      // this was PreEquilibrium - now just used for hN
 	      //same arguement lists for PreEq and Eq
 	      utils::intranuke2025::Equilibrium(ev,sp,fRemnA,fRemnZ,fRemnP4,
@@ -956,6 +957,7 @@ int HNIntranuke2025::HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int 
                 << "*** Nothing left to interact with, escaping.";
               GHepParticle * sp = new GHepParticle(*p);
               sp->SetFirstMother(mom);
+              sp->SetLastMother(-1);  // in case mother had 2 mothers
               sp->SetStatus(kIStStableFinalState);
               ev->AddParticle(*sp);
               delete sp;
