@@ -10,6 +10,8 @@
 #include <TSystem.h>
 #include <TTree.h>
 #include <TVector3.h>
+#include <TObjString.h>
+#include <TString.h>
 
 #include "Framework/EventGen/EventRecord.h"
 #include "Framework/Messenger/Messenger.h"
@@ -38,6 +40,11 @@ Long_t gOptRunNu = 0;
 std::string gOutFileName;
 std::vector<std::string> inputfiles;
 NtpMCTreeMultiHeader head;
+bool ignoreMissmatch = false;
+TString common_cvstag = TString("");
+TString common_tune = TString("");
+
+
 
 int main(int argc, char **argv) {
   GetCommandLineArgs(argc, argv);
@@ -80,7 +87,9 @@ void GetCommandLineArgs(int argc, char **argv) {
     gAbortingInErr = true;
     std::exit(1);
   }
-
+  if (parser.OptionExists("ignore-missmatch")){
+    ignoreMissmatch = true;
+  }
   std::vector<std::string> valid_files;
   for (const std::string &file : inputfiles) {
     if (!file.empty()) {
@@ -104,8 +113,40 @@ void GetCommandLineArgs(int argc, char **argv) {
 void MergeFiles(void) {
 
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
+  NtpMCTreeHeader* thdrWriter = ntpw.EventTreeHeader();
+  bool matchTune = true;
+  bool matchTag = true;
+  for (const std::string &filename : inputfiles) {
+    TFile fin(filename.c_str(), "READ");
+    NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin.Get("header"));
+    if (!thdr) {
+      LOG("gEvMerge", pWARN)
+          << "Input file does not contain a valid GENIE header: " << filename
+          << ", skipping file";
+      continue;
+    } else {
+       LOG("gEvMerge", pNOTICE) << "Retrieving headder info for " << filename;
+      if (common_cvstag == TString("") || common_tune == TString("")){
+        common_cvstag = thdr->cvstag.GetString ();
+        common_tune = thdr->tune.GetString ();
+      } else {
+        matchTune &= common_tune == (thdr->tune.GetString ());
+        matchTag &=  common_cvstag == (thdr->cvstag).GetString ();
+      }
+    }
+  }
+  LOG("gEvMerge", pNOTICE) << "Finished analyzing headders";
+
+  if ((!matchTune || !matchTag) && !ignoreMissmatch){
+    LOG("gEvMerge", pERROR) << "Missmatch in tunings or cvstag in files. If you really want to merge them use --ignore-missmatch";
+    gAbortingInErr = true;
+    std::exit(1);
+  }
+
+
   ntpw.CustomizeFilename(gOutFileName);
   ntpw.Initialize();
+
   Long64_t ievt = 0;
   for (const std::string &filename : inputfiles) {
     std::set<int> nu;
@@ -124,15 +165,23 @@ void MergeFiles(void) {
     }
     NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin.Get("header"));
     if (!thdr) {
-      LOG("gEvMerge", pWARN)
-          << "Input file does not contain a valid GENIE header: " << filename
-          << ", skipping file";
       continue;
 
     } else {
       LOG("gEvMerge", pINFO) << "Input header for " << filename << ":\n"
                              << *thdr;
-      
+    }
+    LOG("gEvMerge", pNOTICE) << "Retrieving Multihead"; 
+    NtpMCTreeMultiHeader *multiCurr =  dynamic_cast<NtpMCTreeMultiHeader *>(fin.Get("MultiHead"));
+    if (multiCurr){
+      for (size_t j = 0; j < multiCurr->size(); j++){
+        std::pair<Long64_t, Long64_t> indi = multiCurr->getIndices(j);
+        head.insertHead(multiCurr->getHead(j), 
+        multiCurr->getFileName(j), 
+        multiCurr->getNeutrinos(j), 
+        std::make_pair(indi.first + ievt,  indi.second + ievt)
+        );
+      }
     }
     NtpMCEventRecord *mcrec = nullptr;
     if (er_tree->SetBranchAddress("gmcrec", &mcrec) < 0) {
@@ -193,6 +242,11 @@ void MergeFiles(void) {
   }
   LOG("gEvMerge", pNOTICE) << "Writing " << ievt << " total events to "
                            << gOutFileName;
+  std::string tune = matchTune ? common_tune.Data()    : "N.N.";
+  std::string csvt = matchTag  ? common_cvstag.Data()  : "N.N.";
+  LOG("gEvMerge", pNOTICE) << "Changing Head, old one " << thdrWriter;
+  thdrWriter->tune.SetString(tune.c_str());
+  thdrWriter->cvstag.SetString(csvt.c_str());
   ntpw.Save();
   TFile * fOutFile = TFile::Open(gOutFileName.c_str(),"UPDATE");
   std::cout << head << std::endl;
@@ -212,7 +266,8 @@ void PrintSyntax(void) {
       << "\n"
       << "               -i input_file1.root,input_file2.root,..."
       << "\n"
-      << "               -o outfile_name.root"
+      << "               -o outfile_name.root\n"
+      << "               --ignore-missmatch"
       << "\n"
       << RunOpt::RunOptSyntaxString(true) << "\n";
 }

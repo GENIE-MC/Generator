@@ -58,6 +58,7 @@ public :
   ///< filename, or the default filename prefix
   void CustomizeFilename       (string filename);
   void CustomizeFilenamePrefix (string prefix);
+  NtpMCTreeHeader* EventTreeHeader() {return fNtpMCTreeHeader;};
 
 private:
 
