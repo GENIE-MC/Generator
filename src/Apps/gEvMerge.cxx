@@ -113,7 +113,7 @@ void GetCommandLineArgs(int argc, char **argv) {
 void MergeFiles(void) {
 
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
-  NtpMCTreeHeader* thdrWriter = ntpw.EventTreeHeader();
+  
   bool matchTune = true;
   bool matchTag = true;
   for (const std::string &filename : inputfiles) {
@@ -242,8 +242,9 @@ void MergeFiles(void) {
   }
   LOG("gEvMerge", pNOTICE) << "Writing " << ievt << " total events to "
                            << gOutFileName;
-  std::string tune = matchTune ? common_tune.Data()    : "N.N.";
-  std::string csvt = matchTag  ? common_cvstag.Data()  : "N.N.";
+  std::string tune = matchTune ? common_tune.Data()    : "unknown";
+  std::string csvt = matchTag  ? common_cvstag.Data()  : "unknown";
+  NtpMCTreeHeader* thdrWriter = ntpw.EventTreeHeader();
   LOG("gEvMerge", pNOTICE) << "Changing Head, old one " << thdrWriter;
   thdrWriter->tune.SetString(tune.c_str());
   thdrWriter->cvstag.SetString(csvt.c_str());
