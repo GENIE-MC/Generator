@@ -80,6 +80,13 @@
   <priority msgstream="DMELEvent">             NOTICE </priority>
   <priority msgstream="DMELKinematics">        NOTICE </priority>
   <priority msgstream="DMELXSec">              NOTICE </priority>
+  <priority msgstream="DMRES">                 INFO   </priority>
+  <priority msgstream="DMRESXSec">             INFO   </priority>
+  <priority msgstream="DMRESPXSec">            WARN   </priority>
+  <priority msgstream="DMHAmpl">               WARN   </priority>
+  <priority msgstream="DMResTF">               NOTICE </priority>
+  <priority msgstream="DMResCF">               NOTICE </priority>
+  <priority msgstream="DMRESKinematics">       WARN   </priority>
   <priority msgstream="EventGenerator">        NOTICE </priority>
   <priority msgstream="EffectiveSF">           INFO   </priority>
   <priority msgstream="Elastic">               INFO   </priority>
@@ -93,7 +100,7 @@
   <priority msgstream="FMap">                  WARN   </priority>
   <priority msgstream="FragmRecUtils">         NOTICE </priority>
   <priority msgstream="GEVGDriver">            NOTICE </priority>
-  <priority msgstream="GMCJDriver">            NOTICE </priority>
+  <priority msgstream="GMCJDriver">            NOTICE  </priority>
   <priority msgstream="GEVGPool">              INFO   </priority>
   <priority msgstream="GMCJob">                INFO   </priority>
   <priority msgstream="GMCJMonitor">           WARN   </priority>

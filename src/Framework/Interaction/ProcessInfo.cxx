@@ -8,6 +8,7 @@
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
+ and Zachary Orr (Colorado State Univ.)
 
  Changes required to implement the GENIE Dark Neutrino module
  were installed by Iker de Icaza (Univ. of Sussex)
@@ -99,6 +100,11 @@ bool ProcessInfo::IsDarkMatterDeepInelastic(void) const
 bool ProcessInfo::IsResonant(void) const
 {
   return (fScatteringType == kScResonant);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterResonant(void) const
+{
+  return (fScatteringType == kScDarkMatterResonant);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsCoherentProduction(void) const

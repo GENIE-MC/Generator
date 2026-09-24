@@ -276,18 +276,21 @@ Or changing the name of this parameter set
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         Set the coupling of dark matter to nucleons
     -->
-    <param type="double" name="ZpCoupling"> 0.1 </param>
+
+    <param type="double" name="ZpCoupling"> 1.0 </param>
     <param type="double" name="DarkLeftCharge"> 1.0 </param>
-    <param type="double" name="DarkRightCharge"> 1.0 </param>
+    <param type="double" name="DarkRightCharge"> -1.0 </param>
     <param type="double" name="DarkScalarCharge"> 1.0 </param>
+
     <param type="double" name="UpLeftCharge"> 1.0 </param>
-    <param type="double" name="UpRightCharge"> 1.0 </param>
+    <param type="double" name="UpRightCharge"> -1.0 </param>
     <param type="double" name="DownLeftCharge"> 1.0 </param>
-    <param type="double" name="DownRightCharge"> 1.0 </param>
+    <param type="double" name="DownRightCharge"> -1.0 </param>
     <param type="double" name="StrangeLeftCharge"> 1.0 </param>
-    <param type="double" name="StrangeRightCharge"> 1.0 </param>
+    <param type="double" name="StrangeRightCharge"> -1.0 </param>
     <param type="double" name="CharmLeftCharge"> 1.0 </param>
-    <param type="double" name="CharmRightCharge"> 1.0 </param>
+    <param type="double" name="CharmRightCharge"> -1.0 </param>
+
     <param type="double" name="ElectronLeftCharge"> 1.0 </param>
     <param type="double" name="ElectronRightCharge"> 1.0 </param>
     <param type="double" name="DMEL-Mp"> 1.441 </param>

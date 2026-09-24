@@ -376,6 +376,7 @@ int main(int argc, char** argv)
    * option. */
   mcj_driver->ForceSingleProbScale();
 
+
   // initialize an ntuple writer
   NtpWriter ntpw(kDefOptNtpFormat, gOptRunNu, gOptRanSeed);
   ntpw.CustomizeFilenamePrefix(gOptEvFilePrefix);

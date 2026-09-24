@@ -10,9 +10,16 @@
 #pragma link C++ class genie::DMELInteractionListGenerator;
 #pragma link C++ class genie::DMELKinematicsGenerator;
 #pragma link C++ class genie::DMELOutgoingDarkGenerator;
+
 #pragma link C++ class genie::DMDISOutgoingDarkGenerator;
 #pragma link C++ class genie::DMDISInteractionListGenerator;
 #pragma link C++ class genie::DMDISKinematicsGenerator;
+
+#pragma link C++ class genie::DMRESInteractionListGenerator;
+#pragma link C++ class genie::DMRESKinematicsGenerator;
+#pragma link C++ class genie::DMRESOutgoingDarkGenerator;
+#pragma link C++ class genie::DMRESHadronicSystemGenerator;
+
 #pragma link C++ class genie::DMEOutgoingDarkGenerator;
 #pragma link C++ class genie::DMEInteractionListGenerator;
 #pragma link C++ class genie::DMEKinematicsGenerator;

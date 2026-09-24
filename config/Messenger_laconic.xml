@@ -21,7 +21,7 @@
     same stream is listed twice with conflicting priority then the
     one found last is used
    -->
-  <priority msgstream="ResonanceDecay">                WARN   </priority>  
+  <priority msgstream="ResonanceDecay">                WARN   </priority>
   <priority msgstream="Pythia6Decay">                  WARN   </priority>
   <priority msgstream="Pythia8Decay">                  WARN   </priority>
   <priority msgstream="Messenger">                     WARN   </priority>
@@ -80,6 +80,13 @@
   <priority msgstream="DMELEvent">                     WARN   </priority>
   <priority msgstream="DMELKinematics">                WARN   </priority>
   <priority msgstream="DMELXSec">                      WARN   </priority>
+  <priority msgstream="DMRES">                         INFO   </priority>
+  <priority msgstream="DMRESXSec">                     INFO   </priority>
+  <priority msgstream="DMRESPXSec">                    WARN   </priority>
+  <priority msgstream="DMHAmpl">                       WARN   </priority>
+  <priority msgstream="DMResTF">                       NOTICE </priority>
+  <priority msgstream="DMResCF">                       NOTICE </priority>
+  <priority msgstream="DMRESKinematics">               WARN   </priority>
   <priority msgstream="EventGenerator">                WARN   </priority>
   <priority msgstream="EffectiveSF">                   WARN   </priority>
   <priority msgstream="Elastic">                       WARN   </priority>
