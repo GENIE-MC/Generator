@@ -96,25 +96,25 @@ void BY21StrucFunc::ReadBYParams(void)
   GetParamDef( "BY-IncludeAxial", fIncludeAxial, true );
 
 
-  GetParam("BY-fa1", fa1, 0.0485);
-  GetParam("BY-fa2", fa2, 0.5470);
-  GetParam("BY-fa3", fa3, 2.0621);
-  GetParam("BY-fa4", fa4, -0.3804);
-  GetParam("BY-fa5", fa5, 0.5090);
-  GetParam("BY-fa6", fa6, -0.0285);
-  GetParam("BY-fb1", fb1, 0.0481);
-  GetParam("BY-fb2", fb2, 0.6114);
-  GetParam("BY-fb3", fb3, -0.3509);
-  GetParam("BY-fb4", fb4, -0.4611);
-  GetParam("BY-fb5", fb5, 0.7172);
-  GetParam("BY-fb6", fb6, -0.0317);
-  GetParam("BY-fc1", fc1, 0.0577);
-  GetParam("BY-fc2", fc2, 0.4644);
-  GetParam("BY-fc3", fc3, 1.8288);
-  GetParam("BY-fc4", fc4, 12.3708);
-  GetParam("BY-fc5", fc5, -43.1043);
-  GetParam("BY-fc6", fc6, 41.7415);
-
+  GetParamDef("BY-fa1", fa1, 0.0485);
+  GetParamDef("BY-fa2", fa2, 0.5470);
+  GetParamDef("BY-fa3", fa3, 2.0621);
+  GetParamDef("BY-fa4", fa4, -0.3804);
+  GetParamDef("BY-fa5", fa5, 0.5090);
+  GetParamDef("BY-fa6", fa6, -0.0285);
+  GetParamDef("BY-fb1", fb1, 0.0481);
+  GetParamDef("BY-fb2", fb2, 0.6114);
+  GetParamDef("BY-fb3", fb3, -0.3509);
+  GetParamDef("BY-fb4", fb4, -0.4611);
+  GetParamDef("BY-fb5", fb5, 0.7172);
+  GetParamDef("BY-fb6", fb6, -0.0317);
+  GetParamDef("BY-fc1", fc1, 0.0577);
+  GetParamDef("BY-fc2", fc2, 0.4644);
+  GetParamDef("BY-fc3", fc3, 1.8288);
+  GetParamDef("BY-fc4", fc4, 12.3708);
+  GetParamDef("BY-fc5", fc5, -43.1043);
+  GetParamDef("BY-fc6", fc6, 41.7415);
+  GetParamDef("BY-RShift", fRShift, 1.0);
 }
 //____________________________________________________________________________
 void BY21StrucFunc::Init(void)
@@ -274,7 +274,7 @@ double BY21StrucFunc::R(const Interaction * interaction) const {
   double Rc = fc1 * Theta / TMath::Log( Q2/0.04 ) ;
   Rc += fc2 / sqrt( pow(Q2 - Q2thr,2) + pow(fc3,2));
   
-  double R1998 = (Ra + Rb + Rc) / 3. ;
+  double R1998 = fRShift * (Ra + Rb + Rc) / 3. ;
       
   // At Q2 < 0.3 GeV2, we add a K factor multipying R(Q2=0.3)
   // for a smooth transtion down to Q2 = 0 (the photonproduction limit)
