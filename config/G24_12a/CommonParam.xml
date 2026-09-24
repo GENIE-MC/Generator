@@ -10,8 +10,8 @@ This is file is read from the AlgConfigPool and the parameters set are expected 
 algorithms to configure these common parameters.
 
 Author:
-Costas Andreopoulos <c.andreopoulos \at cern.ch>
-University of Liverpool
+Costas Andreopoulos <costas.andreopoulos \at stfc.ac.uk>
+STFC, Rutherford Appleton Laboratory
 
 and
 Marco Roda <marco.roda \at liverpool.ac.uk>
@@ -27,7 +27,7 @@ University of Liverpool
  <param_set name="Tunable">
    <!-- Reserved register for tuning -->
 
-   <!-- <param type="double" name="DIS-CC-XSecScale">    1.032 </param> -->
+   <!-- <param type="double" name="DIS-XSecScale">    1.032 </param> -->
    <!-- <param type="double" name="MEC-CC-XSecScale"> 1.000 </param> -->
 
 
@@ -35,9 +35,9 @@ University of Liverpool
 
 
  <param_set name="WeakInt">
-    <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 -->
-    <param type="double" name="FermiConstant"> 1.16639E-5 </param> <!-- GeV^-2 --> <!-- historical GENIE value -->
-    <param type="double" name="FineStructureConstant"> 7.2973525332858855E-3 </param> <!-- historical GENIE value -->
+   <param type="double" name="WeinbergAngle"> 0.501716712132 </param> <!-- 0.501568 -->
+   <param type="double" name="FermiConstant"> 1.16639E-5 </param> <!-- GeV^-2 --> <!-- historical GENIE value -->
+   <param type="double" name="FineStructureConstant"> 7.2973525332858855E-3 </param> <!-- historical GENIE value -->
 
  </param_set>
 
@@ -241,6 +241,7 @@ University of Liverpool
    <!--
    <param type="double" name="NSV-Q3Max"> 2.0 </param> // SuSAv2
    <param type="double" name="NSV-Q3Max"> 1.2 </param> // Nieves
+   <param type="double" name="NSV-Q3Max"> 2.0 </param> // Martini (actually it is 1.9999)
    -->
  </param_set>
 

@@ -11,7 +11,7 @@
 \created  May 12, 2005
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -62,6 +62,8 @@ public:
   void   SetCurrentTune (const string & tune) { fCurrentTune = tune; }
   string CurrentTune    (void) const  { return fCurrentTune; }
   bool   HasSplineFromTune( const string & tune ) const { return fSplineMap.count(tune) > 0 ; }
+
+  std::vector< std::string > GetLoadedTunes(void) const;
 
   // Query the existence, access or create a spline
   // The results of the following methods depend on the current tune setting

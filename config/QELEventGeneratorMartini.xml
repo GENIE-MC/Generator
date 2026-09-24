@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for QELEventGeneratorMartini
+
+Configurable Parameters:
+.......................................................................................................
+Name                 Type     Optional   Comment                                      Default
+QEL-Q3Max            double   No         Q3 max for 2p2h and 1p1h model               CommonParam[QE]
+QEL-ForceBound       bool     No         Whether to force nucleons to be bound        CommonParam[QE]
+QEL-ForceEbFromModel bool     No         Whether to force Eb from Nuc. Model          CommonParam[QE]
+QEL-FixEb            bool     No         Whether to fix Eb                            CommonParam[QE]
+QEL-EbOR             bool     No         What Eb to use if fixed                      CommonParam[QE]
+
+.......................................................................................................
+-->
+
+  <param_set name="Default"> 
+
+    <param type="string" name="CommonParam"> QuasiElastic,FermiGas </param>
+
+    <!-- I've had problems with the cache during some tests. Everything seems to work
+         fine with the cache turned off, however (with negligible impact on performance),
+         so I'll just set the minimum energy for the cache to an extremely high value.
+         - S. Gardiner, 1 July 2020 -->
+    <param type="double" name="Cache-MinEnergy"> 1000.0 </param>
+
+    <param type="double" name="MaxXSec-SafetyFactor"> 1.5 </param>
+
+    <!-- <param type="double" name="MaxXSec-DiffTolerance"> 0.0 </param> -->
+
+    <param type="alg" name="NuclearModel"> genie::NuclearModelMap/Default </param>
+
+    <!-- This generator doesn't handle free nucleon targets. Those cases are instead
+         delegated to this EventRecordVisitorI -->
+    <param type="alg" name="FreeNucleonEventGenerator"> genie::QELEventGenerator/Default </param>
+
+    <!--  Extra stuff for SuSAv2 1p1h implementation   -->
+
+    <!--  Q3 max for hadron tensors model    -->
+    <param type="double" name="QEL-Q3Max"> 2.0 </param>
+
+    <!--  Force bound nucleons in SuSAv2 implementation -->
+    <param type="bool" name="QEL-ForceBound"> false </param>
+
+    <!--  Force model Eb in SuSAv2 implementation -->
+    <param type="bool" name="QEL-ForceEbFromModel"> false </param>
+
+    <!--  Force fixed Eb in SuSAv2 implementation and specify Eb Override-->
+    <param type="bool" name="QEL-ForceFixedEb"> false </param>
+    <param type="double" name="QEL-EbOR"> 0.025 </param>
+
+  </param_set>
+
+  <param_set name="ModelEb"> 
+
+     <!--  Force model Eb in SuSAv2 implementation -->
+     <param type="bool" name="QEL-ForceEbFromModel"> true </param>
+
+  </param_set>
+
+  <param_set name="ForceBound"> 
+
+    <!--  Force bound nucleons in SuSAv2 implementation -->
+    <param type="bool" name="QEL-ForceBound"> true </param>
+
+  </param_set>
+
+  <param_set name="FixEb"> 
+
+    <!--  Force fixed Eb in SuSAv2 implementation and specify Eb Override-->
+    <param type="bool" name="QEL-ForceFixedEb"> true </param>
+    <param type="double" name="QEL-EbOR"> 0.025 </param>  
+
+  </param_set>  
+
+  <param_set name="CC-Default">
+
+  </param_set>
+
+  <param_set name="NC-Default">
+
+  </param_set>
+
+  <param_set name="EM-Default"> 
+
+  </param_set>
+
+  <param_set name="CC-Charm-Default"> 
+
+  </param_set>
+
+  <param_set name="CC-Lambda-Default">
+
+  </param_set>
+  
+</alg_conf>
