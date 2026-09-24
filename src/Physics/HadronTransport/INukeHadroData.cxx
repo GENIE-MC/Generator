@@ -344,7 +344,7 @@ void INukeHadroData::LoadCrossSections(void)
   //
 
 
-  // 	kIHNFtElas
+  // 	kIHNLegFtElas
   //	  pp, nn --> read from pp/pp%.txt
   //	  pn, np --> read from pp/pn%.txt
   //	  pi+ N  --> read from pip/pip%.txt
@@ -352,18 +352,18 @@ void INukeHadroData::LoadCrossSections(void)
   //	  pi- N  --> read from pim/pim%.txt
   //      K+  N  --> read from kpn/kpn%.txt
   //      K+  P  --> read from kpp/kpp%.txt
-  //    kIHNFtCEx
+  //    kIHNLegFtCEx
   //	  pi+, pi0, pi- --> read from pie/pie%.txt (using pip+n->pi0+p data)
-  //    kIHNFtAbs
+  //    kIHNLegFtAbs
   //      pi+, pi0, pi- --> read from pid2p/pid2p%.txt (using pip+D->2p data)
-  //    kIHNFtInelas
+  //    kIHNLegFtInelas
   //      gamma p -> p pi0 --> read from gampi0p/%-pi0p.txt
   //      gamma p -> n pi+ --> read from gampi+n/%-pi+n.txt
   //      gamma n -> n pi0 --> read from gampi0n/%-pi0n.txt
   //      gamma n -> p pi- --> read from gampi-p/%-pi-p.txt
 
 
-  // kIHNFtElas, pp&nn :
+  // kIHNLegFtElas, pp&nn :
   {
     const int hN_ppelas_nfiles = 20;
     const int hN_ppelas_points_per_file = 21;
@@ -399,7 +399,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_ppelas_energies,hN_ppelas_costh,hN_ppelas_xsec); 
   }
 
-  // kIHNFtElas, pn&np :
+  // kIHNLegFtElas, pn&np :
   {
     const int hN_npelas_nfiles = 20;
     const int hN_npelas_points_per_file = 21;
@@ -435,7 +435,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_npelas_energies,hN_npelas_costh,hN_npelas_xsec); 
   }
 
-  // kIHNFtElas, pipN :
+  // kIHNLegFtElas, pipN :
   {
     const int hN_pipNelas_nfiles = 60;
     const int hN_pipNelas_points_per_file = 21;
@@ -476,7 +476,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_pipNelas_energies,hN_pipNelas_costh,hN_pipNelas_xsec); 
   }
 
-  // kIHNFtElas, pi0N :
+  // kIHNLegFtElas, pi0N :
   {
     const int hN_pi0Nelas_nfiles = 60;
     const int hN_pi0Nelas_points_per_file = 21;
@@ -517,7 +517,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_pi0Nelas_energies,hN_pi0Nelas_costh,hN_pi0Nelas_xsec); 
   }
 
-  // kIHNFtElas, pimN :
+  // kIHNLegFtElas, pimN :
   {
     const int hN_pimNelas_nfiles = 60;
     const int hN_pimNelas_points_per_file = 21;
@@ -558,7 +558,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_pimNelas_energies,hN_pimNelas_costh,hN_pimNelas_xsec); 
   }
  
-  // kIHNFtElas, kpn :
+  // kIHNLegFtElas, kpn :
   {
     const int hN_kpNelas_nfiles = 18;
     const int hN_kpNelas_points_per_file = 37;
@@ -594,7 +594,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_kpNelas_energies,hN_kpNelas_costh,hN_kpNelas_xsec); 
   }
   
-  // kIHNFtElas, kpp :
+  // kIHNLegFtElas, kpp :
   {
     const int hN_kpPelas_nfiles = 18;
     const int hN_kpPelas_points_per_file = 37;
@@ -630,7 +630,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_kpPelas_energies,hN_kpPelas_costh,hN_kpPelas_xsec); 
 	}
 
-  // kIHNFtCEx, (pi+, pi0, pi-) N 
+  // kIHNLegFtCEx, (pi+, pi0, pi-) N 
   {
     const int hN_piNcex_nfiles = 60;
     const int hN_piNcex_points_per_file = 21;
@@ -671,7 +671,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_piNcex_energies,hN_piNcex_costh,hN_piNcex_xsec); 
   }
 
-  // kIHNFtAbs, (pi+, pi0, pi-) N 
+  // kIHNLegFtAbs, (pi+, pi0, pi-) N 
   {
     const int hN_piNabs_nfiles = 19;
     const int hN_piNabs_points_per_file = 21;
@@ -707,7 +707,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_piNabs_energies,hN_piNabs_costh,hN_piNabs_xsec);
   }
 
-  // kIHNFtInelas, gamma p -> p pi0
+  // kIHNLegFtInelas, gamma p -> p pi0
     {
     const int hN_gampi0pInelas_nfiles = 29;
     const int hN_gampi0pInelas_points_per_file = 37;
@@ -744,7 +744,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_gampi0pInelas_energies,hN_gampi0pInelas_costh,hN_gampi0pInelas_xsec);
   }
 
-  // kIHNFtInelas, gamma n -> n pi0
+  // kIHNLegFtInelas, gamma n -> n pi0
   {
     const int hN_gampi0nInelas_nfiles = 29;
     const int hN_gampi0nInelas_points_per_file = 37;
@@ -780,7 +780,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_gampi0nInelas_energies,hN_gampi0nInelas_costh,hN_gampi0nInelas_xsec);
   }
 
-  // kIHNFtInelas, gamma p -> n pi+
+  // kIHNLegFtInelas, gamma p -> n pi+
   {
     const int hN_gampipnInelas_nfiles = 29;
     const int hN_gampipnInelas_points_per_file = 37;
@@ -817,7 +817,7 @@ void INukeHadroData::LoadCrossSections(void)
 			   hN_gampipnInelas_energies,hN_gampipnInelas_costh,hN_gampipnInelas_xsec);
   }
 
-  // kIHNFtInelas, gamma n -> p pi-
+  // kIHNLegFtInelas, gamma n -> p pi-
   {
     const int hN_gampimpInelas_nfiles = 29;
     const int hN_gampimpInelas_points_per_file = 37;
@@ -908,7 +908,7 @@ void INukeHadroData::ReadhNFile(
 }
 //____________________________________________________________________________
 double INukeHadroData::XSec(
-  int hpdgc, int tgtpdgc, int nppdgc, INukeFateHN_t fate, double ke, double costh) const
+  int hpdgc, int tgtpdgc, int nppdgc, INukeFateHNLeg_t fate, double ke, double costh) const
 {
 // inputs
 //      fate    : h+N fate code
@@ -926,7 +926,7 @@ double INukeHadroData::XSec(
   costh_eval = TMath::Min(costh,  1.);
   costh_eval = TMath::Max(costh_eval, -1.);
 
-  if(fate==kIHNFtElas) {
+  if(fate==kIHNLegFtElas) {
 
      if( (hpdgc==kPdgProton  && tgtpdgc==kPdgProton) ||
          (hpdgc==kPdgNeutron && tgtpdgc==kPdgNeutron) )
@@ -980,7 +980,7 @@ double INukeHadroData::XSec(
      }
   }
 
-  else if(fate == kIHNFtCEx) {
+  else if(fate == kIHNLegFtCEx) {
     if( (hpdgc==kPdgPiP || hpdgc==kPdgPi0 || hpdgc==kPdgPiM) &&
          (tgtpdgc==kPdgProton || tgtpdgc==kPdgNeutron) )
      {
@@ -1005,7 +1005,7 @@ double INukeHadroData::XSec(
       }
   }
 
-  else if(fate == kIHNFtAbs) {
+  else if(fate == kIHNLegFtAbs) {
     if( (hpdgc==kPdgPiP || hpdgc==kPdgPi0 || hpdgc==kPdgPiM) &&
          (tgtpdgc==kPdgProton || tgtpdgc==kPdgNeutron) )
      {
@@ -1016,7 +1016,7 @@ double INukeHadroData::XSec(
     if(hpdgc==kPdgKP) return 1.;  //isotropic since no data ???
   }
 
-  else if(fate == kIHNFtInelas) {
+  else if(fate == kIHNLegFtInelas) {
     if( hpdgc==kPdgGamma && tgtpdgc==kPdgProton  &&nppdgc==kPdgProton  )
     {
        ke_eval = TMath::Min(ke_eval, 1199.);
@@ -1049,7 +1049,7 @@ double INukeHadroData::XSec(
   return 0;  
 }
 //____________________________________________________________________________
-double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
+double INukeHadroData::Frac(int hpdgc, INukeFateHALeg_t fate, double ke) const
 {
 // return the x-section fraction for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
@@ -1061,11 +1061,11 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 
   if(hpdgc == kPdgProton) {
    /* handle protons */
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracPA_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPA_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPA_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPA_Abs     -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPA_Pipro   -> Evaluate (ke));
+        if (fate == kIHALegFtCEx    ) return TMath::Max(0., fFracPA_CEx     -> Evaluate (ke));
+   else if (fate == kIHALegFtElas   ) return TMath::Max(0., fFracPA_Elas    -> Evaluate (ke));
+   else if (fate == kIHALegFtInelas ) return TMath::Max(0., fFracPA_Inel    -> Evaluate (ke));
+   else if (fate == kIHALegFtAbs    ) return TMath::Max(0., fFracPA_Abs     -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPA_Pipro   -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1074,11 +1074,11 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgNeutron) {
    /* handle neutrons */
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracNA_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracNA_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracNA_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracNA_Abs     -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracNA_Pipro   -> Evaluate (ke));
+        if (fate == kIHALegFtCEx    ) return TMath::Max(0., fFracNA_CEx     -> Evaluate (ke));
+   else if (fate == kIHALegFtElas   ) return TMath::Max(0., fFracNA_Elas    -> Evaluate (ke));
+   else if (fate == kIHALegFtInelas ) return TMath::Max(0., fFracNA_Inel    -> Evaluate (ke));
+   else if (fate == kIHALegFtAbs    ) return TMath::Max(0., fFracNA_Abs     -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracNA_Pipro   -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1087,13 +1087,13 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgPiP) {
    /* handle pi+ */
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracPipA_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPipA_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPipA_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPipA_Abs     -> Evaluate (ke));
-	//   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_Pipro   -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPipA_PiProd -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd) return TMath::Max(0., fFracPipA_PiProd -> Evaluate (ke));
+        if (fate == kIHALegFtCEx    ) return TMath::Max(0., fFracPipA_CEx     -> Evaluate (ke));
+   else if (fate == kIHALegFtElas   ) return TMath::Max(0., fFracPipA_Elas    -> Evaluate (ke));
+   else if (fate == kIHALegFtInelas ) return TMath::Max(0., fFracPipA_Inel    -> Evaluate (ke));
+   else if (fate == kIHALegFtAbs    ) return TMath::Max(0., fFracPipA_Abs     -> Evaluate (ke));
+	//   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPipA_Pipro   -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPipA_PiProd -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd) return TMath::Max(0., fFracPipA_PiProd -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
          << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1102,13 +1102,13 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgPiM) {
    /* handle pi- */
-   if      (fate == kIHAFtCEx    ) return TMath::Max(0., fFracPimA_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPimA_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPimA_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPimA_Abs     -> Evaluate (ke));
-   //   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_Pipro   -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPimA_PiProd -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd) return TMath::Max(0., fFracPimA_PiProd -> Evaluate (ke));
+   if      (fate == kIHALegFtCEx    ) return TMath::Max(0., fFracPimA_CEx     -> Evaluate (ke));
+   else if (fate == kIHALegFtElas   ) return TMath::Max(0., fFracPimA_Elas    -> Evaluate (ke));
+   else if (fate == kIHALegFtInelas ) return TMath::Max(0., fFracPimA_Inel    -> Evaluate (ke));
+   else if (fate == kIHALegFtAbs    ) return TMath::Max(0., fFracPimA_Abs     -> Evaluate (ke));
+   //   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPimA_Pipro   -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPimA_PiProd -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd) return TMath::Max(0., fFracPimA_PiProd -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
         << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1117,13 +1117,13 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
 
   } else if (hpdgc == kPdgPi0) {
    /* handle pi0 */
-        if (fate == kIHAFtCEx    ) return TMath::Max(0., fFracPi0A_CEx     -> Evaluate (ke));
-   else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracPi0A_Elas    -> Evaluate (ke));
-   else if (fate == kIHAFtInelas ) return TMath::Max(0., fFracPi0A_Inel    -> Evaluate (ke));
-   else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracPi0A_Abs     -> Evaluate (ke));
-	//   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_Pipro   -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd ) return TMath::Max(0., fFracPi0A_PiProd -> Evaluate (ke));
-   else if (fate == kIHAFtPiProd) return TMath::Max(0., fFracPi0A_PiProd -> Evaluate (ke));
+        if (fate == kIHALegFtCEx    ) return TMath::Max(0., fFracPi0A_CEx     -> Evaluate (ke));
+   else if (fate == kIHALegFtElas   ) return TMath::Max(0., fFracPi0A_Elas    -> Evaluate (ke));
+   else if (fate == kIHALegFtInelas ) return TMath::Max(0., fFracPi0A_Inel    -> Evaluate (ke));
+   else if (fate == kIHALegFtAbs    ) return TMath::Max(0., fFracPi0A_Abs     -> Evaluate (ke));
+	//   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPi0A_Pipro   -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd ) return TMath::Max(0., fFracPi0A_PiProd -> Evaluate (ke));
+   else if (fate == kIHALegFtPiProd) return TMath::Max(0., fFracPi0A_PiProd -> Evaluate (ke));
    else {
      LOG("INukeData", pWARN) 
         << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1131,9 +1131,9 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
    }
   } else if (hpdgc == kPdgKP) {
    /* handle K+ */
-  if (fate == kIHAFtInelas ) return TMath::Max(0., fFracKA_Inel    -> Evaluate (ke));
-  else if (fate == kIHAFtAbs    ) return TMath::Max(0., fFracKA_Abs     -> Evaluate (ke));
-  //  else if (fate == kIHAFtElas   ) return TMath::Max(0., fFracKA_Elas    -> Evaluate (ke));
+  if (fate == kIHALegFtInelas ) return TMath::Max(0., fFracKA_Inel    -> Evaluate (ke));
+  else if (fate == kIHALegFtAbs    ) return TMath::Max(0., fFracKA_Abs     -> Evaluate (ke));
+  //  else if (fate == kIHALegFtElas   ) return TMath::Max(0., fFracKA_Elas    -> Evaluate (ke));
   else {
     LOG("INukeData", pWARN) 
       << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
@@ -1146,7 +1146,7 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHA_t fate, double ke) const
   return 0;
 }
 //____________________________________________________________________________
-double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const
+double INukeHadroData::XSec(int hpdgc, INukeFateHNLeg_t fate, double ke, int targA, int targZ) const
 {
 // return the x-section for the input fate for the particle with the input pdg 
 // code at the input kinetic energy
@@ -1160,16 +1160,16 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
 
     if (hpdgc == kPdgPiP) {
     /* handle pi+ */
-         if (fate == kIHNFtCEx   ) {xsec = TMath::Max(0., fXSecPipp_CEx  -> Evaluate(ke)) *  targZ;
+         if (fate == kIHNLegFtCEx   ) {xsec = TMath::Max(0., fXSecPipp_CEx  -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPipn_CEx  -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPipp_Elas -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtElas  ) {xsec = TMath::Max(0., fXSecPipp_Elas -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPipn_Elas -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPipp_Reac -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtInelas) {xsec = TMath::Max(0., fXSecPipp_Reac -> Evaluate(ke)) *  targZ;
 				    xsec+= TMath::Max(0., fXSecPipn_Reac -> Evaluate(ke)) * (targA-targZ);
  				    return xsec;}
-    else if (fate == kIHNFtAbs   ) {xsec = TMath::Max(0., fXSecPipd_Abs  -> Evaluate(ke)) *  targA;
+    else if (fate == kIHNLegFtAbs   ) {xsec = TMath::Max(0., fXSecPipd_Abs  -> Evaluate(ke)) *  targA;
 				    return xsec;}
     else {
      LOG("INukeData", pWARN) 
@@ -1179,16 +1179,16 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
 
   } else if (hpdgc == kPdgPiM) {
     /* handle pi- */
-         if (fate == kIHNFtCEx   ) {xsec = TMath::Max(0., fXSecPipn_CEx  -> Evaluate(ke)) *  targZ;
+         if (fate == kIHNLegFtCEx   ) {xsec = TMath::Max(0., fXSecPipn_CEx  -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPipp_CEx  -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPipn_Elas -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtElas  ) {xsec = TMath::Max(0., fXSecPipn_Elas -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPipp_Elas -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPipn_Reac -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtInelas) {xsec = TMath::Max(0., fXSecPipn_Reac -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPipp_Reac -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtAbs   ) {xsec = TMath::Max(0., fXSecPipd_Abs  -> Evaluate(ke)) *  targA;
+    else if (fate == kIHNLegFtAbs   ) {xsec = TMath::Max(0., fXSecPipd_Abs  -> Evaluate(ke)) *  targA;
 				    return xsec;}
     else {
      LOG("INukeData", pWARN) 
@@ -1198,16 +1198,16 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
 
   } else if (hpdgc == kPdgPi0) {
     /* handle pi0 */
-         if (fate == kIHNFtCEx   ) {xsec = TMath::Max(0., fXSecPi0p_CEx  -> Evaluate(ke)) *  targZ;
+         if (fate == kIHNLegFtCEx   ) {xsec = TMath::Max(0., fXSecPi0p_CEx  -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPi0n_CEx  -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPi0p_Elas -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtElas  ) {xsec = TMath::Max(0., fXSecPi0p_Elas -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPi0n_Elas -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPi0p_Reac -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtInelas) {xsec = TMath::Max(0., fXSecPi0p_Reac -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPi0n_Reac -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtAbs   ) {xsec = TMath::Max(0., fXSecPi0d_Abs  -> Evaluate(ke)) *  targA;
+    else if (fate == kIHNLegFtAbs   ) {xsec = TMath::Max(0., fXSecPi0d_Abs  -> Evaluate(ke)) *  targA;
 				    return xsec;}
     else {
      LOG("INukeData", pWARN) 
@@ -1217,10 +1217,10 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
 
   } else if (hpdgc == kPdgProton) {
     /* handle protons */
-         if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPp_Elas -> Evaluate(ke)) *  targZ;
+         if (fate == kIHNLegFtElas  ) {xsec = TMath::Max(0., fXSecPp_Elas -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPn_Elas -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPp_Reac -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtInelas) {xsec = TMath::Max(0., fXSecPp_Reac -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
     else {
@@ -1231,10 +1231,10 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
 
   } else if (hpdgc == kPdgNeutron) {
     /* handle protons */
-         if (fate == kIHNFtElas  ) {xsec = TMath::Max(0., fXSecPn_Elas -> Evaluate(ke)) *  targZ;
+         if (fate == kIHNLegFtElas  ) {xsec = TMath::Max(0., fXSecPn_Elas -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecNn_Elas -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
-    else if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) *  targZ;
+    else if (fate == kIHNLegFtInelas) {xsec = TMath::Max(0., fXSecPn_Reac -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecNn_Reac -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
     else {
@@ -1244,7 +1244,7 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
     }
 	 /*   }  else if (hpdgc == kPdgGamma) {  
     / * handle gamma * /
-         if (fate == kIHNFtInelas) {xsec = TMath::Max(0., fXSecGamp_fs   -> Evaluate(ke)) *  targZ;
+         if (fate == kIHNLegFtInelas) {xsec = TMath::Max(0., fXSecGamp_fs   -> Evaluate(ke)) *  targZ;
 	                            xsec+= TMath::Max(0., fXSecGamn_fs   -> Evaluate(ke)) * (targA-targZ);
 				    return xsec;}
     else {
@@ -1259,7 +1259,7 @@ double INukeHadroData::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA,
   return 0;
 }
 
-double INukeHadroData::Frac(int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const
+double INukeHadroData::Frac(int hpdgc, INukeFateHNLeg_t fate, double ke, int targA, int targZ) const
 {
 // return the x-section fraction for the input fate for the particle with the 
 // input pdg code at the input kinetic energy
@@ -1290,7 +1290,7 @@ double INukeHadroData::Frac(int hpdgc, INukeFateHN_t fate, double ke, int targA,
   return frac;
 }
 //____________________________________________________________________________
-double INukeHadroData::IntBounce(const GHepParticle* p, int target, int scode, INukeFateHN_t fate)
+double INukeHadroData::IntBounce(const GHepParticle* p, int target, int scode, INukeFateHNLeg_t fate)
 {
   // This method returns a random cos(ang) according to a distribution
   // based upon the particle and fate. The sampling uses the 
@@ -1452,7 +1452,7 @@ while(iter)
   return val;
 }
 //___________________________________________________________________________
-/*int INukeHadroData::AngleAndProduct(const GHepParticle* p, int target, double &costh, INukeFateHN_t fate)
+/*int INukeHadroData::AngleAndProduct(const GHepParticle* p, int target, double &costh, INukeFateHNLeg_t fate)
 {
   //
   // Adapted from genie::utils::intranuke::IntBounce()
