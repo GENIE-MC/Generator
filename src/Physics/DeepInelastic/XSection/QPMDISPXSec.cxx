@@ -267,6 +267,8 @@ void QPMDISPXSec::LoadConfig(void)
   GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
+  // Charm mass
+  GetParam( "Charm-Mass", fMc ) ;
 
   // Since this method would be called every time the current algorithm is
   // reconfigured at run-time, remove all the data cached by this algorithm
@@ -315,12 +317,10 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
 
   // Bail for NC
   if (!proc_info.IsWeakCC()) {
-    return TVector3(0., 0., 0.);
+    TVector3 pol(0, 0, 0);
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }  
-
-  // Check no charm events end up here (would need to apply a correction to W1 if so)
-  bool charm = xcls.IsCharmEvent();
-  assert(("QPMDISPXSec::FinalLeptonPolarization does not support charm", !charm));
 
   // Get target nucleon (lab frame)
   const Target & target = init_state.Tgt(); // This is the nucelus
@@ -342,7 +342,7 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
 
   // Polarization calculation is performed in target rest frame
   // Target nucleon has small momentum (Fermi motion) so is not precisely at rest, so transform 
-  // to the nucelon's rest frame to perform the polarization calculation correctly.
+  // to the nucleon's rest frame to perform the polarization calculation correctly.
 
   // Get beta corresponding to nucleon target
   TVector3 beta = nucleon_p4_lab.BoostVector();
@@ -369,15 +369,10 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
   TLorentzVector q = k - kprime; //[1] eqn 5
 
   // Get other kinematic variables
-  double Q2 = -q.Mag2();  //[1] eqn 5 //-q**2;
+  double Q2 = -q.Mag2();  //[1] eqn 5
   double p_dot_q = p.Dot(q); // Used in multiple places, so calculating once now
   double x = Q2 / (2. * p_dot_q); // [1] eqn 10
   double M = nucleon_p4_lab.M();
-
-  // Cross-check Q2 and x against the kinematics object         //TODO REMOVE THIS?
-  double tol = 1e-3;
-  assert(("Q2 mismatch", (Q2 - kinematics.Q2(true)) < tol));
-  assert(("x mismatch", (x - kinematics.x(true)) < tol));
 
 
   //
@@ -402,9 +397,9 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
   // Includes a correction that is applied to the Björken x variable when a charm quark
   // is produced, see the last paragraph of p. 11 in [1].
   double xi = x;
-  // if(charm) {
-  //   xi = x / (Q2 / (Q2 + pow(m_charm, 2)));   //TODO should I handle charm in here?
-  // }
+  if(xcls.IsCharmEvent()) {
+    xi = x / (Q2 / (Q2 + pow(fMc, 2)));
+  }
   double W1 = ( 1 + (xi * W_common_term) ) * F1;
 
   // W6 = 0 in the Standard Model

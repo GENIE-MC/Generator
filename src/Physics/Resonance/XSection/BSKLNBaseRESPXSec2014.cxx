@@ -925,7 +925,9 @@ TVector3 BSKLNBaseRESPXSec2014::FinalLeptonPolarization(const Interaction* inter
   // Bail for NC
   const ProcessInfo & proc_info = interaction->ProcInfo();
   if (!proc_info.IsWeakCC()) {
-    return TVector3(0., 0., 0.);
+    TVector3 pol(0, 0, 0);
+    pol.SetBit(kPolarizationUndef);
+    return pol;
   }  
 
   // Get neutrino (lab frame)
