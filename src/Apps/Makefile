@@ -35,7 +35,8 @@ TGT_BASE =  gevgen             \
             gmkhedissf         \
             gcalchedisdiffxsec \
             gmkphotonsf        \
-            gconfigdump
+            gconfigdump		   \
+			gevmerge
 
 ifeq ($(strip $(GOPT_ENABLE_FNAL)),YES)
 TGT_BASE += gevgen_fnal
@@ -95,6 +96,11 @@ all: $(TGT)
 %.o : %.cxx
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $(CPP_INCLUDES) $< -o $@
 
+# a simple file merger 
+#
+$(GENIE_BIN_PATH)/gevmerge: gEvMerge.o $(call find_libs,gevmerge)
+	@echo "** Building gevmerge"
+	$(LD) $(LDFLAGS) gEvMerge.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gevmerge
 
 # a simple/generic gevgen event generation app
 #
