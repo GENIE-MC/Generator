@@ -68,7 +68,9 @@ fLastDaughter(daughter2)
 
   fP4 = new TLorentzVector(p);
   fX4 = new TLorentzVector(v);
-  fPolarization = TVector3(0, 0, 0);
+  fPolzTheta      = -999;
+  fPolzPhi        = -999;
+  // fPolzMag initial value defined in .h file
   fRescatterCode  = -1;
   fIsBound        = false;
   fRemovalEnergy  = 0.;
@@ -90,7 +92,9 @@ fLastDaughter(daughter2)
 
   fP4 = new TLorentzVector(px,py,pz,En);
   fX4 = new TLorentzVector(x,y,z,t);
-  fPolarization = TVector3(0, 0, 0);
+  fPolzTheta      = -999;
+  fPolzPhi        = -999;
+  // fPolzMag initial value defined in .h file
   fRescatterCode  = -1;
   fIsBound        = false;
   fRemovalEnergy  = 0.;
@@ -115,7 +119,9 @@ fFirstDaughter(-1),
 fLastDaughter(-1),
 fP4(0),
 fX4(0),
-fPolarization( TVector3(0, 0, 0) ),
+fPolzTheta(-999),
+fPolzPhi(-999),
+// fPolzMag initial value defined in .h file
 fRemovalEnergy(0),
 fIsBound(false)
 {
@@ -300,6 +306,67 @@ bool GHepParticle::IsOffMassShell(void) const
   return (! this->IsOnMassShell());
 }
 //___________________________________________________________________________
+bool GHepParticle::PolzIsSet(void) const
+{
+  // checks whether polarization has been set
+  return (fPolzTheta > -999 && fPolzPhi > -999);
+}
+//___________________________________________________________________________
+void GHepParticle::GetPolarization(TVector3 & polz) const
+{
+// gets the polarization vector
+
+  if(! this->PolzIsSet() ) {
+      polz.SetXYZ(0., 0., 0.);
+      return;
+  }
+
+  // Set the direction
+  polz.SetX( TMath::Sin(fPolzTheta) * TMath::Cos(fPolzPhi) );
+  polz.SetY( TMath::Sin(fPolzTheta) * TMath::Sin(fPolzPhi) );
+  polz.SetZ( TMath::Cos(fPolzTheta) );
+
+  // Set the magnitude
+  polz *= fPolzMag;
+}
+//___________________________________________________________________________
+TVector3 GHepParticle::GetPolarization() const {
+  TVector3 polz;
+  GetPolarization(polz);
+  return polz;
+}
+//___________________________________________________________________________
+void GHepParticle::SetPolarization(double theta, double phi, double mag)
+{
+
+  // Set the polarization angles
+  if(theta>=0 && theta<=kPi && phi>=0 && phi<2*kPi){
+    fPolzTheta = theta;
+    fPolzPhi   = phi;
+  } else {
+    LOG("GHepParticle", pERROR)
+      << "Invalid polarization angles (polar = " << theta
+      << ", azimuthal = " << phi << ")";
+  }
+
+  // Set the polarization magnitude
+  if(mag>=0){
+    fPolzMag = mag;
+  } else {
+    LOG("GHepParticle", pERROR)
+      << "Invalid polarization magnitude (" << mag << ")";
+  }
+}
+//___________________________________________________________________________
+void GHepParticle::SetPolarization(const TVector3 & polz)
+{
+  // sets the polarization angles and magnitude from a 3-vector representation
+  double mag = polz.Mag();
+  double theta = TMath::ACos(polz.z()/mag);
+  double phi   = kPi + TMath::ATan2(-polz.y(), -polz.x());
+  this->SetPolarization(theta, phi, mag);
+}
+//___________________________________________________________________________
 void GHepParticle::SetBound(bool bound)
 {
   // only set it for p or n
@@ -336,7 +403,9 @@ void GHepParticle::Init(void)
   fLastMother    = -1;
   fFirstDaughter = -1;
   fLastDaughter  = -1;
-  fPolarization = TVector3(0, 0, 0);
+  fPolzTheta     = -999;
+  fPolzPhi       = -999;
+  fPolzMag       = 0.;
   fIsBound       = false;
   fRemovalEnergy = 0.;
   fP4            = new TLorentzVector(0,0,0,0);
@@ -466,7 +535,9 @@ void GHepParticle::Copy(const GHepParticle & particle)
   this->SetMomentum (*particle.P4());
   this->SetPosition (*particle.X4());
 
-  this->fPolarization = particle.fPolarization;
+  this->fPolzTheta = particle.fPolzTheta;
+  this->fPolzPhi   = particle.fPolzPhi;
+  this->fPolzMag   = particle.fPolzMag;
 
   this->fIsBound       = particle.fIsBound;
   this->fRemovalEnergy = particle.fRemovalEnergy;

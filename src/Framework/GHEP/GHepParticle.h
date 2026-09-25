@@ -116,10 +116,14 @@ public :
 
   // Get the polarization. Most likely it is only the f/s primary lepton
   // for which this is usefull and might be set during event generation
-  double PolzPolarAngle   (void) const { return fPolarization.Mag()>0?fPolarization.Theta():0; }
-  double PolzAzimuthAngle (void) const { return fPolarization.Mag()>0?fPolarization.Phi():0; }
-  bool   PolzIsSet        (void) const { return fPolarization.Mag()>0;}
-  void   GetPolarization  (TVector3 & polz) const {polz = fPolarization;}
+  // Polarization can be accessed as either a 3-vector (Cartesian) representation, or as a polar representation (theta, phi, mag). 
+  // Recommend using the 3-vector. 
+  void   GetPolarization  (TVector3 & polz) const;
+  TVector3 GetPolarization() const; // Alternative interface
+  double PolzPolarAngle   (void) const { return fPolzTheta; }
+  double PolzAzimuthAngle (void) const { return fPolzPhi; }
+  double PolzMagnitude (void) const { return fPolzMag; }
+  bool   PolzIsSet        (void) const;
 
   // Set pdg code and status codes
   void SetPdgCode  (int c);
@@ -144,7 +148,9 @@ public :
   void SetPy       (double py);
   void SetPz       (double pz);
 
-  void SetPolarization(const TVector3 & polz) { fPolarization = polz;}
+  // Set the polarization vector
+  void SetPolarization(const TVector3 & polz); // This 3-vector form is recommended
+  void SetPolarization(double theta, double phi, double magnitude);
 
   // Set the bould flag & removal energy (bound flag set automatically
   // if a positive removal energy is set)
@@ -178,7 +184,9 @@ private:
   int              fLastDaughter;   ///< last daughter idx
   TLorentzVector * fP4;             ///< momentum 4-vector (GeV)
   TLorentzVector * fX4;             ///< position 4-vector (in the target nucleus coordinate system / x,y,z in fm / t from the moment of the primary interaction in ys(yocto second = 10^-24 s)
-  TVector3         fPolarization;   ///< polarization vector
+  double           fPolzTheta;      ///< polar polarization angle (rad)
+  double           fPolzPhi;        ///< azimuthal polarization angle (rad)
+  double           fPolzMag{1.0};   ///< polarization magnitude. Introduced in version 3. Defaults to 1 when loading an earlier file version (where the polarization magnitude was implicitly assumed to be 1).
   double           fRemovalEnergy;  ///< removal energy for bound nucleons (GeV)
   bool             fIsBound;        ///< 'is it a bound particle?' flag
 

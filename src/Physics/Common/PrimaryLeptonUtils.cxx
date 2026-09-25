@@ -50,15 +50,21 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
   RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
   const EventGeneratorI * evg = rtinfo->RunningThread();
   const XSecAlgorithmI * xsec_alg = evg->CrossSectionAlg();
-  fsl->SetPolarization(xsec_alg->FinalLeptonPolarization(interaction));
-    
-  LOG("LeptonicVertex", pINFO)
-    << "Setting polarization for particle: " << fsl->Name();
+  //-- Get the polarization
+  const TVector3 polz = xsec_alg->FinalLeptonPolarization(interaction);
 
-  if ( fsl->PolzIsSet() ) {
+  // Write the polarization to the event record, if it was defined by the interaction
+  if(polz.TestBit(kPolarizationUndef)){
+    fsl->SetPolarization(polz);
     LOG("LeptonicVertex", pINFO)
-      << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
-      << ", Azimuthal = " << fsl->PolzAzimuthAngle();
+      << "Setting polarization for particle: " << fsl->Name();
+  }
+
+  // Report
+  if ( fsl->PolzIsSet() ) {
+    const TVector3 fslPolz = fsl->GetPolarization();
+    LOG("LeptonicVertex", pINFO)
+      << "Polarization: "  << fslPolz.x() << "," << fslPolz.y() << "," << fslPolz.z();
   }
 
 }
