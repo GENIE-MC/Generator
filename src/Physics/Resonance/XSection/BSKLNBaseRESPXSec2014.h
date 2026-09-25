@@ -131,9 +131,11 @@ namespace genie {
       double fcII ; 
       double fMb2 ; 
 
-      mutable double fSigma_minus_minus;
-      mutable double fSigma_plus_plus;
-      mutable double fSigma_minus_plus;
+      // Parameters used in lepton polarization calculation
+      // Defined in Nucl.Phys.B Proc.Suppl. 139 (2005) 158-161
+      double fSigma_minus_minus;
+      double fSigma_plus_plus;
+      double fSigma_minus_plus;
 
       const XSecIntegratorI * fXSecIntegrator;
   };
