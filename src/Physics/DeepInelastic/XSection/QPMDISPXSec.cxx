@@ -270,6 +270,9 @@ void QPMDISPXSec::LoadConfig(void)
   // Charm mass
   GetParam( "Charm-Mass", fMc ) ;
 
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
+
   // Since this method would be called every time the current algorithm is
   // reconfigured at run-time, remove all the data cached by this algorithm
   // since they depend on the previous configuration
@@ -306,6 +309,11 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
       [1] https://arxiv.org/pdf/hep-ph/0305324
   */
 
+  // Bail if not configured to do this calculation...
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+
+
   //
   // Get event information
   //
@@ -322,38 +330,18 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
     return pol;
   }  
 
-  // Get target nucleon (lab frame)
-  const Target & target = init_state.Tgt(); // This is the nucelus
-  const TLorentzVector nucleon_p4_lab = target.HitNucP4(); // This is the nucleon
+  // Get target nucleon 4-momentum (lab frame)
+  const Target & target = init_state.Tgt(); // This is the nucleus
+  const TLorentzVector nucleonP4 = target.HitNucP4(); // This is the nucleon
 
-  // Get neutrino (lab frame)
+  // Get neutrino 4-momentum (lab frame)
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-  TLorentzVector nu_4p_lab = *tempNeutrino; //TODO why this temp object?
+  TLorentzVector nuP4 = *tempNeutrino; //TODO why this temp object?
   delete tempNeutrino;
   int nu_pdg = init_state.ProbePdg();
 
-  // Get final state lepton (lab frame)
-  const TLorentzVector lepton_4p_lab = kinematics.FSLeptonP4();
-
-
-  //
-  // Boost to target nucleon rest frame
-  //
-
-  // Polarization calculation is performed in target rest frame
-  // Target nucleon has small momentum (Fermi motion) so is not precisely at rest, so transform 
-  // to the nucleon's rest frame to perform the polarization calculation correctly.
-
-  // Get beta corresponding to nucleon target
-  TVector3 beta = nucleon_p4_lab.BoostVector();
-
-  // Now transform the relevent 4-momenta
-  TLorentzVector nucleon_p4_rest(nucleon_p4_lab);
-  TLorentzVector nu_4p_rest(nu_4p_lab);
-  TLorentzVector lepton_4p_rest(lepton_4p_lab);
-  nucleon_p4_rest.Boost(-beta);
-  nu_4p_rest.Boost(-beta);
-  lepton_4p_rest.Boost(-beta);
+  // Get final state lepton 4-momentum (lab frame)
+  const TLorentzVector leptonP4 = kinematics.FSLeptonP4();
 
 
   //
@@ -362,17 +350,17 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
   
   // Note that symbols used here match [1]
 
-  // Get Ferynman diagram definition, in the target rest frame
-  TLorentzVector p = nucleon_p4_rest;
-  TLorentzVector k = nu_4p_rest;
-  TLorentzVector kprime = lepton_4p_rest;
+  // Get Ferynman diagram definition
+  TLorentzVector p = nucleonP4;
+  TLorentzVector k = nuP4;
+  TLorentzVector kprime = leptonP4;
   TLorentzVector q = k - kprime; //[1] eqn 5
 
   // Get other kinematic variables
   double Q2 = -q.Mag2();  //[1] eqn 5
   double p_dot_q = p.Dot(q); // Used in multiple places, so calculating once now
   double x = Q2 / (2. * p_dot_q); // [1] eqn 10
-  double M = nucleon_p4_lab.M();
+  double M = nucleonP4.M();
 
 
   //
@@ -411,12 +399,13 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
   //
 
   TVector3 polarization;
-  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
+  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
     polarization,
-    nu_4p_rest,
-    lepton_4p_rest, 
+    nuP4,
+    leptonP4, 
+    nucleonP4,
+    q,
     pdg::IsNeutrino(nu_pdg),
-    M,
     W1,
     W2,
     W3,

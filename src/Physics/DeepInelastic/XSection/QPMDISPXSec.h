@@ -66,6 +66,8 @@ private:
   double fSin48w;             ///< sin^4(Weingberg angle)
   double fMc;                 ///< charm mass
 
+  bool fIsPreciseLeptonPolarization; ///< Toggle using realistic polarization calculation
+
 };
 
 }       // genie namespace

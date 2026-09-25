@@ -109,6 +109,8 @@ namespace genie {
       double   fXSecScaleNC;       ///< external NC xsec scaling factor
       double   fXSecScaleEM;       ///< external EM xsec scaling factor
 
+      bool fIsPreciseLeptonPolarization; ///< Toggle using realistic polarization calculation
+
       bool fKLN;
       bool fBRS;
 
@@ -132,7 +134,7 @@ namespace genie {
       mutable double fSigma_minus_minus;
       mutable double fSigma_plus_plus;
       mutable double fSigma_minus_plus;
-      
+
       const XSecIntegratorI * fXSecIntegrator;
   };
 

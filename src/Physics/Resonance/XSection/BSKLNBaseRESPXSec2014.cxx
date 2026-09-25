@@ -909,6 +909,10 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   fXSecIntegrator =
     dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
+  
 }
 //____________________________________________________________________________
 TVector3 BSKLNBaseRESPXSec2014::FinalLeptonPolarization(const Interaction* interaction) const
@@ -922,6 +926,10 @@ TVector3 BSKLNBaseRESPXSec2014::FinalLeptonPolarization(const Interaction* inter
       [2] https://arxiv.org/pdf/hep-ph/0408106
   */
 
+  // Bail if not configured to do this calculation...
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  
   // Bail for NC
   const ProcessInfo & proc_info = interaction->ProcInfo();
   if (!proc_info.IsWeakCC()) {
@@ -930,27 +938,27 @@ TVector3 BSKLNBaseRESPXSec2014::FinalLeptonPolarization(const Interaction* inter
     return pol;
   }  
 
-  // Get neutrino (lab frame)
+  // Get neutrino 4-momentum (lab frame)
   const InitialState & init_state = interaction->InitState();
   TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
-  TLorentzVector nu4pLab = *tempNeutrino;
+  TLorentzVector nuP4 = *tempNeutrino;
   delete tempNeutrino;
 
-  // Get final state lepton (lab frame)
+  // Get final state lepton 4-momentum (lab frame)
   const Kinematics & kinematics = interaction->Kine();
-  const TLorentzVector lepton4pLab = kinematics.FSLeptonP4();
+  const TLorentzVector leptonP4 = kinematics.FSLeptonP4();
 
   // Compute longitudinal and perpendicular components of the polarization vector
   double PP = 2. * fSigma_minus_plus / (fSigma_plus_plus + fSigma_minus_minus); // Note: +- = -+, hence, +- + -+ = 2+-
   double PL = (fSigma_plus_plus - fSigma_minus_minus) / (fSigma_plus_plus + fSigma_minus_minus);
 
-  // Now align the poalrization vector with the lab frame coordinate system
+  // Now align the polarization vector with the lab frame coordinate system
   TVector3 polarization = genie::utils::SetPolarizationVectorDirection(
     PL, 
     PP, 
     0., // No transverse (PT) component in Standard Model
-    nu4pLab.Vect(), 
-    lepton4pLab.Vect()
+    nuP4.Vect(), 
+    leptonP4.Vect()
   );
 
   // Physicality check
