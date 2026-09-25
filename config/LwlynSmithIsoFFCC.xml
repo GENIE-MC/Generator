@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration sets for Llewellyn-Smith QEL CC form factors with isoscalar nucleon
+
+Configurable Parameters:
+..........................................................................................................
+Name                          Type     Optional   Comment                     Default
+..........................................................................................................
+ElasticFormFactorsModel       alg      No         Elastic form factors model  CommonParam[ElasticFF]
+UseElFFTransverseEnhancement  bool     No                                     CommonParam[ElasticFF]
+TransverseEnhancement         alg      No         TransverseEnhancement model CommonParam[ElasticFF]
+AxialFormFactorModel          alg      No         Axial form factor model     
+AnomMagnMoment-P              double   No                                     CommonParam[MagnMoments]
+AnomMagnMoment-N              double   No                                     CommonParam[MagnMoments]
+WeinbergAngle                 double   No         Weinberg angle              CommonParam[WeakInt]
+SU3-D                         double   No                                     CommonParam[StrongInt]
+SU3-F                         double   No                                     CommonParam[StrongInt]
+IsCCFormFactors               bool     Yes        CC(true)/EM(false) FF       true
+-->
+
+    <param_set name="Default"> 
+    <param type="string" name="CommonParam"> WeakInt,MagnMoments,StrongInt,ElasticFF </param>
+
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 Axial form factors used for QEL CC cross section calculation.
+	 Options are:
+	 - genie::DipoleAxialFormFactorModel
+	 - genie::ZExpAxialFormFactorModel, Bhattacharya, Paz, and Hill, Phys.Rev. D84 (2011) 073006 
+	 - genie::MArunAxialFormFactorModel, Kakorin,Kuzmin,Naumov, Eur.Phys.J.C 81 (2021) 1142
+	 <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+    -->
+  </param_set>
+
+  <param_set name="Dipole"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::DipoleAxialFormFactorModel/Default </param>
+  </param_set>
+
+  <param_set name="ZExp"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::ZExpAxialFormFactorModel/Default </param>
+  </param_set>
+
+  <param_set name="RunningMA"> 
+     <param type="alg" name="AxialFormFactorModel"> genie::MArunAxialFormFactorModel/Default </param>
+  </param_set>
+  
+  <param_set name="MK-CC"> 
+    <param type="alg"  name="ElasticFormFactorsModel">  genie::GalsterELFormFactorsModel/MK       </param> 
+    <param type="alg"  name="AxialFormFactorModel">     genie::DipoleAxialFormFactorModel/MK      </param>
+    <param type="bool" name="IsCCFormFactors">          true                                      </param>
+ </param_set>
+ 
+  <param_set name="MK-EM"> 
+    <param type="alg"  name="ElasticFormFactorsModel">  genie::GalsterELFormFactorsModel/MK       </param>
+    <param type="alg"  name="AxialFormFactorModel">     genie::DipoleAxialFormFactorModel/MK      </param> 
+    <param type="bool" name="IsCCFormFactors">          false                                      </param>
+ </param_set>
+  
+  
+</alg_conf>
+

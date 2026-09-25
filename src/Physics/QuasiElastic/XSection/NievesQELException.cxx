@@ -46,15 +46,28 @@ NievesQELException::~NievesQELException()
 void NievesQELException::Init(void)
 {
   fReason = "";
+  fIsConfigError = false;
 }
 //___________________________________________________________________________
 void NievesQELException::Copy(const NievesQELException & exc)
 {
   fReason = exc.fReason;
+  fIsConfigError = exc.fIsConfigError;
 }
 //___________________________________________________________________________
 void NievesQELException::Print(ostream & stream) const
 {
-  stream << "**EXCEPTION Reason: " << this->ShowReason() << endl;
+  stream << "**NievesQELException";
+
+  if (fIsConfigError) 
+  {
+    stream << " [CONFIG ERROR]";
+  } 
+  else 
+  {
+    stream << " [KINEMATICS]";
+  }
+  
+  stream << ": " << this->ShowReason() << endl;
 }
 //___________________________________________________________________________

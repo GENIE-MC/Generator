@@ -7,7 +7,6 @@
  Tufts University
 */
 //____________________________________________________________________________
-
 #include <TMath.h>
 
 #include "Framework/Algorithm/AlgConfigPool.h"
@@ -28,6 +27,7 @@
 #include "Physics/QuasiElastic/XSection/QELFormFactors.h"
 #include "Physics/QuasiElastic/XSection/QELFormFactorsModelI.h"
 #include "Physics/Strange/XSection/PaisQELLambdaPXSec.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -223,6 +223,9 @@ void PaisQELLambdaPXSec::LoadConfig(void)
   double thc ;
   GetParam( "CabibboAngle", thc ) ;
   fSin8c2 = TMath::Power(TMath::Sin(thc), 2);
+  
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   // load QEL form factors model
   fFormFactorsModel = dynamic_cast<const QELFormFactorsModelI *> (
@@ -236,3 +239,75 @@ void PaisQELLambdaPXSec::LoadConfig(void)
   assert(fXSecIntegrator);
 }
 //____________________________________________________________________________
+TVector3 PaisQELLambdaPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
+  // First we need access to all of the particles in the interaction
+  // The particles were stored in the lab frame
+  //----- get kinematics & init state - compute auxiliary vars
+  const Kinematics &   kinematics  = interaction->Kine();
+  const InitialState & init_state  = interaction->InitState();
+  const Target &       target      = init_state.Tgt();
+  
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  
+  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // struck nucleon
+  double Mnuc  = target.HitNucMass();
+  double Mnuc2 = Mnuc*Mnuc;
+  
+  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
+  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
+  // here
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  
+  // Ordinary 4-momentum transfer
+  TLorentzVector qP4 = neutrinoMom - leptonMom;
+  double Q2 = -qP4.Mag2();
+  interaction->KinePtr()->SetQ2(Q2);
+  // Calculate the QEL form factors
+  fFormFactors.Calculate(interaction);
+  double F1V   = fFormFactors.F1V();
+  double xiF2V = fFormFactors.xiF2V();
+  double FA    = fFormFactors.FA();
+    
+  //neutrino momentum transfer
+  double q2  = -Q2;
+  
+  //----- Calculate the differential cross section dxsec/dQ^2
+  //resonance mass & nucleon mass
+  double Mi        = Mnuc;
+  double Mf        = (this)->MHyperon(interaction);
+  // calculate w coefficients
+  //start with Mass terms
+  double Mp    = Mf + Mi;
+  double Mm    = Mf - Mi;
+  double Mm2   = Mm*Mm;
+  double Mp2   = Mp*Mp;
+  
+  //Powers of Form Factors
+  double FA2   = FA*FA;
+  
+  //Calculate W terms
+  double W1 = (Mm2 - q2)*TMath::Sq(F1V + xiF2V)/4/Mnuc2 + (Mp2 - q2)*FA2/4/Mnuc2;
+  double W2 = FA2 + TMath::Sq(F1V + xiF2V - Mp*xiF2V/2/Mnuc) - q2*xiF2V*xiF2V/4/Mnuc2;
+  double W3 = 2*FA*(F1V + xiF2V);
+  
+  CalculatePolarizationVectorWithStructureFunctions(
+                pol, 
+                neutrinoMom, 
+                leptonMom, 
+                inNucleonMom, 
+                qP4, 
+                is_neutrino, 
+                W1,W2,W3,0,0,0);
+  
+  
+  return pol;
+}

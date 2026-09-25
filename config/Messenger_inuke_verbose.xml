@@ -130,6 +130,7 @@
   <priority msgstream="MuELoss">               NOTICE </priority>
   <priority msgstream="MultProb">              INFO   </priority>
   <priority msgstream="Nieves">                NOTICE </priority>
+  <priority msgstream="SuSAv2QE">              NOTICE </priority>
   <priority msgstream="NucDeEx">               NOTICE </priority>
   <priority msgstream="NucleonDecay">          NOTICE </priority>
   <priority msgstream="ResonanceDecay">        NOTICE </priority>

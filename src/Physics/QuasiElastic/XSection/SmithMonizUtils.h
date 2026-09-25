@@ -58,7 +58,11 @@ public:
         virtual ~SmithMonizUtils();
         void SetInteraction(const Interaction * i);
         double GetBindingEnergy(void) const;
-        double GetFermiMomentum(void) const;
+        double GetInitialFermiMomentum(void) const;
+        double GetFinalFermiMomentum(void) const;
+        void SetBindingEnergy(double val);
+        void SetInitialFermiMomentum(double val);
+        void SetFinalFermiMomentum(double val);
         double GetTheta_k(double v, double qv) const;
         double GetTheta_p(double pv, double v, double qv, double &E_p) const;
         double E_nu_thr_SM(void) const;
@@ -73,8 +77,6 @@ public:
         //! to build the fragmentation function from configuration data
         void Configure(const Registry & config);
         void Configure(string config);
-        
-double QEL_EnuMin_SM(double E_nu) const;
 
 private:
         class Functor1D
@@ -111,7 +113,7 @@ private:
         };
 
         void   LoadConfig (void);
- //       double QEL_EnuMin_SM(double E_nu) const;
+        double QEL_EnuMin_SM(double E_nu) const;
         double Q2lim1_SM(double Q2, double Enu) const;
         double Q2lim2_SM(double Q2) const;
         void DMINFC(Functor1D &F, double A,double B, double EPS, double DELTA, double &X, double &Y, bool &LLM) const;
@@ -138,7 +140,8 @@ private:
         double  mm_tar;     ///<  Squared mass of target nucleus (GeV)
         double  m_rnu;      ///<  Mass of residual nucleus (GeV)
         double  mm_rnu;     ///<  Squared mass of residual nucleus (GeV)
-        double  P_Fermi;    ///<  Maximum value of Fermi momentum of target nucleon (GeV)
+        double  kFi;       ///<  Fermi momentum of initial nucleon
+        double  kFf;       ///<  Fermi momentum of finial nucleon
         double  E_BIN;      ///<  Binding energy (GeV)
 
 

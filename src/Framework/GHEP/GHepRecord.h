@@ -197,7 +197,7 @@ protected:
 
 private:
 
-ClassDef(GHepRecord, 2)
+ClassDef(GHepRecord, 3)
 
 };
 

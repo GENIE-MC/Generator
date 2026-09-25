@@ -10,6 +10,7 @@
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Messenger/Messenger.h"
+#include "Framework/ParticleData/PDGUtils.h"
 
 using namespace genie;
 
@@ -17,19 +18,19 @@ using namespace genie;
 XSecAlgorithmI::XSecAlgorithmI() :
 Algorithm()
 {
-
+    fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::XSecAlgorithmI(string name) :
 Algorithm(name)
 {
-
+    fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::XSecAlgorithmI(string name, string config) :
 Algorithm(name, config)
 {
-
+    fIsPreciseLeptonPolarization = false;
 }
 //___________________________________________________________________________
 XSecAlgorithmI::~XSecAlgorithmI()
@@ -55,5 +56,32 @@ bool XSecAlgorithmI::ValidKinematics(const Interaction* interaction) const
      return false;
   }
   return true;
+}
+//___________________________________________________________________________
+TVector3 XSecAlgorithmI::FinalLeptonPolarization (const Interaction* interaction) const
+{
+    TVector3 pol(0, 0, 0);
+    if ( interaction->ProcInfo().IsEM() ) 
+    {
+        LOG("XSecBase", pWARN) << "For EM processes doesn't work yet.";
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+    const Kinematics &   kinematics = interaction -> Kine();
+    TLorentzVector leptonMom = kinematics.FSLeptonP4();
+    int pdg = interaction->FSPrimLeptonPdg();
+    TVector3 leptonMom3 = leptonMom.Vect();
+    if (leptonMom3.Mag2() <= 0)
+    {
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+    pol = leptonMom3.Unit();
+    if ( pdg::IsNeutrino(pdg) || pdg::IsElectron(pdg) || pdg::IsMuon(pdg) || pdg::IsTau(pdg) )
+    {
+        pol *= -1.;
+    }
+
+    return pol;
 }
 //___________________________________________________________________________

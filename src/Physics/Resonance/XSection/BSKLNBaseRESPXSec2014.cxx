@@ -51,6 +51,7 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 #include "Physics/NuclearState/NuclearUtils.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -76,6 +77,11 @@ BSKLNBaseRESPXSec2014::~BSKLNBaseRESPXSec2014()
 double BSKLNBaseRESPXSec2014::XSec(
     const Interaction * interaction, KinePhaseSpace_t kps) const
 {
+  // Reset member variables
+  fSigma_minus_minus = -9999.;
+  fSigma_plus_plus = -9999.;
+  fSigma_minus_plus = -9999.;
+
   if(! this -> ValidProcess    (interaction) ) return 0.;
   if(! this -> ValidKinematics (interaction) ) return 0.;
 
@@ -470,6 +476,10 @@ double BSKLNBaseRESPXSec2014::XSec(
   double sigR_plus = 0;
   double sigS_plus = 0;
 
+  double sigL_minus_plus = 0;
+  double sigR_minus_plus = 0;
+  double sigS_minus_plus = 0;
+
   const RSHelicityAmplModelI * hamplmod = 0;
   const RSHelicityAmplModelI * hamplmod_KNL_minus = 0;
   const RSHelicityAmplModelI * hamplmod_KNL_plus = 0;
@@ -568,6 +578,12 @@ double BSKLNBaseRESPXSec2014::XSec(
             sigL_plus = (hampl_BRS_plus.Amp2Plus3 () + hampl_BRS_plus.Amp2Plus1 ());
             sigR_plus = (hampl_BRS_plus.Amp2Minus3() + hampl_BRS_plus.Amp2Minus1());
             sigS_plus = (hampl_BRS_plus.Amp20Plus () + hampl_BRS_plus.Amp20Minus());
+
+            // The definition of sigma^lambda lambda' is given in the lepton polarization paper (Kuzmin et al. 2003), page 8, middle of the page
+            // sigma^lambda lambda' =  pi*W/(2M) * (f^lambda * f^lambda' + f^lambda * f^lambda')
+            sigL_minus_plus = hampl_BRS_minus.AmpPlus3()*hampl_BRS_plus.AmpPlus3() + hampl_BRS_minus.AmpPlus1()*hampl_BRS_plus.AmpPlus1();
+            sigR_minus_plus = hampl_BRS_minus.AmpMinus3()*hampl_BRS_plus.AmpMinus3() + hampl_BRS_minus.AmpMinus1()*hampl_BRS_plus.AmpMinus1();
+            sigS_minus_plus = hampl_BRS_minus.Amp0Plus()*hampl_BRS_plus.Amp0Plus() + hampl_BRS_minus.Amp0Minus()*hampl_BRS_plus.Amp0Minus();
           }
 
   // Compute the cross section
@@ -579,6 +595,10 @@ double BSKLNBaseRESPXSec2014::XSec(
      sigL_plus  *= scLR;
      sigR_plus  *= scLR;
      sigS_plus  *= scS;
+
+     sigL_minus_plus *= scLR;
+     sigR_minus_plus *= scLR;
+     sigS_minus_plus *= scS;
 
      LOG("BSKLNBaseRESPXSec2014", pINFO)
          << "sL,R,S minus = " << sigL_minus << "," << sigR_minus << "," << sigS_minus;
@@ -622,6 +642,13 @@ double BSKLNBaseRESPXSec2014::XSec(
 
       LOG("BSKLNBaseRESPXSec2014",pINFO) <<"CS-="<<TMath::Power(KNL_cS_minus,2)<<" CS+="<<TMath::Power(KNL_cS_plus,2)<<" UV="<<UV;
       LOG("BSKLNBaseRESPXSec2014",pINFO) <<"SS-="<<sigL_minus<<" SS+="<<sigS_plus<<" sS="<<sigRSS;
+
+      // Sigma_++
+      fSigma_minus_minus = TMath::Power(KNL_cL_minus,2)*sigL_minus + TMath::Power(KNL_cR_minus,2)*sigR_minus + TMath::Power(KNL_cS_minus,2)*sigS_minus;
+      // Sigma_--
+      fSigma_plus_plus = TMath::Power(KNL_cL_plus,2)*sigL_plus + TMath::Power(KNL_cR_plus,2)*sigR_plus + TMath::Power(KNL_cS_plus,2)*sigS_plus;
+      // Sigma_+- = Sigma_-+
+      fSigma_minus_plus = KNL_cL_minus*KNL_cL_plus*sigL_minus_plus + KNL_cR_minus*KNL_cR_plus*sigR_minus_plus + KNL_cS_minus*KNL_cS_plus*sigS_minus_plus;
   }
   else {
      if (is_nu || is_lminus) {
@@ -882,5 +909,61 @@ void BSKLNBaseRESPXSec2014::LoadConfig(void)
   fXSecIntegrator =
     dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
+
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
+  
+}
+//____________________________________________________________________________
+TVector3 BSKLNBaseRESPXSec2014::FinalLeptonPolarization(const Interaction* interaction) const
+{
+
+  /*
+    Compute the final state lepton polarization for this interaction.
+
+    References:
+      [1] https://arxiv.org/pdf/hep-ph/0305324
+      [2] https://arxiv.org/pdf/hep-ph/0408106
+  */
+
+  // Bail if not configured to do this calculation...
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  
+  // Bail for NC
+  const ProcessInfo & proc_info = interaction->ProcInfo();
+  if (!proc_info.IsWeakCC()) {
+    TVector3 pol(0, 0, 0);
+    pol.SetBit(kPolarizationUndef);
+    return pol;
+  }  
+
+  // Get neutrino 4-momentum (lab frame)
+  const InitialState & init_state = interaction->InitState();
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector nuP4 = *tempNeutrino;
+  delete tempNeutrino;
+
+  // Get final state lepton 4-momentum (lab frame)
+  const Kinematics & kinematics = interaction->Kine();
+  const TLorentzVector leptonP4 = kinematics.FSLeptonP4();
+
+  // Compute longitudinal and perpendicular components of the polarization vector
+  double PP = 2. * fSigma_minus_plus / (fSigma_plus_plus + fSigma_minus_minus); // Note: +- = -+, hence, +- + -+ = 2+-
+  double PL = (fSigma_plus_plus - fSigma_minus_minus) / (fSigma_plus_plus + fSigma_minus_minus);
+
+  // Now align the polarization vector with the lab frame coordinate system
+  TVector3 polarization = genie::utils::SetPolarizationVectorDirection(
+    PL, 
+    PP, 
+    0., // No transverse (PT) component in Standard Model
+    nuP4.Vect(), 
+    leptonP4.Vect()
+  );
+
+  // Physicality check
+  genie::utils::EnsurePhysicalPolarizationVector(polarization);
+
+  return polarization;
 }
 //____________________________________________________________________________

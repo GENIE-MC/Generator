@@ -14,6 +14,8 @@ CKM-Vud               double   No         Vud element of CKM matrix             
 FermiMomentumTable    string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
 MECScaleAlg           alg      Yes        XSecScale algorithm used                   The cross section is unscaled
                                           to scale the cross section
+PreciseLeptonPol      bool     Yes        Do precise calculation of                  No
+                                          lepton polarization
 QvalueShifterAlg      algo     yes        Qvalue shifter algo                        none 
 -->
   <param_set name="Default"> 
@@ -24,6 +26,7 @@ QvalueShifterAlg      algo     yes        Qvalue shifter algo                   
       <param type="double" name="MEC-NC-XSecScale"> 1.000 </param>
       <param type="double" name="MEC-EM-XSecScale"> 1.000 </param>
       <param type="string" name="CommonParam"> FermiGas  </param> <!-- For Kf lookups -->
+      <param type="bool" name="PreciseLeptonPol"> true  </param>
   </param_set>
 
 </alg_conf>

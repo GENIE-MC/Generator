@@ -33,6 +33,7 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/Cache.h"
 #include "Framework/Utils/CacheBranchFx.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using std::ostringstream;
 
@@ -184,6 +185,15 @@ double QPMDISPXSec::XSec(
        << "Subtracting charm piece: " << xsec_charm << " / out of " << xsec;
 #endif
   xsec = TMath::Max(0., xsec-xsec_charm);
+
+  // Calculate the DIS structure functions again, but for the whole nucleon (rather than quark)
+  // Do this by unsetting the hit quark (reset it afterwards)
+  Target * targetPtr = init_state.TgtPtr(); //TODO merge with const ref target above?
+  int qpdg = targetPtr->HitQrkPdg();
+  targetPtr->UnsetHitQrkPdg();
+  fDISSFNucleon.Calculate(interaction);
+  targetPtr->SetHitQrkPdg(qpdg);
+
   return xsec;
 }
 //____________________________________________________________________________
@@ -244,6 +254,9 @@ void QPMDISPXSec::LoadConfig(void)
 
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
+ // Also init the "nucleon-level" structure function calculation
+  fDISSFNucleon.SetModel(fDISSFModel); // <-- attach algorithm
+
   // Cross section scaling factor
   GetParam( "DIS-CC-XSecScale", fCCScale ) ;
   GetParam( "DIS-NC-XSecScale", fNCScale ) ;
@@ -254,6 +267,11 @@ void QPMDISPXSec::LoadConfig(void)
   GetParam( "WeinbergAngle", thw ) ;
   fSin48w = TMath::Power( TMath::Sin(thw), 4 );
 
+  // Charm mass
+  GetParam( "Charm-Mass", fMc ) ;
+
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   // Since this method would be called every time the current algorithm is
   // reconfigured at run-time, remove all the data cached by this algorithm
@@ -282,3 +300,121 @@ void QPMDISPXSec::LoadConfig(void)
   assert(fCharmProdModel);
 }
 //____________________________________________________________________________
+TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) const
+{
+  /*
+    Compute the final state lepton polarization for this interaction.
+
+    References:
+      [1] https://arxiv.org/pdf/hep-ph/0305324
+  */
+
+  // Bail if not configured to do this calculation...
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+
+
+  //
+  // Get event information
+  //
+
+  const Kinematics & kinematics = interaction->Kine();
+  const InitialState & init_state = interaction->InitState();
+  const ProcessInfo & proc_info = interaction->ProcInfo();
+  const XclsTag & xcls = interaction->ExclTag();
+
+  // Bail for NC
+  if (!proc_info.IsWeakCC()) {
+    TVector3 pol(0, 0, 0);
+    pol.SetBit(kPolarizationUndef);
+    return pol;
+  }  
+
+  // Get target nucleon 4-momentum (lab frame)
+  const Target & target = init_state.Tgt(); // This is the nucleus
+  const TLorentzVector nucleonP4 = target.HitNucP4(); // This is the nucleon
+
+  // Get neutrino 4-momentum (lab frame)
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector nuP4 = *tempNeutrino; //TODO why this temp object?
+  delete tempNeutrino;
+  int nu_pdg = init_state.ProbePdg();
+
+  // Get final state lepton 4-momentum (lab frame)
+  const TLorentzVector leptonP4 = kinematics.FSLeptonP4();
+
+
+  //
+  // Get kinematic variables
+  //
+  
+  // Note that symbols used here match [1]
+
+  // Get Ferynman diagram definition
+  TLorentzVector p = nucleonP4;
+  TLorentzVector k = nuP4;
+  TLorentzVector kprime = leptonP4;
+  TLorentzVector q = k - kprime; //[1] eqn 5
+
+  // Get other kinematic variables
+  double Q2 = -q.Mag2();  //[1] eqn 5
+  double p_dot_q = p.Dot(q); // Used in multiple places, so calculating once now
+  double x = Q2 / (2. * p_dot_q); // [1] eqn 10
+  double M = nucleonP4.M();
+
+
+  //
+  // Calculate W1-5
+  //
+
+  // Get F1-5 (nucleon level, as used by [1])
+  double F1 = fDISSFNucleon.F1();
+  double F2 = fDISSFNucleon.F2();
+  double F3 = fDISSFNucleon.F3();
+  double F4 = fDISSFNucleon.F4();
+  double F5 = fDISSFNucleon.F5();
+
+  // Get W2-5, [1] eqn 53.
+  double W_common_term = pow(M, 2) / p_dot_q;
+  double W2 = W_common_term * F2;
+  double W3 = W_common_term * F3;
+  double W4 = W_common_term * F4;
+  double W5 = W_common_term * F5;
+
+  // Get W1, which is a special case, see [1] eqn 55.
+  // Includes a correction that is applied to the Björken x variable when a charm quark
+  // is produced, see the last paragraph of p. 11 in [1].
+  double xi = x;
+  if(xcls.IsCharmEvent()) {
+    xi = x / (Q2 / (Q2 + pow(fMc, 2)));
+  }
+  double W1 = ( 1 + (xi * W_common_term) ) * F1;
+
+  // W6 = 0 in the Standard Model
+  double W6 = 0.;
+
+
+  //
+  // Calculate lepton polarization
+  //
+
+  TVector3 polarization;
+  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
+    polarization,
+    nuP4,
+    leptonP4, 
+    nucleonP4,
+    q,
+    pdg::IsNeutrino(nu_pdg),
+    W1,
+    W2,
+    W3,
+    W4,
+    W5,
+    W6
+  );
+
+  return polarization;
+
+}
+// ____________________________________________________________________________

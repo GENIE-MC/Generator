@@ -75,7 +75,9 @@ typedef enum EKinePhaseSpace {
   kPSn1n2n3fE,
   kPSWQ2ctpphipfE,
   kPSWQ2ctpfE,
-  kPSQ2vpfE
+  kPSQ2vpfE,
+  kPSyphi0fEx // Phase space dimension to set lepton polarization properly
+              // for cases when an output of XSecModel depends on phase space dim. 
 } KinePhaseSpace_t;
 
 class KinePhaseSpace
@@ -137,6 +139,7 @@ public:
       case(kPSn1n2n3fE)   : return "<{n1,n2,n3}|E>"; break;
       case(kPSWQ2ctpphipfE): return "<{W, Q2, cost(theta_pion), phi_pion}|E>"; break;
       case(kPSWQ2ctpfE)    : return "<{W, Q2, cost(theta_pion)}|E>"; break;
+      case(kPSyphi0fEx)     : return "<{y, phi0}|E,x>"; break;
     }
     return "** Undefined kinematic phase space **";
   }
