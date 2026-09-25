@@ -1263,8 +1263,9 @@ void ConvertToGXML(void)
 
       if(p->PolzIsSet()) {
         output << "        ";
-        output << " <ppolar> " << p->PolzPolarAngle()   << " </ppolar>"; //TODO update this
-        output << " <pazmth> " << p->PolzAzimuthAngle() << " </pazmth>";
+        output << " <ppolar> " << p->PolzPolarAngle()   << " </ppolar>"; // theta
+        output << " <pazmth> " << p->PolzAzimuthAngle() << " </pazmth>"; // phi
+        output << " <pmag> "   << p->PolzMagnitude()    << " </pmag>";   // magnitude
         output << endl;
       }
 
