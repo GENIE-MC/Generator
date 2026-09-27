@@ -76,6 +76,7 @@ public :
   double   GlobProbScale  (void) const { return fGlobPmax;                  }
   long int NFluxNeutrinos (void) const { return (long int) fNFluxNeutrinos; }
   map<int, double> SumFluxIntProbs(void) const { return fSumFluxIntProbs;   }
+  double	ComputeInteractionProbabilities (bool use_max_path_length);
 
   // input flux and geometry drivers
   const GFluxI &        FluxDriver      (void) const { return *fFluxDriver;   }
@@ -98,7 +99,6 @@ private:
   EventRecord * GenerateEvent1Try               (void);
   bool          GenerateFluxNeutrino            (void);
   bool          ComputePathLengths              (void);
-  double	ComputeInteractionProbabilities (bool use_max_path_length);
   int           SelectTargetMaterial            (double R);
   void          GenerateEventKinematics         (void);
   void          GenerateVertexPosition          (void);
