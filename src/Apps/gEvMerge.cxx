@@ -117,7 +117,7 @@ void MergeFiles(void) {
   bool matchTune = true;
   bool matchTag = true;
   for (const std::string &filename : inputfiles) {
-    TFile fin(filename.c_str(), "READ");
+    TFile fin = TFile::Open(filename.c_str(), "READ");
     NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin.Get("header"));
     if (!thdr) {
       LOG("gEvMerge", pWARN)
@@ -152,7 +152,7 @@ void MergeFiles(void) {
     std::set<int> nu;
     LOG("gEvMerge", pNOTICE) << "Opening input file: " << filename;
 
-    TFile fin(filename.c_str(), "READ");
+    TFile fin = TFile::Open(filename.c_str(), "READ");
     if (fin.IsZombie() || !fin.IsOpen()) {
       LOG("gEvMerge", pERROR) << "Could not open input file: " << filename;
       continue;
