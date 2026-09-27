@@ -117,8 +117,8 @@ void MergeFiles(void) {
   bool matchTune = true;
   bool matchTag = true;
   for (const std::string &filename : inputfiles) {
-    TFile fin = TFile::Open(filename.c_str(), "READ");
-    NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin.Get("header"));
+    TFile *fin = TFile::Open(filename.c_str(), "READ");
+    NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin->Get("header"));
     if (!thdr) {
       LOG("gEvMerge", pWARN)
           << "Input file does not contain a valid GENIE header: " << filename
@@ -152,18 +152,18 @@ void MergeFiles(void) {
     std::set<int> nu;
     LOG("gEvMerge", pNOTICE) << "Opening input file: " << filename;
 
-    TFile fin = TFile::Open(filename.c_str(), "READ");
-    if (fin.IsZombie() || !fin.IsOpen()) {
+    TFile *fin = TFile::Open(filename.c_str(), "READ");
+    if (fin->IsZombie() || !fin->IsOpen()) {
       LOG("gEvMerge", pERROR) << "Could not open input file: " << filename;
       continue;
     }
-    TTree *er_tree = dynamic_cast<TTree *>(fin.Get("gtree"));
+    TTree *er_tree = dynamic_cast<TTree *>(fin->Get("gtree"));
     if (!er_tree) {
       LOG("gEvMerge", pERROR) << "Input file does not contain a valid "
                               << "GENIE event tree 'gtree': " << filename;
       continue;
     }
-    NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin.Get("header"));
+    NtpMCTreeHeader *thdr = dynamic_cast<NtpMCTreeHeader *>(fin->Get("header"));
     if (!thdr) {
       continue;
 
@@ -172,7 +172,7 @@ void MergeFiles(void) {
                              << *thdr;
     }
     LOG("gEvMerge", pNOTICE) << "Retrieving Multihead"; 
-    NtpMCTreeMultiHeader *multiCurr =  dynamic_cast<NtpMCTreeMultiHeader *>(fin.Get("MultiHead"));
+    NtpMCTreeMultiHeader *multiCurr =  dynamic_cast<NtpMCTreeMultiHeader *>(fin->Get("MultiHead"));
     if (multiCurr){
       for (size_t j = 0; j < multiCurr->size(); j++){
         std::pair<Long64_t, Long64_t> indi = multiCurr->getIndices(j);
@@ -238,7 +238,7 @@ void MergeFiles(void) {
           << filename << " -> output events [" << first_output_event << ", "
           << (ievt - 1) << "]";
     }
-    fin.Close();
+    fin->Close();
   }
   LOG("gEvMerge", pNOTICE) << "Writing " << ievt << " total events to "
                            << gOutFileName;
