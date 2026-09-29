@@ -1134,13 +1134,14 @@ TVector3  NievesQELCCPXSec::FinalLeptonPolarization (const Interaction* interact
   delete tempNeutrino;
   const TLorentzVector leptonMom = kinematics.FSLeptonP4();
   
-  TVector3 neutrinoMom3 = neutrinoMom.Vect();                                          
-  TVector3 leptonMom3   = leptonMom.Vect();
-  TVector3 Pz = leptonMom3.Unit();
-  TVector3 Px = neutrinoMom3.Cross(leptonMom3).Unit();
-  TVector3 Py = Pz.Cross(Px);
-  pol = PP*Py + PL*Pz;
-    
+  pol = genie::utils::SetPolarizationVectorDirection(
+    PL,
+    PP,
+    0., // PT = 0
+    neutrinoMom.Vect(),
+    leptonMom.Vect()
+  );
+
   return pol;
 
 }
