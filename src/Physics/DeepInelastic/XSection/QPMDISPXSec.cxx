@@ -310,9 +310,24 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
   */
 
   // Bail if not configured to do this calculation...
-  if (!fIsPreciseLeptonPolarization) 
+  if (!fIsPreciseLeptonPolarization) {
     return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  }
 
+  // This calculation is for weak CC interactions
+  // If this is a weak NC, use the base class polarization method
+  // If anything else, polarization is undefined
+  const ProcessInfo & proc_info = interaction->ProcInfo();
+  if (!proc_info.IsWeakCC()) {
+    if (proc_info.IsWeakNC()) {
+      return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+    }
+    else {
+      TVector3 pol(0, 0, 0);
+      pol.SetBit(kPolarizationUndef);
+      return pol;
+    }
+  }
 
   //
   // Get event information
@@ -320,15 +335,7 @@ TVector3 QPMDISPXSec::FinalLeptonPolarization(const Interaction* interaction) co
 
   const Kinematics & kinematics = interaction->Kine();
   const InitialState & init_state = interaction->InitState();
-  const ProcessInfo & proc_info = interaction->ProcInfo();
   const XclsTag & xcls = interaction->ExclTag();
-
-  // Bail for NC
-  if (!proc_info.IsWeakCC()) {
-    TVector3 pol(0, 0, 0);
-    pol.SetBit(kPolarizationUndef);
-    return pol;
-  }  
 
   // Get target nucleon 4-momentum (lab frame)
   const Target & target = init_state.Tgt(); // This is the nucleus

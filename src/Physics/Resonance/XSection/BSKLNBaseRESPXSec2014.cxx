@@ -927,16 +927,24 @@ TVector3 BSKLNBaseRESPXSec2014::FinalLeptonPolarization(const Interaction* inter
   */
 
   // Bail if not configured to do this calculation...
-  if (!fIsPreciseLeptonPolarization) 
+  if (!fIsPreciseLeptonPolarization) {
     return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  }
   
-  // Bail for NC
+  // This calculation is for weak CC interactions
+  // If this is a weak NC, use the base class polarization method
+  // If anything else, polarization is undefined
   const ProcessInfo & proc_info = interaction->ProcInfo();
   if (!proc_info.IsWeakCC()) {
-    TVector3 pol(0, 0, 0);
-    pol.SetBit(kPolarizationUndef);
-    return pol;
-  }  
+    if (proc_info.IsWeakNC()) {
+      return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+    }
+    else {
+      TVector3 pol(0, 0, 0);
+      pol.SetBit(kPolarizationUndef);
+      return pol;
+    }
+  }
 
   // Get neutrino 4-momentum (lab frame)
   const InitialState & init_state = interaction->InitState();
