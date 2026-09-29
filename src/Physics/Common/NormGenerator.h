@@ -34,7 +34,8 @@ namespace genie {
 
   public :
     NormGenerator();
-    NormGenerator(string config);
+    NormGenerator(string name);
+    NormGenerator(string name, string config);
     ~NormGenerator();
 
     // implement the EventRecordVisitorI interface

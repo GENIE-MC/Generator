@@ -21,6 +21,7 @@
 #include "Physics/XSectionIntegration/XSecIntegratorI.h"
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 
@@ -51,7 +52,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
   int A_request = pdg::IonPdgCodeToA(target_pdg);
-  //int Z_request = pdg::IonPdgCodeToZ(target_pdg);
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
@@ -160,11 +160,9 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
 
   if ( kps != kPSTlctl ) {
-    LOG("SuSAv2MEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
+      // Compute the appropriate Jacobian for transformation to the requested phase space
+      double J = utils::kinematics::Jacobian(interaction, kPSTlctl, kps);
+      xsec *= J;
   }
 
   return xsec;
@@ -417,6 +415,9 @@ void SuSAv2MECPXSec::LoadConfig(void)
   GetParamDef("MEC-CC-XSecScale", fXSecCCScale, 1.) ;
   GetParamDef("MEC-NC-XSecScale", fXSecNCScale, 1.) ;
   GetParamDef("MEC-EM-XSecScale", fXSecEMScale, 1.) ;
+  
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   fHadronTensorModel = dynamic_cast<const HadronTensorModelI*> ( this->SubAlg("HadronTensorAlg") );
   if( !fHadronTensorModel ) {
@@ -472,4 +473,130 @@ void SuSAv2MECPXSec::LoadConfig(void)
     exit(78) ;
   }
 
+}
+//_________________________________________________________________________
+TVector3 SuSAv2MECPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{
+  TVector3 pol(0, 0, 0);
+  const ProcessInfo& proc_info = interaction->ProcInfo();
+  if ( proc_info.IsEM() ) 
+  {
+      LOG("SuSAv2MECPXSec", pWARN) << "For EM processes doesn't work yet.";
+      pol.SetBit(kPolarizationUndef);
+      return pol;
+  }
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  // Get the hadron tensor for the selected nuclide. Check the probe PDG code
+  // to know whether to use the tensor for CC neutrino scattering or for
+  // electron scattering
+  const double M = 1;  // the polarization doesn't depend on mass of target in target rest frame
+  const Kinematics&   kinematics = interaction -> Kine();
+  const InitialState& init_state = interaction -> InitState();
+  int probe_pdg = interaction->InitState().ProbePdg();
+
+  HadronTensorType_t tensor_type = kHT_Undefined;
+  if ( pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg) ) 
+  {
+    tensor_type = kHT_MEC_FullAll;
+  }
+  else 
+  {
+    LOG("SuSAv2MECPXSec", pWARN) << "Doesn't work for processes other than weak ones.";
+    pol.SetBit(kPolarizationUndef);
+    return pol;
+  }
+  //else 
+  //{
+    //tensor_type = kHT_MEC_EM;
+  //}
+
+  // Currently we only have the relative pair contributions for C12.
+  int tensor_pdg = kPdgTgtC12;
+  // The rescaling factor will be reduced. Therefore there is no need in rescaling.
+//  if(tensor_pdg != target_pdg) need_to_scale = true;
+
+  // The SuSAv2-MEC hadron tensors are defined using the same conventions
+  // as the Valencia MEC model, so we can use the same sort of tensor
+  // object to describe them.
+  const LabFrameHadronTensorI* tensor
+    = dynamic_cast<const LabFrameHadronTensorI*>( fHadronTensorModel->GetTensor(tensor_pdg,
+    tensor_type) );
+
+  // If retrieving the tensor failed, complain and return zero
+  if ( !tensor ) 
+  {
+    LOG("SuSAv2MEC", pWARN) << "Can't calculate final lepton polarization.";
+    pol.SetBit(kPolarizationUndef);
+    return pol;
+  }
+
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom    = *tempNeutrino;
+  delete tempNeutrino;
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  
+  double Ev             = neutrinoMom.E();
+  double El             = leptonMom.E();
+  double ml             = interaction->FSPrimLepton()->Mass();
+  double Tl             = El - ml;
+  TVector3 neutrinoMom3 = neutrinoMom.Vect();
+  TVector3 leptonMom3   = leptonMom.Vect();
+  double pv             = neutrinoMom3.Mag();
+  double pl             = leptonMom3.Mag();
+  double costl          = pl*pv != 0 ? neutrinoMom3.Dot(leptonMom3)/pl/pv : 0;
+  double Q0             = 0;
+  double Q3             = 0;
+
+  // The Q-Value essentially corrects q0 to account for nuclear
+  // binding energy in the Valencia model but this effect is already
+  // in Guille's tensors so its set it to 0.
+  // However, additional corrections may be necessary:
+  double Delta_Q_value = Qvalue( * interaction ) ;
+
+  genie::utils::mec::Getq0q3FromTlCostl(Tl, costl, Ev, ml, Q0, Q3);
+
+  double Q0min = tensor->q0Min();
+  double Q0max = tensor->q0Max();
+  double Q3min = tensor->qMagMin();
+  double Q3max = tensor->qMagMax();
+  if (Q0-Delta_Q_value < Q0min || Q0-Delta_Q_value > Q0max || Q3 < Q3min || Q3 > Q3max) 
+  {
+    pol.SetBit(kPolarizationUndef);
+    return pol;
+  }
+
+  // *** Enforce the global Q^2 cut (important for EM scattering) ***
+  // Choose the appropriate minimum Q^2 value based on the interaction
+  // mode (this is important for EM interactions since the differential
+  // cross section blows up as Q^2 --> 0)
+  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
+  //if ( interaction->ProcInfo().IsEM() ) 
+    //Q2min = genie::utils::kinematics::electromagnetic::kMinQ2Limit; // EM limit
+
+  // Neglect shift due to binding energy. The cut is on the actual
+  // value of Q^2, not the effective one to use in the tensor contraction.
+  double Q2 = Q3*Q3 - Q0*Q0;
+  if ( Q2 < Q2min )
+  {
+    pol.SetBit(kPolarizationUndef);
+    return pol;
+  }
+
+
+  double W1 = tensor->W1(Q0 - Delta_Q_value, Q3, M);
+  double W2 = tensor->W2(Q0 - Delta_Q_value, Q3, M);
+  double W3 =-tensor->W3(Q0 - Delta_Q_value, Q3, M);   // note invert sign
+  double W4 = tensor->W4(Q0 - Delta_Q_value, Q3, M);
+  double W5 = tensor->W5(Q0 - Delta_Q_value, Q3, M);
+    
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
+                                        pol, 
+                                        neutrinoMom, 
+                                        leptonMom,
+                                        is_neutrino, 
+                                        M, W1,W2,W3,W4,W5,0);
+
+    return pol;
 }

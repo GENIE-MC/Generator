@@ -8,16 +8,27 @@
 */
 //____________________________________________________________________________
 
+#include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TMath.h"
+#include "TMatrixD.h"
+ #include "TDecompSVD.h"
 
+#include "Framework/Conventions/Constants.h"
 #include "Physics/Common/PrimaryLeptonUtils.h"
 #include "Framework/GHEP/GHepRecord.h"
 #include "Framework/GHEP/GHepParticle.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/ParticleData/PDGUtils.h"
+#include "Framework/EventGen/EventGeneratorI.h"
+#include "Framework/EventGen/RunningThreadInfo.h"
+#include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 
 using namespace genie;
 using namespace genie::utils;
+using namespace genie::constants;
+using namespace std::complex_literals;
 
 //___________________________________________________________________________
 void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
@@ -26,12 +37,6 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
 // accessible for generators that use a more unified approach (e.g.,
 // QELEventGenerator and MECGenerator). -- S. Gardiner
 
-// Set the final state lepton polarization. A mass-less lepton would be fully
-// polarized. This would be exact for neutrinos and a very good approximation
-// for electrons for the energies this generator is going to be used. This is
-// not the case for muons and, mainly, for taus. I need to refine this later.
-// How? See Kuzmin, Lyubushkin and Naumov, hep-ph/0312107
-
   // get the final state primary lepton
   GHepParticle * fsl = ev->FinalStatePrimaryLepton();
   if ( !fsl ) {
@@ -39,27 +44,299 @@ void genie::utils::SetPrimaryLeptonPolarization( GHepRecord * ev )
       << "Final state lepton not set yet! \n" << *ev;
     return;
   }
+  //-- Get the interaction
+  Interaction * interaction = ev->Summary();
+  //-- Access cross section algorithm for running thread
+  RunningThreadInfo * rtinfo = RunningThreadInfo::Instance();
+  const EventGeneratorI * evg = rtinfo->RunningThread();
+  const XSecAlgorithmI * xsec_alg = evg->CrossSectionAlg();
+  //-- Get the polarization
+  const TVector3 polz = xsec_alg->FinalLeptonPolarization(interaction);
 
-  // Get (px,py,pz) @ LAB
-  TVector3 plab( fsl->Px(), fsl->Py(), fsl->Pz() );
-
-  // In the limit m/E->0: leptons are left-handed and their anti-particles
-  // are right-handed
-  int pdgc = fsl->Pdg();
-  if ( pdg::IsNeutrino(pdgc) || pdg::IsElectron(pdgc) ||
-    pdg::IsMuon(pdgc) || pdg::IsTau(pdgc) )
-  {
-    plab *= -1; // left-handed
+  // Write the polarization to the event record, if it was defined by the interaction
+  if(polz.TestBit(kPolarizationUndef)){
+    fsl->SetPolarization(polz);
+    LOG("LeptonicVertex", pINFO)
+      << "Setting polarization for particle: " << fsl->Name();
   }
 
-  LOG("LeptonicVertex", pINFO)
-    << "Setting polarization angles for particle: " << fsl->Name();
-
-  fsl->SetPolarization( plab );
-
+  // Report
   if ( fsl->PolzIsSet() ) {
+    const TVector3 fslPolz = fsl->GetPolarization();
     LOG("LeptonicVertex", pINFO)
-      << "Polarization (rad): Polar = "  << fsl->PolzPolarAngle()
-      << ", Azimuthal = " << fsl->PolzAzimuthAngle();
+      << "Polarization: "  << fslPolz.x() << "," << fslPolz.y() << "," << fslPolz.z();
+  }
+
+}
+//___________________________________________________________________________
+void genie::utils::CalculatePolarizationVectorWithNuclearTensor(
+                        TVector3 & polarization,
+                        const TLorentzVector & neutrinoMom,
+                        const TLorentzVector & leptonMom, 
+                        bool isLeftPolarized,
+                        const HermitianMatrix & NTensor
+)
+{
+  double k[4], l[4], s[4], eskl[4];
+  std::complex<double> jp[4], jm[4];
+  // k_\mu  
+  k[0] = neutrinoMom.E();
+  k[1] = -neutrinoMom.Px();
+  k[2] = -neutrinoMom.Py();
+  k[3] = -neutrinoMom.Pz();
+  // l_\mu  
+  l[0] = leptonMom.E();
+  l[1] = -leptonMom.Px();
+  l[2] = -leptonMom.Py();
+  l[3] = -leptonMom.Pz();
+  
+  double ml = leptonMom.M();
+  // s_\mu  
+  s[0] = leptonMom.P()/ml;
+  s[1] = -leptonMom.Vect().Unit().X()*leptonMom.E()/ml;
+  s[2] = -leptonMom.Vect().Unit().Y()*leptonMom.E()/ml;
+  s[3] = -leptonMom.Vect().Unit().Z()*leptonMom.E()/ml;
+  
+
+  
+  // epsilon_\alpha\beta\gamma\delta s^\beta k^\gamma l^\delta
+  for (int a = 0; a < 4; a++)
+  {
+    eskl[a] = 0;
+    for (int b = 0; b < 4; b++)
+    {
+        if (b == a) continue;
+        for (int g = 0; g < 4; g++)
+        {
+            if (g == b || g == a) continue;
+            for (int d = 0; d < 4; d++)
+            {
+                if (d == g || d == b || d == a) continue;
+                double sb = s[b]*genie::utils::g(b,b);
+                double kg = k[g]*genie::utils::g(g,g);
+                double ld = l[d]*genie::utils::g(d,d);
+                eskl[a] += e(a,b,g,d)*sb*kg*ld;
+            }
+        }
+    }
+  }
+    
+  double kl = k[0]*l[0] - k[1]*l[1] - k[2]*l[2] - k[3]*l[3];
+  double ks = k[0]*s[0] - k[1]*s[1] - k[2]*s[2] - k[3]*s[3];
+        
+  for (int a = 0; a < 4; a++)
+  {
+     double aux_plus  = kl + ml*ks;
+     double aux_minus = kl - ml*ks;
+     if (isLeftPolarized)
+     {
+        jp[a] = aux_plus  > 0 ? (l[a]*ks - s[a]*kl - 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)   : 0;   //jp_\alpha
+        jm[a] = aux_minus > 0 ? (-l[a]*ks + s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_minus) : 0;   //jm_\alpha
+     }
+     else
+     {
+        jp[a] =  aux_minus > 0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] - ml*k[a])/sqrt(aux_minus) : 0;   //jp_\alpha
+        jm[a] =  aux_plus  > 0 ? (l[a]*ks - s[a]*kl + 1i*eskl[a] + ml*k[a])/sqrt(aux_plus)  : 0;   //jm_\alpha
+     }
+  }
+
+  std::complex<double> LWpp(0, 0), LWpm(0, 0), LWmp(0, 0), LWmm(0, 0);
+  for(int mu = 0; mu < 4; mu++)
+  {
+     for(int nu = mu;nu < 4; nu++)
+     {
+        LWpp += jp[mu]*std::conj(jp[nu])*NTensor(mu,nu); // Lpp_\mu\nu*W^\mu\nu
+        LWpm += jp[mu]*std::conj(jm[nu])*NTensor(mu,nu); // Lpm_\mu\nu*W^\mu\nu
+        LWmp += jm[mu]*std::conj(jp[nu])*NTensor(mu,nu); // Lmp_\mu\nu*W^\mu\nu
+        LWmm += jm[mu]*std::conj(jm[nu])*NTensor(mu,nu); // Lmm_\mu\nu*W^\mu\nu
+        if (mu != nu)
+        {
+            LWpp += jp[nu]*std::conj(jp[mu])*NTensor(nu,mu); // Lpp_\mu\nu*W^\mu\nu
+            LWpm += jp[nu]*std::conj(jm[mu])*NTensor(nu,mu); // Lpm_\mu\nu*W^\mu\nu
+            LWmp += jm[nu]*std::conj(jp[mu])*NTensor(nu,mu); // Lmp_\mu\nu*W^\mu\nu
+            LWmm += jm[nu]*std::conj(jm[mu])*NTensor(nu,mu); // Lmm_\mu\nu*W^\mu\nu
+        }
+    }
+  }
+  
+  std::complex<double> LWppmm = LWpp + LWmm;
+  if (LWppmm.real() == 0 && LWppmm.imag() == 0)
+  {
+     polarization.SetBit(kPolarizationUndef);
+     return;
+  } 
+  std::complex<double> rhopp = LWpp/LWppmm;
+  std::complex<double> rhopm = LWpm/LWppmm;
+  std::complex<double> rhomp = LWmp/LWppmm;
+  std::complex<double> rhomm = LWmm/LWppmm;
+
+  // Compute the longitudinal (L), perpendicular (P) and transverse (T) components of the polarization vector,
+  // relative to the neutrino-lepton scattering plane
+  double PL = std::real(rhopp - rhomm);
+  double PP = std::real(rhopm + rhomp);
+  double PT = std::imag(rhomp - rhopm);
+
+  // Now align the polarization vector with the physical coordinate system
+  polarization = SetPolarizationVectorDirection(PL, PP, PT, neutrinoMom.Vect(), leptonMom.Vect());
+
+  // Physicality check
+  EnsurePhysicalPolarizationVector(polarization);
+}
+//____________________________________________________________________________
+void  genie::utils::CalculatePolarizationVectorWithStructureFunctions(
+                                TVector3 & polarization,
+                                const TLorentzVector & neutrinoMom,
+                                const TLorentzVector & leptonMom, 
+                                const TLorentzVector & inNucleonMom,
+                                const TLorentzVector & q4,
+                                bool isLeftPolarized,
+                                double W1,
+                                double W2,
+                                double W3,
+                                double W4,
+                                double W5,
+                                double W6
+)
+{
+  double M2 = inNucleonMom.M2();
+  double p[4], q[4], epq[4][4];
+  p[0] = inNucleonMom.E();
+  p[1] = inNucleonMom.Px();
+  p[2] = inNucleonMom.Py();
+  p[3] = inNucleonMom.Pz();
+  
+  q[0] = q4.E();
+  q[1] = q4.Px();
+  q[2] = q4.Py();
+  q[3] = q4.Pz();
+  // epsilon^\alpha\beta\gamma\delta p_\gamma q_\delta
+  for (int a = 0; a < 4; a++)
+  {
+    for (int b = 0; b < 4; b++)
+    {
+        epq[a][b] = 0;
+        if (b == a) continue;
+        for (int g = 0; g < 4; g++)
+        {
+            if (g == b || g == a) continue;
+            for (int d = 0; d < 4; d++)
+            {
+                if (d == g || d == b || d == a) continue;
+                epq[a][b] += e(a,b,g,d)*genie::utils::g(a,a)*genie::utils::g(b,b)*p[g]*q[d];
+            }
+        }
+    }
+  }
+  HermitianMatrix NucleonTensor(4);
+  for(int mu = 0; mu < 4; mu++)
+  {
+     for(int nu = mu; nu < 4; nu++)
+     {
+        double Wreal = -g(mu,nu)*W1 + p[mu]*p[nu]*W2/M2 + q[mu]*q[nu]*W4/M2 + (p[mu]*q[nu] + q[mu]*p[nu])*W5/2/M2;
+        double Wimag = epq[mu][nu]*W3/2/M2 + (q[mu]*p[nu] - p[mu]*q[nu])*W6/2/M2;
+        NucleonTensor.set(mu, nu, Wreal - 1i*Wimag);  // W^\mu\nu
+        if (mu != nu) NucleonTensor.set(nu, mu, Wreal + 1i*Wimag);
+    }
+  }
+  
+  CalculatePolarizationVectorWithNuclearTensor(
+                                    polarization,
+                                    neutrinoMom,
+                                    leptonMom, 
+                                    isLeftPolarized,
+                                    NucleonTensor);
+  
+}
+//____________________________________________________________________________
+void  genie::utils::CalculatePolarizationVectorInTargetRestFrame(
+                      TVector3 & polarization,
+                      const TLorentzVector & neutrinoMomTRF,
+                      const TLorentzVector & leptonMomTRF, 
+                      bool isLeftPolarized,
+                      double M,
+                      double W1,
+                      double W2,
+                      double W3,
+                      double W4,
+                      double W5,
+                      double W6
+)
+{
+
+  // Main reference: https://arxiv.org/abs/hep-ph/0312107
+  // Another equivalent reference is https://arxiv.org/pdf/hep-ph/0305324 (assumes W6=0) 
+
+  double ml = leptonMomTRF.M();
+  double ml2 = ml*ml;
+  double M2 = M*M;
+  double Ev = neutrinoMomTRF.E();
+  double El = leptonMomTRF.E();
+  double Pl = leptonMomTRF.P();
+  double cost = TMath::Cos( neutrinoMomTRF.Angle(leptonMomTRF.Vect()) );
+  double sint = TMath::Sqrt(1 - cost*cost);
+  int sign = isLeftPolarized?-1:1;
+  double auxm  = (El - Pl*cost)/2/M;
+  double auxp  = (El + Pl*cost)/2/M;
+  double aux1m = (Pl - El*cost)/2/M;
+  double aux1p = (Pl + El*cost)/2/M;
+  double aux1  = ml2/2/M2;
+  double aux2  = (Ev + El)/M;
+  double R     = 2*auxm*(W1 + aux1*W4) + auxp*W2 - sign*(aux2*auxm - aux1)*W3 - aux1*W5;
+  if (R == 0)
+  {
+      polarization.SetBit(kPolarizationUndef);
+      return;
+  }
+
+  // Compute the longitudinal (L), perpendicular (P) and transverse (T) components of the polarization vector,
+  // relative to the neutrino-lepton scattering plane
+  double PL    = sign*(2*aux1m*(W1 - aux1*W4) + aux1p*W2 - sign*(aux2*aux1m + aux1*cost)*W3 - aux1*cost*W5)/R;
+  double PP    = sign*ml*sint*(2*W1 - W2 -sign*Ev*W3/M - ml2*W4/M2 + El*W5/M)/2/M/R;
+  double PT    = - ml*Pl*sint*W6/2/M2/R;
+  
+  // Now align the polarization vector with the physical coordinate system
+  polarization = SetPolarizationVectorDirection(PL, PP, PT, neutrinoMomTRF.Vect(), leptonMomTRF.Vect());
+
+  // Physicality check
+  EnsurePhysicalPolarizationVector(polarization);
+}
+//____________________________________________________________________________
+TVector3 genie::utils::SetPolarizationVectorDirection(
+  double PL, // Longitudinal component of rest frame polarization
+  double PP, // Perpendicular component of rest frame polarization
+  double PT, // Transverse component of rest frame polarization
+  const TVector3 & neutrinoMom,
+  const TVector3 & leptonMom
+)
+{
+  /*
+    Rest frame polarization is defined such that:
+     (a) The longitudinal (L) component is along the lepton momentum direction
+     (b) The transverse (T) component is normal to the nu-lepton scattering plane, defined by p_nu x p_l
+     (c) The perpendicular (P) component forms a right handed coordinate syetm with the L and T components
+
+    Notes:
+      - The L and P components are thus by definition in the nu-lepton scattering plane
+      - The T component is out of the scattering plane, and is 0 in the the Standard Model (W6=0)
+  */
+
+  TVector3 Pz = leptonMom.Unit(); // Lepton direction
+  TVector3 Px = neutrinoMom.Cross(leptonMom).Unit(); // Normal to scattering plane
+  TVector3 Py = Pz.Cross(Px); // Form right handed coordinate system
+
+  TVector3 polarization = PT*Px + PP*Py + PL*Pz;
+
+  return polarization;
+}
+//____________________________________________________________________________
+void genie::utils::EnsurePhysicalPolarizationVector(TVector3 & polarization) {
+  /*
+    Ensure the polarization vector has a physical magnitude, e.g. <= 1.
+    Clip it to 1 if necessary (can sometimes slightly exceed this due to numerical factors)
+  */ 
+
+  if(polarization.Mag() > 1) {
+    polarization = polarization * (1. / polarization.Mag());
   }
 }
+//____________________________________________________________________________

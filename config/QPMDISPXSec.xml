@@ -11,6 +11,8 @@ XSec-Integrator             alg     No
 
 DIS-XSecScale               double  No    XSec scaling factor
 WeinbergAngle               double  No                                                        CommonParam[WeakInt]
+
+PreciseLeptonPol            bool    Yes   Perform accurate polarization calc                  false
 -->
 
 <alg_conf>
@@ -24,6 +26,9 @@ WeinbergAngle               double  No                                          
      <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
      <param type="double" name="DIS-NC-XSecScale">    1.032 </param>
      <param type="double" name="DIS-EM-XSecScale">    1. </param>
+
+     <param type="bool" name="PreciseLeptonPol"> true  </param>
+
   </param_set>
 
 </alg_conf>

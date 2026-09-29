@@ -104,6 +104,7 @@ private:
   const XSecAlgorithmI * fModel;
   const Interaction    * fInteraction;
   const double fpF;
+  mutable SmithMonizUtils * sm_utils;
 };
 //
 // genie::utils::gsl::d1XSecSM_dQ2_E

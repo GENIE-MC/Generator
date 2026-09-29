@@ -93,6 +93,8 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
       // copy of an earlier version of the `DecayNucleonCluster` method here - but, watch
       // for this...
       this -> DecayNucleonCluster(event);
+      // Set the final-state lepton polarization
+      utils::SetPrimaryLeptonPolarization( event );
   }  else if (fXSecModel->Id().Name() == "genie::SuSAv2MECPXSec") {
       event->Print();
       this -> SelectSuSALeptonKinematics(event);
@@ -111,7 +113,7 @@ void MECGenerator::ProcessEventRecord(GHepRecord * event) const
           "ProcessEventRecord >> Cannot calculate kinematics for " <<
           fXSecModel->Id().Name();
   }
-
+  
 
 }
 //___________________________________________________________________________
@@ -380,6 +382,8 @@ void MECGenerator::AddFinalStateLepton(GHepRecord * event) const
 
   // Boost final state primary lepton to the lab frame
   p4l.Boost(beta); // active Lorentz transform
+  
+  interaction->KinePtr()->SetFSLeptonP4(p4l);
 
   // Figure out the final-state primary lepton PDG code
   int pdgc = interaction->FSPrimLepton()->PdgCode();
@@ -841,15 +845,13 @@ void MECGenerator::SelectNSVLeptonKinematics (GHepRecord * event) const
   interaction->KinePtr()->Sety(gy, true);
   interaction->KinePtr()->Setx(gx, true);
   interaction->KinePtr()->SetW(gW, true);
+  interaction->KinePtr()->ClearRunningValues();
   interaction->KinePtr()->SetFSLeptonP4(p4l);
   // in later methods
   // will also set the four-momentum and W^2 of the hadron system.
 
   // -- Lepton
   event->AddParticle( pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4);
-
-  // Set the final-state lepton polarization
-  utils::SetPrimaryLeptonPolarization( event );
 
   LOG("MEC",pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
@@ -1115,12 +1117,15 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   interaction->KinePtr()->Sety(gy, true);
   interaction->KinePtr()->Setx(gx, true);
   interaction->KinePtr()->SetW(gW, true);
+  interaction->KinePtr()->ClearRunningValues();
   interaction->KinePtr()->SetFSLeptonP4(p4l);
   // in later methods
   // will also set the four-momentum and W^2 of the hadron system.
 
   // -- Lepton
   event->AddParticle( pdgc, kIStStableFinalState, momidx, -1, -1, -1, p4l, v4 );
+  
+  utils::SetPrimaryLeptonPolarization( event );
 
   LOG("MEC", pDEBUG) << "~~~ LEPTON DONE ~~~";
 }
@@ -1317,6 +1322,7 @@ void MECGenerator::GenerateNSVInitialHadrons(GHepRecord * event) const
 
     event->AddParticle(p1);
 
+    interaction->InitStatePtr()->TgtPtr()->SetHitNucP4(p4initial_cluster);
     interaction->KinePtr()->SetHadSystP4(p4final_cluster);
 }
 //___________________________________________________________________________

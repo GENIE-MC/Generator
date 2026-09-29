@@ -179,7 +179,7 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
      
      Range1D_t rkF = sm_utils->kFQES_SM_lim(Q2, v);
      // rkF.max = Fermi momentum
-     kF = rnd->RndKine().Rndm()*sm_utils->GetFermiMomentum();
+     kF = rnd->RndKine().Rndm()*sm_utils->GetInitialFermiMomentum();
      if (kF < rkF.min)
      {
         continue;
@@ -263,6 +263,9 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   outNucleonMom.Rotate(theta-theta_k, yvec);
   outNucleonMom.Rotate(phi, zvec);
 
+  // One can also rotate the neutrino by an angle psi in Z frame.
+  // The angles of incoing particles will be same,
+  // The angles of outgoing particles will be fi_p - psi
   outLeptonMom.Rotate(psi, unit_nudir);
   inNucleonMom.Rotate(psi, unit_nudir);
   outNucleonMom.Rotate(psi, unit_nudir);
@@ -286,6 +289,8 @@ void QELEventGeneratorSM::ProcessEventRecord(GHepRecord * evrec) const
   kinematics::WQ2toXY(E,M,W,Q2,x,y);
 
   // lock selected kinematics & clear running values
+  interaction->KinePtr()->SetFSLeptonP4(outLeptonMom);
+  interaction->KinePtr()->SetHadSystP4(outNucleonMom);
   interaction->KinePtr()->SetQ2(Q2, true);
   interaction->KinePtr()->SetW (W,  true);
   interaction->KinePtr()->Setx (x,  true);
@@ -457,7 +462,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
 {
     double xsec_max = -1;
     double tmp_xsec_max = -1;
-    double Q20, v0;
+    double Q20(0), v0(0);
     bool initialized = false;
     const int N_Q2 = 32;
     const InitialState & init_state = interaction -> InitState();
@@ -469,7 +474,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
     const double logQ2min = TMath::Log(TMath::Max(rQ2.min, eps));
     const double logQ2max = TMath::Log(TMath::Min(rQ2.max, fQ2Min));
     Kinematics * kinematics = interaction->KinePtr();
-    const double pFmax = sm_utils->GetFermiMomentum();
+    const double pFmax = sm_utils->GetInitialFermiMomentum();
     // Now scan through kinematical variables Q2,v,kF
     for (int Q2_n=0; Q2_n <= N_Q2; Q2_n++)
     {
@@ -478,10 +483,11 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction) cons
        kinematics->SetKV(kKVQ2, Q2);
        Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
        const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
-       const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
+       const double logvmax = TMath::Max(TMath::Log(rv.max), logvmin);
        for (int v_n=0; v_n <= N_v; v_n++)
        {
           // Scan around v
+          // for not heavy nucleus gives nan, but it doesn't matter for latter calculations
           double v = TMath::Exp(v_n*(logvmax-logvmin)/N_v + logvmin);
           kinematics->SetKV(kKVv, v);
           kinematics->SetKV(kKVPn, pFmax);
@@ -544,7 +550,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
      }
      double xsec_max = -1;
      double tmp_xsec_max = -1;
-     double Q20, v0;
+     double Q20(0), v0(0);
      bool initialized = false;
      const int N_Q2 = 32;
      const InitialState & init_state = interaction -> InitState();
@@ -555,7 +561,7 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
      const double logQ2min = TMath::Log(fQ2Min);
      const double logQ2max = TMath::Log(rQ2.max);
      Kinematics * kinematics = interaction->KinePtr();
-     const double pFmax = sm_utils->GetFermiMomentum();
+     const double pFmax = sm_utils->GetInitialFermiMomentum();
      // Now scan through kinematical variables Q2,v,kF
      for (int Q2_n=0; Q2_n <= N_Q2; Q2_n++)
      {
@@ -564,10 +570,11 @@ double QELEventGeneratorSM::ComputeMaxXSec(const Interaction * interaction, cons
         kinematics->SetKV(kKVQ2, Q2);
         Range1D_t rv  = sm_utils->vQES_SM_lim(Q2);
         const double logvmin = TMath::Log(TMath::Max(rv.min, eps));
-        const double logvmax = TMath::Log(TMath::Max(rv.max, TMath::Max(rv.min, eps)));
+        const double logvmax = TMath::Max(TMath::Log(rv.max), logvmin);
         for (int v_n=0; v_n <= N_v; v_n++)
         {
            // Scan around v
+           // for not heavy nucleus gives nan, but it doesn't matter for latter calculations
            double v = TMath::Exp(v_n*(logvmax-logvmin)/N_v + logvmin);
            kinematics->SetKV(kKVv, v);
            kinematics->SetKV(kKVPn, pFmax);
@@ -665,6 +672,9 @@ d3XSecSM_dQ2dvdkF_E::d3XSecSM_dQ2dvdkF_E(
                                                       fInteraction(i),
                                                       fpF(pF)
 {
+  AlgFactory * algf = AlgFactory::Instance();
+  sm_utils = const_cast<genie::SmithMonizUtils *>(dynamic_cast<const genie::SmithMonizUtils *>(algf->GetAlgorithm("genie::SmithMonizUtils","Default")));
+  sm_utils->SetInteraction(fInteraction);
 }
 d3XSecSM_dQ2dvdkF_E::~d3XSecSM_dQ2dvdkF_E()
 {
@@ -678,6 +688,8 @@ double d3XSecSM_dQ2dvdkF_E::DoEval(const double * xin) const
 // outputs:
 //   differential cross section
 //
+  Range1D_t rv  = sm_utils->vQES_SM_lim(xin[0]);
+  if (xin[1] < rv.min || xin[1] > rv.max) return 0;
   fInteraction->KinePtr()->SetKV(kKVQ2, xin[0]);
   fInteraction->KinePtr()->SetKV(kKVv,  xin[1]);
   fInteraction->KinePtr()->SetKV(kKVPn, fpF);

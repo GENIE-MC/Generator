@@ -32,6 +32,7 @@
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/NuclearState/NuclearUtils.h"
 #include "Physics/QuasiElastic/XSection/QELUtils.h"
+#include "Physics/Common/PrimaryLeptonUtils.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -209,7 +210,7 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   double mNi = init_state.Tgt().HitNucMass();
 
   // Hadronic matrix element for CC neutrino interactions should really use
-  // the "nucleon mass," i.e., the mean of the proton and neutrino masses.
+  // the "nucleon mass," i.e., the mean of the proton and neutron masses.
   // This expression would also work for NC and EM scattering (since the
   // initial and final on-shell nucleon masses would be the same)
   double mNucleon = ( mNi + interaction->RecoilNucleon()->Mass() ) / 2.;
@@ -260,8 +261,8 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   double tau = Q2tilde / (4 * std::pow(mNucleon, 2));
   double h1 = FA*FA*(1 + tau) + tau*(F1V + xiF2V)*(F1V + xiF2V);
   double h2 = FA*FA + F1V*F1V + tau*xiF2V*xiF2V;
-  double h3 = 2.0 * FA * (F1V + xiF2V);
-  double h4 = 0.25 * xiF2V*xiF2V *(1-tau) + 0.5*F1V*xiF2V + FA*Fp - tau*Fp*Fp;
+  double h3 = 2.0 * FA * (F1V + xiF2V);   // toghether with sign of FA ("-") will give correct total sign
+  double h4 = (0.25 * xiF2V*xiF2V *(1-tau) + 0.5*F1V*xiF2V + FA*Fp - tau*Fp*Fp);
 
   bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
   int sign = (is_neutrino) ? -1 : 1;
@@ -427,6 +428,9 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
   // Cross section scaling factor
   GetParam( "QEL-CC-XSecScale", fXSecCCScale ) ;
   GetParam( "QEL-NC-XSecScale", fXSecNCScale ) ;
+  
+  // Do precise calculation of lepton polarization
+  GetParamDef( "PreciseLeptonPol", fIsPreciseLeptonPolarization, false ) ;
 
   double thc ;
   GetParam( "CabibboAngle", thc ) ;
@@ -473,4 +477,159 @@ void LwlynSmithQELCCPXSec::LoadConfig(void)
 
   // Decide whether or not it should be used in FullDifferentialXSec
   GetParamDef( "DoPauliBlocking", fDoPauliBlocking, true );
+}
+//____________________________________________________________________________
+TVector3 LwlynSmithQELCCPXSec::FinalLeptonPolarization (const Interaction* interaction) const
+{
+  if (!fIsPreciseLeptonPolarization) 
+    return XSecAlgorithmI::FinalLeptonPolarization(interaction);
+  TVector3 pol(0, 0, 0);
+  const QELFormFactorsModelI* qel_ff_mod = dynamic_cast<const QELFormFactorsModelI *> (this->SubAlg("FormFactorsAlg"));
+  const AlgId & qel_ff_mod_id = qel_ff_mod->Id();
+  std::string qel_ff_mod_name = qel_ff_mod_id.Name();
+  bool isosymmetry = true;
+  if (qel_ff_mod_name == "genie::LwlynSmithFFCC") isosymmetry = false;
+  if (qel_ff_mod_name == "genie::LwlynSmithIsoFFCC") isosymmetry = true;
+
+  // First we need access to all of the particles in the interaction
+  // The particles were stored in the lab frame
+  const Kinematics&   kinematics = interaction -> Kine();
+  const InitialState& init_state = interaction -> InitState();
+  const Target& tgt = init_state.Tgt();
+  
+  bool is_neutrino = pdg::IsNeutrino(init_state.ProbePdg());
+  
+  // HitNucMass() looks up the PDGLibrary (on-shell) value for the initial
+  // struck nucleon
+  double Mi_onshell = tgt.HitNucMass();
+  
+  // On-shell mass of final nucleon (from PDGLibrary)
+  double Mf = interaction->RecoilNucleon()->Mass();
+
+  // Isoscalar mass of nucleon
+  double Miso = (Mi_onshell + Mf)/2;
+  
+  // Note that GetProbeP4 defaults to returning the probe 4-momentum in the
+  // struck nucleon rest frame, so we have to explicitly ask for the lab frame
+  // here
+  TLorentzVector * tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector neutrinoMom = *tempNeutrino;
+  delete tempNeutrino;
+  TLorentzVector inNucleonMom(*init_state.TgtPtr()->HitNucP4Ptr());
+  TLorentzVector inNucleonMomOnShell(inNucleonMom);
+
+  const TLorentzVector leptonMom = kinematics.FSLeptonP4();
+  const TLorentzVector outNucleonMom = kinematics.HadSystP4();
+  TLorentzVector outNucleonMomOnShell(outNucleonMom);
+  
+  // Apply Pauli blocking if enabled
+  if ( fDoPauliBlocking && tgt.IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) ) {
+    int final_nucleon_pdg = interaction->RecoilNucleonPdg();
+    double kF = fPauliBlocker->GetFermiMomentum(tgt, final_nucleon_pdg, tgt.HitNucPosition());
+    double pNf = outNucleonMom.P();
+    if ( pNf < kF ) 
+    {
+        LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
+        pol.SetBit(kPolarizationUndef);
+        return pol;
+    }
+  }
+  
+  if (isosymmetry)
+  {
+     double inNucleonOnShellEnergy  = TMath::Hypot(Miso,  inNucleonMomOnShell.P() );
+     double outNucleonOnShellEnergy = TMath::Hypot(Miso, outNucleonMomOnShell.P() );
+     inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
+     outNucleonMomOnShell.SetE(outNucleonOnShellEnergy);
+  }
+  else
+  {
+     double inNucleonOnShellEnergy  = TMath::Hypot(Mi_onshell,  inNucleonMomOnShell.P() );
+     inNucleonMomOnShell.SetE(inNucleonOnShellEnergy);
+  }
+  
+  // Ordinary 4-momentum transfer
+  TLorentzVector qP4 = neutrinoMom - leptonMom;
+  double Q2 = -qP4.Mag2();
+  
+  // Effective 4-momentum transfer (according to the deForest prescription) for
+  // use in computing the hadronic tensor
+  TLorentzVector qTildeP4 = outNucleonMomOnShell - inNucleonMomOnShell;
+  // If the binding energy correction causes an unphysical value
+  // of q0Tilde or Q2tilde, just return 0.
+  if ( qTildeP4.E() < 0 && init_state.Tgt().IsNucleus() && !interaction->TestBit(kIAssumeFreeNucleon) )
+  {
+     LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
+     pol.SetBit(kPolarizationUndef);
+     return pol;
+  }
+  double Q2tilde = -qTildeP4.Mag2();
+  if ( Q2tilde < 0 )
+  {
+     LOG("LwlynSmith", pWARN) << "Can't calculate final lepton polarization.";
+     pol.SetBit(kPolarizationUndef);
+     return pol;
+  }
+
+  // Store Q2tilde in the kinematic variable representing Q2.
+  // This will ensure that the form factors are calculated correctly
+  // using the de Forest prescription (Q2tilde instead of Q2).
+  interaction->KinePtr()->SetQ2(Q2tilde);
+
+  // Calculate the QEL form factors
+  fFormFactors.Calculate(interaction);
+
+  double FV    = fFormFactors.F1V();
+  double FM    = fFormFactors.xiF2V();
+  double FA    = fFormFactors.FA();
+  double FP    = 2*fFormFactors.Fp();
+  double FS    = 2*0;
+  double FT    = 0;
+  double FFV   = FV*FV;
+  double FFM   = FM*FM;
+  double FFT   = FT*FT;
+  double FFS   = FS*FS;
+  double FFVM  = (FV + FM)*(FV + FM);
+  double FFAT  = (FA + FT)*(FA + FT);
+  double FFMS  = (FM - FS)*(FM - FS);
+  double FFTP  = (FT - FP)*(FT - FP);
+
+  // Off shell mass of initial nucleon
+  double Mi  = inNucleonMom.M();
+  double M   = (Mi + Mf)/2;
+  double M2  = M*M;
+  double r   = (Mi - Mf)/2/M;
+  double r2  = r*r;
+
+  double tau =  Q2/4/M2;
+  double w01 = (1 + tau)*FFAT + tau*FFVM;
+  double w21 = FFVM;
+  double w02 = FFV + FFAT + tau*(FFM + FFT);
+  double w12 = 2*FT*(FA + FT);
+  double w22 = FFT;
+  double w03 = -2*(FV + FM )*(FA + FT);
+  double w04 = 1/4.*(FFS  - FFM +  2*(FV*(FS - FM) + (FT - FP)*(FA + FT))  + tau*(FFMS + FFTP));
+  double w14 = 1/2.*((FV + FM)*(FS - FM) + (FA + FT)*(FT - FP));
+  double w24 = 1/4.*FFTP;
+  double w05 = w02 + FS*(FV - tau*FM) + FT*(FA + FT - tau*FP);
+  double w15 = w12 - FM*(FV + FM) - FP*(FA + FT);
+  double w25 = w22 - FP*FT;
+  
+  // common factor 2M^2V^2 will be cancelled in the calculation of rho
+  double W1 =  w01 +       + w21*r2;
+  double W2 =  w02 + w12*r + w22*r2;
+  double W3 =  w03                 ;
+  double W4 =  w04 + w14*r + w24*r2;
+  double W5 =  w05 + w15*r + w25*r2;
+
+  CalculatePolarizationVectorWithStructureFunctions(
+                pol, 
+                neutrinoMom, 
+                leptonMom, 
+                inNucleonMom, 
+                qP4, 
+                is_neutrino, 
+                W1,W2,W3,W4,W5,0);
+   
+  return pol;
 }

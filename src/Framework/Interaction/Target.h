@@ -60,6 +60,7 @@ public:
   void SetHitNucP4            (const TLorentzVector & p4);
   void SetHitNucPosition        (double r);
   void SetHitQrkPdg           (int pdgc);
+  void UnsetHitQrkPdg         () { fHitQrkPDG = 0; };
   void SetHitSeaQrk           (bool tf);
   void ForceHitNucOnMassShell (void);
 
