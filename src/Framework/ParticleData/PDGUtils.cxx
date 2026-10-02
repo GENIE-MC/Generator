@@ -79,7 +79,7 @@ int genie::pdg::IonPdgCode(int A, int Z, int L, int I)
 {
 // Build ion PDG code from A,Z,L,I
 
-  int ion_pdgc = 1000000000 +  L*100000000 + Z*10000 + A*10 + I;
+  int ion_pdgc = 1000000000 +  L*10000000 + Z*10000 + A*10 + I;
   return ion_pdgc;
 }
 //____________________________________________________________________________

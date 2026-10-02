@@ -15,6 +15,7 @@
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
 #include "log4cpp/SimpleLayout.hh"
+#include "log4cpp/PatternLayout.hh"
 
 #include <TSystem.h>
 
@@ -64,7 +65,11 @@ Messenger * Messenger::Instance()
     std::string layoutstr = (layoutenv) ? string(layoutenv) : "BASIC";
     if ( layoutstr == "SIMPLE" )
       appender->setLayout(new log4cpp::SimpleLayout());
-    else
+    else if (layoutstr == "FANCY"){
+        log4cpp::PatternLayout *layout = new log4cpp::PatternLayout();
+        layout->setConversionPattern("%d{%Y-%m-%d %H:%M:%S} [%p] %c: %m%n");
+        appender->setLayout(layout);
+    } else
       appender->setLayout(new log4cpp::BasicLayout());
 
 
