@@ -11,7 +11,7 @@
 \author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
           University of Liverpool
 
-          Changes required to implement the GENIE Boosted Dark Matter module 
+          Changes required to implement the GENIE Boosted Dark Matter module
           were installed by Josh Berger (Univ. of Wisconsin)
 
 \created  April 25, 2004
@@ -48,16 +48,16 @@ const UInt_t kISkipProcessChk      = 1<<17; ///< if set, skip process validity c
 const UInt_t kISkipKinematicChk    = 1<<16; ///< if set, skip kinematic validity checks
 const UInt_t kIAssumeFreeNucleon   = 1<<15; ///<
 const UInt_t kIAssumeFreeElectron  = 1<<15; ///<
-const UInt_t kINoNuclearCorrection = 1<<14; ///< if set, inhibit nuclear corrections 
+const UInt_t kINoNuclearCorrection = 1<<14; ///< if set, inhibit nuclear corrections
 
 class Interaction;
-ostream & operator << (ostream & stream, const Interaction & i); 
+ostream & operator << (ostream & stream, const Interaction & i);
 
 class Interaction : public TObject {
 
 public:
   using TObject::Print; // suppress clang 'hides overloaded virtual function [-Woverloaded-virtual]' warnings
-  using TObject::Copy;  // 
+  using TObject::Copy;  //
 
   Interaction();
   Interaction(const InitialState & init, const ProcessInfo & proc);
@@ -88,7 +88,7 @@ public:
   int            FSPrimLeptonPdg  (void) const; ///< final state primary lepton pdg
   int            RecoilNucleonPdg (void) const; ///< recoil nucleon pdg
   TParticlePDG * FSPrimLepton     (void) const; ///< final state primary lepton
-  TParticlePDG * RecoilNucleon    (void) const; ///< recoil nucleon 
+  TParticlePDG * RecoilNucleon    (void) const; ///< recoil nucleon
 
   // Copy, reset, print itself and build string code
   void   Reset    (void);
@@ -132,10 +132,10 @@ public:
   static Interaction * DFRCC     (int tgt, int nuc, int probe, double E=0);
   static Interaction * DFRCC     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg, double E=0);
-  static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg, 
+  static Interaction * COHCC     (int tgt, int probe, unsigned int prod_pdg,
 				  const TLorentzVector & p4probe);
   static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg, double E=0);
-  static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg, 
+  static Interaction * COHNC     (int tgt, int probe, unsigned int prod_pdg,
 				  const TLorentzVector & p4probe);
   static Interaction * CEvNS     (int tgt, int probe, double E=0);
   static Interaction * CEvNS     (int tgt, int probe, const TLorentzVector & p4probe);
@@ -164,6 +164,8 @@ public:
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, double E=0);
   static Interaction * DMDI      (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * DMDI      (int tgt, int nuc, int qrk, bool sea, int probe, const TLorentzVector & p4probe);
+  static Interaction * RESDM     (int tgt, int nuc, int probe, double E=0);
+  static Interaction * RESDM     (int tgt, int nuc, int probe, const TLorentzVector & p4probe);
   static Interaction * HNL       (int probe, double E=0, int decayed_mode=-1);
 
 private:
@@ -181,7 +183,7 @@ private:
   Kinematics *   fKinematics;    ///< kinematical variables
   XclsTag *      fExclusiveTag;  ///< Additional info for exclusive channels
   KPhaseSpace *  fKinePhSp;      ///< Kinematic phase space
-  
+
 ClassDef(Interaction,2)
 };
 
