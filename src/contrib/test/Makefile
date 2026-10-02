@@ -14,6 +14,9 @@ include $(GENIE)/src/make/Make.include
 
 GENIE_LIBS  = $(shell $(GENIE)/src/scripts/setup/genie-config --libs)
 LIBRARIES  := $(GENIE_LIBS) $(LIBRARIES) $(CERN_LIBRARIES)
+KPHASESPACE_ROOT_LIBRARIES := $(shell root-config --glibs) -lMinuit -lGeom -lEG -lGenVector -lMathMore
+KPHASESPACE_LIBRARIES := -L$(GENIE_LIB_PATH) -lGFwInt -lGFwAlg -lGFwReg -lGFwUtl -lGFwNum -lGFwParDat -lGFwMsg \
+                         $(KPHASESPACE_ROOT_LIBRARIES) $(XML_LIBRARIES) $(LOG_LIBRARIES)
 
 #gtestDecay		 \
 #gtestHadronization	 \
@@ -182,7 +185,7 @@ gtestResonances: FORCE
 
 gtestKPhaseSpace: FORCE
 	$(CXX) $(CXXFLAGS) -c gtestKPhaseSpace.cxx $(CPP_INCLUDES)
-	$(LD) $(LDFLAGS) gtestKPhaseSpace.o $(LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
+	$(LD) $(LDFLAGS) gtestKPhaseSpace.o $(KPHASESPACE_LIBRARIES) -o $(GENIE_BIN_PATH)/gtestKPhaseSpace
 
 gtestROOTGeometry: FORCE
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)

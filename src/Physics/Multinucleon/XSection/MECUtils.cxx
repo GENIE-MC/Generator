@@ -16,6 +16,7 @@
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Interaction/Interaction.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Physics/HadronTensors/HadronTensorModelI.h"
 #include "Physics/Multinucleon/XSection/MECUtils.h"
 #include "Framework/EventGen/XSecAlgorithmI.h"
@@ -342,9 +343,9 @@ double genie::utils::mec::GetMaxXSecTlctl( const XSecAlgorithmI& xsec_model,
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  double Q2min = KPhaseSpaceCuts::Instance()->Q2MinCut(
+    interaction, interaction->ProcInfo().IsEM() ?
+    0. : genie::controls::kMinQ2Limit);
 
   const double Enu = interaction->InitState().ProbeE( kRfLab );
   const double ProbeMass = interaction->InitState().Probe()->Mass();
@@ -524,4 +525,3 @@ genie::utils::mec::gsl::d2Xsec_dTCosth::Clone() const
     new genie::utils::mec::gsl::d2Xsec_dTCosth(fModel,fInteraction, fEnu, fLepMass, fFactor );
 }
 //____________________________________________________________________________
-

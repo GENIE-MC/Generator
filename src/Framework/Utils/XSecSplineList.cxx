@@ -15,6 +15,7 @@
 
 #include <fstream>
 #include <cstdlib>
+#include <iomanip>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
@@ -336,6 +337,38 @@ void XSecSplineList::SetMaxE(double Ev)
   if(Ev>0) fEmax = Ev;
 }
 //____________________________________________________________________________
+void XSecSplineList::SetTuneQ2MinKinematics(
+  const string & tune, double q2min, const string & source)
+{
+  if(tune.empty()) return;
+
+  KinematicsMetadata & meta = fKinematicsMetadata[tune];
+  meta.has_q2_min = true;
+  meta.q2_min     = q2min;
+  meta.q2_unit    = "GeV^2";
+  meta.q2_source  = source;
+}
+//____________________________________________________________________________
+bool XSecSplineList::HasTuneQ2MinKinematics(const string & tune) const
+{
+  map<string, KinematicsMetadata>::const_iterator it =
+    fKinematicsMetadata.find(tune);
+  return it != fKinematicsMetadata.end() && it->second.has_q2_min;
+}
+//____________________________________________________________________________
+bool XSecSplineList::GetTuneQ2MinKinematics(
+  const string & tune, double & q2min, string * unit, string * source) const
+{
+  map<string, KinematicsMetadata>::const_iterator it =
+    fKinematicsMetadata.find(tune);
+  if(it == fKinematicsMetadata.end() || !it->second.has_q2_min) return false;
+
+  q2min = it->second.q2_min;
+  if(unit)   *unit   = it->second.q2_unit;
+  if(source) *source = it->second.q2_source;
+  return true;
+}
+//____________________________________________________________________________
 void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
 {
 //! Save XSecSplineList to XML file
@@ -366,6 +399,18 @@ void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
     string tune_name = mm_iter->first;
     outxml << "  <genie_tune name=\"" << tune_name << "\">";
     outxml << endl << endl;
+
+    map<string, KinematicsMetadata>::const_iterator kiter =
+      fKinematicsMetadata.find(tune_name);
+    if(kiter != fKinematicsMetadata.end() && kiter->second.has_q2_min) {
+      outxml << "    <kinematics>" << endl;
+      outxml << "      <q2 min=\"" << std::setprecision(16)
+             << kiter->second.q2_min
+             << "\" unit=\"" << kiter->second.q2_unit
+             << "\" source=\"" << kiter->second.q2_source
+             << "\"/>" << endl;
+      outxml << "    </kinematics>" << endl << endl;
+    }
 
     // loop over splines for given tune
     const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
@@ -411,7 +456,10 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
     << "Option to keep pre-existing splines is switched "
     << ( (keep) ? "ON" : "OFF" );
 
-  if(!keep) fSplineMap.clear();
+  if(!keep) {
+    fSplineMap.clear();
+    fKinematicsMetadata.clear();
+  }
 
   const int kNodeTypeStartElement = 1;
   const int kNodeTypeEndElement   = 15;
@@ -424,6 +472,7 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
   double * E = 0, * xsec = 0;
   string spline_name = "";
   string temp_tune ;
+  bool in_kinematics = false;
 
   reader = xmlNewTextReaderFilename(filename.c_str());
   if (reader != NULL) {
@@ -462,6 +511,42 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
                temp_tune    = utils::str::TrimSpaces((const char *)xtune);
                SLOG("XSecSplLst", pNOTICE) << "Loading x-section splines for GENIE tune: " << temp_tune;
                xmlFree(xtune);
+            }
+
+            if( (!xmlStrcmp(name, (const xmlChar *) "kinematics")) && type==kNodeTypeStartElement) {
+               in_kinematics = true;
+            }
+
+            if( in_kinematics && (!xmlStrcmp(name, (const xmlChar *) "q2")) &&
+                type==kNodeTypeStartElement) {
+               xmlChar * xmin    = xmlTextReaderGetAttribute(reader,(const xmlChar*)"min");
+               xmlChar * xunit   = xmlTextReaderGetAttribute(reader,(const xmlChar*)"unit");
+               xmlChar * xsource = xmlTextReaderGetAttribute(reader,(const xmlChar*)"source");
+
+               if(xmin) {
+                 string smin = utils::str::TrimSpaces((const char *)xmin);
+                 double q2min = atof(smin.c_str());
+                 if(std::isfinite(q2min) && q2min > 0.) {
+                   KinematicsMetadata & meta = fKinematicsMetadata[temp_tune];
+                   meta.has_q2_min = true;
+                   meta.q2_min = q2min;
+                   meta.q2_unit = xunit ?
+                     utils::str::TrimSpaces((const char *)xunit) : "GeV^2";
+                   meta.q2_source = xsource ?
+                     utils::str::TrimSpaces((const char *)xsource) : "";
+                   SLOG("XSecSplLst", pNOTICE)
+                     << "Loaded Q2 minimum metadata for tune " << temp_tune
+                     << ": " << meta.q2_min << " " << meta.q2_unit;
+                 } else {
+                   SLOG("XSecSplLst", pWARN)
+                     << "Ignoring invalid Q2 minimum metadata in " << filename
+                     << ": " << smin;
+                 }
+               }
+
+               if(xmin)    xmlFree(xmin);
+               if(xunit)   xmlFree(xunit);
+               if(xsource) xmlFree(xsource);
             }
 
             if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeStartElement) {
@@ -517,6 +602,9 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
                spl_map_curr_tune.insert(
                   map<string, Spline *>::value_type(spline_name, spline) );
                fLoadedSplineSet[temp_tune].insert(spline_name);
+            }
+            if( (!xmlStrcmp(name, (const xmlChar *) "kinematics")) && type==kNodeTypeEndElement) {
+               in_kinematics = false;
             }
             xmlFree(name);
             xmlFree(value);
