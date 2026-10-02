@@ -34,4 +34,8 @@ FermiMomentumTable      string   No         Table of Fermi momentum (kF) constan
 
   </param_set>
 
+  <param_set name="ApproxElements">
+    <param type="bool" name="AllowElementMatch"> true </param>
+  </param_set>
+
 </alg_conf>
