@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+Configuration for the RESInteractionListGenerator InteractionListGeneratorI
+
+Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+ResonanceNameList           string  No   list of resonances to be taken into account           CommonParam[Resonances]
+is-DM                       bool    Yes  set true for DM list                                  false
+-->
+
+<alg_conf>
+
+  <param_set name="Default">
+    <param type="string" name="CommonParam"> Resonances </param>
+  </param_set>
+
+   <param_set name="DM-Default">
+     <param type="bool" name="is-DM"> true </param>
+  </param_set>
+
+</alg_conf>

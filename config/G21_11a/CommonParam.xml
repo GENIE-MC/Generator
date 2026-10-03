@@ -239,8 +239,8 @@ University of Liverpool
    <!--  Q3 max for 2p2h model    -->
    <param type="double" name="NSV-Q3Max"> 2.0 </param>
    <!--
-   <param type="double" name="NSV-Q3Max"> 1.2 </param> // SuSAv2
-   <param type="double" name="NSV-Q3Max"> 2.0 </param> // Nieves
+   <param type="double" name="NSV-Q3Max"> 2.0 </param> // SuSAv2
+   <param type="double" name="NSV-Q3Max"> 1.2 </param> // Nieves
    -->
  </param_set>
 

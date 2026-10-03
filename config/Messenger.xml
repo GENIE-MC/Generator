@@ -32,7 +32,7 @@
   <!-- EDIT: add notification for DM EL algorithm -->
   <priority msgstream="AhrensDMEL">            WARN   </priority>
 
-  <priority msgstream="AlgFactory">            INFO   </priority>
+  <priority msgstream="AlgFactory">            NOTICE   </priority>
   <priority msgstream="Algorithm">             WARN   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
   <priority msgstream="AlvarezRusoCohPi">      WARN   </priority>
@@ -86,6 +86,13 @@
   <priority msgstream="DMELEvent">             NOTICE </priority>
   <priority msgstream="DMELKinematics">        WARN   </priority>
   <priority msgstream="DMELXSec">              NOTICE </priority>
+  <priority msgstream="DMRES">                 INFO   </priority>
+  <priority msgstream="DMRESXSec">             INFO   </priority>
+  <priority msgstream="DMRESPXSec">            WARN   </priority>
+  <priority msgstream="DMHAmpl">               WARN   </priority>
+  <priority msgstream="DMResTF">               NOTICE </priority>
+  <priority msgstream="DMResCF">               NOTICE </priority>
+  <priority msgstream="DMRESKinematics">       WARN   </priority>
   <priority msgstream="EventGenerator">        WARN   </priority>
   <priority msgstream="EffectiveSF">           NOTICE </priority>
   <priority msgstream="Elastic">               INFO   </priority>
@@ -171,6 +178,7 @@
   <priority msgstream="PaschLal">              INFO   </priority>
   <priority msgstream="PythiaDec">             WARN </priority>
   <priority msgstream="Pythia6Decay">          WARN </priority>
+  <priority msgstream="Pythia8Decay">          WARN </priority>
   <priority msgstream="PythiaHad">             WARN   </priority>
   <priority msgstream="Pythia6Had">            WARN   </priority>
   <priority msgstream="Pythia8Had">            WARN   </priority>
@@ -231,7 +239,7 @@
   <priority msgstream="HEDISKinematics">       WARN    </priority>
   <priority msgstream="HEDISStrucFunc">        WARN    </priority>
   <priority msgstream="LeptoHad">              ERROR   </priority>
-  <priority msgstream="HNL">                   FATAL </priority> 
+  <priority msgstream="HNL">                   FATAL </priority>
 
   <priority msgstream="gevgen">              NOTICE </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>

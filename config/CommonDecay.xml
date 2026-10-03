@@ -112,20 +112,50 @@ University of Liverpool
      <param type="bool" name="DecayParticleWithCode=202228"> true  </param>  <!-- F37(1950) Delta++  -->
      <param type="bool" name="DecayParticleWithCode=212112"> true  </param>  <!-- P11(1710) N0       -->
      <param type="bool" name="DecayParticleWithCode=212212"> true  </param>  <!-- P11(1710) N+       -->
-     <param type="bool" name="DecayParticleWithCode=212118"> true  </param>  <!-- F17(1970) N0       --> 
-     <param type="bool" name="DecayParticleWithCode=212218"> true  </param>  <!-- F17(1970) N+       --> 
+     <param type="bool" name="DecayParticleWithCode=212118"> true  </param>  <!-- F17(1970) N0       -->
+     <param type="bool" name="DecayParticleWithCode=212218"> true  </param>  <!-- F17(1970) N+       -->
      <param type="bool" name="DecayParticleWithCode=-24">   false </param>  <!-- W- from Glashow Resonance reactions -->
 
      <!--
 	    For particles to be decayed, all decay channels are open.
-	    To inhibit specific decay channels use as many of following configuration options as is needed
-	    specifying the particle PDG code and the inhibited TDecayChannel id.
-	    To print out the decay channel ids for any particle, use $GENIE/src/contrib/misc/print_decay_channel.C
+	    To (un)inhibit specific decay channels use as many of following configuration options as is
+	    needed specifying the particle PDG code and the inhibited ROOT's TDecayChannel id associated
+	    with PDGLibrary (which uses ROOT's TDatabasePDG underneath)
+	    To print out the decay channel ids for any particle, use
+	        $GENIE/src/contrib/misc/print_decay_channel.C
 
-	    <param type="bool" name="InhibitDecay/Particle=15,Channel=0"> true </param>
-	    <param type="bool" name="InhibitDecay/Particle=15,Channel=1"> true </param>
+	    <param type="bool" name="InhibitDecay/Particle=15,Channel=0">  true  </param>
+	    <param type="bool" name="InhibitDecay/Particle=15,Channel=1">  true  </param>
+	    <param type="bool" name="InhibitDecay/Particle=15,Channel=2">  false </param>
+	    <param type="bool" name="InhibitDecay/Particle=15,Channel=12"> false </param>
+	    <param type="bool" name="InhibitDecay/Particle=-15,Channel=0">  true  </param>
+	    <param type="bool" name="InhibitDecay/Particle=-15,Channel=1">  false  </param>
+	    <param type="bool" name="InhibitDecay/Particle=-15,Channel=2">  true  </param>
+	    <param type="bool" name="InhibitDecay/Particle=-15,Channel=12"> false </param>
 	    ...
 	    ...
+            IMPORTANT NOTE: the PDGLibrary (TDatabasePDG) is typically populated from
+                $GENIE/data/evgen/catalogues/pdg/genie_pdg_table.txt
+            while Pythia8 gets its particle information from $PYTHIA8DATA/ParticleData.xml
+            These (often) do _not_ match up in various ways.   In particular the list of decay channels
+            from PDGLibrary to Pythia8 is not 1-to-1.  What this means is that there are some channels
+            one can attempt to access via "InhibitDecay" that won't affect Pythia8, and there are some
+            Pythia8 decay channels that can't be manipulated via "InhibitDecay".  For some combinations
+            it might be more productive to turn _off_ all decays, and then turn on selected channels or
+            vice versa.
+            In particular for the tau the GENIE table has 53 channels, of which only 16 can be mapped to
+            one of Pythia8's 37 decay channels.  Take note of WARN messages that might indicate a missing map.
+
+            For Pythia8 one can use also use:
+                <param type="bool" name="PrintParticleDecayChannels=15"> true </param>
+            to print out the mapping for a particular particle.  This will print the
+            PDGLibrary view and a Pythia8 view of the decay channels.
+            For Pythia8 the "onMode" values mean:
+               0: decay channel is off
+               1: decay channel is on for both particle and antiparticle
+               2: on  for particle / off for antiparticle (if p=pbar acts as "on" )
+               3: off for particle / on  for antiparticle (if p=pbar acts as "off")
+
      -->
   </param_set>
 
