@@ -3,7 +3,6 @@
  Copyright (c) 2003-2025, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
-
  Author: Tomek Golan <tomasz.golan@uwr.edu.pl>, FNAL/Rochester
          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
          Josh Kleckner <jok84@pitt.edu>, Pittsburgh Univ.
