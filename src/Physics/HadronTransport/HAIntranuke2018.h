@@ -69,11 +69,11 @@ private:
   void  SimulateHadronicFinalState           (GHepRecord* ev, GHepParticle* p) const;
   void  SimulateHadronicFinalStateKinematics (GHepRecord* ev, GHepParticle* p) const;
 
-  INukeFateHA_t HadronFateHA     (const GHepParticle* p) const;
-  //INukeFateHA_t HadronFateOset   (void) const;
-  void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
+  INukeFateHA2018_t HadronFateHA     (const GHepParticle* p) const;
+  //INukeFateHA2018_t HadronFateOset   (void) const;
+  void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA2018_t fate) const;
+  void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA2018_t fate) const;
+  void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHA2018_t fate) const;
   double        PiBounce         (void) const;
   double        PnBounce         (void) const;
   int           HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;           

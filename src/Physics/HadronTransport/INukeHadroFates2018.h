@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*!
 
-\class    genie::INukeHadroFates
+\class    genie::INukeHadroFates2018
 
 \brief    An enumeration of possible hadron "fates" taken into account by the
           INTRANUKE hadron transport MC.
@@ -18,8 +18,8 @@
 */
 //____________________________________________________________________________
 
-#ifndef _INTRANUKE_FATES_H_
-#define _INTRANUKE_FATES_H_
+#ifndef _INTRANUKE_FATES_2018_H_
+#define _INTRANUKE_FATES_2018_H_
 
 #include <string>
 
@@ -29,7 +29,7 @@ namespace genie {
 
 // Fates in INTRANUKE's HN mode
 //
-typedef enum EINukeFateHN_t {
+typedef enum EINukeFateHN2018_t {
 
    kIHNFtUndefined = 0, 
    kIHNFtNoInteraction,
@@ -39,11 +39,11 @@ typedef enum EINukeFateHN_t {
    kIHNFtAbs,       // abs 
    kIHNFtCmp         //cmp
 
-} INukeFateHN_t;   
+} INukeFateHN2018_t;   
 
 // Fates in INTRANUKE's HA mode
 //
-typedef enum EINukeFateHA_t {
+typedef enum EINukeFateHA2018_t {
 
    kIHAFtUndefined = 0,
    kIHAFtNoInteraction,  // no interaction 
@@ -59,13 +59,13 @@ typedef enum EINukeFateHA_t {
    kIHAFtInclPi0,        // pi production : inclusive pi0 
    kIHAFtDCEx            // dcex
 
-} INukeFateHA_t;   
+} INukeFateHA2018_t;   
 
-class INukeHadroFates {
+class INukeHadroFates2018 {
 
 public:
   //__________________________________________________________________________
-  static string AsString(INukeFateHN_t fate) {
+  static string AsString(INukeFateHN2018_t fate) {
      switch (fate) {
       case kIHNFtUndefined : return "** Undefined HN-mode fate **"; break;
       case kIHNFtCEx       : return "HN-mode / cex";    break;
@@ -79,7 +79,7 @@ public:
      return "** Undefined HN-mode fate **"; 
   }
   //__________________________________________________________________________
-  static string AsString(INukeFateHA_t fate) {
+  static string AsString(INukeFateHA2018_t fate) {
      switch (fate) {
       case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
       case kIHAFtNoInteraction : return "HA-mode / no interaction"; break;
@@ -99,7 +99,7 @@ public:
      return "** Undefined HA-mode fate **"; 
   }
   //__________________________________________________________________________
-  static string AsSimpleString(INukeFateHA_t fate) {
+  static string AsSimpleString(INukeFateHA2018_t fate) {
      switch (fate) {
       case kIHAFtUndefined : return "undefined"; break;
       case kIHAFtNoInteraction : return "no interaction"; break;
@@ -120,4 +120,4 @@ public:
 };
 
 }      // genie
-#endif // _INTRANUKE_FATES_H_
+#endif // _INTRANUKE_FATES_2018_H_

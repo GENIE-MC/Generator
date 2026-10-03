@@ -28,6 +28,7 @@ potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
 #include "Physics/HadronTransport/INukeNucleonCorr.h"
 #include "Physics/HadronTransport/INukeUtils2018.h"
 #include "Physics/HadronTransport/INukeHadroData2018.h"
+#include "Physics/HadronTransport/INukeHadroFates2018.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Numerical/RandomGen.h"

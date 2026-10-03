@@ -34,7 +34,7 @@
 #include "Framework/GHEP/GHepParticle.h"
 #include "Physics/HadronTransport/Intranuke2025.h"
 #include "Physics/HadronTransport/INukeHadroData2025.h"
-#include "Physics/HadronTransport/INukeHadroFates.h"
+#include "Physics/HadronTransport/INukeHadroFates2018.h"
 #include "Physics/HadronTransport/INukeMode.h"
 #include "Physics/HadronTransport/INukeUtils2025.h"
 #include "Framework/Interaction/Interaction.h"

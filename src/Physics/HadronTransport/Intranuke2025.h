@@ -40,7 +40,7 @@
 #include "Framework/EventGen/EventRecordVisitorI.h"
 #include "Framework/Conventions/GMode.h"
 #include "Physics/HadronTransport/INukeMode.h"
-#include "Physics/HadronTransport/INukeHadroFates2025.h"
+#include "Physics/HadronTransport/INukeHadroFates2018.h"
 
 class TLorentzVector;
 class TVector3;

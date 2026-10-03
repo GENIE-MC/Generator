@@ -27,90 +27,90 @@ namespace genie {
 
 using std::string;
 
-// Fates in INTRANUKE's HN mode
+// Fates in legacy INTRANUKE's HN mode
 //
-typedef enum EINukeFateHN_t {
+typedef enum EINukeFateHNLeg_t {
 
-   kIHNFtUndefined = 0, 
-   kIHNFtNoInteraction,
-   kIHNFtCEx,       // cex
-   kIHNFtElas,      // elas
-   kIHNFtInelas,    // inelas
-   kIHNFtAbs,       // abs 
-   kIHNFtCmp         //cmp
+   kIHNLegFtUndefined = 0, 
+   kIHNLegFtNoInteraction,
+   kIHNLegFtCEx,       // cex
+   kIHNLegFtElas,      // elas
+   kIHNLegFtInelas,    // inelas
+   kIHNLegFtAbs,       // abs 
+   kIHNLegFtCmp         //cmp
 
-} INukeFateHN_t;   
+} INukeFateHNLeg_t;   
 
-// Fates in INTRANUKE's HA mode
+// Fates in legacy INTRANUKE's HA mode
 //
-typedef enum EINukeFateHA_t {
+typedef enum EINukeFateHALeg_t {
 
-   kIHAFtUndefined = 0,
-   kIHAFtNoInteraction,  // no interaction 
-   kIHAFtCEx,            // cex
-   kIHAFtElas,           // elas
-   kIHAFtInelas,         // inelas
-   kIHAFtAbs,            // abs
-   kIHAFtKo, 	         // knock out
-   kIHAFtCmp,            // compound nucleus
-   kIHAFtPiProd,         // pi production
-   kIHAFtInclPip,        // pi production : inclusive pi+
-   kIHAFtInclPim,        // pi production : inclusive pi-
-   kIHAFtInclPi0,        // pi production : inclusive pi0 
-   kIHAFtDCEx            // dcex
+   kIHALegFtUndefined = 0,
+   kIHALegFtNoInteraction,  // no interaction 
+   kIHALegFtCEx,            // cex
+   kIHALegFtElas,           // elas
+   kIHALegFtInelas,         // inelas
+   kIHALegFtAbs,            // abs
+   kIHALegFtKo, 	         // knock out
+   kIHALegFtCmp,            // compound nucleus
+   kIHALegFtPiProd,         // pi production
+   kIHALegFtInclPip,        // pi production : inclusive pi+
+   kIHALegFtInclPim,        // pi production : inclusive pi-
+   kIHALegFtInclPi0,        // pi production : inclusive pi0 
+   kIHALegFtDCEx            // dcex
 
-} INukeFateHA_t;   
+} INukeFateHALeg_t;   
 
 class INukeHadroFates {
 
 public:
   //__________________________________________________________________________
-  static string AsString(INukeFateHN_t fate) {
+  static string AsString(INukeFateHNLeg_t fate) {
      switch (fate) {
-      case kIHNFtUndefined : return "** Undefined HN-mode fate **"; break;
-      case kIHNFtCEx       : return "HN-mode / cex";    break;
-      case kIHNFtElas      : return "HN-mode / elas";   break;
-      case kIHNFtInelas    : return "HN-mode / inelas"; break;
-      case kIHNFtAbs       : return "HN-mode / abs";    break;
-      case kIHNFtCmp	   : return "HN-mode / compound"; break;
-      case kIHNFtNoInteraction : return "HN-mode / no interaction"; break;
+      case kIHNLegFtUndefined : return "** Undefined HN-mode fate **"; break;
+      case kIHNLegFtCEx       : return "HN-mode / cex";    break;
+      case kIHNLegFtElas      : return "HN-mode / elas";   break;
+      case kIHNLegFtInelas    : return "HN-mode / inelas"; break;
+      case kIHNLegFtAbs       : return "HN-mode / abs";    break;
+      case kIHNLegFtCmp	   : return "HN-mode / compound"; break;
+      case kIHNLegFtNoInteraction : return "HN-mode / no interaction"; break;
       default              : break; 
      }
      return "** Undefined HN-mode fate **"; 
   }
   //__________________________________________________________________________
-  static string AsString(INukeFateHA_t fate) {
+  static string AsString(INukeFateHALeg_t fate) {
      switch (fate) {
-      case kIHAFtUndefined : return "** Undefined HA-mode fate **"; break;
-      case kIHAFtNoInteraction : return "HA-mode / no interaction"; break;
-      case kIHAFtCEx       : return "HA-mode / cex";            break;
-      case kIHAFtElas      : return "HA-mode / elas";           break;
-      case kIHAFtInelas    : return "HA-mode / inelas";         break;
-      case kIHAFtAbs       : return "HA-mode / abs";            break;
-      case kIHAFtKo        : return "HA-mode / knock-out";      break;
-      case kIHAFtCmp       : return "HA-mode / compound";       break;
-      case kIHAFtPiProd    : return "HA-mode / pi-production" ; break;
-      case kIHAFtInclPip   : return "HA-mode / pi-prod incl pi+";   break;
-      case kIHAFtInclPim   : return "HA-mode / pi-prod incl pi-";   break;
-      case kIHAFtInclPi0   : return "HA-mode / pi-prod incl pi0";   break;
-      case kIHAFtDCEx      : return "HA-mode / dcex";           break;
+      case kIHALegFtUndefined : return "** Undefined HA-mode fate **"; break;
+      case kIHALegFtNoInteraction : return "HA-mode / no interaction"; break;
+      case kIHALegFtCEx       : return "HA-mode / cex";            break;
+      case kIHALegFtElas      : return "HA-mode / elas";           break;
+      case kIHALegFtInelas    : return "HA-mode / inelas";         break;
+      case kIHALegFtAbs       : return "HA-mode / abs";            break;
+      case kIHALegFtKo        : return "HA-mode / knock-out";      break;
+      case kIHALegFtCmp       : return "HA-mode / compound";       break;
+      case kIHALegFtPiProd    : return "HA-mode / pi-production" ; break;
+      case kIHALegFtInclPip   : return "HA-mode / pi-prod incl pi+";   break;
+      case kIHALegFtInclPim   : return "HA-mode / pi-prod incl pi-";   break;
+      case kIHALegFtInclPi0   : return "HA-mode / pi-prod incl pi0";   break;
+      case kIHALegFtDCEx      : return "HA-mode / dcex";           break;
       default              : break;
      }
      return "** Undefined HA-mode fate **"; 
   }
   //__________________________________________________________________________
-  static string AsSimpleString(INukeFateHA_t fate) {
+  static string AsSimpleString(INukeFateHALeg_t fate) {
      switch (fate) {
-      case kIHAFtUndefined : return "undefined"; break;
-      case kIHAFtNoInteraction : return "no interaction"; break;
-      case kIHAFtCEx       : return "cex";            break;
-      case kIHAFtElas      : return "elas";           break;
-      case kIHAFtInelas    : return "inelas";         break;
-      case kIHAFtAbs       : return "abs";            break;
-      case kIHAFtKo        : return "knock out";      break; 
-      case kIHAFtCmp       : return "compound";       break;
-      case kIHAFtPiProd    : return "pi prod";          break;
-      case kIHAFtDCEx      : return "dcex";             break;
+      case kIHALegFtUndefined : return "undefined"; break;
+      case kIHALegFtNoInteraction : return "no interaction"; break;
+      case kIHALegFtCEx       : return "cex";            break;
+      case kIHALegFtElas      : return "elas";           break;
+      case kIHALegFtInelas    : return "inelas";         break;
+      case kIHALegFtAbs       : return "abs";            break;
+      case kIHALegFtKo        : return "knock out";      break; 
+      case kIHALegFtCmp       : return "compound";       break;
+      case kIHALegFtPiProd    : return "pi prod";          break;
+      case kIHALegFtDCEx      : return "dcex";             break;
       default              : break;
      }
      return "undefined"; 
