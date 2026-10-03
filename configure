@@ -17,8 +17,8 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    FLAG                 DESCRIPTION                                                 DEFAULT\n\n";
   print "    --prefix             Installation location (for 'make install')                  /usr/local/\n";
   print "\n enable/disable options with either --enable- or --disable- (eg --enable-lhapdf5 --disable-flux-drivers)\n\n";
-  print "    pythia6              Use the PYTHIA6 MC generator, assumed to be incl. w/ ROOT   default: enabled  \n";
-  print "    pythia8              Use the PYTHIA8 MC generator                                default: disabled \n";
+  print "    pythia6              Use the PYTHIA6 MC generator, assumed to be incl. w/ ROOT   default: disabled \n";
+  print "    pythia8              Use the PYTHIA8 MC generator                                default: enabled  \n";
   print "    incl                 Interface with INCL++ for nuclear transport                 default: disabled \n";
   print "    geant4               Interface with Geant4 for nuclear transport                 default: disabled \n";
   print "    lhapdf5              Use the LHAPDF5 parton density function library             default: enabled  \n";
@@ -55,7 +55,7 @@ if(($match = grep(/--help/i, @ARGV)) > 0) {
   print "    profiler-lib      Path to profiler library     needed if you --enable-profiler \n";
   print "    doxygen-path      Doxygen binary path          needed if you --enable-doxygen-doc  (if unset: checks for a \$DOXYGENPATH env.var.) \n";
 
-  print "    pythia6-lib       PYTHIA6 libraries path       always needed                       (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
+  print "    pythia6-lib       PYTHIA6 libraries path       needed if you --enable-pythia6       (if unset: checks for a \$PYTHIA6 env.var., then tries to auto-detect it) \n";
   print "    pythia8-inc       PYTHIA8 includes path        needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_INC env.var., then tries to auto-detect it) \n";
   print "    pythia8-lib       PYTHIA8 libraries path       needed if you --enable-pythia8      (if unset: checks for a \$PYTHIA8_LIB env.var.. then tries to auto-detect it) \n";
   print "    incl-inc          INCL++ includes path         needed if you --enable-incl         (if unset: tries to auto-detect it) \n";
@@ -153,8 +153,8 @@ print MKCONF "GENIE_INSTALLATION_PATH=$prefix\n";
 
 # Default --enable/--disable config options (for a minimal genie build)
 #
-my $gopt_enable_pythia6              = "YES";
-my $gopt_enable_pythia8              = "NO";
+my $gopt_enable_pythia6              = "NO";
+my $gopt_enable_pythia8              = "YES";
 my $gopt_enable_lhapdf5              = "YES";
 my $gopt_enable_lhapdf6              = "NO";
 my $gopt_enable_apfel                = "NO";
@@ -885,16 +885,19 @@ if($gopt_enable_geant4_interface eq "YES") {
   # if it still not set, try autodetecting it
   if(! -d $gopt_with_geant4_lib && $auto_detect)  {
     print "Auto-detecting GEANT4 library path...\n";
-    $matched = auto_detect("libG4processes.so");
-    if( $matched=~m/(\S*)\/libG4processes.so/i ) {
+    # v10 has libG4processes.so, but v11 has libG4processes_core.so 
+    $matched = auto_detect("libG4processes.so","libG4processes_core.so");
+    if( $matched=~m/(\S*)\/(?:libG4processes|libG4processes_core)\.so/i ) {
        $gopt_with_geant4_lib = $1;
     }
     print "Setting --with-geant4-lib=$gopt_with_geant4_lib\n";
   }
   # check
-  my $fileso    = "$gopt_with_geant4_lib/libG4processes.so";
-  my $filedylib = "$gopt_with_geant4_lib/libG4processes.dylib";
-  if(! -e $fileso && ! -e $filedylib) {
+  my $file10so    = "$gopt_with_geant4_lib/libG4processes.so";
+  my $file10dylib = "$gopt_with_geant4_lib/libG4processes.dylib";
+  my $file11so    = "$gopt_with_geant4_lib/libG4processes_core.so";
+  my $file11dylib = "$gopt_with_geant4_lib/libG4processes_core.dylib";
+  if(! -e $file10so && ! -e $file10dylib && ! -e $file11so && ! -e $file11dylib) {
      print "*** Error *** You need to specify the path to GEANT4 library using --with-geant4-lib=/some/path/\n";
      print "*** Error *** Otherwise, you should --disable-geant4\n\n";
      exit 1;

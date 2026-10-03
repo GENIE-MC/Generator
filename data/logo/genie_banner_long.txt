@@ -33,33 +33,33 @@
 *                    mhso+/:------------------:/+oyhyo/----------:/+syhm                                        *
 *                           NmddhyyyssssyyyhdmmNNNmhhhyyyyhhddmN                                                *
 *                                                                                                               *
-*                                                             Copyright (c) 2003-2025, The GENIE Collaboration  *
+*                                                             Copyright (c) 2003-2026, The GENIE Collaboration  *
 *                                                                                                               *
 *                                                                                                               *
-* Luis Alvarez-Ruso [6], Costas Andreopoulos [9], Adi Ashkenazi [13], Joshua Barrow [10,13], Steve Dytman [12], *
-*      Hugh Gallagher [14], Alfonso Andres Garcia Soto [5,6], Steven Gardiner [4], Matan Goldenberg [13],       *
-*  Robert Hatcher [4], Or Hen [10], Igor Kakorin [8], Konstantin Kuzmin [7,8], Weijun Li [11], Liang Liu [4],   *
-*   Xianguo Lu [15], Anselmo Meregaglia [2], Vadim Naumov [8], Afroditi Papadopoulou [1], Gabriel Perdue [4],   *
-*   Komninos-John Plows [11], Marco Roda [9], Alon Sportes [13], Noah Steinberg [4], Vladyslav Syrotenko [14],  *
-*                         Júlia Tena Vidal [13], Jeremy Wolcott [14], and Qiyu Yan [3,15]                       *
+*          Luis Alvarez-Ruso [6], Frederik Andersen [6], Costas Andreopoulos [9], Adi Ashkenazi [12],           *
+*           Pablo Samuel Barham Alzás [12], Joshua Barrow [10], Steven Doran [4], Steve Dytman [11],            *
+*       Hugh Gallagher [13], Alfonso Andres Garcia Soto [6], Steven Gardiner [4], Matan Goldenberg [12],        *
+*        Robert Hatcher [4], Igor Kakorin [8], Konstantin Kuzmin [7,8], Liang Liu [4], Xianguo Lu [14],         *
+*           Anselmo Meregaglia [1], Vadim Naumov [8], Afroditi Papadopoulou [5], Gabriel Perdue [4],            *
+*              Komninos-John Plows [2,4], Marco Roda [9], Alon Sportes [12], Júlia Tena Vidal [6],              *
+*                                              and Qiyu Yan [3,14]                                              *
 *                                                                                                               *
-*                                            (The GENIE Collaboration)                                          *
+*                                           (The GENIE Collaboration)                                           *
 *                                                                                                               *
-*                                      [1] Argonne National Laboratory (ANL)                                    *
-*                                 [2] CENBG, Université de Bordeaux, CNRS/IN2P3                                 *
-*                             [3] University of the Chinese Academy of Sciences (UCAS)                          *
-*                                 [4] Fermi National Accelerator Laboratory (FNAL)                              *
-*                                      [5] Harvard University, Dept. of Physics                                 *
-*                                     [6] Instituto de Física Corpuscular (IFIC)                                *
+*                                 [1] CENBG, Université de Bordeaux, CNRS/IN2P3                                 *
+*                               [2] University of Chicago, Enrico Fermi Institute                               *
+*                               [3] University of the Chinese Academy of Sciences                               *
+*                                   [4] Fermi National Accelerator Laboratory                                   *
+*                                      [5] Georgia Institute of Technology                                      *
+*                 [6] Instituto de Física Corpuscular (IFIC), CSIC / Universitat de València                    *
 *      [7] Alikhanov Institute for Theoretical and Experimental Physics (ITEP) of NRC "Kurchatov Institute"     *
-*                                  [8] Joint Institute for Nuclear Research (JINR)                              *
-*                                   [9] University of Liverpool, Dept. of Physics                               *
-*                         [10] Massachusetts Institute of Technology (MIT), Dept. of Physics                    *
-*                                    [11] University of Oxford, Dept. of Physics                                *
-*                            [12] University of Pittsburgh, Dept. of Physics and Astronomy                      *
-*                              [13] Tel Aviv University, School of Physics and Astronomy                        *
-*                                [14] Tufts University, Dept. of Physics and Astronomy                          *
-*                                     [15] Warwick University, Dept. of Physics                                 *
+*                                [8] Joint Institute for Nuclear Research (JINR)                                *
+*                                 [9] University of Liverpool, Dept. of Physics                                 *
+*                         [10] University of Minnesota, School of Physics and Astronomy                         *
+*                         [11] University of Pittsburgh, Dept. of Physics and Astronomy                         *
+*                           [12] Tel Aviv University, School of Physics and Astronomy                           *
+*                             [13] Tufts University, Dept. of Physics and Astronomy                             *
+*                                   [14] Warwick University, Dept. of Physics                                   *
 *                                                                                                               *
 *  Corresponding Author:                                                                                        *
 *  -                                                                                                            *

@@ -27,6 +27,7 @@
    <config alg="genie::QELPrimaryLeptonGenerator">       QELPrimaryLeptonGenerator.xml       </config>
    <config alg="genie::DISPrimaryLeptonGenerator">       DISPrimaryLeptonGenerator.xml       </config>
    <config alg="genie::RESPrimaryLeptonGenerator">       RESPrimaryLeptonGenerator.xml       </config>
+   <config alg="genie::DMRESOutgoingDarkGenerator">      DMRESOutgoingDarkGenerator.xml      </config>
    <config alg="genie::NuEPrimaryLeptonGenerator">       NuEPrimaryLeptonGenerator.xml       </config>
    <config alg="genie::DMEOutgoingDarkGenerator">        DMEOutgoingDarkGenerator.xml        </config>
    <config alg="genie::COHPrimaryLeptonGenerator">       COHPrimaryLeptonGenerator.xml       </config>
@@ -45,6 +46,7 @@
    <config alg="genie::SKKinematicsGenerator">           SKKinematicsGenerator.xml           </config>
    <config alg="genie::DMELKinematicsGenerator">         DMELKinematicsGenerator.xml         </config>
    <config alg="genie::DMDISKinematicsGenerator">        DMDISKinematicsGenerator.xml        </config>
+   <config alg="genie::DMRESKinematicsGenerator">        DMRESKinematicsGenerator.xml        </config>
    <config alg="genie::HELeptonKinematicsGenerator">     HELeptonKinematicsGenerator.xml     </config>
    <config alg="genie::HEDISKinematicsGenerator">        HEDISKinematicsGenerator.xml        </config>
    <config alg="genie::IBDHadronicSystemGenerator">      IBDHadronicSystemGenerator.xml      </config>
@@ -53,6 +55,7 @@
    <config alg="genie::DFRHadronicSystemGenerator">      DFRHadronicSystemGenerator.xml      </config>
    <config alg="genie::DISHadronicSystemGenerator">      DISHadronicSystemGenerator.xml      </config>
    <config alg="genie::RESHadronicSystemGenerator">      RESHadronicSystemGenerator.xml      </config>
+   <config alg="genie::DMRESHadronicSystemGenerator">    DMRESHadronicSystemGenerator.xml    </config>
    <config alg="genie::RSPPHadronicSystemGenerator">     RSPPHadronicSystemGenerator.xml     </config>
    <config alg="genie::SKHadronicSystemGenerator">       SKHadronicSystemGenerator.xml       </config>
    <config alg="genie::NuETargetRemnantGenerator">       NuETargetRemnantGenerator.xml       </config>
@@ -68,6 +71,7 @@
    <config alg="genie::CEvNSEventGenerator">             CEvNSEventGenerator.xml             </config>
    <config alg="genie::COHDNuEventGenerator">            COHDNuEventGenerator.xml            </config>
    <config alg="genie::QELEventGeneratorSuSA">           QELEventGeneratorSuSA.xml           </config>
+   <config alg="genie::QELEventGeneratorMartini">        QELEventGeneratorMartini.xml           </config>
    <config alg="genie::NucleonDecayPrimaryVtxGenerator"> NucleonDecayPrimaryVtxGenerator.xml </config>
    <config alg="genie::NNBarOscPrimaryVtxGenerator">     NNBarOscPrimaryVtxGenerator.xml     </config>
    <config alg="genie::SpectralFunction2p2h">            SpectralFunction2p2h.xml            </config>
@@ -93,6 +97,7 @@
    <config alg="genie::SKInteractionListGenerator">            SKInteractionListGenerator.xml        </config>
    <config alg="genie::DMELInteractionListGenerator">          DMELInteractionListGenerator.xml      </config>
    <config alg="genie::DMDISInteractionListGenerator">         DMDISInteractionListGenerator.xml     </config>
+   <config alg="genie::DMRESInteractionListGenerator">         DMRESInteractionListGenerator.xml     </config>
    <config alg="genie::IBDInteractionListGenerator">           IBDInteractionListGenerator.xml       </config>
    <config alg="genie::CEvNSInteractionListGenerator">         CEvNSInteractionListGenerator.xml     </config>
    <config alg="genie::COHDNuInteractionListGenerator">        COHDNuInteractionListGenerator.xml    </config>
@@ -150,12 +155,15 @@
    <config alg="genie::LwlynSmithFFNC">                          LwlynSmithFFNC.xml                          </config>
    <config alg="genie::GalsterELFormFactorsModel">               GalsterELFormFactorsModel.xml               </config>
    <config alg="genie::QPMDISStrucFunc">                         QPMDISStrucFunc.xml                         </config>
-   <config alg="genie::BYStrucFunc">                             BYStrucFunc.xml                             </config>
+   <config alg="genie::BY00StrucFunc">                           BY00StrucFunc.xml                           </config>
+   <config alg="genie::BY21StrucFunc">                           BY21StrucFunc.xml                           </config>
    <config alg="genie::RSHelicityAmplModelCC">                   RSHelicityAmplModelCC.xml                   </config>
    <config alg="genie::RSHelicityAmplModelNCp">                  RSHelicityAmplModelNCp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelNCn">                  RSHelicityAmplModelNCn.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMp">                  RSHelicityAmplModelEMp.xml                  </config>
    <config alg="genie::RSHelicityAmplModelEMn">                  RSHelicityAmplModelEMn.xml                  </config>
+   <config alg="genie::RSHelicityAmplModelDMn">                  RSHelicityAmplModelDMn.xml                  </config>
+   <config alg="genie::RSHelicityAmplModelDMp">                  RSHelicityAmplModelDMp.xml                  </config>
    <config alg="genie::EngelFormFactor">                         EngelFormFactor.xml                         </config>
 
 
@@ -172,6 +180,7 @@
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
+   <config alg="genie::DMRESXSec">                   DMRESXSec.xml                   </config>
    <config alg="genie::MECXSec">                     MECXSec.xml                     </config>
    <config alg="genie::NuElectronXSec">              NuElectronXSec.xml              </config>
    <config alg="genie::DMElectronXSec">              DMElectronXSec.xml              </config>
@@ -191,6 +200,7 @@
    <config alg="genie::LwlynSmithQELCCPXSec">               LwlynSmithQELCCPXSec.xml               </config>
    <config alg="genie::NievesQELCCPXSec">                   NievesQELCCPXSec.xml                   </config>
    <config alg="genie::SuSAv2QELPXSec">                     SuSAv2QELPXSec.xml                     </config>
+   <config alg="genie::MartiniQELPXSec">                    MartiniQELPXSec.xml                     </config>
    <config alg="genie::SmithMonizQELCCPXSec">               SmithMonizQELCCPXSec.xml               </config>
    <config alg="genie::QPMDMDISPXSec">                      QPMDMDISPXSec.xml                      </config>
    <config alg="genie::QPMDISPXSec">                        QPMDISPXSec.xml                        </config>
@@ -209,6 +219,7 @@
    <config alg="genie::PattonCEvNSPXSec">                   PattonCEvNSPXSec.xml                   </config>
    <config alg="genie::NuElectronPXSec">                    NuElectronPXSec.xml                    </config>
    <config alg="genie::DMElectronPXSec">                    DMElectronPXSec.xml                    </config>
+   <config alg="genie::DMRESPXSec">                         DMRESPXSec.xml                         </config>
    <config alg="genie::GLRESPXSec">                         GLRESPXSec.xml                         </config>
    <config alg="genie::HENuElPXSec">                        HENuElPXSec.xml                        </config>
    <config alg="genie::PhotonCOHPXSec">                     PhotonCOHPXSec.xml                     </config>
@@ -227,11 +238,13 @@
    <config alg="genie::EmpiricalMECPXSec2015">              EmpiricalMECPXSec2015.xml              </config>
    <config alg="genie::NievesSimoVacasMECPXSec2016">        NievesSimoVacasMECPXSec2016.xml        </config>
    <config alg="genie::SuSAv2MECPXSec">                     SuSAv2MECPXSec.xml                     </config>
+   <config alg="genie::MartiniEricsonChanfrayMarteauMECPXSec2024"> MartiniEricsonChanfrayMarteauMECPXSec2024.xml </config>
    <config alg="genie::RosenbluthPXSec">                    RosenbluthPXSec.xml                    </config>
    <config alg="genie::DummyPXSec">                         Default.xml                            </config>
    <config alg="genie::NNBarOscDummyPXSec">                 Default.xml                            </config>
    <config alg="genie::DummyHNLPXSec">                      Default.xml                            </config>
    <config alg="genie::ReinSehgalRESXSecFast">              ReinSehgalRESXSecFast.xml              </config>
+   <config alg="genie::DMRESXSecFast">                      DMRESXSecFast.xml                      </config>
    <config alg="genie::BertuzzoDNuCOHPXSec">                BertuzzoDNuCOHPXSec.xml                </config>
    <config alg="genie::HybridXSecAlgorithm">                HybridXSecAlgorithm.xml                </config>
    <config alg="genie::HEDISPXSec">                         HEDISPXSec.xml                         </config>
@@ -248,6 +261,11 @@
    <config alg="genie::SpectralFunc1d">              SpectralFunc1d.xml              </config>
    <config alg="genie::SpectralFunc">                SpectralFunc.xml                </config>
    <config alg="genie::SmithMonizUtils">             SmithMonizUtils.xml             </config>
+   <config alg="genie::BY00DISNuclearModel">         BY00DISNuclearModel.xml         </config>
+   <config alg="genie::BY21DISNuclearModel">         BY21DISNuclearModel.xml         </config>
+   <config alg="genie::BYCharmXSec">                 BYCharmXSec.xml                 </config>
+   <config alg="genie::JGDISNuclearModel">           JGDISNuclearModel.xml           </config>
+   
 
    <!-- ****** CONFIGURATION FOR MODELS IN MUELOSS UTILITY PACKAGE ****** -->
    <config alg="genie::mueloss::BetheBlochModel">         BetheBlochModel.xml        </config>
@@ -266,8 +284,11 @@
 
    <!-- ****** CONFIGURATION FOR HADRON TENSOR MODELS ****** -->
    <config alg="genie::NievesMECHadronTensorModel">     NievesMECHadronTensorModel.xml   </config>
+   <config alg="genie::MartiniQELHadronTensorModel">    MartiniQELHadronTensorModel.xml  </config>
    <config alg="genie::SuSAv2QELHadronTensorModel">     SuSAv2QELHadronTensorModel.xml   </config>
+   <config alg="genie::MartiniMECHadronTensorModel">    MartiniMECHadronTensorModel.xml  </config>
    <config alg="genie::SuSAv2MECHadronTensorModel">     SuSAv2MECHadronTensorModel.xml   </config>
+   
 
  <!-- ****** EvtLib / EventLibraryInterface ****** -->
    <config alg="genie::evtlib::EventLibraryInterface">          EventLibraryInterface.xml          </config>
