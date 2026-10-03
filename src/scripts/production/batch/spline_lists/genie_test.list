@@ -1,0 +1,26 @@
+#
+# Specify the set of initial states used for the standard GENIE tests
+#
+
+# maximum energy (GeV)
+100
+
+# number of knots (logaritmically spaced from threshold to maximum energy)
+100
+
+# list of neutrino PDG codes
+ 12 # nue
+-12 # nuebar
+ 14 # numu
+-14 # numubar
+ 16 # nutau
+-16 # nutaubar
+
+# list of target PDG codes
+1000010020  # H2
+1000060120  # C12
+1000080160  # O16
+1000180380  # Ar38
+1000260560  # Fe56
+1000822080  # Pb208
+
