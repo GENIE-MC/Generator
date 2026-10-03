@@ -28,7 +28,7 @@ Notable components of the physics model are the following:
   AR25_20i_01_001: uses `ZExp_minervaNature` parameters, from Nature paper Supp. Table 4
   AR25_20i_01_002: uses `ZExp_lqcd`          parameters, with    the full sum rules, Eq. (39) CVs
 
-  Note the `Q4limit` parameter, which applies the sum rules: 2512.14097 paper's kmax=6 is
+  Note the `Q4limit` parameter, which applies the sum rules: PRD paper's kmax=6 is
   equivalent to GENIE kmax=2 with Q4limit set to true, which adds four extra constraints.
   This also means that Nature paper kmax=8 maps to kmax=4 in GENIE with Q4limit true
 
