@@ -69,7 +69,7 @@ s/include \"MEC\/LinkDef.h\"/include \"Physics\/Multinucleon\/XSection\/LinkDef.
 s/include \"MEC\/MECHadronTensor.h\"/include \"Physics\/Multinucleon\/XSection\/MECHadronTensor.h\"/ 
 s/include \"MEC\/MECUtils.h\"/include \"Physics\/Multinucleon\/XSection\/MECUtils.h\"/ 
 s/include \"MEC\/MECXSec.h\"/include \"Physics\/Multinucleon\/XSection\/MECXSec.h\"/ 
-s/include \"MEC\/MartiniEricsonChanfrayMarteauMECPXSec2016.h\"/include \"Physics\/Multinucleon\/XSection\/MartiniEricsonChanfrayMarteauMECPXSec2016.h\"/ 
+s/include \"MEC\/MartiniEricsonChanfrayMarteauMECPXSec2024.h\"/include \"Physics\/Multinucleon\/XSection\/MartiniEricsonChanfrayMarteauMECPXSec2024.h\"/ 
 s/include \"MEC\/NievesSimoVacasMECPXSec2016.h\"/include \"Physics\/Multinucleon\/XSection\/NievesSimoVacasMECPXSec2016.h\"/ 
 s/include \"RES\/LinkDef.h\"/include \"Physics\/Resonance\/EventGen\/LinkDef.h\"/ 
 s/include \"RES\/RESHadronicSystemGenerator.h\"/include \"Physics\/Resonance\/EventGen\/RESHadronicSystemGenerator.h\"/ 

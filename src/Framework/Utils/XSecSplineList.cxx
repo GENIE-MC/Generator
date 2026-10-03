@@ -10,6 +10,8 @@
 
 #include <fenv.h>  //provides: int feenableexcept(int excepts);
 #include <cmath>   //provides: std::isnan()
+#include <string>
+#include <vector>
 
 #include <chrono>
 
@@ -621,6 +623,12 @@ for (map<string, map<string, Spline *> >::iterator outer = fSplineMap.begin();
     }
 }
 }
-
-
+//___________________________________________________________________________
+std::vector< std::string > XSecSplineList::GetLoadedTunes() const {
+  std::vector< std::string > tunes;
+  for ( auto it = fSplineMap.begin(); it != fSplineMap.end(); ++it )
+    tunes.push_back( it->first );
+  return tunes;
+}
+//___________________________________________________________________________
 } // genie namespace

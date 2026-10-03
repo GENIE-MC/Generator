@@ -157,13 +157,13 @@ endif
 #                             APFEL
 #-------------------------------------------------------------------
 
-APFEL_LIBRARIES = 
+APFEL_LIBRARIES =
 APFEL_INCLUDES  =
 
-ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES) 
+ifeq ($(strip $(GOPT_ENABLE_APFEL)),YES)
 
 APFEL_INCLUDES  = -I$(GOPT_WITH_APFEL_INC)
-APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL 
+APFEL_LIBRARIES = -L$(GOPT_WITH_APFEL_LIB) -lAPFEL
 
 endif
 
@@ -250,7 +250,7 @@ endif
 
 PY6ROOT_LIBRARY = -lEGPythia6
 else
-  $(info GOPT_ENABLE_PYTHIA6 is NO)
+  #$(info GOPT_ENABLE_PYTHIA6 is NO)
 endif
 
 #-------------------------------------------------------------------
@@ -536,9 +536,9 @@ SOMINF        =
 EXTRALIBS     =
 endif
 
-# LINUX / 64-bit arm / linuxarm64
+# LINUX / 64-bit / linuxarm64 / linuxriscv64
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ifeq ($(strip $(ARCH)),linuxarm64)
+ifneq (,$(filter $(strip $(ARCH)),linuxarm64 linuxriscv64))
 ARCH_OK       = YES
 CXXFLAGS      = -W -Wall -fPIC -Wshadow \
     $(ROOT_FLAGS) \

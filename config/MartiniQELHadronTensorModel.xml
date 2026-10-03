@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!-- Configuration for the MartiniQELHadronTensorModel algorithm.
+
+Configurable Parameters:
+.....................................................................................................
+Name               Type     Optional   Comment                          Default
+.....................................................................................................
+DataPath           string   No         Folder in which to look for the
+                                       hadron tensor table files
+
+DataPathType       string   Yes        Whether the specified path is    relative
+                                       absolute or relative to the
+                                       root GENIE folder
+-->
+
+  <param_set name="Default">
+
+    <param type="bool" name="WarnIfMissing"> false </param>
+
+    <param type="string" name="DataPath"> data/evgen/hadron_tensors/martini </param>
+    <param type="string" name="DataPathType"> relative </param>
+    <!-- Paths can be absolute or relative to the $GENIE folder -->
+    <!-- <param type="string" name="DataPathType"> relative </param> -->
+
+    <param type="string" name="QE_Full@Pdg=1000060120"> Martini_1000060120_QE_Full.dat </param>
+    <param type="string" name="QE_EM@Pdg=1000060120"> Martini_1000060120_QE_EM.dat </param>
+
+    <param type="string" name="QE_Full@Pdg=1000080160"> Martini_1000080160_QE_Full.dat </param>
+    <param type="string" name="QE_EM@Pdg=1000080160"> Martini_1000080160_QE_EM.dat </param>
+
+    <param type="string" name="QE_Full@Pdg=1000200400"> Martini_1000200400_QE_Full.dat </param>
+    <param type="string" name="QE_EM@Pdg=1000200400"> Martini_1000200400_QE_EM.dat </param>
+
+  </param_set>
+
+</alg_conf>
