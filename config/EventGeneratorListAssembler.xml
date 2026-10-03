@@ -206,15 +206,17 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-0">   genie::EventGenerator/COH-NC-PION    </param>
   </param_set>
 
-  <param_set name="DIS">
-     <param type="int" name="NGenerators">    2                               </param>
+  <param_set name="DIS"> 
+     <param type="int" name="NGenerators">    3                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>
      <param type="alg" name="Generator-1 ">   genie::EventGenerator/DIS-NC    </param>
+     <param type="alg" name="Generator-2">    genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
-  <param_set name="CCDIS">
-     <param type="int" name="NGenerators">    1                               </param>
+  <param_set name="CCDIS"> 
+     <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>
+     <param type="alg" name="Generator-1">    genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
   <param_set name="NCDIS">

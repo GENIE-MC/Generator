@@ -12,7 +12,7 @@
 
 #include "Framework/Algorithm/AlgFactory.h"
 #include "Framework/Algorithm/AlgConfigPool.h"
-#include "Physics/DeepInelastic/XSection/BYStrucFunc.h"
+#include "Physics/DeepInelastic/XSection/BY00StrucFunc.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Messenger/Messenger.h"
 
@@ -20,24 +20,24 @@ using namespace genie;
 using namespace genie::constants;
 
 //____________________________________________________________________________
-BYStrucFunc::BYStrucFunc() :
-QPMDISStrucFuncBase("genie::BYStrucFunc")
+BY00StrucFunc::BY00StrucFunc() :
+QPMDISStrucFuncBase("genie::BY00StrucFunc")
 {
   this->Init();
 }
 //____________________________________________________________________________
-BYStrucFunc::BYStrucFunc(string config):
-QPMDISStrucFuncBase("genie::BYStrucFunc", config)
+BY00StrucFunc::BY00StrucFunc(string config):
+QPMDISStrucFuncBase("genie::BY00StrucFunc", config)
 {
   this->Init();
 }
 //____________________________________________________________________________
-BYStrucFunc::~BYStrucFunc()
+BY00StrucFunc::~BY00StrucFunc()
 {
 
 }
 //____________________________________________________________________________
-void BYStrucFunc::Configure(const Registry & config)
+void BY00StrucFunc::Configure(const Registry & config)
 {
 // Overload Algorithm::Configure() to read the config. registry and set
 // private data members.
@@ -49,13 +49,13 @@ void BYStrucFunc::Configure(const Registry & config)
   this->ReadBYParams();
 }
 //____________________________________________________________________________
-void BYStrucFunc::Configure(string param_set)
+void BY00StrucFunc::Configure(string param_set)
 {
   QPMDISStrucFuncBase::Configure(param_set);
   this->ReadBYParams();
 }
 //____________________________________________________________________________
-void BYStrucFunc::ReadBYParams(void)
+void BY00StrucFunc::ReadBYParams(void)
 {
 // Get the Bodek-Yang model parameters A,B,Csea,Cv1,Cv2 from the config.
 // registry and set some private data members so as not to accessing the
@@ -72,7 +72,7 @@ void BYStrucFunc::ReadBYParams(void)
 
 }
 //____________________________________________________________________________
-void BYStrucFunc::Init(void)
+void BY00StrucFunc::Init(void)
 {
   fA    = 0;
   fB    = 0;
@@ -84,7 +84,7 @@ void BYStrucFunc::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double BYStrucFunc::ScalingVar(const Interaction * interaction) const
+double BY00StrucFunc::ScalingVar(const Interaction * interaction, double Mf) const
 {
 // Overrides QPMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 
@@ -92,15 +92,21 @@ double BYStrucFunc::ScalingVar(const Interaction * interaction) const
   double x  = kine.x();
   double myQ2 = this->Q2(interaction);
   //myQ2 = TMath::Max(Q2,fQ2min);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("BodekYang", pDEBUG) << "Q2 at scaling var calculation = " << myQ2;
-
+#endif
   double a  = TMath::Power( 2*kProtonMass*x, 2 ) / myQ2;
   double xw =  2*x*(myQ2+fB) / (myQ2*(1.+TMath::Sqrt(1+a)) +  2*fA*x);
+
+  // When the final lepton is heavy, i.e. charm production, we need to use the
+  // slow rescaling correction [10.1088/0954-3899/35/5/053101]
+  // This is unused when Mf = 0;
+  xw *= (1 + Mf * Mf / myQ2);
   return xw;
 }
 //____________________________________________________________________________
-void BYStrucFunc::KFactors(const Interaction * interaction,
-	         double & kuv, double & kdv, double & kus, double & kds) const
+void BY00StrucFunc::KVectorFactors(const Interaction * interaction,
+	         double & kuv, double & kdv, double & kus, double & kds, double & ks) const
 {
 // Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
 // u(valence), d(valence), u(sea), d(sea);
@@ -113,5 +119,14 @@ void BYStrucFunc::KFactors(const Interaction * interaction,
   kdv = (1.-GD2)*(myQ2+fCv2D)/(myQ2+fCv1D); // K - d(valence)
   kus = myQ2/(myQ2+fCsU);                   // K - u(sea)
   kds = myQ2/(myQ2+fCsD);                   // K - d(sea)
+  ks =  myQ2/(myQ2+fCsD);                   // K - s(sea)
+}
+
+void BY00StrucFunc::KAxialFactors(const Interaction * interaction,
+	         double & kuv, double & kdv, double & kus, double & kds, double & ks) const
+{
+// Overrides QPMDISStrucFuncBase::KFactors() to compute the BY K factors for
+// u(valence), d(valence), u(sea), d(sea);
+  KVectorFactors(interaction, kuv, kdv, kus, kds, ks);
 }
 //____________________________________________________________________________
