@@ -1,0 +1,8 @@
+% error matrix for z expansion axial form factor
+% based on MINERvA nature,  (kmax=8, the 4 free parameters)
+% See Supplementary information Table 4 and Table 5
+% | an | an is a 4x4 matrix
+ 9.6100e-02  2.6040e-03 -5.4777e-01  5.6420e-01
+ 2.6040e-03  4.9000e-01 -4.2560e-01 -1.9110e+00
+-5.4777e-01 -4.2560e-01  3.6100e+00 -1.7955e+00
+ 5.6420e-01 -1.9110e+00 -1.7955e+00  1.2250e+01

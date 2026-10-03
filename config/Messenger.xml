@@ -119,6 +119,7 @@
   <priority msgstream="GXSecFunc">             WARN   </priority>
   <priority msgstream="HadTransp">             WARN   </priority>
   <priority msgstream="HadronicVtx">           WARN   </priority>
+  <priority msgstream="HadronTensors">         WARN   </priority>
   <priority msgstream="HybridHad">             WARN   </priority>
   <priority msgstream="IBD">                   NOTICE </priority>
   <priority msgstream="IMDXSec">               NOTICE </priority>
@@ -153,6 +154,7 @@
   <priority msgstream="MArunAxialFormFactorModel"> NOTICE </priority>
   <priority msgstream="KPhaseSpace">           NOTICE </priority>
   <priority msgstream="LeptonicVertex">        WARN   </priority>
+  <priority msgstream="LeptonTensor">          WARN   </priority>
   <priority msgstream="LocalFGM">              WARN   </priority>
   <priority msgstream="LwlynSmith">            NOTICE </priority>
   <priority msgstream="LHAPDF6">               NOTICE </priority>
@@ -186,6 +188,7 @@
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              WARN   </priority>
   <priority msgstream="QELXSec">               NOTICE </priority>
+  <priority msgstream="UnifiedQE">             WARN   </priority>
   <priority msgstream="QELCharmXSec">          NOTICE </priority>
   <priority msgstream="QELEvent">              NOTICE </priority>
   <priority msgstream="QELHadronicVtx">        WARN   </priority>

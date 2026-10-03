@@ -65,6 +65,9 @@ namespace genie {
 
     void BindHitNucleon(Interaction& interaction, const NuclearModelI& nucl_model,
       double& Eb, QELEvGen_BindingMode_t hitNucleonBindingMode);
+
+    void Rotate_qvec_alongZ(TLorentzVector &probe_leptonP4,
+      TLorentzVector &out_leptonP4, std::vector<TLorentzVector> &otherP4);
   }
 }
 

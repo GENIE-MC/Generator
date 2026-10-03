@@ -103,6 +103,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
       hitNucleonBindingMode);
   }
 
+  // A very high-momentum bound nucleon (which is far off the mass shell)
+  // can have a momentum greater than its total energy. This leads to numerical
+  // issues (NaNs) since the invariant mass of the nucleon becomes imaginary.
+  // In such cases, just return zero to avoid trouble.
+  if ( interaction->InitState().Tgt().HitNucP4().M() <= 0. ) return 0.;
+
   // Mass of the outgoing lepton
   double lepMass = interaction->FSPrimLepton()->Mass();
 
@@ -166,9 +172,12 @@ double genie::utils::ComputeFullQELPXSec(genie::Interaction* interaction,
   lepton.Boost(beta);
   outNucleon.Boost(beta);
 
-  // Check if event is at a low angle - if so return 0 and stop wasting time
-  if (180 * lepton.Theta() / genie::constants::kPi < min_angle_EM && interaction->ProcInfo().IsEM()) {
-    return 0;
+  // For electromagnetic interactions, check if the event has a lepton
+  // scattering angle below the cutoff. If it does, just return zero.
+  if ( interaction->ProcInfo().IsEM() ) {
+    if ( 180. * lepton.Theta() / genie::constants::kPi < min_angle_EM ) {
+      return 0;
+    }
   }
 
   TLorentzVector * nuP4 = interaction->InitState().GetProbeP4( genie::kRfLab );
@@ -227,6 +236,7 @@ double genie::utils::CosTheta0Max(const genie::Interaction& interaction) {
   double probe_E_lab = interaction.InitState().ProbeE( genie::kRfLab );
 
   TVector3 beta = COMframe2Lab( interaction.InitState() );
+  if( beta.Mag2() >= 1.0 ) { return -1.1; } // remove unphysical events
   double gamma = 1. / std::sqrt(1. - beta.Mag2());
 
   double sqrt_s = interaction.InitState().CMEnergy();
@@ -293,12 +303,21 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
     // model, then it implies a certain value for the final
     // nucleus mass
     if ( hitNucleonBindingMode == genie::kUseNuclearModel ) {
-      Eb = nucl_model.RemovalEnergy();
-      // This equation is the definition that we assume
-      // here for the "removal energy" (Eb) returned by the
-      // nuclear model. It matches GENIE's convention for
-      // the Bodek/Ritchie Fermi gas model.
-      Mf = Mi + Eb - mNi;
+      if ( nucl_model.ModelType(*tgt) != kNucmSpectralFunc ) {
+        Eb = nucl_model.RemovalEnergy();
+        // For all nuclear models except SpectralFunc, this equation is the
+        // definition that we assume for the "removal energy" (Eb). It matches
+        // GENIE's convention for the Bodek/Ritchie Fermi gas model.
+        Mf = Mi + Eb - mNi;
+      }
+      else {
+        // The SpectralFunc nuclear model returns a removal energy
+        // which includes the kinetic energy of the final-state nucleus.
+        // We account for this difference here.
+        double E = nucl_model.RemovalEnergy();
+        Mf = std::sqrt( std::max(0., std::pow(Mi + E - mNi, 2) - p3Ni.Mag2()) );
+        Eb = Mf + mNi - Mi;
+      }
     }
     // We can also assume that the final nucleus is in its
     // ground state. In this case, we can just look up its
@@ -432,5 +451,53 @@ void genie::utils::BindHitNucleon(genie::Interaction& interaction,
   // its current components
   p4Ni->SetVect( p3Ni );
   p4Ni->SetE( ENi );
+
+}
+
+// Function takes ingoing and outgoing lepton and
+// std::vector<> of other 4 momenta
+// and rotates the system so that \vec{q} is along \hat{z}
+void genie::utils::Rotate_qvec_alongZ(TLorentzVector &probe_leptonP4,
+TLorentzVector &out_leptonP4, std::vector<TLorentzVector> &otherP4)
+{
+
+  TVector3 probeLMom3 = probe_leptonP4.Vect();
+  TVector3 outLMom3 = out_leptonP4.Vect();
+
+  std::vector<TVector3> otherMom3;
+
+  for (auto vect4: otherP4 ) {
+	TVector3 vectorPart(vect4.X(), vect4.Y(), vect4.Z());
+	otherMom3.push_back(vectorPart);
+  }
+
+  TVector3 q3Vec = probeLMom3 - outLMom3;
+  TVector3 zvec(0.0, 0.0, 1.0);
+  TVector3 rot = ( q3Vec.Cross(zvec) ).Unit(); // Vector to rotate about
+  // Angle between the z direction and q
+  double angle = zvec.Angle( q3Vec );
+
+  // Handle the edge case where q3Vec is along -z, so the
+  // cross product above vanishes
+  if ( q3Vec.Perp() == 0. && q3Vec.Z() < 0. ) {
+    rot = TVector3(0., 1., 0.);
+    angle = genie::constants::kPi;
+  }
+
+  // Rotate if the rotation vector is not 0
+  if ( rot.Mag() >= genie::controls::kASmallNum ) {
+
+    probeLMom3.Rotate(angle,rot);
+    probe_leptonP4.SetVect(probeLMom3);
+
+    outLMom3.Rotate(angle,rot);
+    out_leptonP4.SetVect(outLMom3);
+
+    for(int i = 0; i < otherP4.size(); i++) {
+    	otherMom3[i].Rotate(angle,rot);
+        otherP4[i].SetVect(otherMom3[i]);
+    }
+
+  }
 
 }

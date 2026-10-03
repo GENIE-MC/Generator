@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<tune_generator_list>
+
+<!--
+
+This xml files contains the default configuration for the tune
+
+..........................................................................................................................
+NOTE:
+
+The GENIE authors would like to caution users against using anything but a comprehensive 
+GENIE mode (`Default' setting below) for physics studies.
+No detector measures generator-level reaction modes like CCQE or NCRES.
+Detectors measure final states / topologies like {1mu-,0pi}, {1mu-,1pi+}, {0mu-, 1pi0}, 
+{1 track, 1 shower}, {1 mu-like ring} etc depending on granularity, thresholds and PID capabilities.
+No final state / topology is a proxy for any particular reaction mode.
+Intranuclear re-scattering in particular causes significant migration between states
+(see Table 8.1 in the Physics and User manual).
+
+Examples:
+- {1mu-,0pi} is mostly numuCCQE, but can also be caused by numu resonance production followed by pion absorption.
+- numuCCQE gives mostly {1mu-,0pi} but occasionaly can give {1mu-,1pi} if the recoil nucleon re-interacts.
+- NC1pi0 final states can be caused by all a) NC elastic followed by nucleon rescattering, 
+  b) NC resonance neutrino-production, c) NC non-resonance background, d) low-W NC DIS
+  e) NC coherent scattering. Each source contributes differently in the pion momentum distribution.
+
+We also recommend that you treat the generator-level reaction modes largely as as an internal degree of freedom. 
+Consequently, try to define your selection efficiencies and purities in terms of observable final states _only_.
+For example, if you define as `numuCCQE-like' := {1mu-,0pi} then define your selection efficiency
+as:
+  efficiency = (`numuCCQE-like' events passing cuts) / (all true {1mu-,0pi} events)
+and not as: 
+  efficiency = (`numuCCQE-like' events passing cuts) / (all true numuCCQE events)
+
+..........................................................................................................................
+
+
+
+Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt  Comment                                               Default
+..........................................................................................................................
+NGenerators                 int     No
+Generator-%d                alg     No
+
+-->
+
+  <param_set name="Default"> 
+     <param type="int" name="NGenerators">   18                                    </param>
+     <param type="alg" name="Generator-0">   genie::EventGenerator/QEL-CC          </param>
+     <param type="alg" name="Generator-1">   genie::EventGenerator/QEL-NC          </param>
+     <param type="alg" name="Generator-2">   genie::EventGenerator/RES-CC          </param>
+     <param type="alg" name="Generator-3">   genie::EventGenerator/RES-NC          </param>
+     <param type="alg" name="Generator-4">   genie::EventGenerator/DIS-CC          </param>
+     <param type="alg" name="Generator-5">   genie::EventGenerator/DIS-NC          </param>
+     <param type="alg" name="Generator-6">   genie::EventGenerator/COH-CC-PION          </param>
+     <param type="alg" name="Generator-7">   genie::EventGenerator/COH-NC-PION          </param>
+     <param type="alg" name="Generator-8">   genie::EventGenerator/DIS-CC-CHARM    </param>
+     <param type="alg" name="Generator-9">   genie::EventGenerator/QEL-CC-CHARM    </param>
+     <param type="alg" name="Generator-10">  genie::EventGenerator/NUE-EL          </param>
+     <param type="alg" name="Generator-11">  genie::EventGenerator/IMD             </param>
+     <param type="alg" name="Generator-12">  genie::EventGenerator/IMD-ANH         </param>
+     <param type="alg" name="Generator-13">  genie::EventGenerator/DFR-CC          </param>
+     <param type="alg" name="Generator-14">  genie::EventGenerator/DFR-NC          </param>
+     <param type="alg" name="Generator-15">  genie::EventGenerator/QEL-CC-LAMBDA   </param>
+     <param type="alg" name="Generator-16">  genie::EventGenerator/MEC-CC          </param>
+     <param type="alg" name="Generator-17">  genie::EventGenerator/MEC-NC          </param>
+  </param_set>
+
+</tune_generator_list>
+
