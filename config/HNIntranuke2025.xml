@@ -57,7 +57,7 @@ XsecNNCorr          bool    Yes   nuclear medium correction for NN cross section
     <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
 
     <param type="bool"   name="INUKE-DoFermi">           true  </param>
-    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+    <param type="bool"   name="INUKE-DoCompoundNucleus"> false  </param>  <!-- sd Sept26 - disable for now -->
 
    <param type="double" name="HNINUKE-DelRPion">        0.0   </param>
    <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
