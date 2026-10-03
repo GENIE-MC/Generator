@@ -1260,7 +1260,7 @@ void HAIntranuke2025::Inelastic(
           double probM = pLib->Find(pdgc)   ->Mass();
           double BE_correction_per_nucleon = .005; //GeV
           probM -= BE_correction_per_nucleon*5;   // BE correction
-	  TVector3 pP3 = p->P4()->Vect() * (1./5.);
+          TVector3 pP3 = p->P4()->Vect() * (1./5.);
           double probEAvail;
           if ( genie::pdg::IsPion(pdgc) ) probEAvail = p->P4()->E() + BE_correction_per_nucleon*5; //pion probe -- includes mass, BE correction for 4 nucleons
           else probEAvail = p->P4()->E() -probM; //proton or neutron probe -- does not include mass
