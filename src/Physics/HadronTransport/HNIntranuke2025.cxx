@@ -45,7 +45,8 @@
    fix memory leak, fix fates, improve NNCorr binning
  & Mar, 2025  Nicholas Suarez, SD
    add compound nucleus option to populate KE<30 MeV
- @ Sep, 2025 Mohamed Ismail, SD - hN2025 is born, identical to hN2018
+ @ Sep, 2025 Mohamed Ismail, SD - hN2025 is born, identical to hN2025
+ @ Sep, 2026 SD - find problem with energy cons in aAbsorbHN, switch to 2-body abs in HAintranuke2025,cxx
 */
 //____________________________________________________________________________
 
@@ -303,7 +304,7 @@ INukeFateHN_t HNIntranuke2025::HadronFateHN(const GHepParticle * p) const
        if(r < (cf += frac_cmp     )) return kIHNFtCmp;     // cmp
 
        LOG("HNIntranuke2025", pWARN) 
-         << "No selection after going through all fates! "
+         << "No selection after going through all Fates2025! "
                         << "Total fraction = " << tf << " (r = " << r << ")";
        //////////////////////////
        return kIHNFtUndefined;
@@ -418,19 +419,12 @@ void HNIntranuke2025::AbsorbHN(
 
   int pcode, t1code, t2code, scode, s2code; // particles
   double M1, M2_1, M2_2, M3, M4;        // rest energies, in GeV
-  double E1L, P1L, E2L, P2L, E3L, P3L, E4L, P4L;
-  double P1zL, P2zL;
-  double beta, gm; // speed and gamma for CM frame in lab
-  double Et, E2CM;
-  double C3CM, S3CM;  // cos and sin of scattering angle
-  double Theta1, Theta2, theta5;
-  double PHI3;        // transverse scattering angle
-  double E1CM, E3CM, E4CM, P3CM;
-  double P3zL, P3tL, P4zL, P4tL;
+  double E1L, P1L, E2L, P2L;
+  double C3CM, S3CM;  // cos of scattering angle
   double E2_1L, E2_2L;
   TVector3 tP2_1L, tP2_2L, tP1L, tP2L, tPtot, P1zCM, P2zCM;
   TVector3 tP3L, tP4L;
-  TVector3 bDir, tTrans, tbeta, tVect;
+//  TVector3 bDir, tTrans, tbeta, tVect;
 
   // Library instance for reference
   PDGLibrary * pLib = PDGLibrary::Instance();
@@ -440,6 +434,49 @@ void HNIntranuke2025::AbsorbHN(
 
   // Target should be a deuteron, but for now
   // handling it as seperate nucleons
+
+          double ppcnt = (double) fRemnZ / (double) fRemnA; // % of protons
+
+          // choose target nucleon
+          // -- fates weighted by values from Engels and Mosel Nuclear Physics A572 (1994) 657-681
+          if (pdgc==kPdgPiP) {
+            double Prob_pipd_pp=2.*ppcnt*(1.-ppcnt);
+            double Prob_pipnn_pn=.083*(1.-ppcnt)*(1.-ppcnt);
+            if (rnd->RndFsi().Rndm()*(Prob_pipd_pp+Prob_pipnn_pn)<Prob_pipd_pp){
+                               t1code=kPdgNeutron; t2code=kPdgProton;
+                               scode=kPdgProton;   s2code=kPdgProton;}
+            else{
+                               t1code=kPdgNeutron; t2code=kPdgNeutron;
+                               scode=kPdgProton;   s2code=kPdgNeutron;}
+          }
+          else if (pdgc==kPdgPiM) {
+            double Prob_pimd_nn=2.*ppcnt*(1.-ppcnt);
+            double Prob_pimpp_pn=.083*ppcnt*ppcnt;
+            if (rnd->RndFsi().Rndm()*(Prob_pimd_nn+Prob_pimpp_pn)<Prob_pimd_nn){
+                               t1code=kPdgProton;  t2code=kPdgNeutron;
+                               scode=kPdgNeutron;  s2code=kPdgNeutron; }
+            else{
+                               t1code=kPdgProton;  t2code=kPdgProton;
+                               scode=kPdgProton;   s2code=kPdgNeutron;}
+          }
+          else { // pi0  These values are from Engels and Mosel Nuclear Physics A572 (1994) 657-681
+            double Prob_pi0d_pn=0.88*ppcnt*(1.-ppcnt); // 2 * .44
+            double Prob_pi0pp_pp=.14*ppcnt*ppcnt;
+            double Prob_pi0nn_nn=.14*(1.-ppcnt)*(1.-ppcnt);
+            double random_number = rnd->RndFsi().Rndm();
+            if (random_number*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<Prob_pi0d_pn){
+                               t1code=kPdgNeutron;  t2code=kPdgProton;
+                                scode=kPdgNeutron;  s2code=kPdgProton;  }
+            else if (random_number*(Prob_pi0d_pn+Prob_pi0pp_pp+Prob_pi0nn_nn)<(Prob_pi0d_pn+Prob_pi0pp_pp)){
+                               t1code=kPdgProton;   t2code=kPdgProton;
+                               scode=kPdgProton;    s2code=kPdgProton;  }
+            else {
+                               t1code=kPdgNeutron;  t2code=kPdgNeutron;
+                               scode=kPdgNeutron;   s2code=kPdgNeutron;  }
+          }
+          LOG("HAIntranuke2025",pINFO) << "choose 2 body absorption, probe, fs = " << pdgc <<"  "<< scode <<"  "<<s2code;
+
+/*
   if(pdgc==211) // pi-plus
     {
       pcode  = 211;
@@ -470,7 +507,7 @@ void HNIntranuke2025::AbsorbHN(
         << "AbsorbHN() cannot handle probe: " << pdgc;
       return;
     }
- 
+*/ 
   // assign proper masses
   M1   = pLib->Find(pcode) ->Mass();
   M2_1 = pLib->Find(t1code)->Mass();
@@ -502,6 +539,7 @@ void HNIntranuke2025::AbsorbHN(
 
   E2L = E2_1L + E2_2L;
 
+  TLorentzVector dNucl_P4=TLorentzVector(tP2_1L+tP2_2L,E2_1L+E2_2L);
   // adjust p to reflect scattering
   // get random scattering angle
   C3CM = fHadroData2025->IntBounce(p,t1code,scode,fate);
@@ -522,88 +560,72 @@ void HNIntranuke2025::AbsorbHN(
   P2L = tP2L.Mag();
   tPtot = tP1L + tP2L;
 
-  // get unit vectors and angles needed for later
-  bDir = tPtot.Unit();
-  Theta1 = tP1L.Angle(bDir);
-  Theta2 = tP2L.Angle(bDir);
+          TLorentzVector t4P1L,t4P2L,t4P3L,t4P4L;
+          t4P1L=*p->P4();
+          t4P2L=TLorentzVector(TVector3(tP2_1L+tP2_2L),E2L);
+//          double bindE=0.050; // set to fit McKeown data, updated aug 18 - double counting, don't do
+          double bindE=0.0;
+          if (utils::intranuke2025::TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,fRemnP4,bindE))
+            {
+              //construct remnant nucleus and its mass
 
-  // get parallel and transverse components
-  P1zL = P1L*TMath::Cos(Theta1);
-  P2zL = P2L*TMath::Cos(Theta2);
-  tVect.SetXYZ(1,0,0);
-  if(TMath::Abs((tVect - bDir).Mag())<.01) tVect.SetXYZ(0,1,0);
-  theta5 = tVect.Angle(bDir);
-  tTrans = (tVect - TMath::Cos(theta5)*bDir).Unit();
 
-  // calculate beta and gamma
-  tbeta = tPtot * (1.0 / (E1L + E2L));
-  beta = tbeta.Mag();
-  gm = 1.0 / TMath::Sqrt(1.0 - beta*beta);
+              if (pdgc==kPdgPiP || pdgc==kPdgKP) fRemnZ++;
+              if (pdgc==kPdgPiM) fRemnZ--;  //sd: remove K-, only K+ at present
+              if (t1code==kPdgProton) fRemnZ--;
+              if (t2code==kPdgProton) fRemnZ--;
+              fRemnA-=2;
 
-  // boost to CM frame to get scattered particle momenta
-  E1CM = gm*E1L - gm*beta*P1zL;
-  P1zCM = gm*P1zL*bDir - gm*tbeta*E1L;
-  E2CM = gm*E2L - gm*beta*P2zL;
-  P2zCM = gm*P2zL*bDir - gm*tbeta*E2L;
-  Et = E1CM + E2CM;
-  E3CM = (Et*Et + (M3*M3) - (M4*M4)) / (2.0*Et);
-  E4CM = Et - E3CM;
-  P3CM = TMath::Sqrt(E3CM*E3CM - M3*M3);
+              fRemnP4-=dNucl_P4;
 
-  // boost back to lab
-  P3zL = gm*beta*E3CM + gm*P3CM*C3CM;
-  P3tL = P3CM*S3CM;
-  P4zL = gm*beta*E4CM + gm*P3CM*(-C3CM);
-  P4tL = P3CM*(-S3CM);
+              TParticlePDG * remn = 0;
+              double MassRem = 0.;
+              int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
+              remn = PDGLibrary::Instance()->Find(ipdgc);
+              if(!remn)
+                {
+                  LOG("HNIntranuke2025", pINFO)
+                    << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+                }
+              else
+                {
+                  MassRem = remn->Mass();
+                  LOG("HNIntranuke2025", pINFO)
+                    << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+                }
+              double ERemn = fRemnP4.E();
+              double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
+              double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
+              LOG("HNIntranuke2025",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
+              LOG("HNIntranuke2025",pINFO) << "expt MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy =" << (MRemn-MassRem)*1000. << " MeV";
 
-  P3L = TMath::Sqrt(P3zL*P3zL + P3tL*P3tL);
-  P4L = TMath::Sqrt(P4zL*P4zL + P4tL*P4tL);
 
-  // check for too small values
-  // may introduce error, so warn if it occurs
-  if(!(TMath::Finite(P3L))||P3L<.001)
-    {
-      LOG("HNIntranuke2025",pINFO)
-        << "Particle 3 " << M3 << " momentum small or non-finite: " << P3L
-        << "\n" << "--> Assigning .001 as new momentum";
-      P3tL = 0;
-      P3zL = .001;
-      P3L  = .001;
-      E3L  = TMath::Sqrt(P3L*P3L + M3*M3);
-    }
-
-  if(!(TMath::Finite(P4L))||P4L<.001)
-    {
-      LOG("HNIntranuke2025",pINFO)
-        << "Particle 4 " << M4 << " momentum small or non-finite: " << P4L
-        << "\n" << "--> Assigning .001 as new momentum";
-      P4tL = 0;
-      P4zL = .001;
-      P4L  = .001;
-      E4L  = TMath::Sqrt(P4L*P4L + M4*M4);
-    }
 
   // pauli blocking (do not apply PB for Oset)
   //if(!fUseOset && (P3L < fFermiMomentum || P4L < fFermiMomentum))
+/*
   double ke   = p->KinE() / units::MeV;
   if((!fUseOset || ke > 350.0 ) && (P3L < fFermiMomentum || P4L < fFermiMomentum))
     {
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
       LOG("HNIntranuke2025",pINFO) << "AbsorbHN failed: Pauli blocking";
 #endif
-      /*
-      p->SetStatus(kIStHadronInTheNucleus);
+///      comment started here
+///      p->SetStatus(kIStHadronInTheNucleus);
       //disable until needed
       //      utils::intranuke2025::StepParticle(p,fFreeStep,fTrackingRadius);
-      ev->AddParticle(*p);   
-      return;
-      */
+///      ev->AddParticle(*p);   
+///      return;
+///      sd - need end comment here
       // new attempt at error handling:
       LOG("HNIntranuke2025", pINFO) << "AbsorbHN failed: Pauli blocking";
       exceptions::INukeException exception;
       exception.SetReason("hN absorption failed");
       throw exception;
     }
+*/
 
   // handle remnant nucleus updates
   fRemnZ--;
@@ -611,31 +633,19 @@ void HNIntranuke2025::AbsorbHN(
   fRemnP4 -= TLorentzVector(tP2_1L,E2_1L);
   fRemnP4 -= TLorentzVector(tP2_2L,E2_2L);
 
-  // get random phi angle, distributed uniformally in 360 deg
-  PHI3 = 2 * kPi * rnd->RndFsi().Rndm();
-  
-  tP3L = P3zL*bDir + P3tL*tTrans;
-  tP4L = P4zL*bDir + P4tL*tTrans;
-
-  tP3L.Rotate(PHI3,bDir);  // randomize transverse components
-  tP4L.Rotate(PHI3,bDir); 
-
-  E3L = TMath::Sqrt(P3L*P3L + M3*M3);
-  E4L = TMath::Sqrt(P4L*P4L + M4*M4);
-
   // create t particle w/ appropriate momenta, code, and status
   // set target's mom to be the mom of the hadron that was cloned
   GHepParticle * t = new GHepParticle(*p);
   t->SetFirstMother(p->FirstMother());
   t->SetLastMother(p->LastMother());
 
-  TLorentzVector t4P4L(tP4L,E4L);
+//  TLorentzVector t4P4L(tP4L,E4L);
   t->SetPdgCode(s2code);
-  t->SetMomentum(t4P4L);
+  t->SetMomentum(t4P4L);   //no change with switch to hA method
   t->SetStatus(kIStHadronInTheNucleus);
 
   // adjust p to reflect scattering
-  TLorentzVector t4P3L(tP3L,E3L);
+//  TLorentzVector t4P3L(tP3L,E3L);
   p->SetPdgCode(scode);
   p->SetMomentum(t4P3L);
   p->SetStatus(kIStHadronInTheNucleus);
@@ -651,6 +661,19 @@ void HNIntranuke2025::AbsorbHN(
   ev->AddParticle(*t);
 
   delete t; // delete particle clone
+
+   return;
+    }
+          else
+      {
+         LOG("HNIntranuke2025", pNOTICE) << "Absorb in hN failed calling TwoBodyKineamtics";
+         exceptions::INukeException exception;
+         exception.SetReason("Pion absorption kinematics through TwoBodyKinematics failed");
+         throw exception;
+
+       }
+
+
 }
 //___________________________________________________________________________
 void HNIntranuke2025::ElasHN(
