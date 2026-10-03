@@ -1,0 +1,1 @@
+./run_splines_parquet_FNAL-SL7.sh -T /pnfs/sbnd/scratch/users/kplows/gen_genie_splines_v3/pull_request/LARGE-SCALE-TEST-04-AR25Nature -v v3_06_02_sbn3 -q e26:prof --tune AR25_20i_01_001 --genlist CCQE --config pdgs_for_splines.cfg -n 250 -e 100 -r 1000 --setup sbnd --rewrite

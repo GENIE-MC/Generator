@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the MECInteractionListGenerator InteractionListGeneratorI
+
+Configurable Parameters:
+.......................................................................................................
+Name             Type     Optional   Comment               Default
+.......................................................................................................
+-->
+
+  <param_set name="Default">
+
+    <!-- 
+	 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	 SetDiNucleonCode:  Include the dinucleon code in the interaction list generator.
+         Want `true` for EmpiricalMEC, `false` for NSV
+    -->
+    <param type="bool" name="SetDiNucleonCode"> false </param>
+    <param type="bool" name="SetDiNucleonCodeEM"> true </param>
+
+  </param_set>
+
+
+
+  <param_set name="CC-Default">
+        <param type="bool" name="is-CC"> true   </param>
+        <param type="bool" name="is-NC"> false  </param>
+        <param type="bool" name="is-EM"> false  </param>
+  </param_set>
+
+  <param_set name="NC-Default">
+        <param type="bool" name="is-CC"> false  </param>
+        <param type="bool" name="is-NC"> true   </param>
+        <param type="bool" name="is-EM"> false  </param>
+  </param_set>
+
+  <param_set name="EM-Default">
+        <param type="bool" name="is-CC"> false  </param>
+        <param type="bool" name="is-NC"> false  </param>
+        <param type="bool" name="is-EM"> true   </param>
+  </param_set>
+  
+</alg_conf>
+

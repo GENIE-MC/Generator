@@ -91,6 +91,7 @@
   <priority msgstream="GLRES">                 WARN   </priority>
   <priority msgstream="HadTransp">             INFO   </priority>
   <priority msgstream="HadronicVtx">           NOTICE </priority>
+  <priority msgstream="HadronTensors">         WARN   </priority>
   <priority msgstream="HybridHad">             INFO   </priority>
   <priority msgstream="IBD">                   NOTICE </priority>
   <priority msgstream="IMDXSec">               NOTICE </priority>
@@ -147,7 +148,10 @@
   <priority msgstream="PaschLal">              INFO   </priority>
   <priority msgstream="PythiaDec">             NOTICE </priority>
   <priority msgstream="Pythia6Decay">          NOTICE </priority>
+  <priority msgstream="Pythia8Decay">          NOTICE </priority>
   <priority msgstream="PythiaHad">             NOTICE </priority>
+  <priority msgstream="Pythia6Had">            NOTICE </priority>
+  <priority msgstream="Pythia8Had">            NOTICE </priority>
   <priority msgstream="PDG">                   INFO   </priority>
   <priority msgstream="PathL">                 NOTICE </priority>
   <priority msgstream="PhysUtil">              NOTICE </priority>
@@ -156,6 +160,7 @@
   <priority msgstream="QELEvent">              INFO   </priority>
   <priority msgstream="QELHadronicVtx">        INFO   </priority>
   <priority msgstream="QELKinematics">         INFO   </priority>
+  <priority msgstream="UnifiedQE">             WARN   </priority>
   <priority msgstream="SPPEventGen">           INFO   </priority>
   <priority msgstream="RESXSec">               INFO   </priority>
   <priority msgstream="RESPXSec">              WARN   </priority>
@@ -203,6 +208,7 @@
   <priority msgstream="HEDISKinematics">       WARN   </priority>
   <priority msgstream="HEDISStrucFunc">        WARN   </priority>
   <priority msgstream="LeptoHad">              ERROR  </priority>
+  <priority msgstream="LeptonTensor">          WARN   </priority>
 
   <priority msgstream="gevgen">                NOTICE </priority>
   <priority msgstream="gevgen_ndcy">           NOTICE </priority>

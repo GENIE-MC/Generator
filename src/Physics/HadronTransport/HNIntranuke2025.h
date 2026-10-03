@@ -23,7 +23,7 @@
 
 \cpright  Copyright (c) 2003-2025, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
-          
+
 */
 //____________________________________________________________________________
 
@@ -48,7 +48,7 @@ class GHepParticle;
 class INukeHadroData;
 class PDGCodeList;
 
-class HNIntranuke2025 : public Intranuke2025 { 
+class HNIntranuke2025 : public Intranuke2025 {
 
 friend class IntranukeTester;
 
@@ -76,7 +76,7 @@ private:
   void          InelasticHN	  (GHepRecord* ev, GHepParticle* p) const;
   void          GammaInelasticHN  (GHepRecord* ev, GHepParticle* p, INukeFateHN2018_t fate) const;
   bool          HandleCompoundNucleusHN (GHepRecord* ev, GHepParticle* p) const;
-  int           HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;           
+  int           HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;
 
    mutable int nuclA;     ///< value of A for the target nucleus in hA mode
 

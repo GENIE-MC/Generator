@@ -1,0 +1,6 @@
+% error matrix for z expansion axial form factor
+% based on A. Meyer et al (MINERvA), arXiv 2512.14097 (kmax=6, the 2 free parameters)
+% See Eq. 32
+% | an | an is a 2x2 matrix
+0.05554150 -0.03262482
+-0.03262482 0.09151761

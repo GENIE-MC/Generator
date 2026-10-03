@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+Configuration for the J. Gomez et. al. DIS Nuclear model journals.aps.org/prd/pdf/10.1103/PhysRevD.49.4348
+
+Configurable Parameters:
+.........................................................................................................
+Name                       Type    Optional   Comment                    
+.........................................................................................................
+JG-NuclModel-c0            double  No         
+JG-NuclModel-c1            double  No         
+JG-NuclModel-c2            double  No         
+
+JG-NuclModel-a0            double  No         
+JG-NuclModel-a1            double  No         
+JG-NuclModel-a2            double  No         
+JG-NuclModel-a3            double  No         
+JG-NuclModel-a4            double  No         
+JG-NuclModel-a5            double  No         
+JG-NuclModel-a6            double  No         
+JG-NuclModel-a7            double  No         
+JG-NuclModel-a8            double  No         
+-->
+
+ <param_set name="Default"> 
+   <param type="double" name="JG-NuclModel-c0">     0.017   </param>
+   <param type="double" name="JG-NuclModel-c1">     0.018   </param>
+   <param type="double" name="JG-NuclModel-c2">     0.005   </param>    
+
+   <param type="double" name="JG-NuclModel-a0">     -0.070  </param>
+   <param type="double" name="JG-NuclModel-a1">      2.189  </param>
+   <param type="double" name="JG-NuclModel-a2">    -24.667  </param>
+   <param type="double" name="JG-NuclModel-a3">    145.291  </param>
+   <param type="double" name="JG-NuclModel-a4">   -497.237  </param>
+   <param type="double" name="JG-NuclModel-a5">   1013.129  </param>
+   <param type="double" name="JG-NuclModel-a6">  -1208.393  </param>
+   <param type="double" name="JG-NuclModel-a7">    775.767  </param>
+   <param type="double" name="JG-NuclModel-a8">   -205.872  </param>
+
+ </param_set>
+
+</alg_conf>
+

@@ -52,6 +52,8 @@ public:
   int    MCJobStatusRefreshRate (void) const { return fMCJobStatusRefreshRate; }
   bool   BareXSecPreCalc        (void) const { return fEnableBareXSecPreCalc;  }
   string XMLPath                (void) const { return fXMLPath;  }
+  double EMin (void) const {return NuEnergy;};
+  double EMax (void) const {return NuEnergyRange > 0 ? NuEnergy + NuEnergyRange : NuEnergy;};
 
   // If a user accesses the GENIE objects directly, then most of the options above
   // can be set directly to the relevant objects (Messenger, Cache, etc).
@@ -68,7 +70,7 @@ public:
 private:
 
   void Init (void);
-
+  
   // options
   TuneId * fTune;                    ///< GENIE comprehensive neutrino interaction model tune.
   string fEventGeneratorList;        ///< Name of event generator list to be loaded by the event generation drivers.
@@ -80,7 +82,8 @@ private:
   bool   fEnableBareXSecPreCalc;     ///< Cache calcs relevant to free-nucleon xsecs before any nuclear xsec computation?
                                      ///< The option switches on/off cacheing calculations which interfere with event reweighting.
   string fXMLPath;                   ///< An path to look for XML in. Higher priority than GXMLPATH
-
+  double NuEnergy;
+  double NuEnergyRange;
   // Self
   static RunOpt * fInstance;
 

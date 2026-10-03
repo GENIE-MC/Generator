@@ -27,6 +27,7 @@
 #include "Framework/Interaction/Target.h"
 #include "Physics/NuclearState/SRCNuclearRecoil.h"
 #include "Physics/NuclearState/SecondNucleonEmissionI.h"
+#include "Framework/Utils/PrintUtils.h"
 
 namespace genie {
 

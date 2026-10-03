@@ -80,6 +80,13 @@
   <priority msgstream="DMELEvent">             NOTICE </priority>
   <priority msgstream="DMELKinematics">        WARN   </priority>
   <priority msgstream="DMELXSec">              NOTICE </priority>
+  <priority msgstream="DMRES">                 INFO   </priority>
+  <priority msgstream="DMRESXSec">             INFO   </priority>
+  <priority msgstream="DMRESPXSec">            WARN   </priority>
+  <priority msgstream="DMHAmpl">               WARN   </priority>
+  <priority msgstream="DMResTF">               NOTICE </priority>
+  <priority msgstream="DMResCF">               NOTICE </priority>
+  <priority msgstream="DMRESKinematics">       WARN   </priority>
   <priority msgstream="EventGenerator">        FATAL </priority>
   <priority msgstream="EffectiveSF">           FATAL </priority>
   <priority msgstream="Elastic">               FATAL </priority>
@@ -107,6 +114,7 @@
   <priority msgstream="GLRES">                 FATAL </priority>
   <priority msgstream="HadTransp">             FATAL </priority>
   <priority msgstream="HadronicVtx">           FATAL </priority>
+  <priority msgstream="HadronTensors">         FATAL   </priority>
   <priority msgstream="HybridHad">             FATAL </priority>
   <priority msgstream="IBD">                   FATAL </priority>
   <priority msgstream="IMDXSec">               FATAL </priority>
@@ -163,6 +171,7 @@
   <priority msgstream="PaschLal">              FATAL </priority>
   <priority msgstream="PythiaDec">             FATAL </priority>
   <priority msgstream="Pythia6Decay">          FATAL </priority>
+  <priority msgstream="Pythia8Decay">          FATAL </priority>
   <priority msgstream="PythiaHad">             FATAL </priority>
   <priority msgstream="Pythia6Had">            FATAL </priority>
   <priority msgstream="Pythia8Had">            FATAL </priority>
@@ -174,6 +183,7 @@
   <priority msgstream="QELEvent">              FATAL </priority>
   <priority msgstream="QELHadronicVtx">        FATAL </priority>
   <priority msgstream="QELKinematics">         FATAL </priority>
+  <priority msgstream="UnifiedQE">             FATAL   </priority>
   <priority msgstream="SPPEventGen">           FATAL  </priority>
   <priority msgstream="RESXSec">               FATAL </priority>
   <priority msgstream="RESPXSec">              FATAL </priority>
@@ -219,6 +229,11 @@
   <priority msgstream="HEDISKinematics">       FATAL </priority>
   <priority msgstream="HEDISStrucFunc">        FATAL </priority>
   <priority msgstream="LeptoHad">              FATAL </priority>
+  <priority msgstream="LeptonTensor">          FATAL   </priority>
+  <priority msgstream="Pythia8Decay">          FATAL </priority>
+  <priority msgstream="AGCharmPythia8Hadro2023"> FATAL </priority>
+  <priority msgstream="INukeNucleonCorr">      FATAL </priority>
+
 
   <priority msgstream="gevgen">              FATAL </priority>
   <priority msgstream="gevgen_dm">           FATAL </priority>
