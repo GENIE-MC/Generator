@@ -938,20 +938,20 @@ const Target& target, bool assumeFreeNucleon) const
     leptonMom.Boost(beta);
     qTildeP4.Boost(beta);
     inNucleonMomOnShell.Boost(beta);
+
+    // Find the rotation angle needed to put q3VecTilde along z
+    TVector3 zvec(0.0, 0.0, 1.0);
+    TVector3 rot = ( qTildeP4.Vect().Cross(zvec) ).Unit(); // Vector to rotate about
+    // Angle between the z direction and q
+    double angle = zvec.Angle( qTildeP4.Vect() );
+
+    neutrinoMom.Rotate(angle, rot);
+    leptonMom.Rotate(angle, rot);
+    qTildeP4.Rotate(angle, rot);
+    inNucleonMomOnShell.Rotate(angle, rot);
   } else {
     LOG("Nieves", pINFO) << "RPA is switched ON. NOT correcting the Nieves CCQE hadron tensor.";
   }
-
-  // Find the rotation angle needed to put q3VecTilde along z
-  TVector3 zvec(0.0, 0.0, 1.0);
-  TVector3 rot = ( qTildeP4.Vect().Cross(zvec) ).Unit(); // Vector to rotate about
-  // Angle between the z direction and q
-  double angle = zvec.Angle( qTildeP4.Vect() );
-
-  neutrinoMom.Rotate(angle, rot);
-  leptonMom.Rotate(angle, rot);
-  qTildeP4.Rotate(angle, rot);
-  inNucleonMomOnShell.Rotate(angle, rot);
 
   double r = target.HitNucPosition();
   bool tgtIsNucleus = target.IsNucleus();
