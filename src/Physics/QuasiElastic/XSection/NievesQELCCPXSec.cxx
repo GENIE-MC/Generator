@@ -932,14 +932,14 @@ const Target& target, bool assumeFreeNucleon) const
   // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
   // Only do this if RPA is switched off, as the RPA correction is not Lorentz invariant.
   if( !fRPA ) {
-    LOG("Nieves", pINFO) << "RPA is switched OFF, correcting the Nieves CCQE form factor";
+    LOG("Nieves", pINFO) << "RPA is switched OFF, correcting the Nieves CCQE hadron tensor";
     TVector3 beta = -1.0 * inNucleonMomOnShell.BoostVector(); // boost from lab to nucRest
     neutrinoMom.Boost(beta);
     leptonMom.Boost(beta);
     qTildeP4.Boost(beta);
     inNucleonMomOnShell.Boost(beta);
   } else {
-    LOG("Nieves", pINFO) << "RPA is switched ON. NOT correcting the Nieves CCQE form factor.";
+    LOG("Nieves", pINFO) << "RPA is switched ON. NOT correcting the Nieves CCQE hadron tensor.";
   }
 
   // Find the rotation angle needed to put q3VecTilde along z
