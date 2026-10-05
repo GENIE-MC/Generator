@@ -917,17 +917,17 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 // Calculates the constraction of the leptonic and hadronic tensors. The
 // expressions used here are valid in a frame in which the
 // initial nucleus is at rest, and qTilde must be in the z direction.
-double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom1,
-const TLorentzVector inNucleonMomOnShell1, const TLorentzVector leptonMom1,
-const TLorentzVector qTildeP41, double M, bool is_neutrino,
+double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMomLab,
+const TLorentzVector inNucleonMomOnShellLab, const TLorentzVector leptonMomLab,
+const TLorentzVector qTildeP4Lab, double M, bool is_neutrino,
 const Target& target, bool assumeFreeNucleon) const
 {
 
   // copy the const value to do the transfermation
-  TLorentzVector neutrinoMom = neutrinoMom1;
-  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShell1;
-  TLorentzVector qTildeP4 = qTildeP41;
-  TLorentzVector leptonMom = leptonMom1;
+  TLorentzVector neutrinoMom = neutrinoMomLab;
+  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShellLab;
+  TLorentzVector qTildeP4 = qTildeP4Lab;
+  TLorentzVector leptonMom = leptonMomLab;
 
   // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
   // Only do this if RPA is switched off, as the RPA correction is not Lorentz invariant.
