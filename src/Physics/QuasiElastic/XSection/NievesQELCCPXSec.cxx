@@ -917,11 +917,42 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 // Calculates the constraction of the leptonic and hadronic tensors. The
 // expressions used here are valid in a frame in which the
 // initial nucleus is at rest, and qTilde must be in the z direction.
-double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
-const TLorentzVector inNucleonMomOnShell, const TLorentzVector leptonMom,
-const TLorentzVector qTildeP4, double M, bool is_neutrino,
+double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMomLab,
+const TLorentzVector inNucleonMomOnShellLab, const TLorentzVector leptonMomLab,
+const TLorentzVector qTildeP4Lab, double M, bool is_neutrino,
 const Target& target, bool assumeFreeNucleon) const
 {
+
+  // copy the const value to do the transfermation
+  TLorentzVector neutrinoMom = neutrinoMomLab;
+  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShellLab;
+  TLorentzVector qTildeP4 = qTildeP4Lab;
+  TLorentzVector leptonMom = leptonMomLab;
+
+  // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
+  // Only do this if RPA is switched off, as the RPA correction is not Lorentz invariant.
+  if( !fRPA ) {
+    LOG("Nieves", pINFO) << "RPA is switched OFF, correcting the Nieves CCQE hadron tensor";
+    TVector3 beta = -1.0 * inNucleonMomOnShell.BoostVector(); // boost from lab to nucRest
+    neutrinoMom.Boost(beta);
+    leptonMom.Boost(beta);
+    qTildeP4.Boost(beta);
+    inNucleonMomOnShell.Boost(beta);
+
+    // Find the rotation angle needed to put q3VecTilde along z
+    TVector3 zvec(0.0, 0.0, 1.0);
+    TVector3 rot = ( qTildeP4.Vect().Cross(zvec) ).Unit(); // Vector to rotate about
+    // Angle between the z direction and q
+    double angle = zvec.Angle( qTildeP4.Vect() );
+
+    neutrinoMom.Rotate(angle, rot);
+    leptonMom.Rotate(angle, rot);
+    qTildeP4.Rotate(angle, rot);
+    inNucleonMomOnShell.Rotate(angle, rot);
+  } else {
+    LOG("Nieves", pINFO) << "RPA is switched ON. NOT correcting the Nieves CCQE hadron tensor.";
+  }
+
   double r = target.HitNucPosition();
   bool tgtIsNucleus = target.IsNucleus();
   int tgt_pdgc = target.Pdg();
