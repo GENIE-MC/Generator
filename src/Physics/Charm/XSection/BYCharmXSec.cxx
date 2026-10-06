@@ -341,7 +341,7 @@ void BYCharmXSec::Calculate(const Interaction * interaction) const
 
     } else if (is_nubar) {
 
-	    qbar  = switch_dbar * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) * fDISSFModel->fVcd2;
+	    qbar  = switch_dbar * fDISSFModel->fds_c * ( kV_sea_d + kV_sea_d ) * fDISSFModel->fVcd2
 	          + switch_sbar * fDISSFModel->fs_c  * ( kV_sea_s + kV_sea_s ) * fDISSFModel->fVcs2;
     } 
     
