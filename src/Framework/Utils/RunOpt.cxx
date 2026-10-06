@@ -20,7 +20,6 @@
 #include "Framework/Utils/SystemUtils.h"
 #include "Framework/Utils/XSecSplineList.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/Utils/StringUtils.h"
 
 using std::cout;
 using std::endl;
@@ -140,24 +139,7 @@ void RunOpt::ReadFromCommandLine(int argc, char ** argv)
   else {
     SetTuneName( "Default" );
   }// else ( parser.OptionExists("tune") )
-  if( parser.OptionExists('e') ) {
-    string nue = parser.ArgAsString('e');
 
-    // is it just a value or a range (comma separated set of values)
-    if(nue.find(",") != string::npos) {
-       // split the comma separated list
-       vector<string> nurange = utils::str::Split(nue, ",");
-       assert(nurange.size() == 2);
-       double emin = atof(nurange[0].c_str());
-       double emax = atof(nurange[1].c_str());
-       assert(emax>emin && emin>=0);
-       NuEnergy      = emin;
-       NuEnergyRange = emax-emin;
-    } else {
-       NuEnergy       = atof(nue.c_str());
-       NuEnergyRange = -1;
-    }
-  } 
   if( parser.OptionExists("unphysical-event-mask") ) {
     const char * bitfield =
        parser.ArgAsString("unphysical-event-mask").c_str();
