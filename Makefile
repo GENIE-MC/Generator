@@ -245,7 +245,7 @@ lib-professor2-build: FORCE
 ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
 	@echo " "
 	@echo "** Building Professor2..."
-	cd ${GENIE}/src/ExternalLibs/professor && \
+	cd ${GENIE}/src/ExternalLibs/professor && ./configure && \
 	$(MAKE) lib/libProfessor2.so && \
 	ln -sf ${GENIE}/src/ExternalLibs/professor/lib/libProfessor2.so ${GENIE}/lib/libProfessor2.so && \
 	cd ${GENIE}
