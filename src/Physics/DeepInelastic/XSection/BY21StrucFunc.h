@@ -25,6 +25,7 @@
 #include "Physics/DeepInelastic/XSection/QPMDISStrucFuncBase.h"
 #include "Framework/Interaction/Interaction.h"
 #include "Physics/PartonDistributions/PDFModelI.h"
+#include "Physics/QuasiElastic/XSection/ELFormFactorsModelI.h"
 
 namespace genie {
 
@@ -44,7 +45,7 @@ protected:
 
   void Init         (void);
   void ReadBYParams (void);
-
+  const mutable ELFormFactorsModelI *fFormFactor;
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
   double ScalingVar (const Interaction * i, double Mf = 0 ) const;

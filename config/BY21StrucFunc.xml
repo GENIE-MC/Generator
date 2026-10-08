@@ -28,6 +28,8 @@ BY-RQ2min                  double  No    Bodek-Yang Q2 below corrections are app
 BY-IncludeH                bool    Yes   Bodek-Yang H(x,Q2) correction applied to F3(x,Q2)    True 
 BY-IncludeAxial            bool    Yes   Bodek-Yang K axial factors are different to Vector   True
 BY-IncludeKCharm           bool    Yes   Bodek-Yang K Charm correction                        True 
+ElasticFormFactorsModel    alg     No    Elastic Form Factors used for K vector calculation   DipoleELFormFactorsModel
+
 
 BY-fa1                     double    YES Collan-Gross R Correction parameter    0.0485
 BY-fa2                     double    YES Collan-Gross R Correction parameter    0.5470
@@ -69,6 +71,7 @@ WeinbergAngle              double  No                                           
   <param_set name="Default"> 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
     <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+    <param type="alg" name="ElasticFormFactorsModel"> genie::DipoleELFormFactorsModel/Default </param>
     <param type="double" name="BY-A">     0.621   </param>
     <param type="double" name="BY-B">     0.380   </param>
     <param type="double" name="BY-CvLW">  0.218   </param>

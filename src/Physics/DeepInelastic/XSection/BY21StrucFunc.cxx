@@ -63,6 +63,9 @@ void BY21StrucFunc::Configure(string param_set)
 //____________________________________________________________________________
 void BY21StrucFunc::ReadBYParams(void)
 {
+
+  fFormFactor =
+         dynamic_cast<const ELFormFactorsModelI *> (this->SubAlg("ElasticFormFactorsModel"));
   // vector mass 
   GetParam( "EL-Mv",fMv ) ;
   fMv2 = TMath::Power(fMv,2);
@@ -71,6 +74,7 @@ void BY21StrucFunc::ReadBYParams(void)
   // registry and set some private data members so as not to accessing the
   // registry at every calculation.
   //
+
   GetParam( "BY-A", fA ) ;
   GetParam( "BY-B", fB ) ;
   GetParam( "BY-CsU", fCsU ) ;
@@ -173,7 +177,7 @@ void BY21StrucFunc::KVectorFactors(const Interaction * interaction,
   // u(valence), d(valence), u(sea), d(sea), s(sea);
 
   double myQ2  = this->Q2(interaction);
-  double GD  = 1. / TMath::Power(1.+myQ2/fMv2, 2); // p elastic form factor
+  double GD  = fFormFactor->Gep(interaction); // p elastic form factor
   double GD2 = TMath::Power(GD,2);
 
   // We include the BY21 K factors. The arxiv.org/pdf/2108.09240 publicatio also accounts for a low energy transfer correction (KLW)
