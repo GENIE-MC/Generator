@@ -69,6 +69,7 @@ WeinbergAngle              double  No                                           
   <param_set name="Default"> 
     <param type="string" name="CommonParam"> CKM,Masses,WeakInt </param>
     <param type="alg" name="PDF-Set"> genie::BYPDF/Default </param>
+    <param type="alg" name="ElasticFormFactorsModel"> genie::DipoleELFormFactorsModel/Default </param>
     <param type="double" name="BY-A">     0.621   </param>
     <param type="double" name="BY-B">     0.380   </param>
     <param type="double" name="BY-CvLW">  0.218   </param>
