@@ -58,6 +58,15 @@ if test "$GOPT_ENABLE_HEAVY_NEUTRAL_LEPTON" = "YES"; then
   phys_libs="$phys_libs -lGPhHNL "
   features="$features heavy-neutral-lepton"
 fi
+if test "$GOPT_ENABLE_DARK_NEUTRINO" = "YES"; then
+  phys_libs="$phys_libs -lGPhDNuXS -lGPhDNuEG"
+  features="$features dark-neutrino"
+fi
+if test "$GOPT_ENABLE_EVTLIB" = "YES"; then
+  phys_libs="$phys_libs -lGTlEvtLib"
+  features="$features event-library"
+fi
+
 
 # Libraries from GENIE/Generator/Tools
 # (standard)
