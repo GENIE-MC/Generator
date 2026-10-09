@@ -220,8 +220,19 @@ void QPMDISStrucFuncBase::Calculate(const Interaction * interaction) const
     if(is_nubar && is_CC && is_cbar) return;
     if(is_nubar && is_CC && is_d   ) return;
     if(is_nubar && is_CC && is_s   ) return;
+  } else {
+    switch_uv    = 1.;
+    switch_us    = 1.;
+    switch_ubar  = 1.;
+    switch_dv    = 1.;
+    switch_ds    = 1.;
+    switch_dbar  = 1.;
+    switch_s     = 1.;
+    switch_sbar  = 1.;
+    switch_c     = 1.;
+    switch_cbar  = 1.;
   }
-
+ 
   // Compute PDFs [both at (scaling-var,Q2) and (slow-rescaling-var,Q2)
   // Applying all PDF K-factors abd scaling variable corrections
   this -> CalcPDFs (interaction);
