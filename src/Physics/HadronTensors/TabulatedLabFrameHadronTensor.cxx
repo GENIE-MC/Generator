@@ -11,6 +11,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/HadronTensors/TabulatedLabFrameHadronTensor.h"
+using namespace genie; // for Messenger
 
 // For retrieval of CKM-Vud
 #include "Framework/Algorithm/AlgConfigPool.h"
