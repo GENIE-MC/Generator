@@ -1,6 +1,9 @@
 // standard library includes
+#include <cerrno>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
+#include <string>
 
 // GENIE includes
 #include "Framework/Conventions/Constants.h"
@@ -8,6 +11,7 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/HadronTensors/TabulatedLabFrameHadronTensor.h"
+using namespace genie; // for Messenger
 
 // For retrieval of CKM-Vud
 #include "Framework/Algorithm/AlgConfigPool.h"
@@ -31,6 +35,49 @@ namespace {
     if (x < 0.) return 0.;
     else return std::sqrt(x);
   }
+
+  /// Read the next whitespace-delimited token from the stream and convert
+  /// it to a double using std::strtod. This is used instead of operator>>
+  /// because libc++ (macOS) sets failbit when extracting a subnormal value,
+  /// which silently aborts all subsequent reads, while libstdc++ (Linux)
+  /// accepts it. Subnormal values are kept as returned by strtod (errno is
+  /// set to ERANGE in that case, which is not treated as an error).
+  /// Unparseable tokens, non-finite values (nan, inf, overflow) and
+  /// premature end of file are fatal. The description is only used to
+  /// build the error message.
+  double read_double(std::istream& in, const std::string& file_name,
+    const char* what, long j = -1, long k = -1)
+  {
+    std::string token;
+    in >> token;
+
+    std::string problem;
+    double value = 0.;
+    if ( !in ) {
+      problem = "unexpected end of file or read error";
+    }
+    else {
+      errno = 0;
+      char* end = nullptr;
+      value = std::strtod( token.c_str(), &end );
+      if ( end == token.c_str() || *end != '\0' ) {
+        problem = "unable to parse \"" + token + "\" as a number";
+      }
+      else if ( !std::isfinite(value) ) {
+        problem = "non-finite value \"" + token + "\"";
+      }
+    }
+
+    if ( !problem.empty() ) {
+      LOG("HadronTensor", pFATAL) << "Error reading hadron tensor table \""
+        << file_name << "\": " << problem << " while reading " << what
+        << ( j >= 0 ? " for q0 index " + std::to_string(j) : "" )
+        << ( k >= 0 ? ", q_mag index " + std::to_string(k) : "" ) ;
+      exit(1);
+    }
+
+    return value;
+  }
 }
 
 genie::TabulatedLabFrameHadronTensor::TabulatedLabFrameHadronTensor(
@@ -39,18 +86,26 @@ genie::TabulatedLabFrameHadronTensor::TabulatedLabFrameHadronTensor(
 {
   // Read in the table
   std::ifstream in_file( table_file_name.c_str() );
-
+  if ( !in_file.is_open() ) {
+    LOG("HadronTensor", pFATAL) << "Unable to open hadron tensor table \""
+      << table_file_name << "\"" ;
+    exit(1);
+  }
 
   // Skip the initial comment line
   std::string dummy;
   std::getline(in_file, dummy);
 
-  /// \todo Add error checks
   std::string type_name;
   int Z, A, num_q0, num_q_mag;
 
   /// \todo Use type name
   in_file >> Z >> A >> type_name >> num_q0 >> num_q_mag;
+  if ( !in_file ) {
+    LOG("HadronTensor", pFATAL) << "Error reading header of hadron tensor"
+      " table \"" << table_file_name << "\"" ;
+    exit(1);
+  }
 
   int q0_flag;
   in_file >> q0_flag;
@@ -59,6 +114,14 @@ genie::TabulatedLabFrameHadronTensor::TabulatedLabFrameHadronTensor(
   int q_mag_flag;
   in_file >> q_mag_flag;
   read1DGridValues(num_q_mag, q_mag_flag, in_file, fqmagPoints);
+
+  if ( !in_file || static_cast<int>(fq0Points.size()) != num_q0
+    || static_cast<int>(fqmagPoints.size()) != num_q_mag )
+  {
+    LOG("HadronTensor", pFATAL) << "Error reading grid definition of hadron"
+      " tensor table \"" << table_file_name << "\"" ;
+    exit(1);
+  }
 
   set_pdg( genie::pdg::IonPdgCode(A, Z) );
 
@@ -81,7 +144,11 @@ genie::TabulatedLabFrameHadronTensor::TabulatedLabFrameHadronTensor(
       // in_file >> entry.W00 >> entry.ReW0z >> entry.Wxx
       //   >> entry.ImWxy >> entry.Wzz;
 
-      in_file >> W00 >> ReW0z >> Wxx >> ImWxy >> Wzz;
+      W00   = read_double(in_file, table_file_name, "W00",   j, k);
+      ReW0z = read_double(in_file, table_file_name, "ReW0z", j, k);
+      Wxx   = read_double(in_file, table_file_name, "Wxx",   j, k);
+      ImWxy = read_double(in_file, table_file_name, "ImWxy", j, k);
+      Wzz   = read_double(in_file, table_file_name, "Wzz",   j, k);
 
       entry.W00  = W00;
       entry.ReW0z= ReW0z;
