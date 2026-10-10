@@ -48,6 +48,7 @@ private:
 
   bool          fIsCC;
   bool          fIsNC;
+  bool          fIsEM;
 };
 
 }      // genie namespace
