@@ -14,7 +14,7 @@
    <config alg="genie::HINCLCascadeIntranuke">           HINCLCascadeIntranuke.xml           </config>
    <config alg="genie::HG4BertCascIntranuke">            HG4BertCascIntranuke.xml            </config>
    <config alg="genie::CascadeReweight">                 CascadeReweight.xml                 </config>
-   <config alg="genie::UnstableParticleDecayer">         UnstableParticleDecayer.xml         </config>
+   <config alg="genie::UnstableParticleDecayer">         Decay/UnstableParticleDecayer.xml         </config>
    <config alg="genie::PauliBlocker">                    PauliBlocker.xml                    </config>
    <config alg="genie::NucDeExcitationSim">              NucDeExcitationSim.xml              </config>
    <config alg="genie::NucBindEnergyAggregator">         NucBindEnergyAggregator.xml         </config>
@@ -132,10 +132,10 @@
    <config alg="genie::BYPDF">                       DeepInelastic/BYPDF.xml                       </config>
 
    <!-- ****** CONFIGURATION FOR PARTICLE DECAY ALGORITHMS****** -->
-   <config alg="genie::Pythia6Decayer2023">          PythiaDecayer.xml               </config>
-   <config alg="genie::Pythia8Decayer2023">          PythiaDecayer.xml               </config>
-   <config alg="genie::BaryonResonanceDecayer">      BaryonResonanceDecayer.xml      </config>
-   <config alg="genie::DarkSectorDecayer">           DarkSectorDecayer.xml           </config>
+   <config alg="genie::Pythia6Decayer2023">          Decay/PythiaDecayer.xml               </config>
+   <config alg="genie::Pythia8Decayer2023">          Decay/PythiaDecayer.xml               </config>
+   <config alg="genie::BaryonResonanceDecayer">      Decay/BaryonResonanceDecayer.xml      </config>
+   <config alg="genie::DarkSectorDecayer">           Decay/DarkSectorDecayer.xml           </config>
 
    <!--  ****** CONFIGURATION FORM FACTOR and STRUCTURE FUNCTION ALGORITHMS ****** -->
    <config alg="genie::DipoleELFormFactorsModel">                DipoleELFormFactorsModel.xml                </config>
@@ -178,7 +178,7 @@
    <config alg="genie::COHXSec">                     COHXSec.xml                     </config>
    <config alg="genie::COHXSecAR">                   COHXSecAR.xml                   </config>
    <config alg="genie::CEvNSXSec">                   CEvNSXSec.xml                   </config>
-   <config alg="genie::DFRXSec">                     DFRXSec.xml                     </config>
+   <config alg="genie::DFRXSec">                     Diffractive/DFRXSec.xml                     </config>
    <config alg="genie::AlamSimoAtharVacasSKXSec">    AlamSimoAtharVacasSKXSec.xml    </config>
    <config alg="genie::IMDXSec">                     IMDXSec.xml                     </config>
    <config alg="genie::RESXSec">                     RESXSec.xml                     </config>
@@ -229,7 +229,7 @@
    <config alg="genie::PhotonRESPXSec">                     PhotonRESPXSec.xml                     </config>
    <config alg="genie::BergerSehgalRESPXSec2014">           BergerSehgalRESPXSec2014.xml           </config>
    <config alg="genie::KuzminLyubushkinNaumovRESPXSec2014"> KuzminLyubushkinNaumovRESPXSec2014.xml </config>
-   <config alg="genie::ReinDFRPXSec">                       ReinDFRPXSec.xml                       </config>
+   <config alg="genie::ReinDFRPXSec">                       Diffractive/ReinDFRPXSec.xml                       </config>
    <config alg="genie::ReinSehgalCOHPiPXSec">               ReinSehgalCOHPiPXSec.xml               </config>
    <config alg="genie::ReinSehgalRESPXSec">                 ReinSehgalRESPXSec.xml                 </config>
    <config alg="genie::ReinSehgalSPPPXSec">                 ReinSehgalSPPPXSec.xml                 </config>
