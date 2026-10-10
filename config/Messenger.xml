@@ -243,7 +243,7 @@
   <priority msgstream="HEDISStrucFunc">        WARN    </priority>
   <priority msgstream="LeptoHad">              ERROR   </priority>
   <priority msgstream="HNL">                   FATAL </priority>
-
+  <priority msgstream="TineId">                   DEBUG </priority>
   <priority msgstream="gevgen">              NOTICE </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>
   <priority msgstream="gevgen_ndcy">         NOTICE </priority>
@@ -254,7 +254,7 @@
   <priority msgstream="gevgen_hadron">       NOTICE </priority>
   <priority msgstream="gvldtest">            NOTICE </priority>
   <priority msgstream="grwght1scan">         INFO   </priority>
-  <priority msgstream="gtune">               INFO   </priority>
+  <priority msgstream="gtune">               DEBUG   </priority>
   <priority msgstream="gntpc">               WARN   </priority>
   <priority msgstream="gmkspl">              INFO   </priority>
   <priority msgstream="gmkspl_dm">           INFO   </priority>
