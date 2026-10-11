@@ -258,7 +258,7 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
   // Compute the cross section using the hadron tensor
   double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
 
-  double ratio;
+  double ratio = 0;
 
   if (final_state_ratio == "pnFraction") { // pnFraction will be calculated by default
     double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
