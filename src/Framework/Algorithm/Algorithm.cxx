@@ -202,14 +202,14 @@ void Algorithm::FindConfig(void)
 
       if ( ! config ) {
         LOG("Algorithm", pFATAL)
-	  << "No Common parameters available for " << it -> first << " list "
+	  << this->Id().Key() << ": No Common parameters available for " << it -> first << " list "
 	  << list[i] << " at the ConfigPool";
 
 	    exit( 78 ) ;
       }
       else  {
 	    AddLowRegistry( config, false ) ;
-	    LOG("Algorithm", pDEBUG) << "Loading "
+	    LOG("Algorithm", pDEBUG) << this->Id().Key() << ": Loading "
 				     << it -> first << " registry "
 				     << list[i] << " \n" << config;
       }
@@ -225,13 +225,13 @@ void Algorithm::FindConfig(void)
   if ( config ) {
     if ( config -> NEntries() > 0 ) {
       AddTopRegistry( config, false ) ;
-      LOG("Algorithm", pDEBUG) << "Loading Tunable registry \n" << config;
+      LOG("Algorithm", pDEBUG) << this->Id().Key() << ": Loading Tunable registry \n" << config;
     }
   }
   else {
     // notify & keep whatever config Registry was used before.
     LOG("Algorithm", pWARN)
-      << "No Tunable parameter set available at the ConfigPool";
+      << this->Id().Key() << ": No Tunable parameter set available at the ConfigPool";
   }
 
   if ( fConfig ) {
@@ -435,16 +435,16 @@ void Algorithm::AdoptSubstructure(void)
     RegistryItemI * ri = iter->second;
 
     if(ri->TypeInfo() == kRgAlg) {
-        LOG("Algorithm", pDEBUG)
-                 << "Found sub-algorithm pointed to by " << reg_key;
+        LOG("Algorithm", pDEBUG) << this->Id().Key()
+                 << ": Found sub-algorithm pointed to by " << reg_key;
         RgAlg reg_alg = fConfig->GetAlg(reg_key);
         AlgId id(reg_alg);
 
-        LOG("Algorithm", pDEBUG) << "Adopting sub-algorithm = " << id.Key();
+        LOG("Algorithm", pDEBUG)<< this->Id().Key()  << ": Adopting sub-algorithm = " << id.Key();
         Algorithm * subalg = algf->AdoptAlgorithm(id.Name(),id.Config());
         subalg->AdoptSubstructure();
 
-        LOG("Algorithm", pDEBUG) << "Adding sub-algorithm to local pool";
+        LOG("Algorithm", pDEBUG)<< this->Id().Key() << ": Adding sub-algorithm to local pool";
         AlgMapPair key_alg_pair(reg_key, subalg);
         fOwnedSubAlgMp->insert(key_alg_pair);
 
