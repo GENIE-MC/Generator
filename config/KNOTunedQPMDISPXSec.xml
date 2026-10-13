@@ -31,7 +31,7 @@ Wcut                        double  no                                        Co
   </param_set>
 
   <param_set name="BY21">
-    <!-- BY21 considers different Aixial and vector responses, nuclear corrections -->
+    <!-- BY21 considers different Axial and vector responses, nuclear corrections -->
     <param type="string" name="CommonParam"> NonResBackground </param>
     <param type="alg" name="XSec-Integrator"> genie::DISXSec/BY21 </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>

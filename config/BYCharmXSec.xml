@@ -22,7 +22,7 @@ DIS-XSecScale              double  No    XSec scaling factor
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
      <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
   </param_set>
-  \
+  
   <param_set name="BY21"> 
      <param type="alg" name="SFAlg">           genie::BY21StrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
