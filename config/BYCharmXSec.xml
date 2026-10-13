@@ -14,8 +14,16 @@ DIS-XSecScale              double  No    XSec scaling factor
 
 -->
 
+
 <alg_conf>
+
   <param_set name="Default"> 
+     <param type="alg" name="SFAlg">           genie::BY00StrucFunc/Default      </param>
+     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
+     <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
+  </param_set>
+  \
+  <param_set name="BY21"> 
      <param type="alg" name="SFAlg">           genie::BY21StrucFunc/Default      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
      <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
@@ -23,7 +31,7 @@ DIS-XSecScale              double  No    XSec scaling factor
 
 
   <param_set name="BY00"> 
-     <param type="alg" name="SFAlg">           genie::BY00StrucFunc/Default      </param>
+     <param type="alg" name="SFAlg">           genie::BY00StrucFunc/BY00      </param>
      <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default          </param>
      <param type="double" name="DIS-CC-XSecScale">    1.032 </param>
   </param_set>
