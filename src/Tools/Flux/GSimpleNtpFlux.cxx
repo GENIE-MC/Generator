@@ -432,9 +432,9 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
     } // legal directory
   } // loop over patterns
 
-  size_t indx = 0;
+  //size_t indx = 0;
   std::set<string>::const_iterator sitr = fnames.begin();
-  for ( ; sitr != fnames.end(); ++sitr, ++indx) {
+  for ( ; sitr != fnames.end(); ++sitr/*, ++indx*/) {
     string filename = *sitr;
     //std::cout << "  [" << std::setw(3) << indx << "]  \""
     //          << filename << "\"" << std::endl;

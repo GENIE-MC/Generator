@@ -70,8 +70,9 @@ genie::TabulatedLabFrameHadronTensor::TabulatedLabFrameHadronTensor(
   std::cout<< "num_q_mag:        " << num_q_mag << std::endl;
 
   double W00, ReW0z, Wxx, ImWxy, Wzz;
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
   int lineCount=1;
-
+#endif
   for (long j = 0; j < num_q0; ++j) {
     for (long k = 0; k < num_q_mag; ++k) {
 
@@ -88,13 +89,14 @@ genie::TabulatedLabFrameHadronTensor::TabulatedLabFrameHadronTensor(
       entry.Wxx  = Wxx;
       entry.ImWxy= ImWxy;
       entry.Wzz  = Wzz;
-
-      //if(W00 > 0.0) {
-      //  std::cout<< "line count is" << lineCount << std::endl;
-      //  std::cout<< "Entry: " << entry.W00 << " " << entry.ReW0z << " " << entry.Wxx << " " << entry.ImWxy << " " << entry.Wzz << std::endl;
-      //  std::cout<< "File:  " << W00 << " " << ReW0z << " " << Wxx << " " << ImWxy << " " << Wzz << std::endl;
-      //}
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__ 
+      if(W00 > 0.0) {
+        std::cout<< "line count is" << lineCount << std::endl;
+        std::cout<< "Entry: " << entry.W00 << " " << entry.ReW0z << " " << entry.Wxx << " " << entry.ImWxy << " " << entry.Wzz << std::endl;
+        std::cout<< "File:  " << W00 << " " << ReW0z << " " << Wxx << " " << ImWxy << " " << Wzz << std::endl;
+      }
       lineCount++;
+#endif
     }
   }
 }
