@@ -243,7 +243,7 @@
   <priority msgstream="HEDISStrucFunc">        WARN    </priority>
   <priority msgstream="LeptoHad">              ERROR   </priority>
   <priority msgstream="HNL">                   FATAL </priority>
-
+  <priority msgstream="TuneId">              INFO </priority>
   <priority msgstream="gevgen">              NOTICE </priority>
   <priority msgstream="gevgen_dm">           NOTICE </priority>
   <priority msgstream="gevgen_ndcy">         NOTICE </priority>
