@@ -123,7 +123,7 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
   LOG("Pythia8Had", pDEBUG) << "Appending quark/diquark into the PYTHIA8 event";
   gPythia->event.append(fLeadingQuark,   23, 101, 0, 0., 0., pzAcm, eA, mA);
   gPythia->event.append(fRemnantDiquark, 23, 0, 101, 0., 0., pzBcm, eB, mB);
-  gPythia->event.list();
+  // gPythia->event.list();
 
   LOG("Pythia8Had", pDEBUG) << "Generating next PYTHIA8 event";
   gPythia->next();
