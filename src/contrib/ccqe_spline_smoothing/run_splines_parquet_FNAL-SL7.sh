@@ -240,7 +240,7 @@ export GXMLPATH=\${JOBXMLPATH}:\${GXMLPATH}
 # copy in NewQELXSec and specify 1 nucleon
 awk '{sub(/NumNucleonThrows"> *[0-9]+/, "NumNucleonThrows\"> 1")}1' \${GENIE}/config/NewQELXSec.xml > \${JOBXMLPATH}/NewQELXSec.xml
 # copy in average_splines.py
-cp ${GENIE}/src/contrib/ccqe_spline_smoothing/average_splines.py \${JOBXMLPATH}/
+cp \${GENIE}/src/contrib/ccqe_spline_smoothing/average_splines.py \${JOBXMLPATH}/
 
 # build the command
 GENIECMD="gmkspl"
