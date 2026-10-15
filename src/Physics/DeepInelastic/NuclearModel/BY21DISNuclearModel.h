@@ -11,7 +11,7 @@
 
 \created  February, 2026
 
-\cpright  Copyright (c) 2003-2027, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
