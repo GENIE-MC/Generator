@@ -32,7 +32,7 @@ For more details on the GENIE collaboration please visit [this page](https://gen
 
 ## Copyright
 
-Copyright (c) 2003-2025, The GENIE Collaboration. For information, visit [this page](https://genie-mc.github.io/copyright.html).
+Copyright (c) 2003-2026, The GENIE Collaboration. For information, visit [this page](https://genie-mc.github.io/copyright.html).
 
 ## Citing GENIE
 
