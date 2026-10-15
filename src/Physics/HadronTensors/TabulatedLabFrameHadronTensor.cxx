@@ -11,11 +11,12 @@
 #include "Framework/ParticleData/PDGCodes.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Physics/HadronTensors/TabulatedLabFrameHadronTensor.h"
-using namespace genie; // for Messenger
 
 // For retrieval of CKM-Vud
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Registry/Registry.h"
+
+using namespace genie; // for Messenger
 
 namespace {
   /// Enumerated type that represents the format used to read in
