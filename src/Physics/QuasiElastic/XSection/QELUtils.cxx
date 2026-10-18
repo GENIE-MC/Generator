@@ -493,7 +493,7 @@ TLorentzVector &out_leptonP4, std::vector<TLorentzVector> &otherP4)
     outLMom3.Rotate(angle,rot);
     out_leptonP4.SetVect(outLMom3);
 
-    for(int i = 0; i < otherP4.size(); i++) {
+    for(size_t i = 0; i < otherP4.size(); i++) {
     	otherMom3[i].Rotate(angle,rot);
         otherP4[i].SetVect(otherMom3[i]);
     }

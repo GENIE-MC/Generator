@@ -845,7 +845,7 @@ void SaveGraphsToRootFile(void)
     for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {
        const Interaction * interaction = *ilistiter;
        const ProcessInfo &  proc = interaction->ProcInfo();
-       const XclsTag &      xcls = interaction->ExclTag();
+       //const XclsTag &      xcls = interaction->ExclTag();
        const InitialState & init = interaction->InitState();
        const Target &       tgt  = init.Tgt();
 

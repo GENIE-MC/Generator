@@ -106,11 +106,11 @@ void DISHadronicSystemGenerator::SimulateFormationZone(
 
   TObjArrayIter piter(evrec);
   GHepParticle * p = 0;
-  int icurr = -1;
+//  int icurr = -1;
 
   while( (p = (GHepParticle *) piter.Next()) )
   {
-    icurr++;
+//    icurr++;
 
     GHepStatus_t ist = p->Status();
     bool apply_formation_zone = (ist==kIStHadronInTheNucleus);

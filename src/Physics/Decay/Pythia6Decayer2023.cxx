@@ -219,6 +219,8 @@ bool Pythia6Decayer2023::Decay(int decay_particle_id, GHepRecord * event) const
 
   return true;
 #else
+  (void) event;
+  (void) decay_particle_id;
   LOG("Pythia6Decay", pFATAL)
     << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
   gAbortingInErr = true;
@@ -280,6 +282,7 @@ void Pythia6Decayer2023::InhibitDecay(int pdg_code, TDecayChannel * dc) const
     fPythia->SetMDME(ichannel,1,0); // switch-off
   }
 #else
+  (void) dc;
   LOG("Pythia6Decay", pFATAL)
     << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
   gAbortingInErr = true;
@@ -320,6 +323,7 @@ void Pythia6Decayer2023::UnInhibitDecay(int pdg_code, TDecayChannel * dc) const
     fPythia->SetMDME(ichannel,1,1); // switch-on
   }
 #else
+  (void) dc;
   LOG("Pythia6Decay", pFATAL)
     << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
   gAbortingInErr = true;
@@ -354,6 +358,7 @@ double Pythia6Decayer2023::SumOfBranchingRatios(int kc) const
   if(!has_inhibited_channels) return 1.;
   LOG("Pythia6Decay", pINFO) << "Sum{BR} = " << sumbr;
 #else
+  (void) kc;
   LOG("Pythia6Decay", pFATAL)
     << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
   gAbortingInErr = true;
@@ -395,6 +400,8 @@ int Pythia6Decayer2023::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
      << " ** No PYTHIA6 decay channel match found for "
      << "TDecayChannel id = " << dc->Number();
 #else
+  (void) kc;
+  (void) dc;
   LOG("Pythia6Decay", pFATAL)
     << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
   gAbortingInErr = true;
@@ -407,10 +414,11 @@ int Pythia6Decayer2023::FindPythiaDecayChannel(int kc, TDecayChannel* dc) const
 //____________________________________________________________________________
 bool Pythia6Decayer2023::MatchDecayChannels(int ichannel, TDecayChannel* dc) const
 {
-  // num. of daughters in the input TDecayChannel & the input PYTHIA ichannel
-  int nd = dc->NDaughters();
+
 
 #ifdef __GENIE_PYTHIA6_ENABLED__
+  // num. of daughters in the input TDecayChannel & the input PYTHIA ichannel
+  int nd = dc->NDaughters();
   int py_nd = 0;
   for (int i = 1; i <= 5; i++) {
      if(fPythia->GetKFDP(ichannel,i) != 0) py_nd++;
@@ -449,6 +457,8 @@ bool Pythia6Decayer2023::MatchDecayChannels(int ichannel, TDecayChannel* dc) con
     if(dc_daughter[i] != py_daughter[i]) return false;
   }
 #else
+  (void) dc;
+  (void) ichannel;
   LOG("Pythia6Decay", pFATAL)
     << "calling GENIE/PYTHIA6 decay without enabling PYTHIA6";
   gAbortingInErr = true;
