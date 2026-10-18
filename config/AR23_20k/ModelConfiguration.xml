@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<global_param_list>
+
+<!--
+***************************************************************************************************
+This file defines defaults for the most important GENIE physics user configuration parameters.
+Multilple named lists of user physics options can be defined.
+Use the "Default" one to get the standard/default GENIE physics & tuning.
+
+Author:
+Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+STFC, Rutherford Appleton Laboratory
+***************************************************************************************************
+-->
+
+ <param_set name="Default">
+
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Nuclear model selection.
+  Options:
+   - genie::FGMBodekRitchie/Default
+   - genie::LocalFGM/Default
+   - genie::LocalFGM/Correlated
+   - genie::SpectralFunc1d/Default
+   - genie::EffectiveSF/Default  <- See http://arxiv.org/abs/1405.0583
+  The 'NuclearModel' option defines the default basic model which should work for _any_ nuclei
+  (typically a Fermi Gas model with the Bodek-Ritchie NN corellatin tail). Refinements for specific
+  nuclei are possible, by specifying the 'NuclearModel@Pdg=10LZZZAAAI' option.
+  Currently the same nuclear model is forced for all isotopes.
+ -->
+
+  <!--  <param type="alg"  name="NuclearModel">               genie::EffectiveSF/Default </param> -->
+  <!-- <param type="alg"  name="NuclearModel">                genie::FGMBodekRitchie/Default </param> -->
+  <param type="alg"  name="NuclearModel">                     genie::LocalFGM/SpectralFunctionLikeWithCorrelation </param>
+<!--  <param type="alg"  name="NuclearModel">                 genie::LocalFGM/Correlated </param>-->
+
+
+<!--
+  Example of specific model for specific nuclei
+  <param type="alg" name="NuclearModel@Pdg=1000060120">   genie::SpectralFunc1d/Default  </param>
+  <param type="alg" name="NuclearModel@Pdg=1000260560">   genie::SpectralFunc1d/Default  </param>
+-->
+
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Intranuclear rescattering
+  Use the HadronTransportEnable option to toggle intranuclear rescattering on/off.
+  Also, set the preferred hadron transport model.
+  Options include:
+   - genie::HAIntranuke/Default
+   - genie::HAIntranuke2018/Default
+   - genie::HNIntranuke2018/Default
+   - genie::HNIntranuke2018/OsetOff
+  -->
+  <param type="bool" name="HadronTransp-Enable"> true </param>
+  <param type="alg"  name="HadronTransp-Model">  genie::HINCLCascadeIntranuke/Default  </param>
+
+
+ <!--
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Specify which cross section model is to be used by each GENIE event generation thread.
+  The parameter name is build as: "XSecModel@[name of thread]"
+  -->
+<!-- New Nieves QE model   -->
+
+
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::NievesQELCCPXSec/ZExp         </param>
+
+  <!-- <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC">         genie::LwlynSmithQELCCPXSec/Dipole   </param> -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-NC">         genie::AhrensNCELPXSec/Default          </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-EM">         genie::RosenbluthPXSec/Default          </param>
+
+  <!-- New Berger-Sehgal resonance model w/MiniBooNE tune... -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::BergerSehgalRESPXSec2014/NoPauliBlock </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::BergerSehgalRESPXSec2014/EM-NoPauliBlock </param>
+
+
+  <!-- New Kuzmin-Lyubushkin-Naumov resonance model w/MiniBooNE tune... -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::KuzminLyubushkinNaumovRESPXSec2014/NoPauliBlock </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::KuzminLyubushkinNaumovRESPXSec2014/NoPauliBlock </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::KuzminLyubushkinNaumovRESPXSec2014/NoPauliBlock </param>
+   -->
+
+  <!-- Historical Rein-Sehgal model -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-CC">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-NC">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/RES-EM">         genie::ReinSehgalRESPXSec/NoPauliBlock       </param>
+  -->
+
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/Default            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/Default            </param>
+
+  <!-- Historical Rein-Sehegal model -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::ReinSehgalCOHPiPXSec/Default   </param>
+  -->
+
+  <!-- BS "Finite-mass" (as opposed to infinite mass) nucleus, slow and not very different from the paper version -->
+  <!--
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::BergerSehgalFMCOHPiPXSec2015/Default   </param>
+  -->
+
+  <!-- Berger-Sehgal "as in the paper" -->
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">         genie::BergerSehgalCOHPiPXSec2015/Default   </param>
+
+
+  <!-- Alvarez-Ruso et al COH pion
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-CC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/COH-NC-PION">       genie::AlvarezRusoCOHPiPXSec/Fast       </param>
+  -->
+
+  <param type="alg" name="XSecModel@genie::EventGenerator/IMD">            genie::BardinIMDRadCorPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/IMD-ANH">        genie::IMDAnnihilationPXSec/Default   </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NUE-EL">         genie::NuElectronPXSec/Default        </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-CHARM">   genie::KovalenkoQELCharmPXSec/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-CHARM">   genie::AivazisCharmPXSecLO/CC-Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC-SINGLEK"> genie::AlamSimoAtharVacasSKPXSec2014/Default </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/QEL-CC-LAMBDA">  genie::PaisQELLambdaPXSec/Default     </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/AM-NUGAMMA">     genie::H3AMNuGammaPXSec/Default       </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">         genie::ReinDFRPXSec/Default           </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">         genie::ReinDFRPXSec/Default           </param>
+
+  
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::SuSAv2MECPXSec/Default         </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::EmpiricalMECPXSec2015/Default  </param>
+  
+  <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/NNBarOsc">       genie::NNBarOscDummyPXSec/Default     </param>
+
+
+ </param_set>
+
+
+</global_param_list>
