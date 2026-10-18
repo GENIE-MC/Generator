@@ -20,6 +20,7 @@
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Constants.h"
+#include "Framework/Utils/StringUtils.h"
 #include "Framework/Conventions/KineVar.h"
 #include "Framework/Conventions/KinePhaseSpace.h"
 #include "Framework/EventGen/EVGThreadException.h"
@@ -37,6 +38,7 @@
 #include "Physics/Common/PrimaryLeptonUtils.h"
 
 #include "Physics/NuclearState/NuclearModelI.h"
+#include "Physics/NuclearState/SecondNucleonEmissionI.h"
 #include "Framework/Numerical/MathUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Framework/Utils/PrintUtils.h"
@@ -274,7 +276,11 @@ void QELEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
             nucleon->SetMomentum(p4ptr);
             nucleon->SetRemovalEnergy(fEb);
 
-            // add a recoiled nucleus remnant
+            // Handle SRC second nucleon possibility before calculating the remnant nucleus
+            if( fSecondEmitter ){
+                fSecondEmitter->ProcessEventRecord(evrec);
+            }
+            // Now, add the recoiled nucleus remnant (now accounts for the second nucleon if emitted)
             this->AddTargetNucleusRemnant(evrec);
 
             break; // done
@@ -369,6 +375,7 @@ void QELEventGenerator::Configure(string config)
 //____________________________________________________________________________
 void QELEventGenerator::LoadConfig(void)
 {
+    
     // Load sub-algorithms and config data to reduce the number of registry
     // lookups
         fNuclModel = 0;
@@ -378,6 +385,13 @@ void QELEventGenerator::LoadConfig(void)
     fNuclModel = dynamic_cast<const NuclearModelI *> (this->SubAlg(nuclkey));
     assert(fNuclModel);
 
+    // Read the nuclear model name directly from the global configuration,
+    AlgConfigPool * confp = AlgConfigPool::Instance();
+    const Registry * globals = confp->GlobalParameterList();
+    RgAlg nucl_model_alg = globals->GetAlg("NuclearModel");
+    std::string nucl_model_name = nucl_model_alg.name;
+    LOG("QELEvent", pINFO) << "Configured nuclear model: " << nucl_model_name;
+    
     // Safety factor for the maximum differential cross section
     GetParamDef( "MaxXSec-SafetyFactor", fSafetyFactor, 1.6  ) ;
 
@@ -404,6 +418,66 @@ void QELEventGenerator::LoadConfig(void)
     fHitNucleonBindingMode = genie::utils::StringToQELBindingMode( binding_mode );
 
     GetParamDef( "MaxXSecNucleonThrows", fMaxXSecNucleonThrows, 800 );
+
+    // Build nuclear-model algorithm name -> SecondNucleonEmitter algorithm,
+    std::string nucl_model_names_str, fermi_mover_algids_str;
+    this->GetParam("NuclearModels",         nucl_model_names_str);
+    this->GetParam("SecondNucleonEmitters", fermi_mover_algids_str);
+
+    std::vector<std::string> nucl_model_names  = genie::utils::str::Split(nucl_model_names_str, ";");
+    std::vector<std::string> fermi_mover_algids = genie::utils::str::Split(fermi_mover_algids_str, ";");
+
+    if (nucl_model_names.size() != fermi_mover_algids.size()) {
+        LOG("QELEvent", pFATAL)
+        << "NuclearModels and SecondNucleonEmitters must have the same "
+        << "number of entries (" << nucl_model_names.size() << " vs "
+        << fermi_mover_algids.size() << ")";
+        exit(1);
+    }
+    fSecondEmitterMap.clear();
+    AlgFactory * algf = AlgFactory::Instance(); 
+
+    for (size_t i = 0; i < nucl_model_names.size(); ++i) {
+
+        // split "genie::SRCNuclearRecoil/Default" into alg name + config set
+        const std::string & full = fermi_mover_algids[i];
+        std::string alg_name = full;
+        std::string alg_conf = "Default"; // In case no config is specified, use "Default"
+        size_t slash = full.find('/');
+        if (slash != std::string::npos) {
+        alg_name = full.substr(0, slash);
+        alg_conf = full.substr(slash + 1);  // If the slash is found, take the substring after it as the config
+        }
+
+        const Algorithm * alg = algf->GetAlgorithm(alg_name, alg_conf);
+        const SecondNucleonEmissionI * emitter =
+            dynamic_cast<const SecondNucleonEmissionI *>(alg);
+        if (!emitter) {
+        LOG("QELEvent", pWARN)
+            << "Could not load a valid SecondNucleonEmitter ('" << full
+            << "') for nuclear model '" << nucl_model_names[i] << "' -- entry skipped";
+            continue;
+        }
+
+        fSecondEmitterMap[nucl_model_names[i]] = emitter;
+        LOG("QELEvent", pINFO)
+        << "Registered SecondNucleonEmitter '" << full
+        << "' for nuclear model '" << nucl_model_names[i] << "'";
+    }
+
+    // Now resolve fSecondEmitter for the currently configured nuclear model
+    fSecondEmitter = 0;
+    auto it = fSecondEmitterMap.find(nucl_model_name);
+    if(it != fSecondEmitterMap.end()) {
+        fSecondEmitter = it->second;
+        LOG("QELEvent", pINFO)
+        << "Selected " << fSecondEmitter->Id().Name()
+        << " as SecondNucleonEmitter for nuclear model " << nucl_model_name;
+    }else{
+        LOG("QELEvent", pWARN)
+        << "No SecondNucleonEmitter for nuclear model "
+        << nucl_model_name << " -- SRC recoil disabled";
+    } 
 }
 //____________________________________________________________________________
 double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const

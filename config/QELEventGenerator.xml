@@ -26,8 +26,9 @@ HitNucleonBindingMode    string  Yes   Method used to handle the binding energy 
     <param type="alg"    name="NuclearModel"> genie::NuclearModelMap/Default </param>
     <param type="string" name="HitNucleonBindingMode"> UseNuclearModel </param>
     <param type="double"    name="MaxXSec-SafetyFactor"> 1.6 </param>
-    <!-- <param type="string" name="HitNucleonBindingMode"> OnShell </param> -->
-    <!-- <param type="string" name="HitNucleonBindingMode"> UseGroundStateRemnant </param> -->
+    <!-- Possible SecondNucleonEmitters for every different NuclearModel -->
+    <param type="string" name="NuclearModels">genie::LocalFGM;genie::FGMBodekRitchie;genie::EffectiveSF</param>
+    <param type="string" name="SecondNucleonEmitters">genie::SRCNuclearRecoil/Default;genie::SRCNuclearRecoil/Default;genie::SpectralFunction2p2h/Default</param>
   </param_set>
   
   <param_set name="CC-Default">
