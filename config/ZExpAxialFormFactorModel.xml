@@ -22,7 +22,8 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
 
 -->
 
-<!-- more factors can be added, if necessary according to Kmax --> 
+<!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
+<!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 --> 
   <param_set name="Default"> 
 
     <param type="string"   name="CommonParam"> QuasiElastic  </param>
@@ -34,6 +35,7 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
     <param type="double" name="QEL-Tcut">    0.1764 </param> <!-- 9*m_pi^2 -->
 
     <param type="vec-double" name="QEL-Z_A" delim=";"> 2.30; -0.6; -3.8; 2.3 </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/1603.03048 --> 
     <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_Deuterium.dat </param>
 
   </param_set>
@@ -48,9 +50,9 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
     <param type="double" name="QEL-T0">   -0.5   </param>
     <param type="double" name="QEL-Tcut">  0.161604   </param> <!-- 9*m_pi0^2 -->
 
-    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.65; -0.94 </param>
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.64778080; -0.94181417 </param>
     <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_minervaElementaryTarget.dat </param>
-    
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 -->
   </param_set>
 
   <param_set name="minervaNature"> 
@@ -65,6 +67,12 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
 
     <param type="vec-double" name="QEL-Z_A" delim=";"> 1.50; -1.2; -0.1; 0.2 </param>
     <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_minervaNature4x4.dat </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://www.nature.com/articles/s41586-022-05478-3 --> 
+    <!-- 
+        <param type="int"    name="QEL-Kmax">     2     </param>
+        <param type="vec-double" name="QEL-Z_A" delim=";"> 1.50; -1.2 </param>
+        <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_minervaNature2x2.dat </param>
+        -->
 
   </param_set>
 
@@ -77,9 +85,15 @@ ZExpZAFF@CovarianceMatrix     mat-double  Yes       covariance matrix        GPL
 
     <param type="double" name="QEL-T0">    -0.5    </param>
     <param type="double" name="QEL-Tcut">  0.161604   </param>
-    
-    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.701; -0.263 </param>
+    <!-- LQCD fit from arXiv 2512.14097 v1 -->
+    <!--
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.72089706; -0.30982708 </param>
+    <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_LQCD.dat </param>
+    -->
+    <!-- LQCD fit from arXiv 2512.14097 v3 -->
+    <param type="vec-double" name="QEL-Z_A" delim=";"> 1.70104640; -0.26324902 </param>
     <param type="mat-double" name="ZExpZAFF@CovarianceMatrix" importfile="true"> data/covariances/FormFactor/Axial/AxialZExpFF_LQCD_updated.dat </param>
+    <!-- more factors can be added, if necessary according to Kmax, https://arxiv.org/pdf/2512.14097 -->
 
   </param_set>
 

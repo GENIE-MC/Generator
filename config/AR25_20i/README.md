@@ -24,9 +24,9 @@ Notable components of the physics model are the following:
   and T. Cai et al (MINERvA), Nature 614 (2023) 48-53.
   Note the PRD paper uses the opposite sign convention to GENIE.
 
-  AR25_20i_01_000: uses `ZExp_minerva`       parameters, with    the full sum rules, Eq. (31) CVs
+  AR25_20i_01_000: uses `ZExp_minerva`       parameters, with    the full sum rules, Eq. (33) CVs
   AR25_20i_01_001: uses `ZExp_minervaNature` parameters, from Nature paper Supp. Table 4
-  AR25_20i_01_002: uses `ZExp_lqcd`          parameters, with    the full sum rules, Eq. (39) CVs
+  AR25_20i_01_002: uses `ZExp_lqcd`          parameters, with    the full sum rules, Eq. (41) CVs
 
   Note the `Q4limit` parameter, which applies the sum rules: PRD paper's kmax=6 is
   equivalent to GENIE kmax=2 with Q4limit set to true, which adds four extra constraints.
