@@ -12,6 +12,7 @@ Copyright:
 """
 import os 
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 
@@ -70,6 +71,8 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
 
     if grid_system == 'FNAL' :
         input_xsec = "\$CONDOR_DIR_INPUT/"+xsec_filename
+    elif grid_system == 'LYON' :
+        input_xsec = LYON.JOB_DIR+"/"+xsec_filename
     else :
         input_xsec = free_nuc_dir+xsec_filename
 
@@ -110,6 +113,9 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                                                              git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
                         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                    elif grid_system == 'LYON' :
+                        shell_file = LYON.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
+                        command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
     ## Add command list to dictionary; Key is 4 => event production
     command_dict = {}

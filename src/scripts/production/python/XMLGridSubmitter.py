@@ -21,6 +21,7 @@ import vNSplineCommands as vN
 import vASplineCommands as vA
 import GroupSplineCommands as group
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 sys.path.insert(1, 'event_generation')
 import eScatteringGenCommands as eA
@@ -32,8 +33,8 @@ op.add_option("--git-branch", dest="BRANCH", default="master", help="Genie versi
 op.add_option("--cycle", dest="CYCLE", default="01", help="Cycle (default: %default)")
 op.add_option("--arch", dest="ARCH", default='SL6.x86_64', help="arch number, default: %default")
 op.add_option("--production", dest="PROD", default="routine_validation", help="Production (default: %default)")
-op.add_option("--grid-system", dest="GRID", default="FNAL", help="Grid system is %default ")
-op.add_option("--grid-group", dest="GROUP", default="genie", help="Grid group to run your jobs. I.E: FNAL groups are genie, dune, etc..")
+op.add_option("--grid-system", dest="GRID", default="FNAL", help="Grid system: FNAL or LYON (CC-IN2P3). Default: %default ")
+op.add_option("--grid-group", dest="GROUP", default="", help="Grid group to run your jobs. I.E: FNAL groups are genie (default), dune, etc.. At LYON it is the Slurm account (default: your main group)")
 op.add_option("--softw-topdir", dest="SOFTW", default=os.getenv('GENIE_MASTER_DIR'), help = "software top dir") 
 op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help = "GENIE topdir: %default")
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
@@ -94,16 +95,23 @@ if not os.path.exists(opts.GENIE) :
     print ( "GENIE Path "+opts.GENIE+" doesn't exist. Abort...\n")
     exit()
 
-if opts.GRID != 'FNAL':
-    print ("For now only FNAL option is available. Abort... \n")
+if opts.GRID != 'FNAL' and opts.GRID != 'LYON':
+    print ("For now only FNAL and LYON options are available. Abort... \n")
     exit()
-    # In the future we might have other grids
 
 # Check we run from pnfs persistent or scratch for FNAL:
 if opts.GRID == 'FNAL':
     if 'pnfs' not in opts.JOBSTD : 
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
+
+if opts.GRID == 'FNAL' and opts.GROUP == '' :
+    opts.GROUP = 'genie'
+
+# Check the jobs top dir is shared with the worker nodes for LYON:
+if opts.GRID == 'LYON':
+    if not opts.JOBSTD.startswith('/sps') and not opts.JOBSTD.startswith('/pbs/throng') : 
+        print ("Warning: jobs top dir "+opts.JOBSTD+" is not in /sps or /pbs/throng. Make sure it is accessible from the worker nodes.")
 
 if opts.CONF : 
     if not os.path.exists(opts.CONF) : 
@@ -145,6 +153,15 @@ if opts.GRID == 'FNAL' :
     os.system('cp '+GENIE_setup_file+' '+opts.JOBSTD )
     grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
     genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
+elif opts.GRID == 'LYON' : 
+    # The jobs source the setup scripts directly from the jobs top dir. Existing copies are kept, so that local edits are not lost
+    for setup_name in [ 'setup_LYON.sh', 'setup_GENIE_LYON.sh' ] : 
+        if os.path.exists(opts.JOBSTD+"/"+setup_name) : 
+            print( ' Using existing '+opts.JOBSTD+"/"+setup_name )
+        else : 
+            os.system('cp '+opts.GENIE+'/src/scripts/production/python/'+setup_name+' '+opts.JOBSTD )
+    grid_setup = opts.JOBSTD+"/setup_LYON.sh"
+    genie_setup = opts.JOBSTD+"/setup_GENIE_LYON.sh"
 else : 
     genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
     grid_setup = ""
@@ -165,7 +182,7 @@ loop_i = loop_start
 while loop_i < loop_end + 1: 
     # ID = 0 # vN splines
     if loop_i == 0 :
-        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAXSPLINE,opts.EEMAXSPLINE,
+        command_dict.update( vN.vNSplineCommands(opts.PROBELIST,opts.vNList,opts.NuEMAX,opts.EEMAX,
                                                  opts.NuKnots,opts.EKnots,opts.TUNE,version,opts.GRID,opts.GROUP,
                                                  opts.CONF,opts.ARCH,opts.PROD,opts.CYCLE,opts.SOFTW,opts.GENIE,
                                                  opts.JOBSTD,grid_setup,genie_setup,opts.vNJOBLIFE,opts.JOBMEM,opts.JOBDISK,
@@ -207,7 +224,7 @@ while loop_i < loop_end + 1:
  
     loop_i += 1 
 
-if total_time > int(opts.MAINJOBLIFE) : 
+if opts.GRID == 'FNAL' and total_time > int(opts.MAINJOBLIFE) : 
     print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.MAINJOBLIFE)+") ... Abort ..." ) 
     exit() 
 
@@ -220,6 +237,8 @@ if opts.GRID == 'FNAL' :
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD )
 
     main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.MAINJOBLIFE, opts.MAINMEM, opts.MAINDISK )
+elif opts.GRID == 'LYON' : 
+    main_sub_name = LYON.WriteMainSubmissionFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

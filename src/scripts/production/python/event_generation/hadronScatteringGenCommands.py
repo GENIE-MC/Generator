@@ -12,6 +12,7 @@ Copyright:
 """
 import os 
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 
@@ -113,6 +114,9 @@ def hadronScatteringGenCommands( hadron_list = "212",tgt_list="1000060120", KEBe
                                                              git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
                         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                    elif grid_system == 'LYON' :
+                        shell_file = LYON.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, "", git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
+                        command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
     command_dict = {}
     command_dict[0] = command_list ; 

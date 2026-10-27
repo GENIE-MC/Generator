@@ -22,8 +22,8 @@ An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will
 - git-branch: This is the name of the git branch you want to pull from the GENIE Generator repository. Default is master
 - cycle : defult 01
 - production: default routine_validation
-- grid-system: for now only FNAL available
-- grid-group: you can specify your grid group here. I.E for FNAL: genie, dune,...
+- grid-system: FNAL (default) or LYON (CC-IN2P3, see below)
+- grid-group: you can specify your grid group here. I.E for FNAL: genie (default), dune,... For LYON it is passed as the Slurm account (default: your main group)
 - softw-topdir: base directory for all your GENIE code. 
 - genie-topdir: path to your GENIE/Generator code
 - jobs-topdir: directory where you want to have your output files and submission commands. For FNAL it must be in pnfs.
@@ -77,3 +77,16 @@ In some cases, the user might desire to change the model configuration. For inst
 For instance: 
 `python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --git-branch my_branch_name --jobs-topdir <jobs-topdir> --tune G18_10a_02_11b --conf-dir <jobs-topdir>/conf`
 
+## Running at CC-IN2P3 (Lyon)
+Use `--grid-system LYON` to create the jobs for the Slurm batch system of CC-IN2P3. The options and the directory structure are the same as for FNAL, with these differences:
+
+- jobs-topdir must be in an area shared with the worker nodes, i.e. `/sps/<group>/...` (jobs in `/sps` automatically request the `sps` Slurm licence). 
+- Instead of `fnal_dag_submit.fnal` and `grid_submission.xml`, a `lyon_slurm_submit.sh` script is written. It submits every job with `sbatch`. Each stage (vN splines, grouping, vA splines, grouping, events) only starts when all the jobs of the previous stage succeeded (`--dependency=afterok`); if one fails the remaining stages are cancelled. To submit it manually do `bash <jobs-topdir>/lyon_slurm_submit.sh`
+- Each job runs in the node local scratch (`$TMPDIR`), copies its inputs there with `cp` and copies the outputs back to the jobs directory. The Slurm log of every job is written next to its script as `<job_name>.<job_id>.log`
+- `setup_LYON.sh` and `setup_GENIE_LYON.sh` are copied to jobs-topdir (existing copies are kept, so you can edit them). The dependencies are taken from an LCG view in `/cvmfs/sft.cern.ch`. Change `LCG_VIEW` in `setup_LYON.sh` to use a different release.
+- By default every job clones and compiles GENIE, as at FNAL. Since the jobs directory is shared, it is much faster to build GENIE once (in `/sps`, sourcing `setup_LYON.sh` first) and set `LYON_GENIE_PREBUILT` in `<jobs-topdir>/setup_LYON.sh` to its path. In this case `--git-branch` is ignored.
+- --job-lifetime-* options are the Slurm time limit (in hours) of each job; --subjob-memory and --subjob-disk are the requested memory and local scratch. The main job options (--main-lifetime, --mainjob-memory, --mainjob-disk) are not used.
+- INCL is not available in the LCG views.
+
+For example: 
+`python eAScatteringGridSubmitter.py --grid-system LYON --probe-list 11 --e-tgt-list 1000060120,1000080160 --ebeam-energy 1.6,2.2,3 --jobs-topdir /sps/<group>/<user>/genie_jobs`

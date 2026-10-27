@@ -13,6 +13,7 @@ Copyright:
 """
 import os 
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 
@@ -53,7 +54,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
     
     free_nuc_dir = jobs_topdir + "/"+ version+'-'+production+'_'+cycle+'-xsec_vN'
     in_files = []
-    if grid_system == 'FNAL' : 
+    if grid_system == 'FNAL' or grid_system == 'LYON' : 
         in_files.append(free_nuc_dir+"/total_xsec.xml")
 
     req_nu_list = []
@@ -124,6 +125,9 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 if grid_system == 'FNAL' : 
                     filename_template = job_name
                     input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
+                elif grid_system == 'LYON' : 
+                    filename_template = job_name
+                    input_xsec = LYON.JOB_DIR+"/total_xsec.xml"
                 else :
                     output_spline = jobs_dir + '/' + job_name
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
@@ -140,6 +144,9 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, 
                                                           git_branch, git_loc, configure_INCL,configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                elif grid_system == 'LYON' :
+                    shell_file = LYON.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) 
+                    command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
 
     # Create electron spline commands:
@@ -154,6 +161,9 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                 if grid_system == 'FNAL' : 
                     output_spline = job_name
                     input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
+                elif grid_system == 'LYON' : 
+                    output_spline = job_name
+                    input_xsec = LYON.JOB_DIR+"/total_xsec.xml"
                 else :
                     output_spline = jobs_dir + '/' + job_name
                     input_xsec = free_nuc_dir+"/total_xsec.xml"
@@ -170,6 +180,9 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, 
                                                           git_loc, configure_INCL, configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                elif grid_system == 'LYON' :
+                    shell_file = LYON.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) 
+                    command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
 
     ## Add command list to dictionary; Key is 2 => nuclei spline calculation

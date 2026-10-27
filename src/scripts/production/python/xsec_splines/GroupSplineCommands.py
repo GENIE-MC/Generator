@@ -17,6 +17,7 @@ Copyright:
 """
 import os, glob, re
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 nucleons_pdg = {
@@ -171,6 +172,8 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
 
     if grid_system == 'FNAL' : 
         path = "$CONDOR_DIR_INPUT/"
+    elif grid_system == 'LYON' : 
+        path = LYON.JOB_DIR+"/"
     else : 
         path = xml_dir
 
@@ -203,7 +206,8 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         for tgt in dict_target :
             if len(dict_target[tgt]) == 1 :
                 for nu in dict_target[tgt]:
-                    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+"total_xsec.xml")
+                    copy_cmd = "ifdh cp " if grid_system == 'FNAL' else "cp "
+                    commands.append(copy_cmd+path+nu+"_on_"+tgt+".xml "+path+"total_xsec.xml")
     else :
         commands.append(com_total) 
 
@@ -242,6 +246,9 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, git_branch, git_loc, configure_INCL,configure_G4 ) 
         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time, memory, disk )
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+    elif grid_system == 'LYON' :
+        shell_file=LYON.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, git_branch, git_loc, configure_INCL,configure_G4 ) 
+        command_list.append( LYON.SubmitCommand(group, xml_dir, shell_file, time, memory, disk) )
 
     ## Add command list to dictionary; 
     command_dict = {}
