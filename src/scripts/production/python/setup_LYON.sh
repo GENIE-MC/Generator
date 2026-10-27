@@ -1,10 +1,18 @@
 #!/bin/bash
 
-# Environment for the CC-IN2P3 (Lyon) worker nodes.
-# The GENIE dependencies (ROOT, log4cpp, LHAPDF6, Pythia6, GSL, libxml2, Geant4, HepMC3) are taken from an LCG view.
-# Edit the copy of this file in your jobs top dir to use a different LCG release or platform.
-# The GENIE build given with --genie-topdir must be compiled with this same environment.
-export LCG_VIEW=/cvmfs/sft.cern.ch/lcg/views/LCG_105/x86_64-el9-gcc13-opt
-source $LCG_VIEW/setup.sh
+# Environment for GENIE at CC-IN2P3 (Lyon). It is used to compile GENIE (compile_at_Lyon.sh) and by the grid jobs:
+# GENIE must run with the same environment it was compiled with.
+# ROOT, LHAPDF6 and log4cpp are taken from the JUNO externals (gcc11) in CVMFS.
+source /cvmfs/juno.ihep.ac.cn/el9_amd64_gcc11/Release/J24.2.0/ExternalLibs/ROOT/6.30.08/bashrc
+source /cvmfs/juno.ihep.ac.cn/el9_amd64_gcc11/Release/J24.1.2/ExternalLibs/LHAPDF/6.3.0/bashrc
+source /cvmfs/juno.ihep.ac.cn/el9_amd64_gcc11/Release/J24.1.2/ExternalLibs/log4cpp/1.1.3/bashrc
 
-export LHAPDF_DATA_PATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current:$LHAPDF_DATA_PATH
+# Pythia8 is not part of these externals: PYTHIA8PATH is your Pythia8 installation.
+# compile_at_Lyon.sh writes it in the copy of this file saved with the GENIE build.
+export PYTHIA8PATH=${PYTHIA8PATH:-}
+if [ -n "$PYTHIA8PATH" ] ; then
+    export PYTHIA8DATA=$PYTHIA8PATH/share/Pythia8/xmldoc
+    export LD_LIBRARY_PATH=$PYTHIA8PATH/lib:$LD_LIBRARY_PATH
+else
+    echo "Warning: PYTHIA8PATH is not set"
+fi

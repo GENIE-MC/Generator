@@ -196,12 +196,18 @@ if opts.GRID == 'FNAL' :
     grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
     genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
 elif opts.GRID == 'LYON' : 
-    # The jobs source the setup scripts directly from the jobs top dir. An existing setup_LYON.sh is kept, so that local edits are not lost
+    # The jobs source the setup scripts directly from the jobs top dir. An existing setup_LYON.sh is kept, so that local edits are not lost.
+    # Otherwise the environment saved with the GENIE build by compile_at_Lyon.sh is used: GENIE must run with the one it was compiled with
+    scripts_dir = os.path.dirname(os.path.abspath(__file__))
     if os.path.exists(opts.JOBSTD+"/setup_LYON.sh") : 
         print( ' Using existing '+opts.JOBSTD+"/setup_LYON.sh" )
+    elif os.path.exists(opts.GENIE+"/setup_LYON.sh") : 
+        print( ' Using the environment of the GENIE build '+opts.GENIE+"/setup_LYON.sh" )
+        os.system('cp '+opts.GENIE+'/setup_LYON.sh '+opts.JOBSTD )
     else : 
-        os.system('cp '+opts.GENIE+'/src/scripts/production/python/setup_LYON.sh '+opts.JOBSTD )
-    os.system('cp '+opts.GENIE+'/src/scripts/production/python/setup_GENIE_LYON.sh '+opts.JOBSTD )
+        print( ' Warning: '+opts.GENIE+'/setup_LYON.sh not found. Using '+scripts_dir+'/setup_LYON.sh, check it matches the environment used to compile GENIE' )
+        os.system('cp '+scripts_dir+'/setup_LYON.sh '+opts.JOBSTD )
+    os.system('cp '+scripts_dir+'/setup_GENIE_LYON.sh '+opts.JOBSTD )
     grid_setup = opts.JOBSTD+"/setup_LYON.sh"
     genie_setup = opts.JOBSTD+"/setup_GENIE_LYON.sh"
 else : 
