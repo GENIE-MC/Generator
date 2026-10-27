@@ -126,12 +126,14 @@ EventRecord * PhysInteractionSelector::SelectInteraction
 		 abort();
 	   }
            const Spline * spl = xssl->GetSpline(xsec_alg,interaction);
-           if(spl->ClosestKnotValueIsZero(E,"-")) xsec = 0;
-           else xsec = spl->Evaluate(E);
+           // use the same value GEVGDriver::XSecSum uses for the total cross
+           // section (Evaluate gives 0 between zero knots, and a straight
+           // line next to one)
+           xsec = spl->Evaluate(E);
      } else {
            xsec = xsec_alg->Integral(interaction);
      }
-     TMath::Max(0., xsec);
+     xsec = TMath::Max(0., xsec);
 /*
      LOG("IntSel", pNOTICE)
        << interaction->AsString()
