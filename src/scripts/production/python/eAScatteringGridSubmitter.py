@@ -106,8 +106,8 @@ if not os.path.exists(opts.JOBSTD) :
     exit()
 
 # Check jobstopdir exists
-if not os.path.exists(opts.GENIE) :
-    print ( "GENIE Path "+opts.GENIE+" doesn't exist. Abort...\n")
+if not opts.GENIE or not os.path.exists(opts.GENIE) :
+    print ( "GENIE Path "+str(opts.GENIE)+" doesn't exist. Specify it with --genie-topdir. Abort...\n")
     exit()
 
 if opts.GRID != 'FNAL' and opts.GRID != 'LYON':
@@ -122,6 +122,15 @@ if opts.GRID == 'FNAL':
 
 if opts.GRID == 'FNAL' and opts.GROUP == '' :
     opts.GROUP = 'genie'
+
+# At LYON GENIE is not built on the worker nodes: the jobs use the compiled GENIE in --genie-topdir (default: $GENIE)
+if opts.GRID == 'LYON':
+    if not os.path.exists(opts.GENIE+"/bin/gevgen") or not os.path.exists(opts.GENIE+"/bin/gmkspl") : 
+        print ("No compiled GENIE found in "+opts.GENIE+" . At LYON the jobs use an existing GENIE build: specify its top dir with --genie-topdir. Abort ...")
+        exit()
+    print ( ' Using compiled GENIE from '+opts.GENIE+' (--git-location and --git-branch are only used at FNAL)' )
+    if not opts.GENIE.startswith('/sps') and not opts.GENIE.startswith('/pbs/throng') : 
+        print ("Warning: GENIE top dir "+opts.GENIE+" is not in /sps or /pbs/throng. Make sure it is accessible from the worker nodes.")
 
 # Check the jobs top dir is shared with the worker nodes for LYON:
 if opts.GRID == 'LYON':
@@ -152,7 +161,7 @@ if len(temp_version ) :
     version = temp_version[len(temp_version)-1]
     print ( ' Setting version to '+ version ) 
 
-if opts.BRANCH: 
+if opts.BRANCH and opts.GRID == 'FNAL': 
     print( ' Cloning GENIE Generator ' + opts.BRANCH ) 
 
 # Define directories:
@@ -183,12 +192,12 @@ if opts.GRID == 'FNAL' :
     grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
     genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
 elif opts.GRID == 'LYON' : 
-    # The jobs source the setup scripts directly from the jobs top dir. Existing copies are kept, so that local edits are not lost
-    for setup_name in [ 'setup_LYON.sh', 'setup_GENIE_LYON.sh' ] : 
-        if os.path.exists(opts.JOBSTD+"/"+setup_name) : 
-            print( ' Using existing '+opts.JOBSTD+"/"+setup_name )
-        else : 
-            os.system('cp '+opts.GENIE+'/src/scripts/production/python/'+setup_name+' '+opts.JOBSTD )
+    # The jobs source the setup scripts directly from the jobs top dir. An existing setup_LYON.sh is kept, so that local edits are not lost
+    if os.path.exists(opts.JOBSTD+"/setup_LYON.sh") : 
+        print( ' Using existing '+opts.JOBSTD+"/setup_LYON.sh" )
+    else : 
+        os.system('cp '+opts.GENIE+'/src/scripts/production/python/setup_LYON.sh '+opts.JOBSTD )
+    os.system('cp '+opts.GENIE+'/src/scripts/production/python/setup_GENIE_LYON.sh '+opts.JOBSTD )
     grid_setup = opts.JOBSTD+"/setup_LYON.sh"
     genie_setup = opts.JOBSTD+"/setup_GENIE_LYON.sh"
 else : 

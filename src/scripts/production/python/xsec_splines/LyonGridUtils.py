@@ -3,7 +3,8 @@
 """\
 Utilities to run the GENIE production scripts at the CC-IN2P3 computing centre (Lyon).
 CC-IN2P3 uses the Slurm batch system and the job top directory is expected to be in a
-shared area mounted on the worker nodes (i.e. /sps/<group>/...). Each job runs in its
+shared area mounted on the worker nodes (i.e. /sps/<group>/...). Contrary to FNAL, GENIE
+is not built in each job: the jobs use the compiled GENIE given by --genie-topdir. Each job runs in its
 local scratch area, copies the input files there, and copies the output files back to
 the jobs directory, mirroring what is done with ifdh at FNAL.
 
@@ -22,7 +23,13 @@ import os, glob, re
 # Working directory of each job on the worker node. It is set by the job script itself
 JOB_DIR = "$GENIE_JOB_DIR"
 
-def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output=False ) :
+def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, genie_setup, conf_dir, in_files, genie_topdir, configure_INCL, configure_G4, GHEPMC3Output=False ) :
+    # GENIE is never built on the worker nodes: genie_topdir is an existing GENIE build accessible from them.
+    # It must have been compiled with the options needed by the jobs (Geant4, HepMC3, ...)
+    if configure_INCL :
+        print( "INCL is not available at LYON. Abort ..." )
+        exit()
+
     shell_file = jobs_dir+"/"+shell_name+".sh"
 
     if os.path.exists(shell_file):
@@ -41,16 +48,7 @@ def CreateShellScript ( commands , jobs_dir, shell_name, out_files, grid_setup, 
         for conf_i in conf_files :
             script.write("cp "+conf_i+"  $GENIE_JOB_DIR/conf ;\n")
         conf_dir = "$GENIE_JOB_DIR/conf"
-    INCL="false"
-    G4="false"
-    hepMC="false"
-    if( configure_INCL ) :
-        INCL = "true"
-    if( configure_G4 ) :
-        G4 = "true"
-    if( GHEPMC3Output ) :
-        hepMC = "true"
-    script.write("source "+genie_setup+" "+git_loc+" "+git_branch+" "+INCL+" "+G4+" \""+conf_dir+"\" "+hepMC+" || exit 1 ;\n")
+    script.write("source "+genie_setup+" "+genie_topdir+" \""+conf_dir+"\" || exit 1 ;\n")
     script.write("cd $GENIE_JOB_DIR ;\n")
     # From here on any failure must make the job fail, so that the dependent jobs are not run
     script.write("set -e ;\n")

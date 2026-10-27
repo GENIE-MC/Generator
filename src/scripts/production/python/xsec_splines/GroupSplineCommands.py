@@ -53,8 +53,8 @@ e_name_def = { 11 : 'e',
 
 def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', gen_list='all',version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
-                         genie_topdir=os.getenv('GENIE'), grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                         genie_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, 
+                         genie_topdir=os.getenv('GENIE'), grid_setup = os.getenv('GENIE','')+'src/scripts/production/python/setup_FNAL.sh',
+                         genie_setup = os.getenv('GENIE','')+'src/scripts/production/python/setup_GENIE.sh', jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, 
                          time=2, memory="2GB",disk="2GB", git_branch="master", git_loc="https://github.com/GENIE-MC/Generator", configure_INCL=False, configure_G4=False ) :
     
     # Store root output only for vA spilnes:
@@ -247,7 +247,7 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time, memory, disk )
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
     elif grid_system == 'LYON' :
-        shell_file=LYON.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, git_branch, git_loc, configure_INCL,configure_G4 ) 
+        shell_file=LYON.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, genie_topdir, configure_INCL,configure_G4 ) 
         command_list.append( LYON.SubmitCommand(group, xml_dir, shell_file, time, memory, disk) )
 
     ## Add command list to dictionary; 

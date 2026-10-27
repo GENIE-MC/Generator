@@ -29,9 +29,9 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                             tune='G18_02_02_11b',gen_list="EM", nmaxrun=100000, mcseed=210921029, starting_run=0,gst_output=False, no_ghep=False,version='master', 
                             conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                             softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                            grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                            genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh',
-                            message_thresholds= os.getenv('GENIE')+'config/Messenger.xml',
+                            grid_setup = os.getenv('GENIE','')+'src/scripts/production/python/setup_FNAL.sh', 
+                            genie_setup= os.getenv('GENIE','')+'src/scripts/production/python/setup_GENIE.sh',
+                            message_thresholds= os.getenv('GENIE','')+'config/Messenger.xml',
                             time='10', memory='1GB', disk='2GB',
                             git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator", configure_INCL=False, 
                             configure_G4=False, GHEPMC3Output=False ) :
@@ -114,7 +114,7 @@ def eScatteringGenCommands( e_list = "11",tgt_list="1000060120", EBeam_list="2",
                         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
                         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
                     elif grid_system == 'LYON' :
-                        shell_file = LYON.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, str(xspl_file), git_branch, git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
+                        shell_file = LYON.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, str(xspl_file), genie_topdir, configure_INCL, configure_G4, GHEPMC3Output ) 
                         command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
     ## Add command list to dictionary; Key is 4 => event production
