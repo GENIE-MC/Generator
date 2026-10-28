@@ -30,7 +30,8 @@ tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 100008016
 
 nucleons_EW_proc = [ 'none', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS', 'CCDFR', 'NCDFR', 'Fast' ]
 nucleons_EM_proc = [ 'none', 'EMRES', 'EMDIS', 'EMQEL' ]
-nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'Fast' ]
+nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'CCQE', 'NCEL', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS',
+                   'CCDFR', 'NCDFR', 'CharmCCQE', 'LambdaCCQE', 'SingleKaon', 'NuEElastic', 'IMD', 'Fast' ]
 nuclei_EM_proc = [ 'none', 'EMMEC', 'EMQE', 'EMRES', 'EMDIS' ]
 
 nu_pdg_def = { 've'      :   12,

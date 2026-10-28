@@ -17,7 +17,11 @@ import LyonGridUtils as LYON
 
 # Define Dictionaries
 
-nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'Fast' ]
+# The processes of the FastOnNuclei list are computed in separate jobs, as they are slow on nuclei.
+# 'Fast' (FastOnNuclei in a single job) is still available on request, but it is not part of 'all'
+nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'CCQE', 'NCEL', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS',
+                   'CCDFR', 'NCDFR', 'CharmCCQE', 'LambdaCCQE', 'SingleKaon', 'NuEElastic', 'IMD' ]
+nuclei_EW_proc_optional = [ 'Fast' ]
 nuclei_EM_proc = [ 'none', 'EMMEC', 'EMQE', 'EMRES', 'EMDIS' ]
 tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 1000080160, 1000130270, 1000200400, 1000200480, 1000260560, 1000791970, 1000822080, 1000922380 ]
 
@@ -81,7 +85,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
     if ( gen_list != 'all' ) :
         req_gen_list = gen_list.split(',')
         for process in req_gen_list :
-            if process in nuclei_EW_proc :
+            if process in nuclei_EW_proc or process in nuclei_EW_proc_optional :
                 req_EW_list.append(process)
             if process in nuclei_EM_proc : 
                 req_EM_list.append(process)
