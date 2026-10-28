@@ -172,14 +172,15 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
 
     if grid_system == 'FNAL' : 
         path = "$CONDOR_DIR_INPUT/"
-    elif grid_system == 'LYON' : 
-        path = LYON.JOB_DIR+"/"
-    else : 
+    elif grid_system == 'LYON' :
+        # The xml files are read and written directly in xml_dir, which is shared with the worker nodes
+        path = ""
+    else :
         path = xml_dir
 
     commands = []
-    com_total = "gspladd -o "+path+"total_xsec.xml -f "        
-    for tgt in dict_target : 
+    total_files = []
+    for tgt in dict_target :
         com_nu = "gspladd -o "+path+tgt+".xml -f "
         
         for nu in dict_target[tgt]:
@@ -191,25 +192,22 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
             for file_proc in dict_target[tgt][nu] : 
                 com_proc += path+file_proc + ","
             com_proc = com_proc[:-1]
-            commands.append(com_proc) 
+            commands.append(com_proc)
             com_nu += path+nu+"_on_"+tgt+".xml,"
+            # Every probe on every target goes in the total
+            total_files.append(nu+"_on_"+tgt+".xml")
         com_nu = com_nu[:-1]
-        #if len(dict_target[tgt]) == 1 : 
+        #if len(dict_target[tgt]) == 1 :
         #    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
         #else :
-        #    commands.append(com_nu) 
-        com_total += nu+"_on_"+tgt+".xml,"
-    com_total = com_total[:-1]
+        #    commands.append(com_nu)
 
-    ## if only one target simply rename
-    if len(dict_target) == 1 :
-        for tgt in dict_target :
-            if len(dict_target[tgt]) == 1 :
-                for nu in dict_target[tgt]:
-                    copy_cmd = "ifdh cp " if grid_system == 'FNAL' else "cp "
-                    commands.append(copy_cmd+path+nu+"_on_"+tgt+".xml "+path+"total_xsec.xml")
+    ## if only one probe and target simply rename
+    if len(total_files) == 1 :
+        copy_cmd = "ifdh cp " if grid_system == 'FNAL' else "cp "
+        commands.append(copy_cmd+path+total_files[0]+" "+path+"total_xsec.xml")
     else :
-        commands.append(com_total) 
+        commands.append("gspladd -o "+path+"total_xsec.xml -f "+",".join(total_files))
 
     out_files = [ "total_xsec.xml" ] 
     if os.path.exists( xml_dir + '/total_xsec.xml' ) :
@@ -247,7 +245,14 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time, memory, disk )
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
     elif grid_system == 'LYON' :
-        shell_file=LYON.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, genie_topdir, configure_INCL,configure_G4 ) 
+        # Run in xml_dir, so nothing is copied. The intermediate files are removed afterwards, so that only the
+        # process splines and total_xsec.xml are left (as at FNAL) in case this directory is used as --source-prod-dir
+        intermediate_files = []
+        for tgt in dict_target :
+            for nu in dict_target[tgt] :
+                intermediate_files.append(nu+"_on_"+tgt+".xml")
+        commands = [ "cd "+xml_dir ] + commands + [ "rm -f "+" ".join(intermediate_files) ]
+        shell_file=LYON.CreateShellScript ( commands , xml_dir, process_name, [], grid_setup, genie_setup, conf_dir, [], genie_topdir, configure_INCL,configure_G4 )
         command_list.append( LYON.SubmitCommand(group, xml_dir, shell_file, time, memory, disk) )
 
     ## Add command list to dictionary; 
