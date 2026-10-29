@@ -1582,7 +1582,7 @@ double INukeHadroData2025::IntBounce(const GHepParticle* p, int target, int scod
   // the total envelope, up to the current envelope.
   // Thus, when properly normalized, the last value
   // in the second row of h should be 1.
-  double totxsec = 0.0;
+//  double totxsec = 0.0;
   for(int i=0;i<numEnv;i++)
     {
       double lbound = -1 + i*sr;
@@ -1593,7 +1593,7 @@ double INukeHadroData2025::IntBounce(const GHepParticle* p, int target, int scod
 	  avg += buff[j];
 	}
 
-      totxsec+=avg;
+//      totxsec+=avg;
       avg/= (double(numPoints)/double(numEnv));
       dist[i][0] = TMath::MaxElement(numPoints/numEnv+1,buff);
       dist[i][1] = avg;

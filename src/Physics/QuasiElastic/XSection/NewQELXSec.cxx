@@ -112,7 +112,7 @@ double NewQELXSec::Integrate(const XSecAlgorithmI* model, const Interaction* in)
   // this case, just set up the nucleon at the origin, on-shell, and at rest,
   // then integrate over the angles and return the result.
 
-  double probeE = interaction->InitState().ProbeE( kRfLab );
+//  double probeE = interaction->InitState().ProbeE( kRfLab );
   if ( !tgt->IsNucleus() ) {
     tgt->SetHitNucPosition(0.);
 

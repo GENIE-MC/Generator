@@ -234,7 +234,7 @@ TH2D* SpectralFunc::SelectSpectralFunction(const Target& t) const
       // Search the configuration for a matching proton number Z and matching
       // hit nucleon PDG code. Store the nuclear PDG code for the result if
       // we find a match.
-      int element_match_pdg;
+      int element_match_pdg = 0;
       auto iter = std::find_if( conf_map.cbegin(), conf_map.cend(),
         [ tZ, hitnuc_pdg, &element_match_pdg ]( const auto& conf_pair ) -> bool {
           const std::string prefix = "SpectFuncTable@Pdg=";

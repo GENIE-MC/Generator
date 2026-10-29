@@ -24,7 +24,7 @@ JGDISNuclearModel::JGDISNuclearModel() :
 
 //____________________________________________________________________________
 
-JGDISNuclearModel::JGDISNuclearModel(string config) :
+JGDISNuclearModel::JGDISNuclearModel(string /*config*/) :
   DISNuclearModelI("genie::JGDISNuclearModel"){}
 
 //____________________________________________________________________________
