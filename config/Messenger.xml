@@ -33,7 +33,7 @@
   <priority msgstream="AhrensDMEL">            WARN   </priority>
 
   <priority msgstream="AlgFactory">            NOTICE   </priority>
-  <priority msgstream="Algorithm">             DEBUG   </priority>
+  <priority msgstream="Algorithm">             ERROR   </priority>
   <priority msgstream="AlgConfigPool">         WARN   </priority>
   <priority msgstream="AlvarezRusoCohPi">      WARN   </priority>
   <priority msgstream="BergerSehgalCohPi">     WARN   </priority>
