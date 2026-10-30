@@ -56,7 +56,6 @@ string genie::utils::xml::GetAttribute(xmlNodePtr xml_cur, string attr_name)  {
   return str;
 }
 
-
 //_________________________________________________________________________
 string genie::utils::xml::GetXMLPathList( bool add_tune )   {
 
@@ -99,7 +98,7 @@ string genie::utils::xml::GetXMLPathList( bool add_tune )   {
   if (GENIE_REWEIGHT)
     pathlist += ":" + (std::string(GENIE_REWEIGHT) + "/config");
   pathlist += ":$GENIE/src/Tools/Flux/GNuMINtuple";  // special case
-  pathlist += ":$GENIE/config/tunes";
+
   return pathlist;
 }
 

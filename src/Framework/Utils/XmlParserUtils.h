@@ -74,7 +74,39 @@ namespace xml   {
   // user additions should be in $GXMLPATH
 
   //_________________________________________________________________________
-  inline string GetXMLDefaultPath() { return "$GENIE/config" ; }
+  inline string GetXMLDefaultPath() { 
+    return "$GENIE/config:" 
+           "$GENIE/config/Tunes:"
+           "$GENIE/config/AnomalyMediatedNuGamma:"
+           "$GENIE/config/HELepton:"
+           "$GENIE/config/NuclearState:"
+           "$GENIE/config/BeamHNL:"
+           "$GENIE/config/NucleonDecay:"
+           "$GENIE/config/BoostedDarkMatter:"
+           "$GENIE/config/Diffractive:"
+           "$GENIE/config/NuElectron:"
+           "$GENIE/config/Charm:"
+           "$GENIE/config/Hadronisation:"
+           "$GENIE/config/InverseBetaDecay:"
+           "$GENIE/config/Multinucleon:"
+           "$GENIE/config/PartonDistributions:"
+           "$GENIE/config/Coherent:"
+           "$GENIE/config/DarkNeutrino:"
+           "$GENIE/config/EventGen:"
+           "$GENIE/config/HadronTensors:"
+           "$GENIE/config/MuonEnergyLoss:"
+           "$GENIE/config/QuasiElastic:"
+           "$GENIE/config/Common:"
+           "$GENIE/config/Decay:"
+           "$GENIE/config/EvtLib:"
+           "$GENIE/config/HadronTransport:"
+           "$GENIE/config/NNBarOscillation:"
+           "$GENIE/config/Resonance:"
+           "$GENIE/config/DeepInelastic:"
+           "$GENIE/config/HEDIS:"
+           "$GENIE/config/NuclearDeExcitation:"
+           "$GENIE/config/Strange";
+  }
   //standard path in case no env variable are set
 
   //_________________________________________________________________________
