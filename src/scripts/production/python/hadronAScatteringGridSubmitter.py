@@ -54,6 +54,7 @@ op.add_option("--submit-jobs", dest="SUBMIT", default=False, action="store_true"
 op.add_option("--job-lifetime", dest="JOBLIFE", default=15, help="Expected lifetime on the grid, default %default h")
 op.add_option("--subjob-memory", dest="JOBMEM", default="2GB", help="Expected memory usage for each event generation job, default %default. Notice you must specify the units. ")
 op.add_option("--subjob-disk", dest="JOBDISK", default="2GB", help="Expected disk space for each event generation job, default %default. Notice you must specify the units. ")
+op.add_option("--max-parallel-jobs", dest="MAXPARALLEL", type="int", default=0, help="LYON only: maximum number of jobs of each stage running at the same time, 0 for no limit. Default: %default")
 op.add_option("--mainjob-lifetime", dest="MAINLIFE", default=25, help="Expected lifetime on the grid for all the jobs to be finished, default %default h")
 op.add_option("--mainjob-memory", dest="MAINMEM", default="20GB", help="Main job memory usage, default %default")
 op.add_option("--mainjob-disk", dest="MAINDISK", default="20GB", help="Main job disk usate, default %default")
@@ -211,7 +212,7 @@ if opts.GRID == 'FNAL':
 
     main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.MAINLIFE, opts.MAINMEM, opts.MAINDISK )
 elif opts.GRID == 'LYON' : 
-    main_sub_name = LYON.WriteMainSubmissionFile(command_dict, 0, 0, opts.JOBSTD)
+    main_sub_name = LYON.WriteMainSubmissionFile(command_dict, 0, 0, opts.JOBSTD, opts.MAXPARALLEL)
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

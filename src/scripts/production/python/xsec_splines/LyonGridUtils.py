@@ -100,8 +100,10 @@ def SubmitCommand(group, jobs_dir, shell_file, hours = 10, memory="1GB", disk="5
     job_name = os.path.basename(shell_file)[:-3]
     return "sbatch "+LyonShellCommands(group, jobs_dir, job_name, hours, memory, disk)+" "+shell_file
 
-def WriteMainSubmissionFile(commands_dict, start, end, jobs_dir, out_file_name='lyon_slurm_submit.sh'):
-    # Equivalent of the FNAL dag: every stage only starts if all the jobs of the previous stage succeeded
+def WriteMainSubmissionFile(commands_dict, start, end, jobs_dir, max_parallel=0, out_file_name='lyon_slurm_submit.sh'):
+    # Equivalent of the FNAL dag: every stage only starts if all the jobs of the previous stage succeeded.
+    # At most max_parallel jobs of each stage run at the same time (0: no limit): job k of a stage starts once
+    # job k-max_parallel of the same stage has ended
     lyon_file = jobs_dir+"/"+out_file_name
     if os.path.exists(lyon_file):
         os.remove(lyon_file)
@@ -111,11 +113,18 @@ def WriteMainSubmissionFile(commands_dict, start, end, jobs_dir, out_file_name='
     # If a submission fails, the jobs already submitted are cancelled and nothing else is submitted
     script.write("#!/bin/bash\n")
     script.write("# Submits the GENIE jobs to the CC-IN2P3 Slurm batch system\n")
+    script.write("# At most MAX_PARALLEL_JOBS jobs of each stage run at the same time (0: no limit).\n")
+    script.write("# It can be changed when submitting: MAX_PARALLEL_JOBS=100 bash "+out_file_name+"\n")
+    script.write("MAX_PARALLEL_JOBS=${MAX_PARALLEL_JOBS:-"+str(int(max_parallel))+"}\n")
     script.write("submit() {\n")
-    script.write("  local jid\n")
+    script.write("  local jid deps=\"\"\n")
     script.write("  [ -z \"$SUBMIT_FAILED\" ] || return 1\n")
-    script.write("  if [ -n \"$PREV_IDS\" ] ; then\n")
-    script.write("    jid=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=afterok$PREV_IDS \"$@\")\n")
+    script.write("  [ -z \"$PREV_IDS\" ] || deps=\"afterok$PREV_IDS\"\n")
+    script.write("  if [ \"$MAX_PARALLEL_JOBS\" -gt 0 ] && [ ${#STAGE_IDS[@]} -ge \"$MAX_PARALLEL_JOBS\" ] ; then\n")
+    script.write("    deps=\"${deps:+$deps,}afterany:${STAGE_IDS[${#STAGE_IDS[@]}-MAX_PARALLEL_JOBS]}\"\n")
+    script.write("  fi\n")
+    script.write("  if [ -n \"$deps\" ] ; then\n")
+    script.write("    jid=$(sbatch --parsable --kill-on-invalid-dep=yes --dependency=$deps \"$@\")\n")
     script.write("  else\n")
     script.write("    jid=$(sbatch --parsable \"$@\")\n")
     script.write("  fi\n")
@@ -126,6 +135,7 @@ def WriteMainSubmissionFile(commands_dict, start, end, jobs_dir, out_file_name='
     script.write("  jid=${jid%%;*}\n")
     script.write("  CURR_IDS=\"$CURR_IDS:$jid\"\n")
     script.write("  SUBMITTED_IDS=\"$SUBMITTED_IDS $jid\"\n")
+    script.write("  STAGE_IDS+=($jid)\n")
     script.write("}\n")
     script.write("cancel_submitted() {\n")
     script.write("  echo \"Job submission failed. Cancelling the jobs already submitted:$SUBMITTED_IDS\"\n")
@@ -143,6 +153,7 @@ def WriteMainSubmissionFile(commands_dict, start, end, jobs_dir, out_file_name='
             continue
         script.write("\n# Stage "+str(id)+": "+str(len(command_list))+" job(s)\n")
         script.write("CURR_IDS=\"\"\n")
+        script.write("STAGE_IDS=()\n")
         for command in command_list :
             script.write(re.sub(r'^sbatch ', 'submit ', command)+"\n")
         script.write("if [ -n \"$SUBMIT_FAILED\" ] ; then cancel_submitted ; return 1 2> /dev/null || exit 1 ; fi\n")

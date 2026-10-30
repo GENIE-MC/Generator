@@ -61,6 +61,7 @@ op.add_option("--mainjob-memory", dest="MAINMEM", default=20, help="Main job mem
 op.add_option("--mainjob-disk", dest="MAINDISK", default=20, help="Main job disk usate, default %default")
 op.add_option("--subjob-memory", dest="JOBMEM", default="2GB", help="Expected memory usage for each event generation job, default %default. Notice you must specify the units. ")
 op.add_option("--subjob-disk", dest="JOBDISK", default="2GB", help="Expected disk space for each event generation job, default %default. Notice you must specify the units. ")
+op.add_option("--max-parallel-jobs", dest="MAXPARALLEL", type="int", default=0, help="LYON only: maximum number of jobs of each stage running at the same time, 0 for no limit. Default: %default")
 op.add_option("--store-comitinfo", dest="STORECOMMIT", default=False, action="store_true", help="Store command line in jobstopdir directory")
 opts, args = op.parse_args()
 
@@ -253,7 +254,7 @@ if opts.GRID == 'FNAL' :
 
     main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.MAINJOBLIFE, opts.MAINMEM, opts.MAINDISK )
 elif opts.GRID == 'LYON' : 
-    main_sub_name = LYON.WriteMainSubmissionFile(command_dict, loop_start, loop_end, opts.JOBSTD)
+    main_sub_name = LYON.WriteMainSubmissionFile(command_dict, loop_start, loop_end, opts.JOBSTD, opts.MAXPARALLEL)
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB
