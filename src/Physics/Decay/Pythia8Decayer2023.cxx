@@ -577,6 +577,7 @@ int Pythia8Decayer2023::FindPythiaDecayChannel(int pdgc, TDecayChannel* dc) cons
 //___________________________________________________________________________
 void Pythia8Decayer2023::PrintDecayChannelInfo(int pdgc) const
 {
+#ifdef __GENIE_PYTHIA8_ENABLED__
   LOG("Decay",pDEBUG)
     << "Real implementation for PrintDecayInfo(" << pdgc << ") for "
     << typeid(*this).name();
@@ -654,6 +655,11 @@ void Pythia8Decayer2023::PrintDecayChannelInfo(int pdgc) const
   LOG("Pythia8Decay",pNOTICE)
     << " Pythia8 view of decays for " <<  py8_p->name() << "(" << pdgc << ")";
   gPythia->particleData.list(pdgc);
-
+#else
+  LOG("Pythia8Decay", pFATAL)
+    << "calling GENIE/PYTHIA8 decay without enabling PYTHIA8";
+  gAbortingInErr = true;
+  std::exit(1);
+#endif
 }
 //___________________________________________________________________________

@@ -73,7 +73,7 @@ ifeq ($(ROOT_MAJOR),6)
 # -e "s/\.dylib\.so/\.dylib/g"
 #   order matters here
 	  sed -i.bak \
-	             -e "s/_rdict.pcm/.so/g"  \
+	             -e "s/_rdict.pcm/.$(DllSuf)/g"  \
 	             -e "s%^header *%header $(PACKAGE)/%g" \
 	             -e "s%$(GENIE_LIB_PATH)/%%g" \
 	     $(PACKAGE_ROOTMAP)

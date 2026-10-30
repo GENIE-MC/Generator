@@ -20,9 +20,9 @@ The physics content is the following
   and T. Cai et al (MINERvA), Nature 614 (2023) 48-53.
   Note the PRD paper uses the opposite sign convention to GENIE.
 
-  AR23_20m_01_000: uses `ZExp_minerva`       parameters, with    the full sum rules, Eq. (31) CVs
+  AR23_20m_01_000: uses `ZExp_minerva`       parameters, with    the full sum rules, Eq. (33) CVs
   AR23_20m_01_001: uses `ZExp_minervaNature` parameters, from Nature paper Supp. Table 4
-  AR23_20m_01_002: uses `ZExp_lqcd`          parameters, with    the full sum rules, Eq. (39) CVs
+  AR23_20m_01_002: uses `ZExp_lqcd`          parameters, with    the full sum rules, Eq. (41) CVs
 
   Note the `Q4limit` parameter, which applies the sum rules: PRD paper's kmax=6 is
   equivalent to GENIE kmax=2 with Q4limit set to true, which adds four extra constraints.
@@ -35,11 +35,11 @@ The physics content is the following
   |-----------------------|------|---------|--------------|----------------|--------------------------|
   | Tune: AR23_20m_X0_000 | Kmax | FA0     | T0 (GeV/c)^2 | Tcut (GeV/c)^2 |       A1,A2...           |
   |-----------------------|------|---------|--------------|----------------|--------------------------|
-  |  Def: AR23_20m_00_000 |    4 | -1.2670 |        -0.28 |       0.1764   |      2.30,-0.6,-3.8,2.4  |
+  |  Def: AR23_20m_00_000 |    4 | -1.2670 |        -0.28 |       0.1764   |      2.30,-0.6,-3.8,2.3  |
   |-----------------------|------|---------|--------------|----------------|--------------------------|
   |  Mnv: AR23_20m_01_000 |    2 | -1.2754 |        -0.5  |       0.161604 |              1.65,-0.94  |
   |-----------------------|------|---------|--------------|----------------|--------------------------|
   |  Mnv: AR23_20m_01_001 |    4 | -1.2723 |        -0.75 |       0.1764   |      1.50,-1.2,-0.1,0.2  |
   |-----------------------|------|---------|--------------|----------------|--------------------------|
-  | LQCD: AR23_20m_01_002 |    2 | -1.2754 |        -0.5  |       0.161604 |             1.721,-0.31  |
+  | LQCD: AR23_20m_01_002 |    2 | -1.2754 |        -0.5  |       0.161604 |            1.701,-0.263  |
   |-----------------------|------|---------|--------------|----------------|--------------------------|

@@ -239,8 +239,8 @@ define_cfg \$1 \$2
 export GXMLPATH=\${JOBXMLPATH}:\${GXMLPATH}
 # copy in NewQELXSec and specify 1 nucleon
 awk '{sub(/NumNucleonThrows"> *[0-9]+/, "NumNucleonThrows\"> 1")}1' \${GENIE}/config/NewQELXSec.xml > \${JOBXMLPATH}/NewQELXSec.xml
-# (temporarily) copy in average_splines.py from GPVMs... This should live in tagged contrib
-ifdh cp -D /exp/sbnd/app/users/kplows/gen_workshop/BuildEventGenerators/production/splines-interpolation/test_configs/average_splines.py \${JOBXMLPATH}/
+# copy in average_splines.py
+cp \${GENIE}/src/contrib/ccqe_spline_smoothing/average_splines.py \${JOBXMLPATH}/
 
 # build the command
 GENIECMD="gmkspl"

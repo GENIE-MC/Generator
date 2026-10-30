@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
-  Copyright (c) 2003-2025, The GENIE Collaboration
+  Copyright (c) 2003-2026, The GENIE Collaboration
   For the full text of the license visit http://copyright.genie-mc.org
 
   Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -240,7 +240,7 @@ void DISXSec::CacheFreeNucleonXSec(const XSecAlgorithmI *model,
   // Compute the number of spline knots - use at least 10 knots per decade
   // && at least 40 knots in the full energy range
   const double Emin = fVldEmin / 3.;
-  const double Emax = RunOpt::Instance()->EMax() > 0  && RunOpt::Instance()->EMax() < fVldEmax ?  RunOpt::Instance()->EMax() * 3. : fVldEmax * 3.;
+  const double Emax = fVldEmax * 3.;
   const int nknots_min = (int)(10 * (TMath::Log(Emax) - TMath::Log(Emin)));
   const int nknots = TMath::Max(40, nknots_min);
 
