@@ -9,7 +9,7 @@ Name                        Type    Opt   Comment                               
 SFAlg                       alg     No    Structure functions algorithm
 XSec-Integrator             alg     No
 
-DIS-XSecScale               double  No    XSec scaling factor
+DIS-XSecScale               double  NO    XSec scaling factor                                 1
 WeinbergAngle               double  No                                                        CommonParam[WeakInt]
 -->
 
@@ -29,18 +29,12 @@ WeinbergAngle               double  No                                          
     <param type="string" name="CommonParam"> WeakInt  </param>
     <param type="alg" name="XSec-Integrator"> genie::DISXSec/Default  </param>
     <param type="alg" name="SFAlg"> genie::BY00StrucFunc/BY00   </param>
-    <param type="double" name="DIS-CC-XSecScale">    1. </param>
-    <param type="double" name="DIS-NC-XSecScale">    1. </param>
-    <param type="double" name="DIS-EM-XSecScale">    1. </param>
   </param_set>
 
   <param_set name="BY21">
     <param type="string" name="CommonParam"> WeakInt  </param>
     <param type="alg" name="XSec-Integrator"> genie::DISXSec/BY21  </param>
     <param type="alg" name="SFAlg"> genie::BY21StrucFunc/Default   </param>
-    <param type="double" name="DIS-CC-XSecScale">    1. </param>
-    <param type="double" name="DIS-NC-XSecScale">    1. </param>
-    <param type="double" name="DIS-EM-XSecScale">    1. </param>
   </param_set>
 
 </alg_conf>

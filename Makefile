@@ -655,6 +655,9 @@ clean-files: FORCE
 	cd ${GENIE}/src/Apps                                     &&  $(MAKE) clean && \
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) clean && \
 	cd ${GENIE}
+ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
+	cd ${GENIE}/src/ExternalLibs/professor 					&& make clean && cd $(GENIE)
+endif
 
 clean-dir: FORCE
 	@echo "Deleting GENIE lib and bin directories..." && \
