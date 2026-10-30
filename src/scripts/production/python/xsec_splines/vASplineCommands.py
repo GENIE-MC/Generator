@@ -17,11 +17,16 @@ import LyonGridUtils as LYON
 
 # Define Dictionaries
 
-# The processes of the FastOnNuclei list are computed in separate jobs, as they are slow on nuclei.
-# 'Fast' (FastOnNuclei in a single job) is still available on request, but it is not part of 'all'
-nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'CCQE', 'NCEL', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS',
-                   'CCDFR', 'NCDFR', 'CharmCCQE', 'LambdaCCQE', 'SingleKaon', 'NuEElastic', 'IMD' ]
-nuclei_EW_proc_optional = [ 'Fast' ]
+# FastOnNuclei is slow on nuclei because of QE and DIS, so these are computed in their own jobs. The other
+# processes of FastOnNuclei are computed together in the FastOther job.
+nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'QE', 'DIS', 'FastOther' ]
+# Also available on request, but not part of 'all': FastOnNuclei in a single job and each process on its own
+nuclei_EW_proc_optional = [ 'Fast', 'CCQE', 'NCEL', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS', 'CCDFR', 'NCDFR',
+                            'CharmCCQE', 'LambdaCCQE', 'SingleKaon', 'NuEElastic', 'IMD' ]
+# gmkspl takes a single event generator list, so a job made of several lists runs gmkspl for each of
+# them and adds the splines with gspladd
+nuclei_EW_proc_lists = { 'Fast' : [ 'FastOnNuclei' ],
+                         'FastOther' : [ 'RES', 'DFR', 'CharmCCQE', 'LambdaCCQE', 'SingleKaon', 'NuEElastic', 'IMD' ] }
 nuclei_EM_proc = [ 'none', 'EMMEC', 'EMQE', 'EMRES', 'EMDIS' ]
 tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 1000080160, 1000130270, 1000200400, 1000200480, 1000260560, 1000791970, 1000822080, 1000922380 ]
 
@@ -119,10 +124,7 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
         for target in req_nu_tgt_list : 
             for process in req_EW_list :
                 if process == 'none' : continue 
-                if process == 'Fast' : 
-                    event_gen_list = 'FastOnNuclei'
-                else : 
-                    event_gen_list = process 
+                event_gen_lists = nuclei_EW_proc_lists.get(process, [ process ])
                 
                 # Job definition
                 job_name = nu_name_def[nu]+'_on_'+str(target)+'_'+process
@@ -140,8 +142,19 @@ def vASplineCommands( probe_list='all', nu_tgt_list = 'all', e_tgt_list = 'all',
                     # Need to remove xml files before re-generating them
                     os.remove( jobs_dir + '/' + filename_template+".xml" )
 
-                gmkspl_cmd = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(nu_n_knots) + " -e "+ str(nu_E_max) + " --tune " + tune 
-                gmkspl_cmd += " --input-cross-sections "+ input_xsec+" -o "+ filename_template+".xml --event-generator-list " + event_gen_list +" --no-copy "  
+                gmkspl_cmd = []
+                list_files = []
+                for event_gen_list in event_gen_lists :
+                    if len(event_gen_lists) == 1 : 
+                        list_file = filename_template+".xml"
+                    else : 
+                        list_file = filename_template+"_"+event_gen_list+".xml"
+                    list_files.append(list_file)
+                    command = "gmkspl -p "+str(nu)+ " -t "+ str(target) + " -n "+ str(nu_n_knots) + " -e "+ str(nu_E_max) + " --tune " + tune 
+                    command += " --input-cross-sections "+ input_xsec+" -o "+ list_file +" --event-generator-list " + event_gen_list +" --no-copy "  
+                    gmkspl_cmd.append(command)
+                if len(list_files) > 1 : 
+                    gmkspl_cmd.append("gspladd -o "+filename_template+".xml -f "+",".join(list_files))
                 
                 shell_file = ''
                 if grid_system == 'FNAL' :

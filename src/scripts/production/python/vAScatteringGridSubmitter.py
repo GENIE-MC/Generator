@@ -47,7 +47,7 @@ op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma se
 op.add_option("--exp-target", dest="TGTMIX", default='', help="Specify target mix of the experiment. This is the target used for event generation. Default --nu-tgt-list.")
 op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
-op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well. By default the processes of FastOnNuclei are run in separate jobs (CCQE,NCEL,CCRES,...); use Fast to run them in a single job")
+op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well. By default FastOnNuclei is run in three jobs: QE, DIS and FastOther (the rest). Use Fast to run it in a single job, or CCQE,NCEL,CCRES,... to run each process on its own")
 op.add_option("--E-nu-max-splines", dest="NuEMAXSPLINES", type="int", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--E-e-max-splines", dest="EEMAXSPLINES", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--N-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
