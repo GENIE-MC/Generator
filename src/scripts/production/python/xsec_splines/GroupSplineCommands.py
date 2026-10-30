@@ -17,6 +17,7 @@ Copyright:
 """
 import os, glob, re
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 nucleons_pdg = {
@@ -29,7 +30,8 @@ tgt_pdg = [1000010020, 1000010030, 1000020030, 1000020040, 1000060120, 100008016
 
 nucleons_EW_proc = [ 'none', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS', 'CCDFR', 'NCDFR', 'Fast' ]
 nucleons_EM_proc = [ 'none', 'EMRES', 'EMDIS', 'EMQEL' ]
-nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'Fast' ]
+nuclei_EW_proc = [ 'none', 'WeakMEC', 'CCCOHPION', 'NCCOHPION', 'CCQE', 'NCEL', 'CCRES', 'NCRES', 'CCDIS', 'NCDIS',
+                   'CCDFR', 'NCDFR', 'CharmCCQE', 'LambdaCCQE', 'SingleKaon', 'NuEElastic', 'IMD', 'Fast' ]
 nuclei_EM_proc = [ 'none', 'EMMEC', 'EMQE', 'EMRES', 'EMDIS' ]
 
 nu_pdg_def = { 've'      :   12,
@@ -52,8 +54,8 @@ e_name_def = { 11 : 'e',
 
 def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir='', tune='G18_02_02_11b', gen_list='all',version='master', conf_dir='', grid_system='FNAL', group='genie', 
                          arch='SL6.x86_64', production='routine_validation', cycle='01', softw_topdir=os.getenv('GENIE_MASTER_DIR'),
-                         genie_topdir=os.getenv('GENIE'), grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                         genie_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, 
+                         genie_topdir=os.getenv('GENIE'), grid_setup = os.getenv('GENIE','')+'src/scripts/production/python/setup_FNAL.sh',
+                         genie_setup = os.getenv('GENIE','')+'src/scripts/production/python/setup_GENIE.sh', jobs_topdir=os.getenv('PWD'), add_list=False, add_nucleons = False, 
                          time=2, memory="2GB",disk="2GB", git_branch="master", git_loc="https://github.com/GENIE-MC/Generator", configure_INCL=False, configure_G4=False ) :
     
     # Store root output only for vA spilnes:
@@ -171,12 +173,15 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
 
     if grid_system == 'FNAL' : 
         path = "$CONDOR_DIR_INPUT/"
-    else : 
+    elif grid_system == 'LYON' :
+        # The xml files are read and written directly in xml_dir, which is shared with the worker nodes
+        path = ""
+    else :
         path = xml_dir
 
     commands = []
-    com_total = "gspladd -o "+path+"total_xsec.xml -f "        
-    for tgt in dict_target : 
+    total_files = []
+    for tgt in dict_target :
         com_nu = "gspladd -o "+path+tgt+".xml -f "
         
         for nu in dict_target[tgt]:
@@ -188,24 +193,22 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
             for file_proc in dict_target[tgt][nu] : 
                 com_proc += path+file_proc + ","
             com_proc = com_proc[:-1]
-            commands.append(com_proc) 
+            commands.append(com_proc)
             com_nu += path+nu+"_on_"+tgt+".xml,"
+            # Every probe on every target goes in the total
+            total_files.append(nu+"_on_"+tgt+".xml")
         com_nu = com_nu[:-1]
-        #if len(dict_target[tgt]) == 1 : 
+        #if len(dict_target[tgt]) == 1 :
         #    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+tgt+".xml")
         #else :
-        #    commands.append(com_nu) 
-        com_total += nu+"_on_"+tgt+".xml,"
-    com_total = com_total[:-1]
+        #    commands.append(com_nu)
 
-    ## if only one target simply rename
-    if len(dict_target) == 1 :
-        for tgt in dict_target :
-            if len(dict_target[tgt]) == 1 :
-                for nu in dict_target[tgt]:
-                    commands.append("ifdh cp "+path+nu+"_on_"+tgt+".xml "+path+"total_xsec.xml")
+    ## if only one probe and target simply rename
+    if len(total_files) == 1 :
+        copy_cmd = "ifdh cp " if grid_system == 'FNAL' else "cp "
+        commands.append(copy_cmd+path+total_files[0]+" "+path+"total_xsec.xml")
     else :
-        commands.append(com_total) 
+        commands.append("gspladd -o "+path+"total_xsec.xml -f "+",".join(total_files))
 
     out_files = [ "total_xsec.xml" ] 
     if os.path.exists( xml_dir + '/total_xsec.xml' ) :
@@ -242,6 +245,16 @@ def GroupSplineCommands( group_vN=False, xml_dir=os.getenv('PWD'), mother_dir=''
         shell_file=FNAL.CreateShellScript ( commands , xml_dir, process_name, out_files, grid_setup, genie_setup, conf_dir, in_xml_files, git_branch, git_loc, configure_INCL,configure_G4 ) 
         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup, time, memory, disk )
         command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+    elif grid_system == 'LYON' :
+        # Run in xml_dir, so nothing is copied. The intermediate files are removed afterwards, so that only the
+        # process splines and total_xsec.xml are left (as at FNAL) in case this directory is used as --source-prod-dir
+        intermediate_files = []
+        for tgt in dict_target :
+            for nu in dict_target[tgt] :
+                intermediate_files.append(nu+"_on_"+tgt+".xml")
+        commands = [ "cd "+xml_dir ] + commands + [ "rm -f "+" ".join(intermediate_files) ]
+        shell_file=LYON.CreateShellScript ( commands , xml_dir, process_name, [], grid_setup, genie_setup, conf_dir, [], genie_topdir, configure_INCL,configure_G4 )
+        command_list.append( LYON.SubmitCommand(group, xml_dir, shell_file, time, memory, disk) )
 
     ## Add command list to dictionary; 
     command_dict = {}

@@ -22,8 +22,8 @@ An example of a Submitter code is `eAScatteringGridSubmitter.py`. This code will
 - git-branch: This is the name of the git branch you want to pull from the GENIE Generator repository. Default is master
 - cycle : defult 01
 - production: default routine_validation
-- grid-system: for now only FNAL available
-- grid-group: you can specify your grid group here. I.E for FNAL: genie, dune,...
+- grid-system: FNAL (default) or LYON (CC-IN2P3, see below)
+- grid-group: you can specify your grid group here. I.E for FNAL: genie (default), dune,... For LYON it is passed as the Slurm account (default: your main group)
 - softw-topdir: base directory for all your GENIE code. 
 - genie-topdir: path to your GENIE/Generator code
 - jobs-topdir: directory where you want to have your output files and submission commands. For FNAL it must be in pnfs.
@@ -77,3 +77,23 @@ In some cases, the user might desire to change the model configuration. For inst
 For instance: 
 `python eAScatteringGridSubmitter.py --probe-list 11 --tgt-list 1000060120,1000080160 --energy 1.6,2.2,3 --submit-jobs --starting-point 4 --source-prod-dir MySplines/ --git-branch my_branch_name --jobs-topdir <jobs-topdir> --tune G18_10a_02_11b --conf-dir <jobs-topdir>/conf`
 
+## Running at CC-IN2P3 (Lyon)
+Use `--grid-system LYON` to create the jobs for the Slurm batch system of CC-IN2P3. The options and the directory structure are the same as for FNAL, with these differences:
+
+- GENIE is NOT cloned and compiled in each job (this is only done at FNAL). The jobs use the compiled GENIE in `--genie-topdir`, which defaults to `$GENIE`. The submitter aborts if no compiled GENIE (`bin/gevgen`, `bin/gmkspl`) is found there. `--git-location` and `--git-branch` are ignored. If you do not have a GENIE build yet, compile one with `compile_at_Lyon.sh` (see below).
+- jobs-topdir must be in an area shared with the worker nodes, i.e. `/sps/<group>/...` (jobs in `/sps` automatically request the `sps` Slurm licence). 
+- Instead of `fnal_dag_submit.fnal` and `grid_submission.xml`, a `lyon_slurm_submit.sh` script is written. It submits every job with `sbatch`. Each stage (vN splines, grouping, vA splines, grouping, events) only starts when all the jobs of the previous stage succeeded (`--dependency=afterok`); if one fails the remaining stages are cancelled. To submit it manually do `bash <jobs-topdir>/lyon_slurm_submit.sh` (it can also be sourced). If a submission fails, the jobs already submitted are cancelled.
+- Each job runs in the node local scratch (`$TMPDIR`), copies its inputs there with `cp` and copies the outputs back to the jobs directory. The Slurm log of every job is written next to its script as `<job_name>.<job_id>.log`
+- GENIE must run with the environment it was compiled with. `setup_LYON.sh` takes ROOT, LHAPDF6 and log4cpp from the JUNO externals in CVMFS, and Pythia8 from `$PYTHIA8PATH`. The submitter copies it to jobs-topdir from, in this order: an existing `<jobs-topdir>/setup_LYON.sh` (so you can edit it), the copy saved with the build by `compile_at_Lyon.sh` (`<genie-topdir>/setup_LYON.sh`), or the default one in this directory.
+- --job-lifetime-* options are the Slurm time limit (in hours) of each job; --subjob-memory is the requested memory. --subjob-disk is not used: the local scratch space can not be requested at CC-IN2P3. The main job options (--main-lifetime, --mainjob-memory, --mainjob-disk) are not used.
+- INCL tunes are not supported by the Lyon job scripts.
+
+For example: 
+`python eAScatteringGridSubmitter.py --grid-system LYON --genie-topdir /sps/<group>/<user>/Generator --probe-list 11 --e-tgt-list 1000060120,1000080160 --ebeam-energy 1.6,2.2,3 --jobs-topdir /sps/<group>/<user>/genie_jobs`
+
+### Compiling GENIE at Lyon
+`compile_at_Lyon.sh` is a standalone script to compile GENIE once, if you do not have a build yet. It is not run by the jobs. It clones `--git-location` at `--version` (branch or tag), sources `setup_LYON.sh` and configures GENIE for the FSI model of `--tune`: tunes `Gxx_yya_...` (hA) and `Gxx_yyb_...` (hN) use the standard build, `c` (INCL++) needs `--incl-dir` and `--boost-dir`, and `d` (Geant4) needs `--geant4-setup`. Use `--fsi` if the tune name does not follow this convention. Run it with `--help` for all the options.
+
+`./compile_at_Lyon.sh --version R-3_06_02 --tune G18_10a_02_11b --pythia8-dir /sps/<group>/<user>/pythia8315 --topdir /sps/<group>/<user>/genie`
+
+It prints the `--genie-topdir` to use with the submitters, and saves the environment used, with the Pythia8 path, in `<genie-topdir>/setup_LYON.sh` for the jobs.

@@ -14,6 +14,7 @@ Copyright:
 """
 import os 
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 nucleons_pdg = {
@@ -50,8 +51,8 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                       tune='G18_02_02_11b', version='master', 
                       grid_system='FNAL', group='genie',conf_dir='', arch='SL6.x86_64', production='routine_validation', cycle='01',  
                       softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'), 
-                      grid_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh',
-                      genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh', time=15, 
+                      grid_setup= os.getenv('GENIE','')+'src/scripts/production/python/setup_FNAL.sh',
+                      genie_setup= os.getenv('GENIE','')+'src/scripts/production/python/setup_GENIE.sh', time=15, 
                       memory="1GB", disk="500MB", git_branch = 'master', git_loc="https://github.com/GENIE-MC/Generator",
                       configure_INCL=False,configure_G4=False) :
 
@@ -100,8 +101,8 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
     grid_command_options = ''
     if grid_system == 'FNAL' :
         grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time,memory,disk)
-    else :
-        print( "Only FNAL grid is available" )
+    elif grid_system != 'LYON' :
+        print( "Only FNAL and LYON grids are available" )
         return 
 
     # Create neutrino spline commands:
@@ -125,7 +126,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 # Job definition
                 job_name = nu_name_def[nu]+'_on_'+target+'_'+process
                 filename_template = ''
-                if grid_system == 'FNAL' : 
+                if grid_system == 'FNAL' or grid_system == 'LYON' : 
                     filename_template = job_name
                 else :
                     filename_template = jobs_dir + '/' + job_name
@@ -142,6 +143,9 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                     shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, 
                                                           conf_dir, in_files, git_branch, git_loc, configure_INCL, configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                elif grid_system == 'LYON' :
+                    shell_file = LYON.CreateShellScript ( gmkspl_cmd , jobs_dir, filename_template, filename_template+".xml", grid_setup, genie_setup, conf_dir, in_files, genie_topdir, configure_INCL, configure_G4 ) 
+                    command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
     # Create electron spline commands:
     
@@ -153,7 +157,7 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                 
                 # Job definition
                 job_name = e_name_def[e]+'_on_'+target+'_'+process
-                if grid_system == 'FNAL' : 
+                if grid_system == 'FNAL' or grid_system == 'LYON' : 
                     output_spline = job_name
                 else :
                     output_spline = jobs_dir + '/' + job_name
@@ -170,6 +174,9 @@ def vNSplineCommands( probe_list='all', gen_list='all', nu_E_max=200, e_E_max=30
                     shell_file = FNAL.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, 
                                                           in_files, git_branch, git_loc, configure_INCL, configure_G4 ) 
                     command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+                elif grid_system == 'LYON' :
+                    shell_file = LYON.CreateShellScript ( gmkspl_cmd , jobs_dir, output_spline, output_spline+".xml", grid_setup, genie_setup, conf_dir, in_files, genie_topdir, configure_INCL, configure_G4 ) 
+                    command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time, memory, disk) )
 
 
     ## Add command list to dictionary; Key is 0 => free nucleon spline calculation

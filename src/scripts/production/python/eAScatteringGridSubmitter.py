@@ -20,6 +20,7 @@ import vNSplineCommands as vN
 import vASplineCommands as vA
 import GroupSplineCommands as group
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 sys.path.insert(1, 'event_generation')
 import eScatteringGenCommands as eA
@@ -32,8 +33,8 @@ op.add_option("--git-branch", dest="BRANCH", default="master", help="Genie versi
 op.add_option("--cycle", dest="CYCLE", default="01", help="Cycle (default: %default)")
 op.add_option("--arch", dest="ARCH", default='SL6.x86_64', help="arch number, default: %default")
 op.add_option("--production", dest="PROD", default="routine_validation", help="Production (default: %default)")
-op.add_option("--grid-system", dest="GRID", default="FNAL", help="Grid system is %default ")
-op.add_option("--grid-group", dest="GROUP", default="genie", help="Grid group to run your jobs. I.E: FNAL groups are genie, dune, etc..")
+op.add_option("--grid-system", dest="GRID", default="FNAL", help="Grid system: FNAL or LYON (CC-IN2P3). Default: %default ")
+op.add_option("--grid-group", dest="GROUP", default="", help="Grid group to run your jobs. I.E: FNAL groups are genie (default), dune, etc.. At LYON it is the Slurm account (default: your main group)")
 op.add_option("--softw-topdir", dest="SOFTW", default=os.getenv('GENIE_MASTER_DIR'), help = "software top dir") 
 op.add_option("--genie-topdir", dest="GENIE", default=os.getenv('GENIE'), help = "GENIE topdir: %default")
 op.add_option("--jobs-topdir", dest="JOBSTD", default=os.getenv('PWD'), help="Top level dir for the job files (default: %default)")
@@ -44,7 +45,7 @@ op.add_option("--probe-list", dest="PROBELIST", default='11', help = "Comma sepa
 op.add_option("--nu-tgt-list", dest="NUTGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--e-tgt-list", dest="ETGTLIST", default='all', help = "Comma separated list of Targets. Default: %default.") 
 op.add_option("--vN-gen-list", dest="vNList", default='all', help="Comma separated list of event generator list used for the free nucleon spline generation. Can be used to specify electron procecess as well")
-op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well")
+op.add_option("--vA-gen-list", dest="vAList", default='all', help="Comma separated list of event generator list used for the nuclei spline generation.  Can be used to specify electron procecess as well. By default the processes of FastOnNuclei are run in separate jobs (CCQE,NCEL,CCRES,...); use Fast to run them in a single job")
 op.add_option("--E-nu-maxsplines", dest="NuEMAXSPLINE", type="int", default=100, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--E-e-maxsplines", dest="EEMAXSPLINE", type="int", default=30, help="Maximum energy for the splines in GeV. Default: %default ")
 op.add_option("--N-nu-knots", dest="NuKnots", type="int", default=100, help="Number of knots per neutrino spline. Default: %default")
@@ -105,19 +106,36 @@ if not os.path.exists(opts.JOBSTD) :
     exit()
 
 # Check jobstopdir exists
-if not os.path.exists(opts.GENIE) :
-    print ( "GENIE Path "+opts.GENIE+" doesn't exist. Abort...\n")
+if not opts.GENIE or not os.path.exists(opts.GENIE) :
+    print ( "GENIE Path "+str(opts.GENIE)+" doesn't exist. Specify it with --genie-topdir. Abort...\n")
     exit()
 
-if opts.GRID != 'FNAL':
-    print ("For now only FNAL option is available. Abort... \n")
+if opts.GRID != 'FNAL' and opts.GRID != 'LYON':
+    print ("For now only FNAL and LYON options are available. Abort... \n")
     exit()
-    # In the future we might have other grids
-    # Check we run from pnfs persistent or scratch for FNAL:
-else:
+
+# Check we run from pnfs persistent or scratch for FNAL:
+if opts.GRID == 'FNAL':
     if 'pnfs' not in opts.JOBSTD : 
         print ("Not runing from pnfs:"+opts.JOBSTD+" . Jobs top dir must be in pnfs for the submission scrpits to work. Abort ...")
         exit()
+
+if opts.GRID == 'FNAL' and opts.GROUP == '' :
+    opts.GROUP = 'genie'
+
+# At LYON GENIE is not built on the worker nodes: the jobs use the compiled GENIE in --genie-topdir (default: $GENIE)
+if opts.GRID == 'LYON':
+    if not os.path.exists(opts.GENIE+"/bin/gevgen") or not os.path.exists(opts.GENIE+"/bin/gmkspl") : 
+        print ("No compiled GENIE found in "+opts.GENIE+" . At LYON the jobs use an existing GENIE build: specify its top dir with --genie-topdir. Abort ...")
+        exit()
+    print ( ' Using compiled GENIE from '+opts.GENIE+' (--git-location and --git-branch are only used at FNAL)' )
+    if not opts.GENIE.startswith('/sps') and not opts.GENIE.startswith('/pbs/throng') : 
+        print ("Warning: GENIE top dir "+opts.GENIE+" is not in /sps or /pbs/throng. Make sure it is accessible from the worker nodes.")
+
+# Check the jobs top dir is shared with the worker nodes for LYON:
+if opts.GRID == 'LYON':
+    if not opts.JOBSTD.startswith('/sps') and not opts.JOBSTD.startswith('/pbs/throng') : 
+        print ("Warning: jobs top dir "+opts.JOBSTD+" is not in /sps or /pbs/throng. Make sure it is accessible from the worker nodes.")
 
 message_thresholds = "$GALGCONF/Messenger.xml"
 if opts.CONF : 
@@ -129,6 +147,8 @@ if opts.CONF :
     # Check if we have a message thresholds file 
     if os.path.exists(opts.CONF+"/Messenger.xml"):
         message_thresholds = "$CONDOR_DIR_INPUT/conf/Messenger.xml"
+        if opts.GRID == 'LYON' : 
+            message_thresholds = LYON.JOB_DIR+"/conf/Messenger.xml"
         
 #JobSub is made available through the UPS package jobsub_client
 os.system("source /cvmfs/fermilab.opensciencegrid.org/products/common/etc/setup" ) 
@@ -141,7 +161,7 @@ if len(temp_version ) :
     version = temp_version[len(temp_version)-1]
     print ( ' Setting version to '+ version ) 
 
-if opts.BRANCH: 
+if opts.BRANCH and opts.GRID == 'FNAL': 
     print( ' Cloning GENIE Generator ' + opts.BRANCH ) 
 
 # Define directories:
@@ -171,6 +191,21 @@ if opts.GRID == 'FNAL' :
     os.system('cp '+GENIE_setup_file+' '+opts.JOBSTD )
     grid_setup = opts.JOBSTD+"/setup_FNAL.sh"
     genie_setup = opts.JOBSTD+"/setup_GENIE.sh"
+elif opts.GRID == 'LYON' : 
+    # The jobs source the setup scripts directly from the jobs top dir. An existing setup_LYON.sh is kept, so that local edits are not lost.
+    # Otherwise the environment saved with the GENIE build by compile_at_Lyon.sh is used: GENIE must run with the one it was compiled with
+    scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    if os.path.exists(opts.JOBSTD+"/setup_LYON.sh") : 
+        print( ' Using existing '+opts.JOBSTD+"/setup_LYON.sh" )
+    elif os.path.exists(opts.GENIE+"/setup_LYON.sh") : 
+        print( ' Using the environment of the GENIE build '+opts.GENIE+"/setup_LYON.sh" )
+        os.system('cp '+opts.GENIE+'/setup_LYON.sh '+opts.JOBSTD )
+    else : 
+        print( ' Warning: '+opts.GENIE+'/setup_LYON.sh not found. Using '+scripts_dir+'/setup_LYON.sh, check it matches the environment used to compile GENIE' )
+        os.system('cp '+scripts_dir+'/setup_LYON.sh '+opts.JOBSTD )
+    os.system('cp '+scripts_dir+'/setup_GENIE_LYON.sh '+opts.JOBSTD )
+    grid_setup = opts.JOBSTD+"/setup_LYON.sh"
+    genie_setup = opts.JOBSTD+"/setup_GENIE_LYON.sh"
 else : 
     genie_setup = opts.SOFTW+'/generator/builds/'+arch+'/'+version+'-setup'
     grid_setup = ""
@@ -256,7 +291,7 @@ while loop_i < loop_end + 1:
             
     loop_i += 1 
 
-if total_time > int(opts.MAINLIFE) : 
+if opts.GRID == 'FNAL' and total_time > int(opts.MAINLIFE) : 
     print ( "Total time of subjobs requested ("+str(total_time)+") is bigger than the job's expected time ("+str(opts.MAINLIFE)+") ... Abort ..." ) 
     exit() 
 
@@ -269,6 +304,8 @@ if opts.GRID == 'FNAL':
     grid_name = FNAL.WriteXMLFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
     main_sub_name = FNAL.WriteMainSubmissionFile(opts.JOBSTD, opts.GENIE, opts.GROUP, grid_setup, genie_setup, grid_name, opts.MAINLIFE, opts.MAINMEM, opts.MAINDISK )
+elif opts.GRID == 'LYON' : 
+    main_sub_name = LYON.WriteMainSubmissionFile(command_dict, loop_start, loop_end, opts.JOBSTD)
 
 if opts.SUBMIT == True: 
     # SUBMIT JOB

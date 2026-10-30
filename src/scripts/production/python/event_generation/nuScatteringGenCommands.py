@@ -12,6 +12,7 @@ Copyright:
 """
 import os 
 import FNALGridUtils as FNAL
+import LyonGridUtils as LYON
 
 # Define Dictionaries
 
@@ -40,9 +41,9 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
                              gst_output=False, no_ghep=False,version='master', conf_dir='', 
                              arch='SL6.x86_64', production='routine_validation', cycle='01', grid_system='FNAL', group='genie', 
                              softw_topdir=os.getenv('GENIE_MASTER_DIR'), genie_topdir=os.getenv('GENIE'), jobs_topdir=os.getenv('PWD'),
-                             grid_setup = os.getenv('GENIE')+'src/scripts/production/python/setup_FNAL.sh', 
-                             genie_setup= os.getenv('GENIE')+'src/scripts/production/python/setup_GENIE.sh',
-                             message_thresholds= os.getenv('GENIE')+'config/Messenger.xml', 
+                             grid_setup = os.getenv('GENIE','')+'src/scripts/production/python/setup_FNAL.sh', 
+                             genie_setup= os.getenv('GENIE','')+'src/scripts/production/python/setup_GENIE.sh',
+                             message_thresholds= os.getenv('GENIE','')+'config/Messenger.xml', 
                              time='10', git_branch = "master", git_loc="https://github.com/GENIE-MC/Generator",
                              configure_INCL=False, configure_G4=False, GHEPMC3Output=False) :
 
@@ -75,8 +76,12 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
     if( nsubruns < true_nsubruns ) : nsubruns += 1 
     if ntotevents <= nmaxrun : nsubruns = 1
 
-    if grid_system == 'FNAL' :
-        input_xsec = "\$CONDOR_DIR_INPUT/total_xsec.xml"
+    input_dir = "\$CONDOR_DIR_INPUT"
+    if grid_system == 'LYON' :
+        input_dir = LYON.JOB_DIR
+
+    if grid_system == 'FNAL' or grid_system == 'LYON' :
+        input_xsec = input_dir+"/total_xsec.xml"
     else :
         input_xsec = free_nuc_dir+"/total_xsec.xml"
 
@@ -91,7 +96,7 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
         flux_path = flux_members[0] # file location 
         flux_histname = flux_members[1]
         flux_filename = os.path.basename( flux_members[0] )
-        flux = "\$CONDOR_DIR_INPUT/"+flux_filename+","+flux_histname
+        flux = input_dir+"/"+flux_filename+","+flux_histname
         in_file_list.append(flux_path)
 
     command_list = []
@@ -131,6 +136,9 @@ def nuScatteringGenCommands( nu_list = "14",tgt_mix="", EFlux_min=0, EFlux_max=1
                                                      git_loc, configure_INCL, configure_G4, GHEPMC3Output ) 
                 grid_command_options = FNAL.FNALShellCommands(grid_setup, genie_setup,time)
                 command_list.append( "jobsub_submit "+grid_command_options+ " file://"+shell_file )
+            elif grid_system == 'LYON' :
+                shell_file = LYON.CreateShellScript ( evgen_command , jobs_dir, jobname, out_files, grid_setup, genie_setup, conf_dir, in_file_list, genie_topdir, configure_INCL, configure_G4, GHEPMC3Output ) 
+                command_list.append( LYON.SubmitCommand(group, jobs_dir, shell_file, time) )
 
     ## Add command list to dictionary; Key is 4 => event production
     command_dict = {}
