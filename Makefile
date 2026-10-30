@@ -657,6 +657,7 @@ clean-files: FORCE
 	cd ${GENIE}
 ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
 	cd ${GENIE}/src/ExternalLibs/professor 					&& make clean && cd $(GENIE)
+	rm -f $(GENIE)/lib/libProfessor2.so
 endif
 
 clean-dir: FORCE
