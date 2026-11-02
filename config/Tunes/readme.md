@@ -9,7 +9,7 @@ GENIE tunes define a consistent set of physics models and parameters used in neu
 A GENIE tune consists of three main components:
 
 1. **Model configuration (CMC):** Defines the physics models used in the simulation and their associated configurations (ModelConfiguration.xml).
-2. **Parameter set:** Defines the parameters of interest and nuisance parameters to be tuned (CommonPram.xml).
+2. **Parameter set:** Defines the parameters used in the configuration (CommonPram.xml).
 Thie subfolders can contain modifications to those parameters.
 
 
@@ -19,7 +19,7 @@ Thie subfolders can contain modifications to those parameters.
 
 **All models within a tune must use consistent configurations and parameter definitions.**
 
-GENIE parameters are identified by their names. Consequently, parameter names must be unique and used consistently across all models. If different models use the same parameter name for different physical quantities or assign conflicting values to the same parameter, one definition may overwrite the other during configuration or model initialization.
+GENIE parameters are identified by their names. Consequently, parameter names are unique and used consistently across all models. If different models use the same parameter name for different physical quantities or assign conflicting values to the same parameter, one definition may overwrite the other during configuration or model initialization.
 
 This can lead to unintended parameter values and **undefined or unpredictable simulation behaviour**.
 
