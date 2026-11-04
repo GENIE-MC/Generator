@@ -21,7 +21,6 @@ BY-Cv2D                    double  No    Bodek-Yang d val K factor param
 
 PDF-Set                    alg     No    PDF model
 Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
-PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
 IncludeR                   bool    No    include R factor?              
 IncludeNuclMod             bool    No    include nuclear factor?            
 CKM-Vcd                    double  No                                           CommonParam[CKM]

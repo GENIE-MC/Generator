@@ -108,7 +108,7 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
 #endif
   // apply kinematical limits
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
-  if(Q2 <= 0.8) Q2 = 0.80001;
+  Q2 = std::max(Q2, fPDFQ2Min);
   Q2 = std::min(Q2, fGridQ2[kNQ2-1]);
   x  = std::max(x,  fGridXbj[0]);
   x  = std::min(x,  fGridXbj[kNXbj-1]);
@@ -160,6 +160,7 @@ void GRV98LO::Configure(string config)
 void GRV98LO::Initialize(void)
 {
   fInitialized = false;
+  GetParam("PDF-Q2min", fPDFQ2Min);
 
   const char * genie_dir = gSystem->Getenv("GENIE");
   if(!genie_dir) return;
