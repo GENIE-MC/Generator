@@ -99,9 +99,9 @@ University of Liverpool
 
   <!-- Bodek Yang 2021 corrections -->
   <!--
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
-  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/BY2021            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-CC">         genie::KNOTunedQPMDISPXSec/BY21            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-NC">         genie::KNOTunedQPMDISPXSec/BY21            </param>
+  <param type="alg" name="XSecModel@genie::EventGenerator/DIS-EM">         genie::KNOTunedQPMDISPXSec/BY21            </param>
   -->
   <!-- Historical Rein-Sehegal model -->
   <!--

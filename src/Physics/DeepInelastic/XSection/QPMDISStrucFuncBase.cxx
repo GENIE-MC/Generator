@@ -101,9 +101,6 @@ void QPMDISStrucFuncBase::LoadConfig(void)
   //-- charm mass
   GetParam( "Charm-Mass", fMc ) ;
 
-  //-- min Q2 for PDF evaluation
-  GetParam( "PDF-Q2min", fQ2min ) ;
-
   //-- include R (~FL)?
   GetParam( "IncludeR", fIncludeR ) ;
 
@@ -581,14 +578,11 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
   const Target & tgt = interaction->InitState().Tgt();
   double M = tgt.HitNucP4().M();
 
-  // Get the Q2 for which PDFs will be evaluated
-  double Q2pdf = TMath::Max(Q2val, fQ2min);
-
   // Compute PDFs at (x,Q2)
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISSF", pDEBUG) << "Calculating PDFs @ x = " << x << ", Q2 = " << Q2pdf;
+  LOG("DISSF", pDEBUG) << "Calculating PDFs @ x = " << x << ", Q2 = " << Q2val;
 #endif
-  fPDF->Calculate(x, Q2pdf);
+  fPDF->Calculate(x, Q2val);
 
   // Check whether it is above charm threshold
   bool above_charm = utils::kinematics::IsAboveCharmThreshold(x, Q2val, M, fMc);
@@ -610,7 +604,7 @@ void QPMDISStrucFuncBase::CalcPDFs(const Interaction * interaction) const
           LOG("DISSF", pDEBUG)
               << "Calculating PDFs @ xc (slow rescaling) = " << x << ", Q2 = " << Q2val;
 #endif
-          fPDFc->Calculate(xc, Q2pdf);
+          fPDFc->Calculate(xc, Q2val);
        }
   }//above charm thr?
 

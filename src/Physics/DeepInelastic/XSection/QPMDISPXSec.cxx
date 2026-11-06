@@ -265,11 +265,12 @@ void QPMDISPXSec::LoadConfig(void) {
   fDISSF.SetModel(fDISSFModel); // <-- attach algorithm
 
   // Cross section scaling factor
-  GetParam("DIS-CC-XSecScale", fCCScale);
-  GetParam("DIS-NC-XSecScale", fNCScale);
-  GetParam("DIS-EM-XSecScale", fEMScale);
-
-  
+  GetParam("DIS-CC-XSecScale", fCCScale, 1.0);
+  GetParam("DIS-NC-XSecScale", fNCScale, 1.0);
+  GetParam("DIS-EM-XSecScale", fEMScale, 1.0);
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+  LOG("QPMDISPXSec", pDEBUG) << "CC-Scale: " << fCCScale << " NC-Scale: " << fNCScale << " EM-Scale: " << fEMScale;
+#endif
   // sin^4(theta_weinberg)
   double thw;
   GetParam("WeinbergAngle", thw);
