@@ -146,7 +146,7 @@ void GeomVolSelectorRockBox::SetRockBoxInclusion(Double_t* xyzmin,
 
   for ( int j = 0; j < 3; ++j ) {
     fInclusionXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
-    fInclusionXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+    fInclusionXYZMax[j] = TMath::Max(xyzmin[j],xyzmax[j]);
   }
 }
 //___________________________________________________________________________
