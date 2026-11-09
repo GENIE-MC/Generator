@@ -133,7 +133,7 @@ void GeomVolSelectorRockBox::SetRockBoxMinimal(Double_t* xyzmin,
 
   for ( int j = 0; j < 3; ++j ) {
     fMinimalXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
-    fMinimalXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+    fMinimalXYZMax[j] = TMath::Max(xyzmin[j],xyzmax[j]);
   }
   // create the default inner (exclusion) box
   this->MakeBox(fMinimalXYZMin,fMinimalXYZMax);
