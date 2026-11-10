@@ -8,7 +8,8 @@
 
          Syntax :
            gspl2root -f xml_file -p nu -t tgt [-e emax]
-                     [-o root_file] [-w] [-k] [-l]
+                     [-o root_file] [-w [--ps]] [-k] [-l] [-n npoints]
+                     [-x interpolation]
                      [--message-thresholds xml_file]
                      [--event-generator-list list_name]
 
@@ -26,9 +27,27 @@
            -o
               output ROOT file name
            -w
-              write out plots in a postscipt file
+              write out plots in a pdf file
+           --ps
+              with -w, write the plots as postscript instead of pdf
            -l
               energy bins in log10 scale
+           -n
+              number of points in each output graph
+              [default: max number of knots of any spline in the XML file]
+           -x
+              interpolation used to evaluate the splines between knots
+              (case insensitive; unknown values fall back to TSpline3):
+                TSpline3          ROOT cubic spline
+                TSpline5          ROOT quintic spline
+                LINEAR            ROOT::Math::Interpolator (GSL) types:
+                POLYNOMIAL
+                CSPLINE
+                AKIMA
+              [default: TSpline3]
+              Between a knot with zero cross section and its neighbour
+              (e.g. just above threshold) the interpolation is always
+              linear, whatever -x is set to.
            -k
               keep spline knot points  (not yet implemented).
            --message-thresholds
@@ -89,6 +108,7 @@
 #include <TTree.h>
 #include <TDirectory.h>
 #include <TPostScript.h>
+#include <TPDF.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TGraph.h>
@@ -143,7 +163,8 @@ PDGCodeList gOptProbePdgList;  // list of probe PDG codes
 PDGCodeList gOptTgtPdgList;    // list of target PDG codes
 int    gOptProbePdgCode; // probe PDG code (currently being processed)
 int    gOptTgtPdgCode;   // target PDG code
-bool   gWriteOutPlots;   // write out a postscript file with plots
+bool   gWriteOutPlots;   // write out a pdf (or postscript) file with plots
+bool   gWritePs;         // plots as postscript rather than pdf
 //bool   gKeepSplineKnots; // use spline abscissa points rather than equi-spaced
 
 //Globals & constants
@@ -180,7 +201,7 @@ int main(int argc, char ** argv)
     for (unsigned int indx_t = 0; indx_t < gOptTgtPdgList.size(); ++indx_t ) {
       gOptProbePdgCode = gOptProbePdgList[indx_p];
       gOptTgtPdgCode   = gOptTgtPdgList[indx_t];
-      // save the cross section plots in a postscript file
+      // save the cross section plots in a pdf (or postscript) file
       SaveToPsFile();
       // save the cross section graphs at a root file
       SaveGraphsToRootFile();
@@ -204,8 +225,8 @@ void LoadSplines(void)
   if (!keys) return; 
   for (const std::string &name : *keys) {
     const Spline *s = splist->GetSpline(name);
-    kNP = std::max(s->NKnots()-1, kNP);
-    kNSplineP = kNP + 1;
+    kNP = std::max(s->NKnots(), kNP);
+    kNSplineP = kNP;
   }
 }
 //____________________________________________________________________________
@@ -239,7 +260,7 @@ void SaveToPsFile(void)
   unsigned int markers[kNMarkers] = {20, 28, 29, 27, 3};
   unsigned int colors [kNColors]  = {1, 2, 4, 6, 8, 28};
 
-  //-- create a postscript document for saving cross section plpots
+  //-- create a pdf (or postscript) document for saving cross section plots
 
   TCanvas * c = new TCanvas("c","",20,20,500,850);
   c->SetBorderMode(0);
@@ -253,8 +274,11 @@ void SaveToPsFile(void)
   ostringstream filename;
   filename << "xsec-splines-"
           <<  pdglib->Find(gOptProbePdgCode)->GetName()  << "-"
-          <<  pdglib->Find(gOptTgtPdgCode)->GetName() << ".ps";
-  TPostScript * ps = new TPostScript(filename.str().c_str(), kPsType);
+          <<  pdglib->Find(gOptTgtPdgCode)->GetName()
+          << (gWritePs ? ".ps" : ".pdf");
+  TVirtualPS * ps = 0;
+  if(gWritePs) ps = new TPostScript(filename.str().c_str(), kPsType);
+  else         ps = new TPDF       (filename.str().c_str(), kPsType);
 
   //-- get the list of interactions that can be simulated by the driver
   const InteractionList * ilist = evg_driver.Interactions();
@@ -516,7 +540,7 @@ void SaveToPsFile(void)
   legend->Draw();
   c->Update();
 
-  //-- close the postscript document
+  //-- close the pdf/postscript document
   ps->Close();
 
   //-- clean-up
@@ -845,7 +869,8 @@ void SaveGraphsToRootFile(void)
     for(ilistiter = ilist->begin(); ilistiter != ilist->end(); ++ilistiter) {
        const Interaction * interaction = *ilistiter;
        const ProcessInfo &  proc = interaction->ProcInfo();
-       const XclsTag &      xcls = interaction->ExclTag();
+       // only needed by the commented-out charm skip below; uncomment both together
+       // [[maybe_unused]] const XclsTag & xcls = interaction->ExclTag();
        const InitialState & init = interaction->InitState();
        const Target &       tgt  = init.Tgt();
 
@@ -1493,9 +1518,9 @@ void GetCommandLineArgs(int argc, char ** argv)
     exit(1);
   }
   if (parser.OptionExists('n')){
-    LOG("gspl2root", pINFO) << "Reading number of knots";
-    kNP       = parser.ArgAsInt('n');
-    kNSplineP = parser.ArgAsInt('n') - 1;
+    LOG("gspl2root", pINFO) << "Reading number of points";
+    kNP       = std::max(parser.ArgAsInt('n'), 2);
+    kNSplineP = kNP;
     kNPset = true;
   }
   // probe PDG code:
@@ -1523,6 +1548,15 @@ void GetCommandLineArgs(int argc, char ** argv)
   if( parser.OptionExists('x') ) {
     LOG("gspl2root", pINFO) << "Reading interpolation type";
     interpolation = parser.ArgAsString('x');
+    // Spline::SetType() also accepts CSPLINE_PERIODIC and AKIMA_PERIODIC,
+    // but those assume periodic data, which cross sections are not
+    if( str::ToUpper(interpolation).find("PERIODIC") != string::npos ) {
+      LOG("gspl2root", pFATAL)
+        << "Periodic interpolation (" << interpolation
+        << ") is not meaningful for cross section splines";
+      PrintSyntax();
+      exit(1);
+    }
   }
 
   // min,max neutrino energy
@@ -1563,8 +1597,9 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptROOTFilename = "gxsec.root";
   }
 
-  // write-out a PS file with plots
+  // write-out a PDF (or, with --ps, PS) file with plots
   gWriteOutPlots = parser.OptionExists('w');
+  gWritePs       = parser.OptionExists("ps");
 
   // use same abscissa points as splines
   //not yet//gKeepSplineKnots = parser.OptionExists('k');
@@ -1579,6 +1614,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   LOG("gspl2root", pINFO) << "  Min neutrino E  = " << gEmin;
   LOG("gspl2root", pINFO) << "  Max neutrino E  = " << gEmax;
   LOG("gspl2root", pINFO) << "  In logE         = " << gInlogE;
+  LOG("gspl2root", pINFO) << "  Write plots     = " << (gWriteOutPlots ? (gWritePs?"ps":"pdf") : "no");
   //not yet//LOG("gspl2root", pINFO) << "  Keep spline knots  = " << (gKeepSplineKnots?"true":"false");
 }
 //____________________________________________________________________________
@@ -1587,7 +1623,8 @@ void PrintSyntax(void)
   LOG("gspl2root", pNOTICE)
       << "\n\n" << "Syntax:" << "\n"
       << "   gspl2root -f xml_file -p probe_pdg -t target_pdg"
-      << "            [-e emin,emax] [-o output_root_file] [-w] [-l]\n"
+      << "            [-e emin,emax] [-o output_root_file] [-w [--ps]] [-l] [-n npoints]\n"
+      << "            [-x TSpline3|TSpline5|LINEAR|POLYNOMIAL|CSPLINE|AKIMA]\n"
       << "            [--message-thresholds xml_file]\n";
 }
 //____________________________________________________________________________
