@@ -25,8 +25,24 @@ DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength
 
   <param_set name="Default">
 
-    <param type="string" name="CommonParam"> NUCL,INUKE,HNINUKE </param>
+    <param type="string" name="CommonParam"> NUCL </param>
     <param type="alg"    name="NuclearModel">  genie::NuclearModelMap/Default  </param>
+    
+    <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
+    <param type="double" name="INUKE-HadStep">           0.05  </param>
+    <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+    <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+    <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
+    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param>
+    <param type="double" name="INUKE-FermiFac">          1.0   </param>
+    <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
+    <param type="bool"   name="INUKE-DoFermi">           true  </param>
+    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+    <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+    
+    <param type="double" name="HNINUKE-DelRPion">        0.0   </param>
+    <param type="double" name="HNINUKE-DelRNucleon">     0.0   </param>
+    <param type="bool"   name="HNINUKE-UseOset">         true  </param>
 
   </param_set>
 

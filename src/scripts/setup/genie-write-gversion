@@ -2,7 +2,7 @@
 #
 # Creates the $GENIE/src/Conventions/GVersion.h header file
 #
-# C.Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
+# C.Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
 #
 # Revised for usage with git by S. Gardiner <gardiner \at fnal.gov>, Fermilab.
 

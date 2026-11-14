@@ -2,7 +2,7 @@
 # Makefile for GENIE Neutrino Generator
 #
 # Author: Iker de Icaza <i.de-icaza-astiz \at sussex.ac.uk>
-#         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+#         Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 SHELL    = /bin/sh

@@ -1,11 +1,11 @@
  //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
  For the class documentation see the corresponding header file.
 
@@ -155,7 +155,9 @@ void NuclearModelMap::LoadConfig(void)
   for(RgIMap::const_iterator it = entries.begin(); it != entries.end(); ++it){
     const std::string& key = it->first;
     // Does it start with the right string?
-    if(key.compare(0, keyStart.size(), keyStart.c_str()) == 0){
+    // Edit: Protect from descending keys (NuclearModel@Pdg should not descend into subalgs)
+    if( (key.compare(0, keyStart.size(), keyStart.c_str()) == 0) &&
+	(key.find("/") == std::string::npos)){
       // The rest is the PDG code
       const int pdg = atoi(key.c_str()+keyStart.size());
       const int Z = pdg::IonPdgCodeToZ(pdg);

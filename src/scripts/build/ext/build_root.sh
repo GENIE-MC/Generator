@@ -9,7 +9,7 @@
 #                         [--with-pythia6-version=...]
 #                         [--with-gsl-version=...]
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 version=5.24.00

@@ -5,15 +5,15 @@
 
 \brief    Simulate the primary MEC interaction
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Steve Dytman <dytman+ \at pitt.edu>
           Pittsburgh University
 
 \created  Sep. 22, 2008
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -60,6 +60,7 @@ private:
   void    DecayNucleonCluster               (GHepRecord * event) const;
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
   void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
+  void    SelectMartiniLeptonKinematics     (GHepRecord * event) const;
   void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
 

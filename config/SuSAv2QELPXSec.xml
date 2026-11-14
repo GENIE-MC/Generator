@@ -10,96 +10,96 @@ Configurable Parameters:
 Name               Type     Optional   Comment                                    Default
 .....................................................................................................
 XSec-Integrator    alg      No
-QEL-CC-XSecScale   double   yes        XSec Scaling factor for CC                 1. 
-QEL-NC-XSecScale   double   yes        XSec Scaling factor for NC                 1. 
-QEL-EM-XSecScale   double   yes        XSec Scaling factor for EM                 1. 
+QEL-CC-XSecScale   double   yes        XSec Scaling factor for CC                 1.
+QEL-NC-XSecScale   double   yes        XSec Scaling factor for NC                 1.
+QEL-EM-XSecScale   double   yes        XSec Scaling factor for EM                 1.
 FermiMomentumTable string   No         Table of Fermi momentum (kF) constants     CommonParam[FermiGas]
 QvalueShifterAlg   alg      yes        QValue shifter algo                        none
 .....................................................................................................
 Parameters needed when Integrating with this model to generate splines:
 .....................................................................................................
-Name                                 Type     Optional   Comment 
+Name                                 Type     Optional   Comment
 .....................................................................................................
 -->
 
-  <param_set name="Default"> 
+<param_set name="Default">
 
-     <param type="string" name="CommonParam"> FermiGas </param> <!-- For Kf lookups -->   
+<param type="string" name="CommonParam"> FermiGas </param> <!-- For Kf lookups -->
 
-     <param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
-     <param type="double" name="QEL-NC-XSecScale"> 1.000 </param>
-     <param type="double" name="QEL-EM-XSecScale"> 1.000 </param>
+<param type="double" name="QEL-CC-XSecScale"> 1.000 </param>
+<param type="double" name="QEL-NC-XSecScale"> 1.000 </param>
+<param type="double" name="QEL-EM-XSecScale"> 1.000 </param>
 
-     <param type="int" name="Blend-Mode"> 0 </param>
+<param type="int" name="Blend-Mode"> 0 </param>
 
-     <param type="double" name="q0-Blend-Start"> -1.000 </param>
-     <param type="double" name="q0-Blend-End"> -1.000 </param>
+<param type="double" name="q0-Blend-Start"> -1.000 </param>
+<param type="double" name="q0-Blend-End"> -1.000 </param>
 
-     <param type="double" name="q-Blend-del"> -1.000 </param>
-     <param type="double" name="q-Blend-ref"> -1.000 </param>
+<param type="double" name="q-Blend-del"> -1.000 </param>
+<param type="double" name="q-Blend-ref"> -1.000 </param>
 
 
-     <param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
+<param type="alg"  name="HadronTensorAlg">  genie::SuSAv2QELHadronTensorModel/Default </param>
 
-     <!-- Using the MEC integrator rather than the QELXSec as we need to integrate in q0,q3 and not in Q2. -->
-     <param type="alg"  name="XSec-Integrator"> genie::MECXSec/Default </param>
+<!-- Using the MEC integrator rather than the QELXSec as we need to integrate in q0,q3 and not in Q2. -->
+<param type="alg"  name="XSec-Integrator"> genie::MECXSec/Default </param>
 
-  </param_set>
+</param_set>
 
-     <!-- The model configurations below are used within Physics/QuasiElastic/XSection/SuSAv2QELPXSec. Once
-          we're using a hadron tensor QEL model, these select which model(s) we want to use. For some 
-          "hybrid" configurations we have two models that we smoothly blend. In these cases, we also specify 
-          some parameters to control this. -->
-  
-  <param_set name="SuSAv2">
-  	<param type="int" name="Model-Config"> 1 </param>
-  </param_set>
- <param_set name="CRPA">
- 	<param type="int" name="Model-Config"> 2 </param>
- </param_set>
- <param_set name="HF">
- 	<param type="int" name="Model-Config"> 3 </param>
- </param_set>
- <param_set name="CRPASuSAv2Hybrid">
- 	<param type="int" name="Model-Config"> 4 </param>
-  <param type="int" name="Blend-Mode"> 2 </param>
-  <param type="double" name="q0-Blend-Start"> 0.5 </param>
- 	<param type="double" name="q0-Blend-End"> 1.0 </param>
-  <param type="double" name="q-Blend-del"> 0.1 </param>
-  <param type="double" name="q-Blend-ref"> 0.6 </param>
- </param_set>
- <param_set name="HFSuSAv2Hybrid">
- 	<param type="int" name="Model-Config"> 5 </param>
- 	<param type="int" name="Blend-Mode"> 2 </param>
-  <param type="double" name="q0-Blend-Start"> 0.5 </param>
- 	<param type="double" name="q0-Blend-End"> 1.0 </param>
-  <param type="double" name="q-Blend-del"> 0.1 </param>
-  <param type="double" name="q-Blend-ref"> 0.6 </param>
- </param_set>
- <param_set name="CRPAPW">
-  <param type="int" name="Model-Config"> 6 </param>
- </param_set>
- <param_set name="HFPW">
-  <param type="int" name="Model-Config"> 7 </param>
- </param_set>
- <param_set name="CRPAPWSuSAv2Hybrid">
-  <param type="int" name="Model-Config"> 8 </param>
-  <param type="int" name="Blend-Mode"> 2 </param>
-  <param type="double" name="q0-Blend-Start"> 0.5 </param>
-  <param type="double" name="q0-Blend-End"> 1.0 </param>
-  <param type="double" name="q-Blend-del"> 0.1 </param>
-  <param type="double" name="q-Blend-ref"> 0.6 </param>
- </param_set>
- <param_set name="HFPWSuSAv2Hybrid">
-  <param type="int" name="Model-Config"> 9 </param>
-  <param type="int" name="Blend-Mode"> 2 </param>
-  <param type="double" name="q0-Blend-Start"> 0.5 </param>
-  <param type="double" name="q0-Blend-End"> 1.0 </param>
-  <param type="double" name="q-Blend-del"> 0.1 </param>
-  <param type="double" name="q-Blend-ref"> 0.6 </param>
- </param_set>
- <param_set name="SuSAv2Blend">
-  <param type="int" name="Model-Config"> 10 </param>
- </param_set>
+<!-- The model configurations below are used within Physics/QuasiElastic/XSection/SuSAv2QELPXSec. Once
+we're using a hadron tensor QEL model, these select which model(s) we want to use. For some
+"hybrid" configurations we have two models that we smoothly blend. In these cases, we also specify
+some parameters to control this. -->
+
+<param_set name="SuSAv2">
+<param type="int" name="Model-Config"> 1 </param>
+</param_set>
+<param_set name="CRPA">
+<param type="int" name="Model-Config"> 2 </param>
+</param_set>
+<param_set name="HF">
+<param type="int" name="Model-Config"> 3 </param>
+</param_set>
+<param_set name="CRPASuSAv2Hybrid">
+<param type="int" name="Model-Config"> 4 </param>
+<param type="int" name="Blend-Mode"> 2 </param>
+<param type="double" name="q0-Blend-Start"> 0.5 </param>
+<param type="double" name="q0-Blend-End"> 1.0 </param>
+<param type="double" name="q-Blend-del"> 0.1 </param>
+<param type="double" name="q-Blend-ref"> 0.6 </param>
+</param_set>
+<param_set name="HFSuSAv2Hybrid">
+<param type="int" name="Model-Config"> 5 </param>
+<param type="int" name="Blend-Mode"> 2 </param>
+<param type="double" name="q0-Blend-Start"> 0.5 </param>
+<param type="double" name="q0-Blend-End"> 1.0 </param>
+<param type="double" name="q-Blend-del"> 0.1 </param>
+<param type="double" name="q-Blend-ref"> 0.6 </param>
+</param_set>
+<param_set name="CRPAPW">
+<param type="int" name="Model-Config"> 6 </param>
+</param_set>
+<param_set name="HFPW">
+<param type="int" name="Model-Config"> 7 </param>
+</param_set>
+<param_set name="CRPAPWSuSAv2Hybrid">
+<param type="int" name="Model-Config"> 8 </param>
+<param type="int" name="Blend-Mode"> 2 </param>
+<param type="double" name="q0-Blend-Start"> 0.5 </param>
+<param type="double" name="q0-Blend-End"> 1.0 </param>
+<param type="double" name="q-Blend-del"> 0.1 </param>
+<param type="double" name="q-Blend-ref"> 0.6 </param>
+</param_set>
+<param_set name="HFPWSuSAv2Hybrid">
+<param type="int" name="Model-Config"> 9 </param>
+<param type="int" name="Blend-Mode"> 2 </param>
+<param type="double" name="q0-Blend-Start"> 0.5 </param>
+<param type="double" name="q0-Blend-End"> 1.0 </param>
+<param type="double" name="q-Blend-del"> 0.1 </param>
+<param type="double" name="q-Blend-ref"> 0.6 </param>
+</param_set>
+<param_set name="SuSAv2Blend">
+<param type="int" name="Model-Config"> 10 </param>
+</param_set>
 
 </alg_conf>

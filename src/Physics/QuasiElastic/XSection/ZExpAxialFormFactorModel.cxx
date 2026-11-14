@@ -1,13 +1,13 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
 \author   Aaron Meyer <asmeyer2012 \at uchicago.edu>
           based off DipoleELFormFactorsModel by
-          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          STFC, Rutherford Appleton Laboratory
+          Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
  For the class documentation see the corresponding header file.
 
@@ -42,7 +42,6 @@ AxialFormFactorModelI("genie::ZExpAxialFormFactorModel", config)
 //____________________________________________________________________________
 ZExpAxialFormFactorModel::~ZExpAxialFormFactorModel()
 {
-  delete[] fZ_An;
 }
 //____________________________________________________________________________
 double ZExpAxialFormFactorModel::FA(const Interaction * interaction) const
@@ -230,15 +229,21 @@ void ZExpAxialFormFactorModel::LoadConfig(void)
   assert(fKmax > 0);
 
   // z expansion coefficients
-  if (fQ4limit) fZ_An = new double [fKmax+5];
-  else          fZ_An = new double [fKmax+1];
-
+  if(fQ4limit){
+    fZ_An.resize(fKmax+5);
+  }
+  else{
+    fZ_An.resize(fKmax+1);
+  }
   // load the user-defined coefficient values
   // -- A0 and An for n<fKmax are calculated from other means
+  std::vector<double> tmp_Z_A;
+  if(this->GetParamVect("QEL-Z_A", tmp_Z_A) != fKmax){
+    LOG("ZExpAxialFormFactorModel",pERROR) << "Wrong size of QEL-Z_A coefficients " << tmp_Z_A.size();
+    exit(1);
+  }
   for (int ip=1;ip<fKmax+1;ip++) {
-    ostringstream alg_key;
-    alg_key << "QEL-Z_A" << ip;
-    GetParam( alg_key.str(), fZ_An[ip] ) ;
+    fZ_An[ip] = tmp_Z_A[ip-1];
   }
 
   this->FixCoeffs();

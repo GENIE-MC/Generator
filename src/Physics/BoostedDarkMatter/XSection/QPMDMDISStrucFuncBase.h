@@ -10,8 +10,8 @@
 \ref      For a discussion of DIS SF see for example E.A.Paschos and J.Y.Yu, 
           Phys.Rev.D 65.033002 and R.Devenish and A.Cooper-Sarkar, OUP 2004.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
           Adapted from neugen 3.
           Primary authors: 
@@ -19,7 +19,7 @@
 
 \created  May 03, 2004
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 */
@@ -64,7 +64,7 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
-  virtual double ScalingVar (const Interaction * i) const;
+  virtual double ScalingVar (const Interaction * i, double Mf = 0 ) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double NuclMod    (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;

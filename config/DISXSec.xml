@@ -2,6 +2,16 @@
 
 <!--
 Configuration for the DISXSec cross section algorithm
+
+Algorithm Configurable Parameters:
+..........................................................................................................................
+Name                        Type    Opt   Comment                                             Default
+..........................................................................................................................
+gsl-integration-type        string  Yes                                                       adaptative
+gsl-max-eval                int     Yes                                                       500000
+gsl-min-eval                int     Yes                                                       10000
+gsl-relative-tolerance      double  Yes                                                       1E-2
+DIS-NuclCorr                bool    Yes   Apply DIS Nuclear Correction                        false 
 -->
 
 <alg_conf>
@@ -15,5 +25,10 @@ Configuration for the DISXSec cross section algorithm
     <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
   </param_set>
 
+  <param_set name="BY2021">
+    <param type="int"    name ="gsl-max-eval" >            5000000  </param>
+    <param type="double" name ="gsl-relative-tolerance">    0.0001  </param>
+    <param type="bool"   name="DIS-NuclCorr"> true </param>
+  </param_set>
 </alg_conf>
 

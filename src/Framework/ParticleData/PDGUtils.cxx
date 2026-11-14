@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
          Changes required to implement the GENIE Boosted Dark Matter module
          were installed by Josh Berger (Univ. of Wisconsin)
@@ -79,7 +79,7 @@ int genie::pdg::IonPdgCode(int A, int Z, int L, int I)
 {
 // Build ion PDG code from A,Z,L,I
 
-  int ion_pdgc = 1000000000 +  L*100000000 + Z*10000 + A*10 + I;
+  int ion_pdgc = 1000000000 +  L*10000000 + Z*10000 + A*10 + I;
   return ion_pdgc;
 }
 //____________________________________________________________________________

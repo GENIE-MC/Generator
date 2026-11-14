@@ -17,11 +17,11 @@
           Aaron Meyer <asm58@pitt.edu>, Pittsburgh University
 	  Alex Bell, Pittsburgh University
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> STFC, Rutherford Lab
+          Costas Andreopoulos <c.andreopoulos \at cern.ch> STFC, Rutherford Lab
 
 \created  September 20, 2005
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 */
@@ -68,10 +68,10 @@ private:
   void  SimulateHadronicFinalState           (GHepRecord* ev, GHepParticle* p) const;
   void  SimulateHadronicFinalStateKinematics (GHepRecord* ev, GHepParticle* p) const;
 
-  INukeFateHA_t HadronFateHA     (const GHepParticle* p) const;
-  void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
-  void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHA_t fate) const;
+  INukeFateHALeg_t HadronFateHA     (const GHepParticle* p) const;
+  void          Inelastic        (GHepRecord* ev, GHepParticle* p, INukeFateHALeg_t fate) const;
+  void          ElasHA           (GHepRecord* ev, GHepParticle* p, INukeFateHALeg_t fate) const;
+  void          InelasticHA      (GHepRecord* ev, GHepParticle* p, INukeFateHALeg_t fate) const;
   double        PiBounce         (void) const;
   double        PnBounce         (void) const;
   bool          HandleCompoundNucleus(GHepRecord* ev, GHepParticle* p, int mom) const;           

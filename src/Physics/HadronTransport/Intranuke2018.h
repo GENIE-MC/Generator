@@ -17,11 +17,11 @@
           Aaron Meyer <asm58@pitt.edu>, Pittsburgh University
 	  Alex Bell, Pittsburgh University
           Hugh Gallagher <gallag@minos.phy.tufts.edu>, Tufts University
-          Costas Andreopoulos <constantinos.andreopoulos \at cern.ch> STFC, Rutherford Lab
+          Costas Andreopoulos <c.andreopoulos \at cern.ch> STFC, Rutherford Lab
 
 \created  September 20, 2005
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 
 */
@@ -153,6 +153,9 @@ protected:
   double       fNucleonFracAbsScale;
   double       fNucleonFracPiProdScale;
 
+  /// Bias parameter used to adjust pion production distribution away from pure
+  /// three-body phase space
+  double       fPiProdThreeBodyBias;
 };
 
 }      // genie namespace

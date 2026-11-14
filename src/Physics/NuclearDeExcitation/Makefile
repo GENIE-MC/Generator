@@ -1,7 +1,7 @@
 #
 # Makefile for GENIE Neutrino Generator
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 SHELL     = /bin/sh

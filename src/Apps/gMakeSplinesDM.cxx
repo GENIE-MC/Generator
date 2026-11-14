@@ -79,12 +79,12 @@
 
 \author  Joshua Berger <jberger \at physics.wisc.edu>
          University of Wisconsin-Madison
-         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+         Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
 \created September 1, 2017
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -155,6 +155,9 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
@@ -182,7 +185,6 @@ int main(int argc, char ** argv)
 
         // Init
         utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
-        utils::app_init::RandGen(gOptRanSeed);
         utils::app_init::XSecTable(gOptInpXSecFile, false);
 
         // Get list of neutrinos and nuclear targets

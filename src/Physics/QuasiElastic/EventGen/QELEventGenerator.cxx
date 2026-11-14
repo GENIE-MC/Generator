@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  New QE event generator written by:
@@ -8,8 +8,8 @@
  Manchester
 
  Using a skeleton and existing QE event generator templates by:
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -508,10 +508,10 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
           }// Done with centre-of-mass angles coarsely
 
           // Calculate the range for the next layer
-          costh_range_min = costh_at_xsec_max - costh_increment;
-          costh_range_max = costh_at_xsec_max + costh_increment;
-          phi_range_min = phi_at_xsec_max - phi_increment;
-          phi_range_max = phi_at_xsec_max + phi_increment;
+          costh_range_min = costh_at_xsec_max - costh_increment; if(costh_range_min < -1.0) { costh_range_min = -1.0; }
+          costh_range_max = costh_at_xsec_max + costh_increment; if(costh_range_max >  1.0) { costh_range_max =  1.0; }
+            phi_range_min =   phi_at_xsec_max -   phi_increment; if(  phi_range_min <  0.0) {   phi_range_min =  0.0; }
+            phi_range_max =   phi_at_xsec_max +   phi_increment; if(  phi_range_max > 2.0 * TMath::Pi()) { phi_range_max = 2.0 * TMath::Pi(); }
 
           double improvement_factor = this_nuc_xsec_max/last_layer_xsec_max;
           if (ilayer && (improvement_factor-1) < acceptable_fraction_of_safety_factor * (fSafetyFactor-1)) {

@@ -1,14 +1,14 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
  Author: Joshua Berger <jberger \at physics.wisc.edu>
          University of Wisconsin-Madison
 
-         Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory 
+         Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool 
 */
 //____________________________________________________________________________
 
@@ -275,7 +275,7 @@ void DMELKinematicsGenerator::SpectralFuncExperimentalCode(
   double En0 = TMath::Sqrt(pxn*pxn + pyn*pyn + pzn*pzn + Mn*Mn);
   double Eb  = En0 - En;
   interaction->InitStatePtr()->TgtPtr()->HitNucP4Ptr()->SetE(En0);
-  double ml  = interaction->FSPrimLepton()->Mass();
+  //double ml  = interaction->FSPrimLepton()->Mass();
   
   //-- Get the limits for the generated Q2
   const KPhaseSpace & kps = interaction->PhaseSpace();

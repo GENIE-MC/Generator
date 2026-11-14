@@ -5,12 +5,12 @@
 
 \brief    Definition of Registry item types
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  October 20, 2006
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -43,6 +43,7 @@ typedef TTree *      RgTree;
 class RgAlg {
 public:
   RgAlg();
+  RgAlg(const RgAlg&) = default;
   RgAlg(string n, string c);
  ~RgAlg();
   friend ostream & operator << (ostream & stream, const RgAlg & alg);

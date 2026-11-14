@@ -9,8 +9,8 @@ Multilple named lists of user physics options can be defined.
 Use the "Default" one to get the standard/default GENIE physics & tuning.
 
 Author:
-Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-STFC, Rutherford Appleton Laboratory
+Costas Andreopoulos <c.andreopoulos \at cern.ch>
+University of Liverpool
 ***************************************************************************************************
 -->
 
@@ -55,10 +55,12 @@ STFC, Rutherford Appleton Laboratory
    - genie::HAIntranuke2018/Default
    - genie::HNIntranuke2018/Default
    - genie::HNIntranuke2018/OsetOff
+   - genie::HAIntranuke2025/Default
+   - genie::HINCLCascadeIntranuke/Default
+   - genie::HG4BertCascadeIntranuke
   -->
   <param type="bool" name="HadronTransp-Enable"> true </param>
   <param type="alg"  name="HadronTransp-Model">  genie::HAIntranuke2018/Default  </param>
-
 
  <!--
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,10 +133,10 @@ STFC, Rutherford Appleton Laboratory
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-CC">         genie::ReinDFRPXSec/Default           </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/DFR-NC">         genie::ReinDFRPXSec/Default           </param>
 
-  
+
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-CC">         genie::SuSAv2MECPXSec/Default         </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/MEC-NC">         genie::EmpiricalMECPXSec2015/Default  </param>
-  
+
   <param type="alg" name="XSecModel@genie::EventGenerator/NucleonDecay">   genie::DummyPXSec/Default             </param>
   <param type="alg" name="XSecModel@genie::EventGenerator/NNBarOsc">       genie::NNBarOscDummyPXSec/Default     </param>
 

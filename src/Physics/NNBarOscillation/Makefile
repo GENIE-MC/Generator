@@ -1,7 +1,7 @@
 #
 # Makefile for GENIE Neutrino Generator
 #
-# Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
+# Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
 SHELL    = /bin/sh
@@ -28,6 +28,7 @@ PACKAGE           = Physics/NNBarOscillation
 PACKAGE_ABBREV    = PhNNBarOsc
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
+EXTRA_EXT_LIBS    = -L$(GENIE_LIB_PATH) -lGPhNuclSt
 
 all     : rootcint lib lib-link
 install : install-inc install-lib

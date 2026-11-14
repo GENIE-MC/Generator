@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -45,13 +45,21 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // doesn't make sense
   if ( !this->ValidProcess(interaction) ) return 0.;
 
+  if ( kps != kPSTlctl ) {
+    LOG("SuSAv2MEC", pWARN)
+      << "Doesn't support transformation from "
+      << KinePhaseSpace::AsString(kPSTlctl) << " to "
+      << KinePhaseSpace::AsString(kps);
+    return 0.;
+  }
+
   // Get the hadron tensor for the selected nuclide. Check the probe PDG code
   // to know whether to use the tensor for CC neutrino scattering or for
   // electron scattering
   int target_pdg = interaction->InitState().Tgt().Pdg();
   int probe_pdg = interaction->InitState().ProbePdg();
   int A_request = pdg::IonPdgCodeToA(target_pdg);
-  int Z_request = pdg::IonPdgCodeToZ(target_pdg);
+  //int Z_request = pdg::IonPdgCodeToZ(target_pdg);
   bool need_to_scale = false;
 
   HadronTensorType_t tensor_type = kHT_Undefined;
@@ -128,7 +136,7 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
   // dinucleon was set we will calculate the cross-section for that
   // component only
 
-  bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
+  //bool pn = (interaction->InitState().Tgt().HitNucPdg() == kPdgClusterNP);
 
   // Compute the cross section using the hadron tensor
   double xsec = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
@@ -158,14 +166,6 @@ double SuSAv2MECPXSec::XSec(const Interaction* interaction,
 
   // Scale given a scaling algorithm:
   if( fMECScaleAlg ) xsec *= fMECScaleAlg->GetScaling( * interaction ) ;
-
-  if ( kps != kPSTlctl ) {
-    LOG("SuSAv2MEC", pWARN)
-      << "Doesn't support transformation from "
-      << KinePhaseSpace::AsString(kPSTlctl) << " to "
-      << KinePhaseSpace::AsString(kps);
-    xsec = 0.;
-  }
 
   return xsec;
 }

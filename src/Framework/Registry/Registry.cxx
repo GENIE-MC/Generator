@@ -1,10 +1,10 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 */
 //____________________________________________________________________________
 
@@ -582,7 +582,7 @@ bool Registry::DeleteEntry(RgKey key)
 int Registry::NEntries(void) const
 {
   RgIMapSizeType reg_size = fRegistry.size();
-  return (const int) reg_size;
+  return static_cast<int>(reg_size);
 }
 //____________________________________________________________________________
 void Registry::SetName(string name)

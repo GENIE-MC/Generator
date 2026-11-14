@@ -18,7 +18,7 @@
          event generation casesrequired for many 4-vector level / systematic
          studies.
          Please see the GENIE documentation (http://www.genie-mc.org) and
-         contact me <constantinos.andreopoulos \at cern.ch> if in doubt.
+         contact me <c.andreopoulos \at cern.ch> if in doubt.
 
          *** Synopsis :
 
@@ -273,15 +273,15 @@
 
          Please read the GENIE user manual for more information.
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
          Robert Hatcher <rhatcher \at fnal.gov>
          Fermi National Accelerator Laboratory
 
 \created August 20, 2008
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -428,17 +428,19 @@ int main(int argc, char ** argv)
   LoadExtraOptions();
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
   }
   RunOpt::Instance()->BuildTune();
 
-  // Initialization of random number generators, cross-section table,
+  // Initialization of cross-section table,
   // messenger thresholds, cache file
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
-  utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::XSecTable(gOptInpXSecFile, false);
 
   // Set GHEP print level

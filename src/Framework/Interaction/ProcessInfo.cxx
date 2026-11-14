@@ -1,13 +1,14 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
- Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+ Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
  Changes required to implement the GENIE Boosted Dark Matter module
  were installed by Josh Berger (Univ. of Wisconsin)
+ and Zachary Orr (Colorado State Univ.)
 
  Changes required to implement the GENIE Dark Neutrino module
  were installed by Iker de Icaza (Univ. of Sussex)
@@ -99,6 +100,11 @@ bool ProcessInfo::IsDarkMatterDeepInelastic(void) const
 bool ProcessInfo::IsResonant(void) const
 {
   return (fScatteringType == kScResonant);
+}
+//____________________________________________________________________________
+bool ProcessInfo::IsDarkMatterResonant(void) const
+{
+  return (fScatteringType == kScDarkMatterResonant);
 }
 //____________________________________________________________________________
 bool ProcessInfo::IsCoherentProduction(void) const

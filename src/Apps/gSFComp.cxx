@@ -19,12 +19,12 @@
 
 \example gsfcomp --structure-func genie::Blah/Default,genie::Blah/Tweaked
 
-\author  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
- University of Liverpool & STFC Rutherford Appleton Laboratory
+\author  Costas Andreopoulos <c.andreopoulos \at cern.ch>
+ University of Liverpool
 
 \created Feb 10, 2016
 
-\cpright Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -652,7 +652,7 @@ void GetAlgorithms(void)
      if(vsf.size() != 2) {
         LOG("gsfcomp", pFATAL) 
            << "Need to specify both a structire function algorithm name and configuration "
-           << "as in genie::BYStrucFunc/Default";
+           << "as in genie::BY00StrucFunc/Default";
         gAbortingInErr = true;
         exit(1);
      } 

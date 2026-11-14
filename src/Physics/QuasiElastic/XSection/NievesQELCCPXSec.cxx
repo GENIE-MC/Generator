@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2023, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Joe Johnston, University of Pittsburgh
@@ -271,17 +271,17 @@ double NievesQELCCPXSec::XSec(const Interaction * interaction,
   double Q2 = -1. * qP4.Mag2();
   double Q2tilde = -1. * qTildeP4.Mag2();
 
+  // Check that Q2tilde > 0 (accounting for rounding errors)
+  if ( Q2tilde <= kASmallNum ) {
+    LOG("Nieves", pWARN) << "Q2tilde <= 0, returning xsec = 0.0";
+    return 0.0;
+  }
+
   // Store Q2tilde in the interaction so that we get the correct
   // values of the form factors (according to the de Forest prescription)
   interaction->KinePtr()->SetQ2(Q2tilde);
 
   double q2 = -Q2tilde;
-
-  // Check that q2 < 0 (accounting for rounding errors)
-  if ( q2 >= kASmallNum ) {
-    LOG("Nieves", pWARN) << "q2 >= 0, returning xsec = 0.0";
-    return 0.0;
-  }
 
   // Calculate form factors
   fFormFactors.Calculate( interaction );
@@ -484,11 +484,6 @@ void NievesQELCCPXSec::LoadConfig(void)
   std::string temp_binding_mode;
   GetParamDef( "IntegralNucleonBindingMode", temp_binding_mode, std::string("UseNuclearModel") );
   fIntegralNucleonBindingMode = genie::utils::StringToQELBindingMode( temp_binding_mode );
-
-  // Cutoff energy for integrating over nucleon momentum distribution (above this
-  // lab-frame probe energy, the effects of Fermi motion and binding energy
-  // are taken to be negligible for computing the total cross section)
-  GetParamDef("IntegralNuclearInfluenceCutoffEnergy", fEnergyCutOff, 2.5 ) ;
 
   // Get PauliBlocker for possible use in XSec()
   fPauliBlocker = dynamic_cast<const PauliBlocker*>( this->SubAlg("PauliBlockerAlg") );
@@ -922,11 +917,42 @@ int NievesQELCCPXSec::leviCivita(int input[]) const{
 // Calculates the constraction of the leptonic and hadronic tensors. The
 // expressions used here are valid in a frame in which the
 // initial nucleus is at rest, and qTilde must be in the z direction.
-double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMom,
-const TLorentzVector inNucleonMomOnShell, const TLorentzVector leptonMom,
-const TLorentzVector qTildeP4, double M, bool is_neutrino,
+double NievesQELCCPXSec::LmunuAnumu(const TLorentzVector neutrinoMomLab,
+const TLorentzVector inNucleonMomOnShellLab, const TLorentzVector leptonMomLab,
+const TLorentzVector qTildeP4Lab, double M, bool is_neutrino,
 const Target& target, bool assumeFreeNucleon) const
 {
+
+  // copy the const value to do the transfermation
+  TLorentzVector neutrinoMom = neutrinoMomLab;
+  TLorentzVector inNucleonMomOnShell = inNucleonMomOnShellLab;
+  TLorentzVector qTildeP4 = qTildeP4Lab;
+  TLorentzVector leptonMom = leptonMomLab;
+
+  // Boost to nucleon rest frame to calculate the nucleon rest frame cross section
+  // Only do this if RPA is switched off, as the RPA correction is not Lorentz invariant.
+  if( !fRPA ) {
+    LOG("Nieves", pINFO) << "RPA is switched OFF, correcting the Nieves CCQE hadron tensor";
+    TVector3 beta = -1.0 * inNucleonMomOnShell.BoostVector(); // boost from lab to nucRest
+    neutrinoMom.Boost(beta);
+    leptonMom.Boost(beta);
+    qTildeP4.Boost(beta);
+    inNucleonMomOnShell.Boost(beta);
+
+    // Find the rotation angle needed to put q3VecTilde along z
+    TVector3 zvec(0.0, 0.0, 1.0);
+    TVector3 rot = ( qTildeP4.Vect().Cross(zvec) ).Unit(); // Vector to rotate about
+    // Angle between the z direction and q
+    double angle = zvec.Angle( qTildeP4.Vect() );
+
+    neutrinoMom.Rotate(angle, rot);
+    leptonMom.Rotate(angle, rot);
+    qTildeP4.Rotate(angle, rot);
+    inNucleonMomOnShell.Rotate(angle, rot);
+  } else {
+    LOG("Nieves", pINFO) << "RPA is switched ON. NOT correcting the Nieves CCQE hadron tensor.";
+  }
+
   double r = target.HitNucPosition();
   bool tgtIsNucleus = target.IsNucleus();
   int tgt_pdgc = target.Pdg();

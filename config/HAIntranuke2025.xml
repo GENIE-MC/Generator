@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+<!--
+
+Configuration sets for the Intranuke EventRecordVisitorI
+
+Algorithm Configurable Parameters:
+.......................................................................................................................
+Name                Type    Opt   Comment                                                     Default
+.......................................................................................................................
+test-mode           bool    Yes   enables modifications for the pitest mode                   false
+NUCL-R0             double  Yes   effective nucleus size Ro in fm                             CommonParam[NUCL]
+NUCL-NR             double  Yes   param multiplying the nuclear radius determining how        CommonParam[NUCL]
+                                  far beyond the nuclear boundary particles are tracked
+NuclearModel        Algo    No    Nuclear Model                                               .....
+mode                string  Yes   intranuke mode                                              GPL INUKE-Mode
+NumRmvE             double  Yes   binding energy to subtract from cascade nucleons (GeV)      GPL INUKE-NucRemovalE
+HadStep             double  Yes   step size in fm                                             GPL INUKE-HadStep
+DelRPion            double  Yes   mult. factor for pi de-Broglie wavelength determining       GPL INUKE-DelRPion
+                                  how muct to increase the nuclear radius
+DelRNucleon         double  Yes   mult. factor for nucleon de-Broglie wavelength determining  GPL INUKE-DelRNucleon
+                                  how muct to increase the nuclear radius
+-->
+
+  <param_set name="Default">
+
+    <param type="string" name="CommonParam"> NUCL </param>
+
+    <param type="alg"    name="NuclearModel">      genie::NuclearModelMap/Default  </param>
+    <!-- For the sake of coherence in the code, the nuclear model is set to NuclearModelMap.
+	 Anyway, the GENIE collaboration would like to remind the users that the Intranuke models
+	 were tuned using genie::FGMBodekRitchie/Default.
+	 If a systematic validation is desired we recommend to switch this to
+	  <param type="alg"    name="NuclearModel"> genie::FGMBodekRitchie/Default </param>
+
+   NucRemovalE is the binding E to subtract from cascade nucleons (in GeV)
+  -->
+
+    <param type="double" name="INUKE-NucRemovalE">       0.00  </param>
+    <param type="double" name="INUKE-HadStep">           0.05  </param>
+    <param type="double" name="INUKE-NucAbsFac">         1.0   </param>
+    <param type="double" name="INUKE-NucQEFac">          1.0   </param>
+    <param type="double" name="INUKE-NucCEXFac">         1.0   </param>
+    <param type="double" name="INUKE-Energy_Pre_Eq">     0.041 </param>
+    <param type="double" name="INUKE-FermiFac">          1.0   </param>
+    <param type="double" name="INUKE-FreeStep">          0.0   </param>
+    <param type="double" name="INUKE-FermiMomentum">     0.250 </param>
+
+    <param type="bool"   name="INUKE-DoFermi">           true  </param>
+    <param type="bool"   name="INUKE-DoCompoundNucleus"> true  </param>
+    <param type="bool"   name="INUKE-XsecNNCorr">        true  </param>
+
+ 
+
+    <param type="double" name="HAINUKE-DelRPion">        0.0   </param>
+    <param type="double" name="HAINUKE-DelRNucleon">     0.0   </param>
+
+    <!-- Knobs for tuning -->
+    <!-- Note that now all these parameters are not mandatory and their default is 1
+         they are reported just to inform the user what can be tweaked -->
+    <!--
+    <param type="double" name="FSI-ChargedPion-MFPScale">     1.000 </param>
+    <param type="double" name="FSI-NeutralPion-MFPScale">     1.000 </param>
+    <param type="double" name="FSI-Pion-FracCExScale">        1.000 </param>
+    <param type="double" name="FSI-Pion-FracInelScale">       1.000 </param>
+    <param type="double" name="FSI-ChargedPion-FracAbsScale"> 1.000 </param>
+    <param type="double" name="FSI-NeutralPion-FracAbsScale"> 1.000 </param>
+    <param type="double" name="FSI-Pion-FracPiProdScale">     1.000 </param>
+    <param type="double" name="FSI-Nucleon-MFPScale">         1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracCExScale">     1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracInelScale">    1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracAbsScale">     1.000 </param>
+    <param type="double" name="FSI-Nucleon-FracPiProdScale">  1.000 </param>
+    -->
+    
+  </param_set>
+
+</alg_conf>

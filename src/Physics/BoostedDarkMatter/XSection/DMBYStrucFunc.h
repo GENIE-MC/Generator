@@ -7,8 +7,8 @@
 
 \ref      hep-ph/0411202
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
-          University of Liverpool & STFC Rutherford Appleton Laboratory
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>
+          University of Liverpool
 
 \created  September 28, 2004
 
@@ -43,7 +43,7 @@ protected:
 
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
-  double ScalingVar (const Interaction * i) const;
+  double ScalingVar (const Interaction * i, double /*fM*/) const;
   void   KFactors   (const Interaction * i, double & kuv, 
                          double & kdv, double & kus, double & kds) const;
 

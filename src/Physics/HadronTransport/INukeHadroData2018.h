@@ -21,14 +21,14 @@
           data and extrapolations, and INC model results from Mashnik et al.
           for h+Fe56.
 
-\author   Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>, Rutherford Lab.
+\author   Costas Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
           Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
 	  Aaron Meyer <asm58@pitt.edu>, Pittsburgh Univ.
 	  Alex Bell, Pittsburgh Univ.
 
 \created  February 01, 2007
 
-\cpright  Copyright (c) 2003-2023, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 
@@ -57,12 +57,12 @@ public:
 // in natural units, all x-section splines included here are evaluated in
 // kinetic energies given in MeV and return the x-section value in mbarns
 
-  double XSec (int hpdgc, int tgt, int nprod, INukeFateHN_t rxnType, double ke, double costh) const;
-  double XSec (int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const;
-  double FracADep (int hpdgc, INukeFateHA_t fate, double ke, int targA) const;
-  double FracAIndep (int hpdgc, INukeFateHA_t fate, double ke) const;
-  double Frac (int hpdgc, INukeFateHN_t fate, double ke, int targA=0, int targZ=0) const;
-  double IntBounce       (const GHepParticle* p, int target, int s1, INukeFateHN_t fate);
+  double XSec (int hpdgc, int tgt, int nprod, INukeFateHN2018_t rxnType, double ke, double costh) const;
+  double XSec (int hpdgc, INukeFateHN2018_t fate, double ke, int targA, int targZ) const;
+  double FracADep (int hpdgc, INukeFateHA2018_t fate, double ke, int targA) const;
+  double FracAIndep (int hpdgc, INukeFateHA2018_t fate, double ke) const;
+  double Frac (int hpdgc, INukeFateHN2018_t fate, double ke, int targA=0, int targZ=0) const;
+  double IntBounce       (const GHepParticle* p, int target, int s1, INukeFateHN2018_t fate);
 
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
