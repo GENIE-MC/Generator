@@ -41,6 +41,12 @@ using namespace genie;
 using namespace genie::constants;
 using namespace genie::controls;
 
+namespace {
+  // weakly decaying hyperons optionally left undecayed (KeepLongLivedHyperons)
+  const int kLongLivedHyperons[5] =
+    { kPdgSigmaP, kPdgSigmaM, kPdgXi0, kPdgXiM, kPdgOmegaM };
+}
+
 //____________________________________________________________________________
 AGCharmPythia8Hadro2023::AGCharmPythia8Hadro2023() :
 AGCharmPythiaBaseHadro2023("genie::AGCharmPythia8Hadro2023")
@@ -79,6 +85,7 @@ void AGCharmPythia8Hadro2023::Initialize(void) const
     << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
   gPythia->init();
 
+  for(int i = 0; i < 5; i++) fOriDecayFlag_LLHyp[i] = true;
   fOriDecayFlag_pi0       = false;
   fOriDecayFlag_K0        = false;
   fOriDecayFlag_K0b       = false;
@@ -297,6 +304,11 @@ void AGCharmPythia8Hadro2023::CopyOriginalDecayFlags(void) const
   fOriDecayFlag_D0  = gPythia->particleData.canDecay(kPdgP33m1232_Delta0);
   fOriDecayFlag_Dp  = gPythia->particleData.canDecay(kPdgP33m1232_DeltaP);
   fOriDecayFlag_Dpp = gPythia->particleData.canDecay(kPdgP33m1232_DeltaPP);
+  if(fKeepLongLivedHyperons) {
+    for(int i = 0; i < 5; i++) {
+      fOriDecayFlag_LLHyp[i] = gPythia->particleData.mayDecay(kLongLivedHyperons[i]);
+    }
+  }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Had", pDEBUG)
@@ -329,6 +341,11 @@ void AGCharmPythia8Hadro2023::SetDesiredDecayFlags(void) const
   gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fReqDecayFlag_D0  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fReqDecayFlag_Dp  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fReqDecayFlag_Dpp );
+  if(fKeepLongLivedHyperons) {
+    for(int i = 0; i < 5; i++) {
+      gPythia->particleData.mayDecay(kLongLivedHyperons[i], false);
+    }
+  }
 #endif
 }
 //____________________________________________________________________________
@@ -346,6 +363,11 @@ void AGCharmPythia8Hadro2023::RestoreOriginalDecayFlags(void) const
   gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fOriDecayFlag_D0  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fOriDecayFlag_Dp  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fOriDecayFlag_Dpp );
+  if(fKeepLongLivedHyperons) {
+    for(int i = 0; i < 5; i++) {
+      gPythia->particleData.mayDecay(kLongLivedHyperons[i], fOriDecayFlag_LLHyp[i]);
+    }
+  }
 #endif
 }
 

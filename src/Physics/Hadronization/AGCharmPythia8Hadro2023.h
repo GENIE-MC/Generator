@@ -60,6 +60,7 @@ private:
   void RestoreOriginalDecayFlags  (void) const;
 
   // Original PYTHIA decay flags (stored so as to be restored after hadronization)
+  mutable bool fOriDecayFlag_LLHyp[5]; // Sigma+, Sigma-, Xi0, Xi-, Omega-
   mutable bool fOriDecayFlag_pi0; // pi^0
   mutable bool fOriDecayFlag_K0;  // K^0
   mutable bool fOriDecayFlag_K0b; // \bar{K^0}

@@ -13,6 +13,8 @@ HadronizeRemnants             bool       yes   handle to allow the hadronization
 PTFunction                    string     No    Function in form of a string for the
                                                P_t distribution of the Charmed hadron
                                                The variable as to be x
+KeepLongLivedHyperons         bool       yes   do not let PYTHIA decay Sigma+-, Xi0, Xi-,    false
+                                               Omega- (and antiparticles) in the remnant
 
 CharmFrac-E                   vec-double No    values of the energy points for
                                                ChramFraction splines
@@ -35,6 +37,7 @@ CharmFrac-Ds                  vec-double No    fractions for D_s meson
      <param type="bool"     name="HadronizeRemnants">  true                         </param>
 
      <param type="string"   name="PTFunction">  exp(-0.213362-6.62464*x)            </param>
+     <param type="bool"     name="KeepLongLivedHyperons"> false                   </param>
 
      <param type="vec-double" name="CharmFrac-E" delim=";">  0.    ; 5.    ; 10.   ; 15.   ; 20.   ; 25.   ; 30.   ; 35.   ; 40.   ; 50.   ; 60.   ; 70.   ; 80.   ; 90.   ; 100.   </param>
 

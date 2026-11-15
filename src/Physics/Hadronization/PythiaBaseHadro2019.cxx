@@ -382,6 +382,8 @@ void PythiaBaseHadro2019::Initialize(void)
   fReqDecayFlag_D0        = false;
   fReqDecayFlag_Dp        = false;
   fReqDecayFlag_Dpp       = false;
+  fKeepLongLivedHyperons  = false;
+  for(int i = 0; i < 5; i++) fOriDecayFlag_LLHyp[i] = true;
 }
 //____________________________________________________________________________
 void PythiaBaseHadro2019::LoadConfig(void)
@@ -408,6 +410,11 @@ void PythiaBaseHadro2019::LoadConfig(void)
   fReqDecayFlag_D0        = true;  // decay Delta0
   fReqDecayFlag_Dp        = true;  // decay Delta+
   fReqDecayFlag_Dpp       = true;  // decay Delta++
+
+  // Optionally do not decay Sigma+, Sigma-, Xi0, Xi-, Omega- (c tau 2.4 - 8.7 cm)
+  // and their antiparticles: they are then passed on (status 14 / 1) like the
+  // Lambda, so that the detector simulation can track and decay them
+  this->GetParamDef( "KeepLongLivedHyperons", fKeepLongLivedHyperons, false );
 
   // Load Wcut determining the phase space area where the multiplicity prob.
   // scaling factors would be applied -if requested-

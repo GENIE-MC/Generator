@@ -64,6 +64,8 @@ protected:
                                 unsigned int& rpos, TClonesArray * particle_list)      const = 0;
   // needs to append to TClonesArray of GHepParticle starting at rpos
 
+  bool fKeepLongLivedHyperons; ///< leave Sigma+-, Xi0/-, Omega- (and antiparticles) undecayed in the remnant
+
   // Overload the Algorithm::Configure() methods to load private data
   // members from configuration options
   //
