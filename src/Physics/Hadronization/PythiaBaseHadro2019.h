@@ -63,6 +63,10 @@ protected:
   double fLundb;                  ///< Lund b parameter
   double fLundaDiq;               ///< adjustment of Lund a for di-quark
 
+  // Event-record options
+  bool fKeepHadronizationHistory; ///< also record the hadrons PYTHIA decayed during hadronization
+                                  ///< (status kIStDecayedState, linked to their decay products)
+
   // Original PYTHIA decay flags (stored so as to be restored after hadronization)
   mutable bool fOriDecayFlag_pi0; // pi^0
   mutable bool fOriDecayFlag_K0;  // K^0

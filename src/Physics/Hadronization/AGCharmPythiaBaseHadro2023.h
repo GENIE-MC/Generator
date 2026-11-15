@@ -60,6 +60,8 @@ protected:
   void           LoadConfig          (void);
   void           Initialize          (void)                                    const ;
 
+  bool fKeepHadronizationHistory; ///< also record the hadrons PYTHIA decayed while hadronizing the remnant
+
   virtual bool HadronizeRemnant(int qrkSyst1, int qrkSyst2, double WR, TLorentzVector p4R,
                                 unsigned int& rpos, TClonesArray * particle_list)      const = 0;
   // needs to append to TClonesArray of GHepParticle starting at rpos

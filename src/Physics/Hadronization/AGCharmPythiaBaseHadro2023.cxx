@@ -47,18 +47,21 @@ using namespace genie::controls;
 AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023() :
 EventRecordVisitorI("genie::AGCharmPythiaBaseHadro2023")
 {
+  fKeepHadronizationHistory = false;
   this->Initialize();
 }
 //____________________________________________________________________________
 AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023(string config) :
 EventRecordVisitorI("genie::AGCharmPythiaBaseHadro2023", config)
 {
+  fKeepHadronizationHistory = false;
   this->Initialize();
 }
 //____________________________________________________________________________
 AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023(string name, string config) :
 EventRecordVisitorI(name, config)
 {
+  fKeepHadronizationHistory = false;
   this->Initialize();
 }
 //____________________________________________________________________________
@@ -141,6 +144,8 @@ void AGCharmPythiaBaseHadro2023::ProcessEventRecord(GHepRecord * event) const
                         pdg::IsChargedLepton(pdgc) ) ;
 
     if(not_hadron)  { ist = kIStStableFinalState; }
+    // hadrons decayed during the remnant hadronization (KeepHadronizationHistory)
+    if(particle -> Status() == kIStDecayedState) { ist = kIStDecayedState; }
     particle -> SetStatus( ist ) ;
 
     int im  = mom + 1 + particle -> FirstMother() ;
@@ -737,6 +742,10 @@ void AGCharmPythiaBaseHadro2023::LoadConfig(void)
   GetParamDef( "HadronizeRemnants", hadronize_remnants, true ) ;
 
   fCharmOnly = ! hadronize_remnants ;
+
+  // Optionally record the hadrons that PYTHIA decays while hadronizing the
+  // remnant as kIStDecayedState entries with mother/daughter links
+  GetParamDef( "KeepHadronizationHistory", fKeepHadronizationHistory, false ) ;
 
   //-- Get a fragmentation function
   fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (
