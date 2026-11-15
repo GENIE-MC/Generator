@@ -83,6 +83,11 @@ protected:
   bool fReqDecayFlag_D0;          // \Delta^0
   bool fReqDecayFlag_Dp;          // \Delta^+
   bool fReqDecayFlag_Dpp;         // \Delta^++
+
+  // Optionally leave the weakly decaying hyperons Sigma+, Sigma-, Xi0, Xi-,
+  // Omega- (and antiparticles) undecayed, for the detector simulation to decay
+  bool fKeepLongLivedHyperons;
+  mutable bool fOriDecayFlag_LLHyp[5]; // original PYTHIA flags of the above
 };
 
 }         // genie namespace

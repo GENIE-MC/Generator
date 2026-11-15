@@ -40,6 +40,13 @@
 using namespace genie;
 using namespace genie::constants;
 
+namespace {
+  // weakly decaying hyperons optionally left undecayed (KeepLongLivedHyperons);
+  // PYTHIA's decay switch acts on particle and antiparticle together
+  const int kLongLivedHyperons[5] =
+    { kPdgSigmaP, kPdgSigmaM, kPdgXi0, kPdgXiM, kPdgOmegaM };
+}
+
 //____________________________________________________________________________
 Pythia8Hadro2019::Pythia8Hadro2019() :
 PythiaBaseHadro2019("genie::Pythia8Hadro2019")
@@ -271,6 +278,11 @@ void Pythia8Hadro2019::CopyOriginalDecayFlags(void) const
   fOriDecayFlag_D0  = gPythia->particleData.canDecay(kPdgP33m1232_Delta0);
   fOriDecayFlag_Dp  = gPythia->particleData.canDecay(kPdgP33m1232_DeltaP);
   fOriDecayFlag_Dpp = gPythia->particleData.canDecay(kPdgP33m1232_DeltaPP);
+  if(fKeepLongLivedHyperons) {
+    for(int i = 0; i < 5; i++) {
+      fOriDecayFlag_LLHyp[i] = gPythia->particleData.mayDecay(kLongLivedHyperons[i]);
+    }
+  }
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     LOG("Pythia8Had", pDEBUG)
@@ -303,6 +315,11 @@ void Pythia8Hadro2019::SetDesiredDecayFlags(void) const
   gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fReqDecayFlag_D0  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fReqDecayFlag_Dp  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fReqDecayFlag_Dpp );
+  if(fKeepLongLivedHyperons) {
+    for(int i = 0; i < 5; i++) {
+      gPythia->particleData.mayDecay(kLongLivedHyperons[i], false);
+    }
+  }
 #endif
 }
 //____________________________________________________________________________
@@ -320,6 +337,11 @@ void Pythia8Hadro2019::RestoreOriginalDecayFlags(void) const
   gPythia->particleData.mayDecay(kPdgP33m1232_Delta0,  fOriDecayFlag_D0  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaP,  fOriDecayFlag_Dp  );
   gPythia->particleData.mayDecay(kPdgP33m1232_DeltaPP, fOriDecayFlag_Dpp );
+  if(fKeepLongLivedHyperons) {
+    for(int i = 0; i < 5; i++) {
+      gPythia->particleData.mayDecay(kLongLivedHyperons[i], fOriDecayFlag_LLHyp[i]);
+    }
+  }
 #endif
 }
 //____________________________________________________________________________

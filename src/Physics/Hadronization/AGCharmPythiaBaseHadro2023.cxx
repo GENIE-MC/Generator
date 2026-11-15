@@ -48,18 +48,21 @@ AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023() :
 EventRecordVisitorI("genie::AGCharmPythiaBaseHadro2023")
 {
   this->Initialize();
+  fKeepLongLivedHyperons = false;
 }
 //____________________________________________________________________________
 AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023(string config) :
 EventRecordVisitorI("genie::AGCharmPythiaBaseHadro2023", config)
 {
   this->Initialize();
+  fKeepLongLivedHyperons = false;
 }
 //____________________________________________________________________________
 AGCharmPythiaBaseHadro2023::AGCharmPythiaBaseHadro2023(string name, string config) :
 EventRecordVisitorI(name, config)
 {
   this->Initialize();
+  fKeepLongLivedHyperons = false;
 }
 //____________________________________________________________________________
 AGCharmPythiaBaseHadro2023::~AGCharmPythiaBaseHadro2023()
@@ -742,6 +745,9 @@ void AGCharmPythiaBaseHadro2023::LoadConfig(void)
   fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (
     this->SubAlg("FragmentationFunc"));
   assert(fFragmFunc);
+
+  // Optionally do not let PYTHIA decay Sigma+-, Xi0, Xi-, Omega- (and antiparticles)
+  GetParamDef( "KeepLongLivedHyperons", fKeepLongLivedHyperons, false ) ;
 
   string pt_function ;
   this -> GetParam( "PTFunction", pt_function ) ;
