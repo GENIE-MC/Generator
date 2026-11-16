@@ -311,9 +311,12 @@ public :
   // ( #include "Utils/UnitUtils.h for declaration )
   // to get the correct scale factor to pass in.  This should get set
   // FIRST before setting detector position/rotation
+  // LengthUnits() returns the user unit relative to metres (1 for the
+  // default), as ROOTGeomAnalyzer::LengthUnits() does; it is not the value
+  // passed to SetLengthUnits().
 
   void   SetLengthUnits(double user_units);  ///< Set units assumed by user
-  double    LengthUnits(void) const;         ///< Return user units
+  double    LengthUnits(void) const;         ///< User length unit in metres
   
   // set relative orientation of user coords vs. beam system, i.e.
   //  x3_user = ( beamrot * x3_beam ) + x0beam_user

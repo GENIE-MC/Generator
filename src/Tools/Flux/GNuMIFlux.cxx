@@ -1239,9 +1239,10 @@ void GNuMIFlux::SetLengthUnits(double user_units)
 //___________________________________________________________________________
 double GNuMIFlux::LengthUnits(void) const
 {
-  // Return the scale factor for lengths the user is getting
-  double cm = genie::utils::units::UnitFromString("cm");
-  return fLengthScaleB2U * cm ;
+  // Return the user length unit (as set by SetLengthUnits) relative to
+  // metres, e.g. 1 for "m", 0.01 for "cm".  This is the same convention
+  // as ROOTGeomAnalyzer::LengthUnits().
+  return fLengthUnits / genie::units::meter;
 }
 
 //___________________________________________________________________________
