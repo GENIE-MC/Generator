@@ -184,7 +184,7 @@ void GeomVolSelectorRockBox::MakeRockBox() const
       boxXYZMax[j] = fInclusionXYZMax[j] + dmax;
     } else {
       boxXYZMin[j] = TMath::Min(fMinimalXYZMin[j]-dmin,fInclusionXYZMin[j]);
-      boxXYZMax[j] = TMath::Max(fMinimalXYZMax[j]+dmin,fInclusionXYZMax[j]);
+      boxXYZMax[j] = TMath::Max(fMinimalXYZMax[j]+dmax,fInclusionXYZMax[j]);
     }
   }
 
