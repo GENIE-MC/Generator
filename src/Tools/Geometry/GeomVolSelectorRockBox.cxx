@@ -133,7 +133,7 @@ void GeomVolSelectorRockBox::SetRockBoxMinimal(Double_t* xyzmin,
 
   for ( int j = 0; j < 3; ++j ) {
     fMinimalXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
-    fMinimalXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+    fMinimalXYZMax[j] = TMath::Max(xyzmin[j],xyzmax[j]);
   }
   // create the default inner (exclusion) box
   this->MakeBox(fMinimalXYZMin,fMinimalXYZMax);
@@ -146,7 +146,7 @@ void GeomVolSelectorRockBox::SetRockBoxInclusion(Double_t* xyzmin,
 
   for ( int j = 0; j < 3; ++j ) {
     fInclusionXYZMin[j] = TMath::Min(xyzmin[j],xyzmax[j]);
-    fInclusionXYZMax[j] = TMath::Max(xyzmax[j],xyzmax[j]);
+    fInclusionXYZMax[j] = TMath::Max(xyzmin[j],xyzmax[j]);
   }
 }
 //___________________________________________________________________________
@@ -184,7 +184,7 @@ void GeomVolSelectorRockBox::MakeRockBox() const
       boxXYZMax[j] = fInclusionXYZMax[j] + dmax;
     } else {
       boxXYZMin[j] = TMath::Min(fMinimalXYZMin[j]-dmin,fInclusionXYZMin[j]);
-      boxXYZMax[j] = TMath::Max(fMinimalXYZMax[j]+dmin,fInclusionXYZMax[j]);
+      boxXYZMax[j] = TMath::Max(fMinimalXYZMax[j]+dmax,fInclusionXYZMax[j]);
     }
   }
 
