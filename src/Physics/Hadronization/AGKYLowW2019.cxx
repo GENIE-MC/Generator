@@ -64,6 +64,7 @@ using namespace genie::utils::print;
 AGKYLowW2019::AGKYLowW2019() :
 EventRecordVisitorI("genie::AGKYLowW2019")
 {
+  fForceNeuGenLimit = false;
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
 //fKNO          = 0;
@@ -72,6 +73,7 @@ EventRecordVisitorI("genie::AGKYLowW2019")
 AGKYLowW2019::AGKYLowW2019(string config) :
 EventRecordVisitorI("genie::AGKYLowW2019", config)
 {
+  fForceNeuGenLimit = false;
   fBaryonXFpdf  = 0;
   fBaryonPT2pdf = 0;
 //fKNO          = 0;
@@ -506,6 +508,10 @@ void AGKYLowW2019::LoadConfig(void)
 
   // Force minimum multiplicity (if generated less than that) or abort?
   GetParamDef( "ForceMinMultiplicity", fForceMinMult, true ) ;
+
+  // Force the NeuGEN upper limit (10) on the hadronic multiplicity?
+  // (documented in AGKYLowW2019.xml; must be set: it is read in MultiplicityProb)
+  GetParamDef( "ForceNeugenMultLimit", fForceNeuGenLimit, false ) ;
 
   // Generate the baryon xF and pT^2 using experimental data as PDFs?
   // In this case, only the N-1 other particles would be fed into the phase
