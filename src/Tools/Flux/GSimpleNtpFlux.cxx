@@ -414,10 +414,29 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
       fbegin = slashpos + 1;
     } else { fbegin = 0; }
 
+    std::string basename =
+      pattern.substr(fbegin,pattern.size()-fbegin);
+
+    // a pattern without wildcards names a single file: use it directly
+    // rather than requiring a directory listing (which may not be
+    // permitted, e.g. for some xrootd servers); TFile::Open below will
+    // reject it if it doesn't exist
+    bool has_wildcard =
+      ( basename.find_first_of("*?[") != std::string::npos );
+    if ( ! has_wildcard ) {
+      LOG("Flux", pDEBUG) << "No wildcard, use file name directly: "
+                          << pattern;
+      fnames.insert(pattern);
+      nfiles_from_pattern[ipatt]++;
+      continue;
+    }
+
     void* dirp = gSystem->OpenDirectory(gSystem->ExpandPathName(dirname.c_str()));
-    if ( dirp ) {
-      std::string basename =
-        pattern.substr(fbegin,pattern.size()-fbegin);
+    if ( ! dirp ) {
+      LOG("Flux", pWARN)
+        << "Could not list directory \"" << dirname
+        << "\" for pattern \"" << pattern << "\"; no files from it";
+    } else {
       TRegexp re(basename.c_str(),kTRUE);
       const char* onefile;
       while ( ( onefile = gSystem->GetDirEntry(dirp) ) ) {
@@ -447,6 +466,11 @@ void GSimpleNtpFlux::LoadBeamSimData(const std::vector<string>& patterns,
     LOG("Flux", pINFO) << "Load file " <<  filename;
 
     TFile* tf = TFile::Open(filename.c_str(),"READ");
+    if ( ! tf || tf->IsZombie() ) {
+      LOG("Flux", pWARN) << "Could not open file, skipping: " << filename;
+      delete tf;
+      continue;
+    }
     TTree* etree = (TTree*)tf->Get("flux");
     if ( etree ) {
       TTree* mtree = (TTree*)tf->Get("meta");
