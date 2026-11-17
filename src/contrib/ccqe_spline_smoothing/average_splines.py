@@ -1,6 +1,6 @@
+import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from collections import defaultdict
 import numpy as np
 import pandas as pd
 import argparse
@@ -14,10 +14,13 @@ m2    = meter*meter
 cm2   = 1.0e-4 * m2
 CONV_CONST = 1.0e+38 / cm2
 
-parser = argparse.ArgumentParser(description="""Loops over a number of spline xmls in one directory, and builds a dataframe holding the xml knots. 
+parser = argparse.ArgumentParser(description="""Loops over a number of spline xmls in one directory, and builds a dataframe holding the xml knots.
 Ignores free nucleon knots.
-Must be the exact same knots. 
-Outputs a parquet with the knots (in 1e-38 cm2), and an XML with the same knots averaged.
+Keeps EVERY other spline it finds in the first XML (e.g. the neutron and the proton spline of an electron-probe job), matched by spline name across the XMLs.
+Must be the exact same knots.
+Outputs one parquet per spline with the knots (in 1e-38 cm2), and one XML holding all the splines, each the mean over the runs of its knots.
+The mean includes runs where a knot is exactly zero: those are real contributions, so dropping them would bias the cross section up.
+With a single spline the parquet is <outbase>.parquet; with several it is <outbase>_nu<pdg>_tgt<pdg>_N<pdg>.parquet for each.
 """)
 parser.add_argument('-b', '--base', type=str, required=True, help="Base directory to take splines from.")
 parser.add_argument('-o', '--outbase', type=str, default="output", help="Basename of output.")
@@ -28,85 +31,80 @@ flist = [ x for x in base_path.iterdir() if x.is_file() and '.xml' in x.name ]
 
 print("Making output from", len(flist), "XMLs")
 
-# From the first XML get a list of all the non-free-nucleon splines
-merged_path = Path(flist[0])
+def is_free_nucleon(name):
+    return "tgt:1000000010" in name or "tgt:1000010010" in name
 
-splines = defaultdict(dict)
+# From the first XML get a list of all the non-free-nucleon splines
+first_root = ET.parse(flist[0]).getroot()
 
 # Some GENIE fluff
-#gtune = ( (ET.parse(merged_path)).getroot().findall(".//genie_tune") )[0]
-gtune = ( (ET.parse(flist[0])).getroot().findall(".//genie_tune") )[0]
+gtune = first_root.findall(".//genie_tune")[0]
 
-nknots = 0
-#for spline in (ET.parse(merged_path)).getroot().findall(".//spline"):
-for spline in (ET.parse(flist[0])).getroot().findall(".//spline"):
+# name -> dict(E=knot energies, nknots=attribute, xsec=(knots x runs) array, NaN where a run lacks the spline)
+splines = {}
+for spline in first_root.findall(".//spline"):
     name = spline.get('name')
-    if(nknots == 0):
-        nknots = spline.get('nknots')
-    if("tgt:1000000010" in name or "tgt:1000010010" in name):
+    if is_free_nucleon(name):
         continue
 
     energies = np.array([float(e.text.strip()) for e in spline.iter("E")])
-    splines[name]['E'] = energies
-    splines[name]['xsec'] = np.zeros((len(energies), len(flist)))
+    splines[name] = dict(E=energies, nknots=spline.get('nknots'),
+                         xsec=np.full((len(energies), len(flist)), np.nan))
+
+if not splines:
+    print(Fore.RED + "No nontrivial (not free nucleon..) splines found! Exiting now. No output." +
+          Fore.RESET)
+    exit(0)
+
+print(Fore.GREEN + f"Keeping {len(splines)} spline(s):" + Fore.RESET)
+for name in splines:
+    print("  ", name)
 
 # And now, mosey on over the entirety of the input list, and eat the spline values
+unknown = set()
 with tqdm(total=len(flist), desc="Getting inputs...",
           bar_format=Fore.CYAN + "{l_bar}{bar}{r_bar}" + Fore.RESET) as pbar:
     for iFile, fin in enumerate(flist):
         for spline in (ET.parse(fin)).getroot().findall(".//spline"):
             name = spline.get('name')
-            if("tgt:1000000010" in name or "tgt:1000010010" in name):
+            if is_free_nucleon(name):
+                continue
+            if name not in splines:
+                unknown.add(name)
                 continue
 
+            energies = np.array([float(e.text.strip()) for e in spline.iter("E")])
             xsecs = np.array([float(x.text.strip()) for x in spline.iter("xsec")])
-            for iE, xs in enumerate(xsecs):
-                splines[name]['xsec'][iE, iFile] = xs
+            if len(energies) != len(splines[name]['E']) or not np.allclose(energies, splines[name]['E'], rtol=1e-6, atol=0):
+                raise SystemExit(f"Knots of {name} in {fin} differ from those in {flist[0]}; they must be the exact same knots.")
+            splines[name]['xsec'][:, iFile] = xsecs
 
         pbar.update(1)
 
-# Loop over all splines and build a friendly dictionary for the dataframe
-# Only use the one nontrivial spline
-chosen_name = None
-for spline in (ET.parse(flist[0]).getroot().findall(".//spline")):
-    name = spline.get('name')
-    if("tgt:1000000010" in name or "tgt:1000010010" in name):
-        continue
+for name in sorted(unknown):
+    print(Fore.RED + f"Spline not in the first XML, ignored: {name}" + Fore.RESET)
+for name, sp in splines.items():
+    nmiss = int(np.isnan(sp['xsec']).all(axis=0).sum())
+    if nmiss:
+        print(Fore.RED + f"{nmiss} of {len(flist)} XMLs have no {name}; they are left out of its mean." + Fore.RESET)
 
-    chosen_name = name
-    break
+def tag_of(name, i):
+    m = re.search(r"nu:(-?\d+);tgt:(\d+);N:(\d+)", name)
+    return f"nu{m.group(1)}_tgt{m.group(2)}_N{m.group(3)}" if m else f"spline{i}"
 
-if(chosen_name is None):
-    print(Fore.RED + "No nontrivial (not free nucleon..) splines found! Exiting now. No output." +
-          Fore.RESET)
-    exit(0)
-else:
-    print(Fore.GREEN + f"Using chosen name: {chosen_name}" + Fore.RESET)
-
-# Assume we only have one nontrivial spline, and make len(energies) rows.
-
-chosen_dict = {}
-for e, xs in zip(splines[chosen_name]['E'], splines[chosen_name]['xsec']):
-    chosen_dict[e] = xs * CONV_CONST
-
-# Splines have been built. Let's initialise a dataframe.
+# Splines have been built. Initialise a dataframe for each and save it as a parquet
 cnames = [f'Run {ic} [1e-38 cm2/A]' for ic in range(len(flist))]
-#cnames.insert(0, 'E')
-df = pd.DataFrame(chosen_dict).transpose()
-df.columns = cnames
-df.index.name = "E [GeV]"
+means = {}
+for i, (name, sp) in enumerate(splines.items()):
+    df = pd.DataFrame(sp['xsec'] * CONV_CONST, index=sp['E'], columns=cnames)
+    df.index.name = "E [GeV]"
+    out_parquet = Path(f"{args.outbase}.parquet" if len(splines) == 1 else f"{args.outbase}_{tag_of(name, i)}.parquet")
+    print(Fore.YELLOW + f"Saving parquet to {out_parquet.resolve()}..." + Fore.RESET)
+    df.to_parquet(out_parquet.resolve())
 
-# Save this as a parquet
-out_parquet = Path(f"{args.outbase}.parquet")
-print(Fore.YELLOW + f"Saving parquet to {out_parquet.resolve()}..." + Fore.RESET)
-df.to_parquet(out_parquet.resolve())
-
-# Now get out an XML. First, build the average over each run (row of the parquet)
-# Not the mean, it performs far worse than median at high E and essentially the same as mean in BNB E
-# Note the units are (GeV, 1e-38 cm2)
-avgs = []
-for e, xsecs in df.iterrows():
-    avgs.append( (e, np.median(xsecs)) )
+    # The mean over each row of the parquet (every run that has this spline, zeros included)
+    # Note the units are (GeV, 1e-38 cm2)
+    means[name] = [(e, np.nanmean(xsecs)) for e, xsecs in df.iterrows()]
 
 root = ET.Element("genie_xsec_spline_list")
 out_tree = ET.ElementTree(root)
@@ -120,15 +118,16 @@ root.insert(0, comment)
 tune = ET.SubElement(root, "genie_tune")
 tune.attrib["name"] = gtune.attrib["name"]
 
-spl = ET.SubElement(tune, "spline")
-spl.attrib["name"] = chosen_name
-spl.attrib["nknots"] = nknots
+for name, sp in splines.items():
+    spl = ET.SubElement(tune, "spline")
+    spl.attrib["name"] = name
+    spl.attrib["nknots"] = sp['nknots']
 
-# For each element in the averages, insert a knot
-for knot in avgs:
-    knt  = ET.SubElement(spl, "knot"); knt.text = " "; knt.tail="\n        "
-    Eknt = ET.SubElement(knt, "E"); Eknt.text = f" {knot[0]:.5f} "; Eknt.tail=" "
-    xknt = ET.SubElement(knt, "xsec"); xknt.text = f" {knot[1]/CONV_CONST:.10e} "; xknt.tail=" "
+    # For each element in the averages, insert a knot
+    for knot in means[name]:
+        knt  = ET.SubElement(spl, "knot"); knt.text = " "; knt.tail="\n        "
+        Eknt = ET.SubElement(knt, "E"); Eknt.text = f" {knot[0]:.5f} "; Eknt.tail=" "
+        xknt = ET.SubElement(knt, "xsec"); xknt.text = f" {knot[1]/CONV_CONST:.10e} "; xknt.tail=" "
 
 # For pretty printing: see https://stackoverflow.com/questions/3095434
 def indent(elem, level=0):
