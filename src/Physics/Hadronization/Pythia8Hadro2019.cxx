@@ -35,6 +35,7 @@
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/Hadronization/Pythia8Hadro2019.h"
+#include "Physics/Hadronization/Pythia8StatusCodes.h"
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 #include "Pythia8/Pythia.h"
@@ -166,8 +167,7 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
   const TLorentzVector & vtx = *(neutrino->X4());
 
   // Optionally keep the hadronization history: hadrons that PYTHIA decayed
-  // during hadronization (status -81..-89 for primary hadrons, -91..-99 for
-  // decay products that decayed in turn) are added as kIStDecayedState entries
+  // during hadronization (see Pythia8StatusCodes.h) are added as kIStDecayedState entries
   // and their decay products point to them. No extra PYTHIA calls or random
   // numbers are used, so the remaining entries are identical to those
   // obtained with the history switched off.
@@ -195,13 +195,13 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
        }
      }
 
-     // Copy the initial q, qq (status = -23) and all undecayed particles
+     // Copy the initial q, qq (fragmented string ends) and all undecayed particles
      // Ignore particles we asked PYTHIA to decay (eg omega, Delta) but
      // record their decay products, unless the history is to be kept
      bool decayed = keep_history &&
-         pythia_particle_status <= -81 && pythia_particle_status >= -99;
-     bool copy = (pythia_particle_status==-23) || (pythia_particle_status > 0)
-              || decayed;
+         IsPythia8DecayedHadron(pythia_particle_status);
+     bool copy = (pythia_particle_status == kPythia8StFragmentedStringEnd) ||
+                 (pythia_particle_status > 0) || decayed;
      if(copy) {
         // The fragmentation products are generated in the hadronic CM frame
         // where the z>0 axis is the \vec{phad} direction. For each particle
@@ -237,12 +237,14 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
           mother1 = mom+1;
           mother2 = mom+2;
         }
-        if(keep_history && pythia_particle_status != -23) {
+        if(keep_history &&
+           pythia_particle_status != kPythia8StFragmentedStringEnd) {
           // decay products point to the decayed hadron they come from: follow
           // the PYTHIA first-mother chain up to the nearest copied decayed
           // hadron; stop at the string ends (q, qq), which keep the mothers above
           int im = fEvent[i].mother1();
-          while(im > 0 && ghep_decayed[im] < 0 && fEvent[im].status() != -23) {
+          while(im > 0 && ghep_decayed[im] < 0 &&
+                fEvent[im].status() != kPythia8StFragmentedStringEnd) {
             im = fEvent[im].mother1();
           }
           if(im > 0 && ghep_decayed[im] >= 0) {

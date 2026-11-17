@@ -38,6 +38,7 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/Hadronization/AGCharmPythia8Hadro2023.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
+#include "Physics/Hadronization/Pythia8StatusCodes.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -213,12 +214,12 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
           return false;
         }
     }
-    // copy the initial quark systemcs (satus = -23) and all undecayed particles
+    // copy the initial quark systems (fragmented string ends) and all undecayed particles
     // ignore particle we asked PYTHIA to decay but record their decay products
     // (and, if the history is kept, the decayed particles too)
     bool decayed = keep_history &&
-      pythia_particle_status <= -81 && pythia_particle_status >= -99;
-    bool copy = (pythia_particle_status==-23) ||
+      IsPythia8DecayedHadron(pythia_particle_status);
+    bool copy = (pythia_particle_status == kPythia8StFragmentedStringEnd) ||
       (pythia_particle_status > 0) || decayed;
     if (copy) {
       // the fragmenation products are generated in the remnant hadronic CM frame
@@ -250,7 +251,8 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 
       int mother1 = mom;
       int mother2 = -1;
-      if (keep_history && pythia_particle_status != -23) {
+      if (keep_history &&
+          pythia_particle_status != kPythia8StFragmentedStringEnd) {
         // nearest copied ancestor: a decayed hadron or the remnant q / qq
         int im = fEvent[i].mother1();
         while (im > 0 && list_pos[im] < 0) { im = fEvent[im].mother1(); }
