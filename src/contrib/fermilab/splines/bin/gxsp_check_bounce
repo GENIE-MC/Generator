@@ -1,0 +1,151 @@
+#! /usr/bin/env bash
+#
+# gxsp_check_bounce -- report splines that drop back to a zero cross section
+#   after being non-zero: a zero knot after the first non-zero one (seen
+#   near the low end, e.g. noisy QE splines just above threshold)
+#
+#   gxsp_check_bounce [-q] [-n N] gxspl-NUbig.xml [more.xml ...]
+#
+#   For each such spline it also gives the largest cross section that lies
+#   between two zeros (a zero knot somewhere before and somewhere after,
+#   within the knots looked at), and the summary line the largest of those
+#   over the whole file.
+#
+#   -q     one line per spline:  probe isotope nucleon nzero max spline-name
+#          (nzero = how many such zero knots; max = the largest cross section
+#          between two zeros, "-" if there is none)
+#   -n N   only look at the first N knots (default: all but the last; a zero
+#          last knot is gxsp_check_lastknot's job)
+#
+#   Probe, target isotope and hit nucleon are decoded from the spline name
+#   (".../nu:-12;tgt:1000180400;N:2112;..."); "-" when not present.
+#
+#   Accepts plain or gzip'ed (.gz) files.  Exit status is 1 if any such
+#   spline was found, 0 if none, 2 on usage/read errors.
+#
+##############################################################################
+unset GZIP   # a GZIP="-v" in the environment would add chatter to stderr
+QUIET=0 NMAX=0
+FILES=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -q)        QUIET=1 ; shift ;;
+    -n)        NMAX=$2 ; shift 2 || { echo "gxsp_check_bounce: $1 needs a value" >&2 ; exit 2 ; } ;;
+    -h|--help) sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    -*)        echo "gxsp_check_bounce: unknown option $1" >&2 ; exit 2 ;;
+    *)         FILES+=("$1") ; shift ;;
+  esac
+done
+[[ "${NMAX}" =~ ^[0-9]+$ ]] || { echo "gxsp_check_bounce: -n must be a non-negative integer" >&2 ; exit 2 ; }
+[ ${#FILES[@]} -gt 0 ] || { sed -n '3,26p' "$0" | sed 's/^# \{0,1\}//' >&2 ; exit 2 ; }
+
+NFOUND=0
+for f in "${FILES[@]}" ; do
+  [ -r "${f}" ] || { echo "gxsp_check_bounce: can't read ${f}" >&2 ; exit 2 ; }
+  case "${f}" in
+    *.gz) CAT="gzip -dc" ;;
+    *)    CAT="cat" ;;
+  esac
+  ${CAT} "${f}" | awk -v quiet="${QUIET}" -v nmax="${NMAX}" -v fname="${f}" '
+    BEGIN {
+      nel = split("H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn " \
+                  "Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La " \
+                  "Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po " \
+                  "At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr", el, " ")
+      split("11 electron -11 positron 12 nue -12 nuebar 14 numu -14 numubar 16 nutau -16 nutaubar", t, " ")
+      for (i = 1 ; i < 16 ; i += 2) pname[t[i]] = t[i+1]
+      nname[2212] = "p" ; nname[2112] = "n"
+      # nucleon pairs (MEC): GENIE cluster codes
+      nname[2000000200] = "nn" ; nname[2000000201] = "np" ; nname[2000000202] = "pp"
+    }
+    # 100ZZZAAA0 -> e.g. Ar40 (free-n for the free neutron); else unchanged
+    function isoname(pdg,   z, a) {
+      if (length(pdg) != 10 || substr(pdg, 1, 3) != "100") return pdg
+      z = substr(pdg, 4, 3) + 0 ; a = substr(pdg, 7, 3) + 0
+      if (z == 0 && a == 1) return "free-n"
+      if (z >= 1 && z <= nel) return el[z] a
+      return pdg
+    }
+    # decode probe / tgt / N from the spline name into probe, iso, nuc
+    function decode(nm,   tok, kv, i, ntok) {
+      probe = iso = nuc = "-" ; ppdg = tpdg = npdg = ""
+      ntok = split(nm, tok, ";")
+      for (i = 1 ; i <= ntok ; i++) {
+        if (i == 1) sub(/.*\//, "", tok[i])        # genie::X/Default/nu:-12 -> nu:-12
+        if (split(tok[i], kv, ":") != 2) continue
+        if (i == 1)             { ppdg = kv[2] ; probe = (kv[2] in pname) ? pname[kv[2]] : kv[2] }
+        else if (kv[1] == "tgt") { tpdg = kv[2] ; iso = isoname(kv[2]) }
+        else if (kv[1] == "N")   { npdg = kv[2] ; nuc = (kv[2] in nname) ? nname[kv[2]] : kv[2] }
+      }
+    }
+    # pull the text between <tag> and </tag> on this line
+    function between(tag,   s) {
+      if (!match($0, "<" tag ">[^<]*</" tag ">")) return ""
+      s = substr($0, RSTART + length(tag) + 2, RLENGTH - 2 * length(tag) - 5)
+      gsub(/[[:space:]]/, "", s)
+      return s
+    }
+    /<spline / {
+      name = ""
+      if (match($0, /name="[^"]*"/)) name = substr($0, RSTART + 6, RLENGTH - 7)
+      n = 0 ; nspl++
+      delete E ; delete X
+    }
+    /<knot>/ {
+      n++ ; E[n] = between("E") ; X[n] = between("xsec")
+    }
+    /<\/spline>/ {
+      # knots looked at: the first nmax (if given), never the last one
+      last = n - 1
+      if (nmax > 0 && nmax < last) last = nmax
+      first = 0 ; nz = 0 ; z1 = zl = 0
+      for (i = 1 ; i <= last ; i++) {
+        if (X[i] + 0 != 0) { if (!first) first = i ; continue }
+        if (first) { nz++ ; if (!z1) z1 = i ; zl = i }
+      }
+      if (nz > 0) {
+        nbad++
+        # the largest non-zero cross section between two zeros: after the
+        # first zero knot and before the last one (zl) in the knots looked at
+        f0 = 0
+        for (i = 1 ; i <= last ; i++) if (X[i] + 0 == 0) { f0 = i ; break }
+        imax = 0
+        for (i = f0 + 1 ; i < zl ; i++) {
+          if (X[i] + 0 == 0) continue
+          if (!imax || X[i] + 0 > X[imax] + 0) imax = i
+        }
+        if (imax) {
+          nbtw++
+          if (!fmax || X[imax] + 0 > fmaxx + 0) { fmax = 1 ; fmaxx = X[imax] ; fmaxname = name ; fmaxk = imax ; fmaxE = E[imax] }
+        }
+        decode(name)
+        if (quiet) printf "%-9s %-7s %-2s %4d  %-16s %s\n", probe, iso, nuc, nz, \
+                          (imax ? X[imax] : "-"), name
+        else {
+          printf "%s\n", name
+          printf "    probe %s (%s)  isotope %s (%s)", probe, ppdg, iso, tpdg
+          if (npdg != "") printf "  nucleon %s (%s)", nuc, npdg
+          printf "\n    first non-zero  knot %d  E=%s xsec=%s\n", first, E[first], X[first]
+          printf "    first zero after it  knot %d  E=%s", z1, E[z1]
+          if (nz > 1) printf "   (%d zero knots after the first non-zero, the last at knot %d  E=%s)", nz, zl, E[zl]
+          printf "\n"
+          if (imax) printf "    largest between zeros: xsec=%s (knot %d  E=%s)\n", X[imax], imax, E[imax]
+          else      printf "    largest between zeros: none (no zero knot before the first non-zero one)\n"
+        }
+      }
+    }
+    END {
+      if (!quiet) {
+        printf "# %s: %d of %d splines have a zero knot after a non-zero one%s\n", fname, nbad, nspl, \
+               (nmax > 0 ? " (first " nmax " knots)" : " (last knot not counted)") > "/dev/stderr"
+        if (nbtw) {
+          printf "#   largest cross section between two zeros (in %d of them): %s (knot %d  E=%s) in %s\n", \
+                 nbtw, fmaxx, fmaxk, fmaxE, fmaxname > "/dev/stderr"
+        }
+      }
+      exit (nbad > 0)
+    }'
+  rc=${PIPESTATUS[1]}
+  if [ ${rc} -eq 1 ]; then NFOUND=1 ; fi
+done
+exit ${NFOUND}

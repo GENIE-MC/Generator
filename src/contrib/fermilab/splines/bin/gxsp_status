@@ -1,0 +1,175 @@
+#! /usr/bin/env bash
+#
+# gxsp_status -- report which stage products are missing (interactive)
+#
+#   gxsp_status STAGEDIR        (or --stagedir STAGEDIR)
+#       [-v]   list every product of each stage checked, marked
+#              "present" or "missing" (otherwise only missing ones are listed)
+#       [-q]   list no products, just each stage's status line (overrides -v)
+#       [-k|--keep-going]  check every stage, even after one with missing
+#              products, and end with the list of incomplete stages
+#
+#   Run where PNFS is mounted.  Stages are checked in order; checking stops
+#   at the first stage with missing products (unless -k).  Exit status 0 if
+#   every stage is complete, 1 if not.
+#
+##############################################################################
+GXSP_ME=gxsp_status
+
+SD="" VERB=0 QUIET=0 KEEPGOING=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    -v)         VERB=1 ; shift ;;
+    -q)         QUIET=1 ; shift ;;
+    -k|--keep-going) KEEPGOING=1 ; shift ;;
+    -h|--help)  sed -n '3,15p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    -*)         echo "${GXSP_ME}: unknown option $1" >&2 ; exit 1 ;;
+    *)          SD=$1 ; shift ;;
+  esac
+done
+[ ${QUIET} -eq 1 ] && VERB=0
+[ -n "${SD}" ] || { echo "${GXSP_ME}: give the staging directory" >&2 ; exit 1 ; }
+SD=${SD%/}
+[ -f "${SD}/cfg/define_cfg.sh" ] || { echo "${GXSP_ME}: ${SD}/cfg/define_cfg.sh not found" >&2 ; exit 1 ; }
+
+source "${SD}/cfg/define_cfg.sh"
+export GXSP_IO=local
+GXSP_LISTING=$(mktemp "${TMPDIR:-/tmp}/gxsp_status.XXXXXX")
+trap 'rm -f "${GXSP_LISTING}" "${GXSP_LISTING}.raw" "${GXSP_LISTING}.err"' EXIT
+rm -f "${GXSP_LISTING}"
+gxsp_listing
+
+stage_name() {
+  case "$1" in
+    1)  echo "free nucleon splines" ;;     2)  echo "combine free nucleons" ;;
+    3)  echo "probe x isotope splines" ;;  3q) echo "QE seeded splines" ;;
+    3s) echo "QE average + smooth" ;;
+    4)  echo "combine isotopes" ;;         4q) echo "smooth QE into big" ;;
+    5)  echo "reduce + TGraphs" ;;         6)  echo "UPS tarball" ;;
+  esac
+}
+
+echo "${STAGEDIR}"
+AVGQE=${NQE:-0}
+if [ "${NQEZ:-0}" != "${NQE:-0}" ]; then AVGQE="${NQE},${NQEZ} (Z ${QEZ}: ${NQEZ})" ; fi
+# the probes in use: the neutrino flavors (--nuflavors, or all six), or electron
+PROBELIST=$(for p in $(gxsp_probe_pdgs) ; do gxsp_probe_name "$p" ; done | paste -sd, -)
+echo "  ${TUNE}  k${KNOTS}  e${EMAX}  ${GENLIST}  splines ${SVERSION}  GENIE ${GVERSION} -q ${GQUAL}"
+echo "  probes: ${PROBELIST}"
+echo "  average-qe=${AVGQE}$(gxsp_qe_on && echo "  average-throws=${NTHROWS:-1}")"
+# finish <status>  -> at the very end, note any -NAN and -NEG files (the
+#   originals of splines that had NaN/inf, or negative, cross section values
+#   replaced by 0; .1, .2, ... from re-runs too), then exit
+finish() {
+  local kind re n
+  for kind in NAN NEG ; do
+    re="-${kind}(\.[0-9]+)?$"
+    n=$(grep -Ec -- "${re}" "${GXSP_LISTING}")
+    [ "${n}" -gt 0 ] || continue
+    if [ "${kind}" == "NAN" ]; then
+      echo "note: ${n} file(s) had NaN/inf values replaced by 0 (originals kept as -NAN)$([ ${QUIET} -eq 1 ] || echo :)"
+    else
+      echo "note: ${n} file(s) had negative cross sections replaced by 0 (originals kept as -NEG)$([ ${QUIET} -eq 1 ] || echo :)"
+    fi
+    [ ${QUIET} -eq 1 ] && continue
+    grep -E -- "${re}" "${GXSP_LISTING}" | sed -e "s#^${STAGEDIR}/#    #"
+  done
+  exit "$1"
+}
+
+INCOMPLETE=()   # with -k: the stages with missing products
+for stage in $(gxsp_stages) ; do
+  EXPECTED=($(gxsp_expected ${stage}))
+  MISSING=$(gxsp_missing "${EXPECTED[@]}")
+  NOTE=""
+  NMISS=0
+  if [ -n "${MISSING}" ]; then NMISS=$(echo "${MISSING}" | wc -l | tr -d ' ') ; fi
+  NHAVE=$(( ${#EXPECTED[@]} - NMISS ))
+  printf "stage %-2s  %-26s %6d / %-6d" ${stage} "$(stage_name ${stage})" ${NHAVE} ${#EXPECTED[@]}
+  if [ ${NMISS} -eq 0 ]; then
+    echo "  complete${NOTE}"
+  else
+    echo "  MISSING ${NMISS}$([ ${QUIET} -eq 1 ] || echo :)"
+  fi
+  # list the files: normally just the missing ones; with -v every file of the
+  # stage, each marked "present" or "missing".  Stage 3, 3q and 3s lines give
+  # the -p / -t for a make-up job  gxsp_mkspl ... -p P -t T [--seed N-M]  or
+  # gxsp_qe_smoothing ... -p P -t T  (no $PROCESS needed), in stage-3 order
+  # (probe x isotope); 3q lines also give the seeds, after the -p / -t,
+  # sorted, with consecutive seeds as one range N-M and a new line after a gap.
+  #   (gxsp_qe_entries gives "<seed> <cluster PROCESS> <path>"; the table
+  #   below maps each pair's file (3), directory (3q) or smooth file(s) (3s)
+  #   to "<stage-3 index> <probe> <isotope>", the index only for sorting)
+  if { [ ${NMISS} -gt 0 ] && [ ${QUIET} -eq 0 ]; } || [ ${VERB} -eq 1 ]; then
+    PAIRTAB=""
+    if [ "${stage}" == "3" ] || [ "${stage}" == "3q" ] || [ "${stage}" == "3s" ]; then
+      # (one awk pass over gxsp_pair_table: the same names as gxsp_pair_file,
+      # gxsp_qe_dir and gxsp_qe_smooths)
+      PAIRTAB=$(gxsp_pair_table | awk -v st="${stage}" -v qe="$(gxsp_qe_genlist)" -v el="${ELECTRON:-0}" '
+        { j = NR - 1 ; tail = " " j " " $2 " " $4
+          if (st == "3") { print "work-products/isotopes/gxspl-" $2 "-" $4 ".xml" tail ; next }
+          f = "gxspl-" $2 "-" $4 "-" qe ; d = "work-products/isotopes/" f
+          if (st == "3q") print d tail
+          else if (el == 1) { print d "/" f "-smooth-p.xml" tail ; print d "/" f "-smooth-n.xml" tail }
+          else print d "/" f "-smooth.xml" tail }')
+    fi
+    if [ "${stage}" == "3q" ]; then gxsp_qe_entries ; else printf '%s\n' "${EXPECTED[@]}" ; fi |
+    PAIRTAB="${PAIRTAB}" awk -v verb=${VERB} \
+        -v pair=$([ "${stage}" == "3" ] || [ "${stage}" == "3s" ] && echo 1 || echo 0) \
+        -v qe=$([ "${stage}" == "3q" ] && echo 1 || echo 0) '
+      BEGIN {
+        n = split(ENVIRON["PAIRTAB"], row, "\n")
+        for (r = 1 ; r <= n ; r++) {
+          split(row[r], c, " ") ; pidx[c[1]] = c[2] ; pprobe[c[1]] = c[3] ; piso[c[1]] = c[4]
+        }
+      }
+      NR == FNR { if ($0 != "") miss[$0] = 1 ; next }
+      {
+        f = qe ? $3 : $0
+        m = (f in miss)
+        if (!m && !verb) next
+        line = "    "
+        if (verb) line = line (m ? "missing  " : "present  ")
+        if (qe) {
+          # one record per file, for sorting and grouping into seed ranges below:
+          # stage-3 index (sort key), seed, cluster PROCESS (not shown), status,
+          # probe, isotope, path
+          d = f ; sub(/\/[^\/]*$/, "", d)
+          printf "%d\t%d\t%d\t%s\t%s\t%s\t%s\n", pidx[d], $1, $2, (m ? "missing" : "present"), pprobe[d], piso[d], f
+        }
+        else if (pair) print line sprintf("-p %-8s -t %-7s ", pprobe[f], piso[f]) f
+        else           print line f
+      }' <(echo "${MISSING}") - |
+    if [ "${stage}" == "3q" ]; then
+      # by pair (stage-3 order), then seed; consecutive seeds of a pair with
+      # the same status on one line, as --seed=N-M and ...-seed{N..M}.xml
+      sort -t "$(printf '\t')" -k1,1n -k2,2n |
+      awk -F '\t' -v verb=${VERB} '
+        function flush(   s, f) {
+          if (n == 0) return
+          s = (lo == hi) ? lo : lo "-" hi
+          f = path ; if (lo != hi) sub(/seed[0-9]+\.xml$/, "seed{" lo ".." hi "}.xml", f)
+          printf "    %s", verb ? st "  " : ""
+          printf "-p %-8s -t %-7s --seed=%-9s %s\n", pr, is, s, f
+          n = 0
+        }
+        {
+          if (n > 0 && $1 == pi && $2 == hi + 1 && $4 == st) { hi = $2 ; n++ ; next }
+          flush()
+          pi = $1 ; lo = hi = $2 ; st = $4 ; pr = $5 ; is = $6 ; path = $7 ; n = 1
+        }
+        END { flush() }'
+    else cat ; fi
+  fi
+  if [ ${NMISS} -gt 0 ]; then
+    [ ${KEEPGOING} -eq 1 ] || finish 1
+    INCOMPLETE+=("${stage}")
+  fi
+done
+if [ ${#INCOMPLETE[@]} -gt 0 ]; then
+  echo "${#INCOMPLETE[@]} stage(s) incomplete: ${INCOMPLETE[*]}"
+  finish 1
+fi
+echo "all stages complete"
+finish 0

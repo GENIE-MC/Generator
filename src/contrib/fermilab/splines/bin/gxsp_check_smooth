@@ -1,0 +1,666 @@
+#! /usr/bin/env python3
+#
+# gxsp_check_smooth -- compare how smooth the splines of two files are, and
+#   how far the second file's splines moved from the first's (e.g. the QE
+#   splines before and after stage 4q puts the smooth ones in place)
+#
+#   gxsp_check_smooth [-q] [-m RE] [-b E1,E2,...] [-t N] [-a]
+#                     [--pdf FILE [-w N] [-k K]]  OLD.xml[.gz] NEW.xml[.gz]
+#
+#   e.g.  gxsp_check_smooth gxspl-NUbig-stdCCQE.xml.gz gxspl-NUbig.xml.gz
+#
+#   Splines are paired by name.  Only those whose name matches RE (default
+#   "QELCC") and whose knots differ are compared (-a: identical ones too).
+#   Everything is worked out in u = ln E, v = ln xsec, on non-zero knots,
+#   separately in each band: "thr", the spline's first N knots from its
+#   first non-zero one (-t N, default 5; -t 0 for no such band), where the
+#   cross section rises steeply from threshold, then the rest by energy
+#   (edges -b, GeV; default 0.1,1,10,100):
+#
+#     jitter  the RMS over the band of r_i = v_i - (the straight line through
+#             knots i-1 and i+1, at u_i): how far each knot is from its two
+#             neighbours, as a fraction.  Noise gives a large jitter; real
+#             curvature a small one that changes slowly
+#     flips   the fraction of neighbouring r_i that change sign: about 0.7
+#             for pure noise, near 0 for a smooth curve
+#     noise   the old spline's knot-to-knot noise, from its jitter:
+#             jitter / sqrt(1.5) (for equal log spacing).  It includes any
+#             real curvature, so it's an upper limit
+#     bias    the mean of d_i = ln(new / old) over the band (new taken at the
+#             old knot energies, straight line in log-log if they differ)
+#     spread  the RMS of d_i about that mean
+#     pull    spread / noise: about 1 when the new spline only took out the
+#             noise; well above 1 when it changed the shape
+#
+#   A band needs at least 3 values of r_i to be reported ("-" otherwise).
+#
+#   Output: a summary per band (medians over the splines, and the largest
+#   |bias| and pull), then the splines with the largest pull.
+#   -q     instead, one line per spline per band:
+#            probe isotope nucleon band jit-old jit-new flips-old flips-new
+#            bias spread pull spline-name
+#   -m RE  compare splines whose name matches the python regex RE
+#   -b E1,E2,...  energy band edges (GeV, increasing); -b 0 for one band
+#   -t N   the number of knots in the "thr" band (0: none)
+#   -a     compare splines with identical knots too
+#   --pdf FILE  also draw plots into FILE (needs PyROOT): the old and new
+#          jitter of every spline, maps by isotope and probe, histograms of
+#          bias and pull, and close-ups of single splines (cross section,
+#          new/old, and r_i): the N with the largest pull (-w N, default 20)
+#          and every Kth of the rest (-k K, default 50; -k 0 for none)
+#
+#   Probe, target isotope and hit nucleon are decoded from the spline name
+#   (".../nu:-12;tgt:1000180400;N:2112;..."); "-" when not present.
+#
+#   Accepts plain or gzip'ed (.gz) files.  Exit status 0, or 2 on
+#   usage/read errors (or no PyROOT for --pdf).
+#
+##############################################################################
+import gzip
+import math
+import re
+import sys
+
+import numpy as np
+
+ME = "gxsp_check_smooth"
+
+
+def usage(rc):
+    lines = open(__file__).read().split("\n")[2:]
+    out = sys.stdout if rc == 0 else sys.stderr
+    for l in lines[:next(i for i, l in enumerate(lines) if l.startswith("####"))]:
+        out.write(re.sub(r"^# ?", "", l) + "\n")
+    sys.exit(rc)
+
+
+def die(msg):
+    sys.stderr.write(f"{ME}: {msg}\n")
+    sys.exit(2)
+
+
+# ---------------------------------------------------------------- names
+ELEMENTS = ("H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn "
+            "Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La "
+            "Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po "
+            "At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr").split()
+PROBES = {"11": "electron", "-11": "positron", "12": "nue", "-12": "nuebar",
+          "14": "numu", "-14": "numubar", "16": "nutau", "-16": "nutaubar"}
+NUCLEONS = {"2212": "p", "2112": "n", "2000000200": "nn", "2000000201": "np", "2000000202": "pp"}
+
+
+def isoname(pdg):
+    """100ZZZAAA0 -> e.g. Ar40 (free-n for the free neutron); else unchanged"""
+    if len(pdg) != 10 or not pdg.startswith("100"):
+        return pdg
+    z, a = int(pdg[3:6]), int(pdg[6:9])
+    if z == 0 and a == 1:
+        return "free-n"
+    if 1 <= z <= len(ELEMENTS):
+        return f"{ELEMENTS[z - 1]}{a}"
+    return pdg
+
+
+def decode(name):
+    """-> (probe, isotope, nucleon, A) from the spline name"""
+    probe = iso = nuc = "-"
+    a = 0
+    for i, tok in enumerate(name.split(";")):
+        if i == 0:
+            tok = tok.rsplit("/", 1)[-1]
+        kv = tok.split(":")
+        if len(kv) != 2:
+            continue
+        if i == 0:
+            probe = PROBES.get(kv[1], kv[1])
+        elif kv[0] == "tgt":
+            iso = isoname(kv[1])
+            if len(kv[1]) == 10:
+                a = int(kv[1][6:9])
+        elif kv[0] == "N":
+            nuc = NUCLEONS.get(kv[1], kv[1])
+    return probe, iso, nuc, a
+
+
+# ---------------------------------------------------------------- reading
+NAME_RE = re.compile(r'name="([^"]*)"')
+E_RE = re.compile(r"<E>\s*([^<\s]+)\s*</E>")
+X_RE = re.compile(r"<xsec>\s*([^<\s]+)\s*</xsec>")
+
+
+def read_splines(path, select):
+    """{name: (E array, xsec array)} for the splines whose name matches"""
+    try:
+        f = gzip.open(path, "rt") if path.endswith(".gz") else open(path)
+    except OSError as e:
+        die(f"can't read {path}: {e.strerror}")
+    out = {}
+    name = None
+    es, xs = [], []
+    try:
+        with f:
+            for line in f:
+                if "<spline " in line:
+                    m = NAME_RE.search(line)
+                    name = m.group(1) if m and select.search(m.group(1)) else None
+                    es, xs = [], []
+                elif name is None:
+                    continue
+                elif "<knot>" in line:
+                    me, mx = E_RE.search(line), X_RE.search(line)
+                    if me and mx:
+                        es.append(float(me.group(1)))
+                        xs.append(float(mx.group(1)))
+                elif "</spline>" in line:
+                    out[name] = (np.array(es), np.array(xs))
+                    name = None
+    except (OSError, EOFError, ValueError) as e:
+        die(f"error reading {path}: {e}")
+    return out
+
+
+# ---------------------------------------------------------------- measures
+def jitter_terms(e, x):
+    """r_i at the interior knots whose knot and two neighbours are > 0:
+    -> (index array, r array)"""
+    ok = x > 0
+    idx = np.nonzero(ok[1:-1] & ok[:-2] & ok[2:])[0] + 1
+    if len(idx) == 0:
+        return idx, np.array([])
+    u = np.log(e)
+    v = np.log(np.where(ok, x, 1.0))
+    wr = (u[idx] - u[idx - 1]) / (u[idx + 1] - u[idx - 1])
+    r = v[idx] - ((1 - wr) * v[idx - 1] + wr * v[idx + 1])
+    return idx, r
+
+
+def flip_fraction(idx, r):
+    """fraction of neighbouring (adjacent-knot) r_i with opposite signs"""
+    if len(idx) < 2:
+        return float("nan")
+    adj = (idx[1:] - idx[:-1]) == 1
+    nz = (r[1:] != 0) & (r[:-1] != 0) & adj
+    if nz.sum() == 0:
+        return float("nan")
+    return float(((np.sign(r[1:]) != np.sign(r[:-1])) & nz).sum() / nz.sum())
+
+
+def at_energies(e_new, x_new, e_old):
+    """new cross section at the old energies (straight line in log-log;
+    nan outside the new knots or next to a zero knot)"""
+    if len(e_new) == len(e_old) and np.array_equal(e_new, e_old):
+        return x_new
+    out = np.full(len(e_old), np.nan)
+    pos = x_new > 0
+    if pos.sum() < 2:
+        return out
+    inside = (e_old >= e_new[0]) & (e_old <= e_new[-1])
+    # only interpolate between two non-zero knots
+    j = np.clip(np.searchsorted(e_new, e_old[inside]) - 1, 0, len(e_new) - 2)
+    good = pos[j] & pos[j + 1]
+    u0, u1 = np.log(e_new[j]), np.log(e_new[j + 1])
+    v0 = np.log(np.where(pos[j], x_new[j], 1.0))
+    v1 = np.log(np.where(pos[j + 1], x_new[j + 1], 1.0))
+    t = (np.log(e_old[inside]) - u0) / (u1 - u0)
+    vals = np.where(good, np.exp(v0 + t * (v1 - v0)), np.nan)
+    exact = np.isin(e_old[inside], e_new)
+    if exact.any():   # a knot exactly at that energy, zero or not
+        k = np.searchsorted(e_new, e_old[inside][exact])
+        vals[exact] = x_new[k]
+    out[inside] = vals
+    return out
+
+
+MINR = 3
+
+
+def band_ids(e, x, edges, nthr):
+    """the band of each knot: with nthr > 0, band 0 is the spline's first
+    nthr knots from its first non-zero one, and the energy bands follow"""
+    off = 1 if nthr > 0 else 0
+    ids = np.searchsorted(edges, e, side="right") - 1 + off
+    if nthr > 0:
+        nz = np.nonzero(x > 0)[0]
+        if len(nz):
+            ids[nz[0]:nz[0] + nthr] = 0
+    return ids
+
+
+def measure(e_old, x_old, e_new, x_new, edges, nthr):
+    """per band: dict of jit_old, jit_new, flip_old, flip_new, noise, bias,
+    spread, pull (nan when the band has too few values)"""
+    io, ro = jitter_terms(e_old, x_old)
+    inew, rn = jitter_terms(e_new, x_new)
+    xn = at_energies(e_new, x_new, e_old)
+    both = (x_old > 0) & (xn > 0)
+    d = np.full(len(e_old), np.nan)
+    d[both] = np.log(xn[both] / x_old[both])
+    bo, bn = band_ids(e_old, x_old, edges, nthr), band_ids(e_new, x_new, edges, nthr)
+    bands = []
+    for b in range(len(edges) - 1 + (1 if nthr > 0 else 0)):
+        so, sn = bo[io] == b, bn[inew] == b
+        m = dict.fromkeys(("jit_old", "jit_new", "flip_old", "flip_new",
+                           "noise", "bias", "spread", "pull"), float("nan"))
+        if so.sum() >= MINR:
+            m["jit_old"] = float(np.sqrt(np.mean(ro[so] ** 2)))
+            m["flip_old"] = flip_fraction(io[so], ro[so])
+            m["noise"] = m["jit_old"] / math.sqrt(1.5)
+        if sn.sum() >= MINR:
+            m["jit_new"] = float(np.sqrt(np.mean(rn[sn] ** 2)))
+            m["flip_new"] = flip_fraction(inew[sn], rn[sn])
+        db = d[(bo == b) & ~np.isnan(d)]
+        if len(db) >= MINR:
+            m["bias"] = float(np.mean(db))
+            m["spread"] = float(np.sqrt(np.mean((db - m["bias"]) ** 2)))
+            if m["noise"] > 0:
+                m["pull"] = m["spread"] / m["noise"]
+        bands.append(m)
+    return {"io": io, "ro": ro, "in": inew, "rn": rn, "d": d, "bo": bo, "bands": bands}
+
+
+def band_labels(edges):
+    out = []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        if lo == 0 and math.isinf(hi):
+            out.append("all")
+        elif lo == 0:
+            out.append(f"<{hi:g}")
+        elif math.isinf(hi):
+            out.append(f">{lo:g}")
+        else:
+            out.append(f"{lo:g}-{hi:g}")
+    return out
+
+
+def btitle(label):
+    return "first knots above threshold" if label == "thr" else f"E {label} GeV"
+
+
+def fmt(v, spec=".3g"):
+    return "-" if v is None or (isinstance(v, float) and math.isnan(v)) else format(v, spec)
+
+
+# ---------------------------------------------------------------- plots
+def draw_pdf(path, results, labels, edges, nworst, every):
+    try:
+        import ROOT
+    except ImportError:
+        die("--pdf needs PyROOT (python3 -c 'import ROOT' fails)")
+    ROOT.gROOT.SetBatch(True)
+    ROOT.gErrorIgnoreLevel = ROOT.kWarning
+    ROOT.gStyle.SetOptStat(0)
+    ROOT.gStyle.SetOptTitle(1)
+    ROOT.gStyle.SetTitleFontSize(0.045)
+    ROOT.gStyle.SetPalette(ROOT.kViridis)
+    ROOT.gStyle.SetPaperSize(27.94, 21.59)   # landscape US letter, as the canvas
+    keep = []   # ROOT objects must outlive the page they're drawn on
+
+    c = ROOT.TCanvas("c", "", 1100, 850)
+    c.Print(path + "[", "pdf Landscape")
+    nb = len(labels)
+    probes = sorted({r["probe"] for r in results},
+                    key=lambda p: list(PROBES.values()).index(p) if p in PROBES.values() else 99)
+    colours = [ROOT.kBlue + 1, ROOT.kRed + 1, ROOT.kGreen + 2, ROOT.kMagenta + 1,
+               ROOT.kOrange + 7, ROOT.kBlack, ROOT.kGray + 2, ROOT.kViolet - 6]
+    pcol = {p: colours[i % len(colours)] for i, p in enumerate(probes)}
+
+    def grid(n):
+        nx = min(n, 3)
+        return nx, (n + nx - 1) // nx
+
+    # -- old vs new jitter, one pad per band
+    c.Clear()
+    nx, ny = grid(nb)
+    c.Divide(nx, ny)
+    for b in range(nb):
+        pad = c.cd(b + 1)
+        pad.SetLogx() ; pad.SetLogy()
+        pts = [(r["bands"][b]["jit_old"], r["bands"][b]["jit_new"], r["probe"]) for r in results]
+        pts = [p for p in pts if p[0] > 0 and p[1] > 0]
+        if not pts:
+            continue
+        lo = min(min(p[0], p[1]) for p in pts) / 2
+        hi = max(max(p[0], p[1]) for p in pts) * 2
+        fr = pad.DrawFrame(lo, lo, hi, hi, f"jitter, {btitle(labels[b])};old jitter;new jitter")
+        fr.GetXaxis().SetTitleOffset(1.2)
+        for f, style in ((1, 1), (0.1, 2), (0.01, 3)):
+            l = ROOT.TLine(lo, lo * f, hi, hi * f)
+            l.SetLineStyle(style) ; l.SetLineColor(ROOT.kGray + 1) ; l.Draw()
+            keep.append(l)
+        for p in probes:
+            xs = [q[0] for q in pts if q[2] == p]
+            ys = [q[1] for q in pts if q[2] == p]
+            if not xs:
+                continue
+            g = ROOT.TGraph(len(xs), np.array(xs), np.array(ys))
+            g.SetMarkerStyle(20) ; g.SetMarkerSize(0.5) ; g.SetMarkerColor(pcol[p])
+            g.SetTitle(p)
+            g.Draw("P")
+            keep.append(g)
+        if b == 0:
+            leg = ROOT.TLegend(0.14, 0.55, 0.45, 0.88)
+            leg.SetTextSize(0.045)
+            leg.SetBorderSize(0) ; leg.SetFillStyle(0)
+            for g in keep:
+                if isinstance(g, ROOT.TGraph) and g.GetTitle() in pcol:
+                    leg.AddEntry(g, g.GetTitle(), "p")
+            leg.AddEntry(ROOT.nullptr, "lines: 1x, 10x, 100x", "")
+            leg.Draw()
+            keep.append(leg)
+    c.Print(path, "pdf Landscape Title:old vs new jitter")
+
+    # -- maps by isotope (in A order) and probe + nucleon, one page per band
+    isos = sorted({(r["A"], r["iso"]) for r in results})
+    rows = sorted({(r["probe"], r["nuc"]) for r in results},
+                  key=lambda t: (probes.index(t[0]), t[1]))
+    for b in range(nb):
+        c.Clear()
+        c.Divide(1, 2)
+        for k, (what, title) in enumerate((
+                ("factor", f"log10(old jitter / new jitter), {btitle(labels[b])}"),
+                ("bias", f"bias (mean ln(new/old)), {btitle(labels[b])}"))):
+            pad = c.cd(k + 1)
+            pad.SetBottomMargin(0.16) ; pad.SetLeftMargin(0.1) ; pad.SetRightMargin(0.1)
+            h = ROOT.TH2D(f"h{what}{b}", title, len(isos), 0, len(isos), len(rows), 0, len(rows))
+            keep.append(h)
+            for i, (_, iso) in enumerate(isos):
+                h.GetXaxis().SetBinLabel(i + 1, iso)
+            for j, (p, n) in enumerate(rows):
+                h.GetYaxis().SetBinLabel(j + 1, f"{p} {n}")
+            for r in results:
+                m = r["bands"][b]
+                if what == "factor":
+                    if not (m["jit_old"] > 0 and m["jit_new"] > 0):
+                        continue
+                    val = math.log10(m["jit_old"] / m["jit_new"])
+                else:
+                    if math.isnan(m["bias"]):
+                        continue
+                    val = m["bias"]
+                i = isos.index((r["A"], r["iso"]))
+                j = rows.index((r["probe"], r["nuc"]))
+                h.SetBinContent(i + 1, j + 1, val if val != 0 else 1e-12)
+            h.GetXaxis().SetLabelSize(0.035 if len(isos) < 60 else 0.022)
+            h.GetXaxis().LabelsOption("v")
+            h.GetYaxis().SetLabelSize(0.05)
+            if what == "bias":
+                lim = max(abs(h.GetMinimum()), abs(h.GetMaximum())) or 1
+                h.SetMinimum(-lim) ; h.SetMaximum(lim)
+            h.Draw("COLZ")
+        c.Print(path, f"pdf Landscape Title:map {btitle(labels[b])}")
+
+    # -- histograms of bias and pull, one line per band
+    c.Clear()
+    c.Divide(2, 1)
+    bandcol = [ROOT.kBlue + 1, ROOT.kRed + 1, ROOT.kGreen + 2, ROOT.kMagenta + 1,
+               ROOT.kOrange + 7, ROOT.kCyan + 2, ROOT.kBlack, ROOT.kGray + 2]
+    for k, (key, title, lo, hi) in enumerate((
+            ("bias", "bias: mean ln(new/old) per spline and band;bias;splines", None, None),
+            ("pull", "pull: spread / old noise per spline and band;pull;splines", 0, None))):
+        pad = c.cd(k + 1)
+        vals = [[r["bands"][b][key] for r in results if not math.isnan(r["bands"][b][key])]
+                for b in range(nb)]
+        allv = [v for vb in vals for v in vb]
+        if not allv:
+            continue
+        a = lo if lo is not None else min(allv)
+        z = max(allv)
+        if a == z:
+            a, z = a - 1, z + 1
+        pad.SetLogy()
+        leg = ROOT.TLegend(0.6, 0.65, 0.88, 0.88)
+        leg.SetBorderSize(0) ; leg.SetFillStyle(0)
+        ymax = 0
+        hs = []
+        for b in range(nb):
+            h = ROOT.TH1D(f"hist{key}{b}", title, 60, a, z + (z - a) * 1e-6)
+            for v in vals[b]:
+                h.Fill(v)
+            h.SetLineColor(bandcol[b % len(bandcol)]) ; h.SetLineWidth(2)
+            ymax = max(ymax, h.GetMaximum())
+            hs.append(h)
+            leg.AddEntry(h, btitle(labels[b]), "l")
+        for b, h in enumerate(hs):
+            h.SetMaximum(ymax * 3) ; h.SetMinimum(0.5)
+            h.Draw("HIST" if b == 0 else "HIST SAME")
+        leg.Draw()
+        keep.extend(hs + [leg])
+    c.Print(path, "pdf Landscape Title:bias and pull")
+
+    # -- close-ups
+    order = sorted(range(len(results)), key=lambda i: -results[i]["maxpull"])
+    picks = order[:nworst]
+    rest = sorted(order[nworst:])
+    if every > 0:
+        picks += rest[::every]
+    for n, i in enumerate(picks):
+        r = results[i]
+        tag = "largest pull" if n < nworst else "sample"
+        closeup(ROOT, c, path, r, edges, labels, tag, keep)
+    c.Print(path + "]", "pdf Landscape")
+
+
+def closeup(ROOT, c, path, r, edges, labels, tag, keep):
+    e_o, x_o, e_n, x_n, mm = r["e_old"], r["x_old"], r["e_new"], r["x_new"], r["m"]
+    c.Clear()
+    hdr = f"{r['probe']} {r['iso']} {r['nuc']}: largest pull {fmt(r['maxpull'], '.2f')}" + ("" if tag == "largest pull" else f" ({tag})")
+    pads = []
+    for k, (y0, y1) in enumerate(((0.55, 1.0), (0.3, 0.55), (0.0, 0.3))):
+        c.cd()
+        p = ROOT.TPad(f"p{k}", "", 0, y0, 1, y1)
+        p.SetLeftMargin(0.1) ; p.SetRightMargin(0.04)
+        p.SetTopMargin(0.12 if k == 0 else 0.02)
+        p.SetBottomMargin(0.18 if k == 2 else 0.02)
+        p.SetLogx() ; p.SetGrid()
+        p.Draw()
+        pads.append(p)
+        keep.append(p)
+    xlo, xhi = e_o[0] * 0.9, e_o[-1] * 1.1
+
+    # cross section
+    pads[0].cd() ; pads[0].SetLogy()
+    po, pn = x_o > 0, x_n > 0
+    ymin = min(x_o[po].min() if po.any() else 1, x_n[pn].min() if pn.any() else 1) / 2
+    ymax = max(x_o.max(), x_n.max()) * 2
+    fr = pads[0].DrawFrame(xlo, ymin, xhi, ymax, f"{hdr};;cross section (GENIE units)")
+    fr.GetYaxis().SetTitleSize(0.05) ; fr.GetXaxis().SetLabelSize(0)
+    go = ROOT.TGraph(int(po.sum()), e_o[po], x_o[po])
+    go.SetMarkerStyle(20) ; go.SetMarkerSize(0.45) ; go.SetMarkerColor(ROOT.kBlack)
+    gn = ROOT.TGraph(int(pn.sum()), e_n[pn], x_n[pn])
+    gn.SetLineColor(ROOT.kRed + 1) ; gn.SetLineWidth(2)
+    gn.Draw("L") ; go.Draw("P")
+    leg = ROOT.TLegend(0.12, 0.62, 0.4, 0.84)
+    leg.SetBorderSize(0) ; leg.SetFillStyle(0)
+    leg.AddEntry(go, "old knots", "p") ; leg.AddEntry(gn, "new", "l")
+    leg.Draw()
+    keep.extend([go, gn, leg])
+
+    # new / old, with +-noise of each band
+    pads[1].cd()
+    xn = at_energies(e_n, x_n, e_o)
+    ok = (x_o > 0) & (xn > 0)
+    ratio = np.where(ok, xn / np.where(x_o > 0, x_o, 1), np.nan)
+    ev, rv = e_o[ok], ratio[ok]
+    noise = np.array([mm["bands"][b]["noise"] for b in mm["bo"][ok]])
+    noise = np.where(np.isnan(noise), 0, noise)
+    lo = min(0.98, float(np.nanmin(rv)) if len(rv) else 1) - 0.01
+    hi = max(1.02, float(np.nanmax(rv)) if len(rv) else 1) + 0.01
+    lo, hi = max(lo, 0.5), min(hi, 1.5)
+    fr = pads[1].DrawFrame(xlo, lo, xhi, hi, ";;new / old")
+    fr.GetYaxis().SetTitleSize(0.09) ; fr.GetYaxis().SetTitleOffset(0.5)
+    fr.GetYaxis().SetLabelSize(0.08) ; fr.GetXaxis().SetLabelSize(0)
+    if len(ev):
+        band = ROOT.TGraphErrors(len(ev), ev, np.ones(len(ev)), np.zeros(len(ev)), noise)
+        band.SetFillColorAlpha(ROOT.kAzure - 9, 0.6) ; band.SetLineColor(0)
+        band.Draw("3")
+        gr = ROOT.TGraph(len(ev), ev, rv)
+        gr.SetMarkerStyle(20) ; gr.SetMarkerSize(0.4)
+        gr.Draw("P")
+        keep.extend([band, gr])
+    one = ROOT.TLine(xlo, 1, xhi, 1)
+    one.SetLineColor(ROOT.kRed + 1) ; one.Draw()
+    keep.append(one)
+
+    # r_i
+    pads[2].cd()
+    ro, rn = mm["ro"], mm["rn"]
+    allr = np.concatenate([ro, rn]) if len(ro) + len(rn) else np.array([0.0])
+    lim = float(np.max(np.abs(allr))) * 1.1 or 1
+    fr = pads[2].DrawFrame(xlo, -lim, xhi, lim, ";E (GeV);r_{i}")
+    fr.GetYaxis().SetTitleSize(0.08) ; fr.GetYaxis().SetTitleOffset(0.55)
+    fr.GetYaxis().SetLabelSize(0.07) ; fr.GetXaxis().SetLabelSize(0.07)
+    fr.GetXaxis().SetTitleSize(0.08)
+    for vals, idx, e, col, st in ((ro, mm["io"], e_o, ROOT.kBlack, 20), (rn, mm["in"], e_n, ROOT.kRed + 1, 21)):
+        if len(vals):
+            g = ROOT.TGraph(len(vals), e[idx].astype(float), vals.astype(float))
+            g.SetMarkerStyle(st) ; g.SetMarkerSize(0.4) ; g.SetMarkerColor(col)
+            g.Draw("P")
+            keep.append(g)
+    for b in edges[1:-1]:
+        if xlo < b < xhi:
+            for p in pads:
+                p.cd()
+                l = ROOT.TLine(b, p.GetUymin(), b, p.GetUymax())
+                l.SetLineStyle(2) ; l.SetLineColor(ROOT.kGray + 2) ; l.Draw()
+                keep.append(l)
+    c.Print(path, f"pdf Landscape Title:{r['probe']} {r['iso']} {r['nuc']}")
+
+
+# ---------------------------------------------------------------- main
+def main(argv):
+    quiet = False
+    allspl = False
+    pattern = "QELCC"
+    edges_arg = "0.1,1,10,100"
+    nthr = 5
+    pdf = None
+    nworst, every = 20, 50
+    files = []
+    i = 0
+    def value(opt):
+        nonlocal i
+        if i + 1 >= len(argv):
+            die(f"{opt} needs a value")
+        i += 1
+        return argv[i]
+    while i < len(argv):
+        a = argv[i]
+        if a == "-q":
+            quiet = True
+        elif a == "-a":
+            allspl = True
+        elif a == "-m":
+            pattern = value(a)
+        elif a == "-b":
+            edges_arg = value(a)
+        elif a == "-t":
+            nthr = value(a)
+        elif a == "--pdf":
+            pdf = value(a)
+        elif a == "-w":
+            nworst = value(a)
+        elif a == "-k":
+            every = value(a)
+        elif a in ("-h", "--help"):
+            usage(0)
+        elif a.startswith("-") and a != "-":
+            die(f"unknown option {a}")
+        else:
+            files.append(a)
+        i += 1
+    if len(files) != 2:
+        usage(2)
+    try:
+        select = re.compile(pattern)
+    except re.error as e:
+        die(f"-m: bad regex '{pattern}': {e}")
+    try:
+        cuts = [float(s) for s in edges_arg.split(",")]
+    except ValueError:
+        die(f"-b must be increasing energies E1,E2,... (GeV), got '{edges_arg}'")
+    if any(b < 0 for b in cuts) or any(b2 <= b1 for b1, b2 in zip(cuts, cuts[1:])):
+        die(f"-b must be increasing energies E1,E2,... (GeV), got '{edges_arg}'")
+    cuts = [b for b in cuts if b > 0]
+    edges = [0.0] + cuts + [math.inf]
+    for opt, v in (("-t", nthr), ("-w", nworst), ("-k", every)):
+        if not re.fullmatch(r"[0-9]+", str(v)):
+            die(f"{opt} must be a non-negative integer")
+    nthr, nworst, every = int(nthr), int(nworst), int(every)
+    labels = (["thr"] if nthr > 0 else []) + band_labels(edges)
+
+    old = read_splines(files[0], select)
+    new = read_splines(files[1], select)
+    common = [n for n in old if n in new]
+    only_old = sum(1 for n in old if n not in new)
+    only_new = sum(1 for n in new if n not in old)
+    same = [n for n in common
+            if len(old[n][0]) == len(new[n][0]) and np.array_equal(old[n][0], new[n][0])
+            and np.array_equal(old[n][1], new[n][1])]
+    todo = common if allspl else [n for n in common if n not in set(same)]
+
+    results = []
+    for n in todo:
+        (eo, xo), (en, xn) = old[n], new[n]
+        if len(eo) < 3 or len(en) < 3:
+            continue
+        probe, iso, nuc, a = decode(n)
+        m = measure(eo, xo, en, xn, edges, nthr)
+        pulls = [b["pull"] for b in m["bands"] if not math.isnan(b["pull"])]
+        results.append(dict(name=n, probe=probe, iso=iso, nuc=nuc, A=a, m=m, bands=m["bands"],
+                            maxpull=max(pulls) if pulls else -1.0,
+                            e_old=eo, x_old=xo, e_new=en, x_new=xn))
+    nshort = len(todo) - len(results)
+
+    if quiet:
+        for r in results:
+            for b, m in enumerate(r["bands"]):
+                print(f"{r['probe']:<9} {r['iso']:<7} {r['nuc']:<2} {labels[b]:<8} "
+                      f"{fmt(m['jit_old']):<10} {fmt(m['jit_new']):<10} "
+                      f"{fmt(m['flip_old'], '.2f'):<5} {fmt(m['flip_new'], '.2f'):<5} "
+                      f"{fmt(m['bias'], '+.3g'):<10} {fmt(m['spread']):<10} {fmt(m['pull'], '.3g'):<8} {r['name']}")
+    else:
+        print(f"# old: {files[0]}")
+        print(f"# new: {files[1]}")
+        print(f"# splines matching '{pattern}': {len(old)} in old, {len(new)} in new, {len(common)} in both"
+              + (f" ({only_old} only in old, {only_new} only in new)" if only_old or only_new else ""))
+        print(f"# {len(same)} identical in both; {len(results)} compared"
+              + (" (identical ones included)" if allspl else "")
+              + (f"; {nshort} with fewer than 3 knots skipped" if nshort else ""))
+        if results:
+            print("#")
+            print("# per band, medians over the splines (factor = old jitter / new jitter):")
+            print(f"#   {'band':<9} {'splines':>7}  {'jit old':>8} {'jit new':>8} {'factor':>7}  "
+                  f"{'flips old':>9} {'new':>5}  {'|bias|':>8} {'max|bias|':>9}  {'pull':>6} {'max pull':>8}")
+            for b, lab in enumerate(labels):
+                ms = [r["bands"][b] for r in results]
+                def col(key, f=None):
+                    v = np.array([f(m) if f else m[key] for m in ms], dtype=float)
+                    return v[~np.isnan(v)]
+                jo, jn = col("jit_old"), col("jit_new")
+                fac = col(None, lambda m: m["jit_old"] / m["jit_new"] if m["jit_new"] > 0 else float("nan"))
+                fo, fn = col("flip_old"), col("flip_new")
+                ab = col(None, lambda m: abs(m["bias"]))
+                pu = col("pull")
+                med = lambda v, s=".3g": fmt(float(np.median(v)), s) if len(v) else "-"
+                mx = lambda v, s=".3g": fmt(float(np.max(v)), s) if len(v) else "-"
+                print(f"#   {lab:<9} {len(jo):>7}  {med(jo):>8} {med(jn):>8} {med(fac):>7}  "
+                      f"{med(fo, '.2f'):>9} {med(fn, '.2f'):>5}  {med(ab):>8} {mx(ab):>9}  "
+                      f"{med(pu):>6} {mx(pu):>8}")
+            print("#")
+            nshow = min(10, len(results))
+            print(f"# the {nshow} splines with the largest pull (band where it's largest):")
+            for r in sorted(results, key=lambda r: -r["maxpull"])[:nshow]:
+                b = max(range(len(labels)),
+                        key=lambda k: r["bands"][k]["pull"] if not math.isnan(r["bands"][k]["pull"]) else -1)
+                m = r["bands"][b]
+                print(f"#   {r['probe']:<9} {r['iso']:<7} {r['nuc']:<2} {labels[b]:<8} pull {fmt(m['pull'], '.3g'):<7} "
+                      f"bias {fmt(m['bias'], '+.3g'):<10} jitter {fmt(m['jit_old'])} -> {fmt(m['jit_new'])}")
+    if pdf and results:
+        draw_pdf(pdf, results, labels, edges, nworst, every)
+        if not quiet:
+            print(f"# plots in {pdf}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))
