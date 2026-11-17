@@ -1,0 +1,49 @@
+#! /usr/bin/env bash
+#
+# gxsp_add_freenuc -- stage 2: combine the stage 1 free nucleon splines
+#
+#   gxsp_add_freenuc --stagedir STAGEDIR
+#
+#   checks all work-products/freenucs/gxspl-<probe>-free{p,n}.xml exist,
+#   then gspladd's them into work-products/gxspl-freenuc.xml
+#
+##############################################################################
+GXSP_ME=gxsp_add_freenuc
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)  sed -n '3,9p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)          echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+gxsp_bootstrap "${SD}"
+
+OUT=$(gxsp_freenuc_file)
+gxsp_skip_if_done "work-products/${OUT}"
+LOG=${OUT%.xml}.log
+export GXSP_LOG=${LOG}
+gxsp_log_header "${LOG}" "${GXSP_ME} -> work-products/${OUT}"
+
+INPUTS=($(gxsp_expected 1))
+gxsp_require_inputs "stage 1" "${INPUTS[@]}"
+
+LOCAL=()
+for rel in "${INPUTS[@]}" ; do
+  gxsp_fetch "${rel}"
+  LOCAL+=("$(basename "${rel}")")
+done
+
+STATUS=0
+gxsp_spladd "${OUT}" "${LOCAL[@]}" || STATUS=18
+
+if [ ${STATUS} -eq 0 ]; then
+  gxsp_put "${OUT}" "work-products/${OUT}" || STATUS=15
+fi
+gxsp_put_log "${LOG}" "work-products/${LOG}"
+
+if [ ${STATUS} -ne 0 ]; then cat "${LOG}" ; fi
+gxsp_finish ${STATUS}

@@ -1,0 +1,244 @@
+#! /usr/bin/env bash
+#
+# gxsp_check_cubic -- report splines whose cubic interpolation misbehaves
+#   between two non-zero knots: where it goes below zero, or overshoots the
+#   range of the interval's two knot values by more than a fraction R
+#
+#   gxsp_check_cubic [-q] [-r R] [-n N] [-e E] gxspl-NUbig.xml [more.xml ...]
+#
+#   GENIE (Spline::Evaluate) uses its cubic spline (ROOT TSpline3, built on
+#   the knot energies with ROOT's default "not-a-knot" end conditions) only
+#   between two non-zero knots; next to a zero knot it uses 0 or a straight
+#   line.  This rebuilds the same cubic (de Boor's CUBSPL, as TSpline3 does)
+#   and, in every interval between two non-zero knots, finds its exact
+#   minimum and maximum.  An interval is reported when one of its knots is
+#   negative ("negknot"), when the cubic goes below zero there ("neg"), or
+#   when it goes outside [lower knot, higher knot] by more than R times the
+#   higher knot value ("over").  For each spline the worst interval is shown:
+#   negknot before neg before over, then the largest relative to the spline.
+#
+#   -q     one line per spline:
+#            probe isotope nucleon kind excess rel knot spline-name
+#          excess = how far outside the knot range, as a fraction of the
+#          interval's higher knot value; rel = the same as a fraction of the
+#          spline's largest value (up to E with -e; small = negligible);
+#          knot = the interval's first knot
+#   -r R   overshoot fraction to report (default 0.1); negknot and neg are
+#          always reported
+#   -n N   only look at intervals within the first N knots
+#   -e E   only look at intervals that start below E (GeV), and measure
+#          rel against the largest value up to E (default: all energies)
+#   -e E1,E2  only intervals that overlap E1..E2 (GeV), with rel measured
+#          against the largest value there (e.g. -e 100,5000)
+#
+#   Probe, target isotope and hit nucleon are decoded from the spline name
+#   (".../nu:-12;tgt:1000180400;N:2112;..."); "-" when not present.
+#
+#   Accepts plain or gzip'ed (.gz) files.  Exit status is 1 if any such
+#   spline was found, 0 if none, 2 on usage/read errors.
+#
+##############################################################################
+unset GZIP   # a GZIP="-v" in the environment would add chatter to stderr
+QUIET=0 RFRAC=0.1 NMAX=0 EMAXCUT=0
+FILES=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -q)        QUIET=1 ; shift ;;
+    -r)        RFRAC=$2 ; shift 2 || { echo "gxsp_check_cubic: $1 needs a value" >&2 ; exit 2 ; } ;;
+    -n)        NMAX=$2 ; shift 2 || { echo "gxsp_check_cubic: $1 needs a value" >&2 ; exit 2 ; } ;;
+    -e)        EMAXCUT=$2 ; shift 2 || { echo "gxsp_check_cubic: $1 needs a value" >&2 ; exit 2 ; } ;;
+    -h|--help) sed -n '3,39p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    -*)        echo "gxsp_check_cubic: unknown option $1" >&2 ; exit 2 ;;
+    *)         FILES+=("$1") ; shift ;;
+  esac
+done
+[[ "${RFRAC}" =~ ^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$ ]] || { echo "gxsp_check_cubic: -r must be a non-negative number" >&2 ; exit 2 ; }
+[[ "${NMAX}" =~ ^[0-9]+$ ]] || { echo "gxsp_check_cubic: -n must be a non-negative integer" >&2 ; exit 2 ; }
+# -e E  or  -e E1,E2  ->  ELO, EHI  (0 = no limit)
+NUMRE='[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?'
+if [[ "${EMAXCUT}" =~ ^(${NUMRE})$ ]]; then
+  ELO=0 EHI=${EMAXCUT}
+elif [[ "${EMAXCUT}" =~ ^(${NUMRE}),(${NUMRE})$ ]]; then
+  ELO=${EMAXCUT%,*} EHI=${EMAXCUT#*,}
+  awk -v a="${ELO}" -v b="${EHI}" 'BEGIN { exit !(a + 0 < b + 0) }' ||
+    { echo "gxsp_check_cubic: -e ${EMAXCUT}: E1 must be below E2" >&2 ; exit 2 ; }
+else
+  echo "gxsp_check_cubic: -e must be E or E1,E2 (GeV, non-negative numbers), got '${EMAXCUT}'" >&2 ; exit 2
+fi
+[ ${#FILES[@]} -gt 0 ] || { sed -n '3,39p' "$0" | sed 's/^# \{0,1\}//' >&2 ; exit 2 ; }
+
+NFOUND=0
+for f in "${FILES[@]}" ; do
+  [ -r "${f}" ] || { echo "gxsp_check_cubic: can't read ${f}" >&2 ; exit 2 ; }
+  case "${f}" in
+    *.gz) CAT="gzip -dc" ;;
+    *)    CAT="cat" ;;
+  esac
+  # (GXSP_CUBIC_DUMP=1, for testing: the slope at every knot to stderr)
+  ${CAT} "${f}" | awk -v quiet="${QUIET}" -v rfrac="${RFRAC}" -v nmax="${NMAX}" -v fname="${f}" \
+                      -v dump="${GXSP_CUBIC_DUMP:-0}" -v elo="${ELO}" -v ecut="${EHI}" '
+    BEGIN {
+      nel = split("H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn " \
+                  "Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La " \
+                  "Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po " \
+                  "At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr", el, " ")
+      split("11 electron -11 positron 12 nue -12 nuebar 14 numu -14 numubar 16 nutau -16 nutaubar", t, " ")
+      for (i = 1 ; i < 16 ; i += 2) pname[t[i]] = t[i+1]
+      nname[2212] = "p" ; nname[2112] = "n"
+      # nucleon pairs (MEC): GENIE cluster codes
+      nname[2000000200] = "nn" ; nname[2000000201] = "np" ; nname[2000000202] = "pp"
+      rfrac += 0 ; ecut += 0 ; elo += 0
+      kname[3] = "negknot" ; kdesc[3] = "a knot has a negative cross section"
+      kname[2] = "neg"     ; kdesc[2] = "the cubic goes below zero"
+      kname[1] = "over"    ; kdesc[1] = "the cubic overshoots"
+    }
+    # 100ZZZAAA0 -> e.g. Ar40 (free-n for the free neutron); else unchanged
+    function isoname(pdg,   z, a) {
+      if (length(pdg) != 10 || substr(pdg, 1, 3) != "100") return pdg
+      z = substr(pdg, 4, 3) + 0 ; a = substr(pdg, 7, 3) + 0
+      if (z == 0 && a == 1) return "free-n"
+      if (z >= 1 && z <= nel) return el[z] a
+      return pdg
+    }
+    # decode probe / tgt / N from the spline name into probe, iso, nuc
+    function decode(nm,   tok, kv, i, ntok) {
+      probe = iso = nuc = "-" ; ppdg = tpdg = npdg = ""
+      ntok = split(nm, tok, ";")
+      for (i = 1 ; i <= ntok ; i++) {
+        if (i == 1) sub(/.*\//, "", tok[i])        # genie::X/Default/nu:-12 -> nu:-12
+        if (split(tok[i], kv, ":") != 2) continue
+        if (i == 1)             { ppdg = kv[2] ; probe = (kv[2] in pname) ? pname[kv[2]] : kv[2] }
+        else if (kv[1] == "tgt") { tpdg = kv[2] ; iso = isoname(kv[2]) }
+        else if (kv[1] == "N")   { npdg = kv[2] ; nuc = (kv[2] in nname) ? nname[kv[2]] : kv[2] }
+      }
+    }
+    # pull the text between <tag> and </tag> on this line
+    function between(tag,   s) {
+      if (!match($0, "<" tag ">[^<]*</" tag ">")) return ""
+      s = substr($0, RSTART + length(tag) + 2, RLENGTH - 2 * length(tag) - 5)
+      gsub(/[[:space:]]/, "", s)
+      return s
+    }
+    # slopes(n): the cubic spline through (X[i], Y[i]), i = 1..n, with the
+    #   not-a-knot condition at both ends (de Boor CUBSPL with ibcbeg =
+    #   ibcend = 0, which ROOT TSpline3::BuildCoeff ports) -> S[i], the
+    #   slope at each knot.  Needs n >= 4.
+    function slopes(n,   m, g, dt, dd, A, B, j) {
+      for (m = 2 ; m <= n ; m++) { dt[m] = X[m] - X[m-1] ; dd[m] = (Y[m] - Y[m-1]) / dt[m] }
+      # first equation (not-a-knot at the left end):  A[1] s1 + B[1] s2 = S[1]
+      A[1] = dt[3] ; B[1] = dt[2] + dt[3]
+      S[1] = ((dt[2] + 2 * B[1]) * dd[2] * dt[3] + dt[2] * dt[2] * dd[3]) / B[1]
+      # interior equations, forward elimination:  A[m] s_m + dt[m] s_{m+1} = S[m]
+      for (m = 2 ; m < n ; m++) {
+        g = -dt[m+1] / A[m-1]
+        S[m] = g * S[m-1] + 3 * (dt[m] * dd[m+1] + dt[m+1] * dd[m])
+        A[m] = g * (m == 2 ? B[1] : dt[m-1]) + 2 * (dt[m] + dt[m+1])
+      }
+      # last equation (not-a-knot at the right end)
+      g = dt[n-1] + dt[n]
+      S[n] = ((dt[n] + 2 * g) * dd[n] * dt[n-1] + dt[n] * dt[n] * (Y[n-1] - Y[n-2]) / dt[n-1]) / g
+      g = -g / A[n-1]
+      A[n] = g * dt[n-1] + dt[n-1]
+      S[n] = (g * S[n-1] + S[n]) / A[n]
+      # back substitution
+      for (j = n - 1 ; j >= 1 ; j--) S[j] = (S[j] - (j == 1 ? B[1] : dt[j]) * S[j+1]) / A[j]
+    }
+    # cubic on [X[i], X[i+1]] from the values and slopes at its ends:
+    #   y(h) = Y[i] + h*(S[i] + h*(c2 + h*c3)),  h = x - X[i]
+    function piece(i,   dt, d1, d3) {
+      dt = X[i+1] - X[i] ; d1 = (Y[i+1] - Y[i]) / dt
+      d3 = S[i] + S[i+1] - 2 * d1
+      C2 = (d1 - S[i] - d3) / dt ; C3 = d3 / (dt * dt) ; DT = dt
+    }
+    function pval(i, h) { return Y[i] + h * (S[i] + h * (C2 + h * C3)) }
+    # exact min / max of the cubic on interval i -> LO, HI and where (ELO, EHI)
+    function extrema(i,   a, b, c, disc, r, k, h, v) {
+      piece(i)
+      LO = Y[i] ; ELO = X[i] ; HI = Y[i] ; EHI = X[i]
+      if (Y[i+1] < LO) { LO = Y[i+1] ; ELO = X[i+1] }
+      if (Y[i+1] > HI) { HI = Y[i+1] ; EHI = X[i+1] }
+      # roots of the derivative  3*C3 h^2 + 2*C2 h + S[i] = 0  inside (0, DT)
+      a = 3 * C3 ; b = 2 * C2 ; c = S[i] ; k = 0
+      if (a != 0) {
+        disc = b * b - 4 * a * c
+        if (disc >= 0) { r[++k] = (-b + sqrt(disc)) / (2 * a) ; r[++k] = (-b - sqrt(disc)) / (2 * a) }
+      } else if (b != 0) r[++k] = -c / b
+      for (; k > 0 ; k--) {
+        h = r[k]
+        if (h <= 0 || h >= DT) continue
+        v = pval(i, h)
+        if (v < LO) { LO = v ; ELO = X[i] + h }
+        if (v > HI) { HI = v ; EHI = X[i] + h }
+      }
+    }
+    /<spline / {
+      name = ""
+      if (match($0, /name="[^"]*"/)) name = substr($0, RSTART + 6, RLENGTH - 7)
+      n = 0 ; nspl++
+      delete X ; delete Y ; delete S
+    }
+    /<knot>/ { n++ ; X[n] = between("E") + 0 ; Y[n] = between("xsec") + 0 }
+    /<\/spline>/ {
+      if (n < 4) next
+      slopes(n)
+      if (dump) for (i = 1 ; i <= n ; i++) printf "%d %d %.17g %.17g %.17g\n", nspl, i, X[i], Y[i], S[i] > "/dev/stderr"
+      last = n - 1
+      if (nmax > 0 && nmax - 1 < last) last = nmax - 1
+      # -e: only intervals that start below ecut and end above elo
+      first = 1
+      if (ecut > 0) while (last >= 1 && X[last] >= ecut) last--
+      if (elo > 0)  while (first <= last && X[first+1] <= elo) first++
+      if (first > last) next
+      # the largest value, over the knots of the intervals looked at
+      ylim1 = (ecut > 0) ? first : 1 ; ylim2 = (ecut > 0) ? last + 1 : n
+      ymax = Y[ylim1] ; for (i = ylim1 + 1 ; i <= ylim2 ; i++) if (Y[i] > ymax) ymax = Y[i]
+      worst = 0 ; wrank = 0 ; wexc = -1
+      for (i = first ; i <= last ; i++) {
+        if (Y[i] == 0 || Y[i+1] == 0) continue      # GENIE uses 0 or a line here
+        extrema(i)
+        ylo = (Y[i] < Y[i+1]) ? Y[i] : Y[i+1]
+        yhi = (Y[i] > Y[i+1]) ? Y[i] : Y[i+1]
+        scale = (yhi > 0) ? yhi : -ylo
+        # how far the cubic goes outside [ylo, yhi]: size, and as a fraction
+        # of the higher knot (exc) and of the largest value in the spline (rel)
+        size = HI - yhi ; if (ylo - LO > size) size = ylo - LO
+        exc = size / scale ; rel = (ymax > 0) ? size / ymax : 0
+        # kind: a negative knot (3), the cubic below zero (2), an overshoot (1)
+        rank = (ylo < 0) ? 3 : (LO < 0) ? 2 : (exc > rfrac) ? 1 : 0
+        if (!rank) continue
+        # the worst interval: by kind, then by size relative to the spline
+        if (rank > wrank || (rank == wrank && rel > wrel)) {
+          worst = i ; wrank = rank ; wexc = exc ; wrel = rel
+          wlo = LO ; welo = ELO ; whi = HI ; wehi = EHI
+        }
+      }
+      if (!worst) next
+      nbad++ ; nkind[wrank]++
+      if (wrank >= 2 && (!gneg || wlo < gnegv)) { gneg = 1 ; gnegv = wlo ; gnegE = welo ; gnegrel = wrel ; gnegname = name }
+      if (wrank == 1 && (!gover || wrel > goverv)) { gover = 1 ; goverv = wrel ; goverx = wexc ; goverk = worst ; govername = name }
+      decode(name)
+      i = worst
+      if (quiet) printf "%-9s %-7s %-2s %-7s %-10.3g %-10.3g %4d  %s\n", probe, iso, nuc, kname[wrank], wexc, wrel, i, name
+      else {
+        printf "%s\n", name
+        printf "    probe %s (%s)  isotope %s (%s)", probe, ppdg, iso, tpdg
+        if (npdg != "") printf "  nucleon %s (%s)", nuc, npdg
+        printf "\n    knots %d-%d  E=%.6g .. %.6g  xsec=%.6g .. %.6g\n", i, i + 1, X[i], X[i+1], Y[i], Y[i+1]
+        printf "    cubic: min %.6g at E=%.6g, max %.6g at E=%.6g\n", wlo, welo, whi, wehi
+        printf "    %s; outside the knot range by %.3g of the higher knot, %.3g of the spline maximum (%.6g)\n", \
+               kdesc[wrank], wexc, wrel, ymax
+      }
+    }
+    END {
+      if (!quiet) {
+        printf "# %s: %d of %d splines: %d with a negative knot, %d with the cubic below zero, %d overshooting by more than %g, between non-zero knots%s\n", \
+               fname, nbad, nspl, nkind[3], nkind[2], nkind[1], rfrac, (nmax > 0 ? " (first " nmax " knots)" : "") (ecut > 0 ? (elo > 0 ? " (" elo " to " ecut " GeV)" : " (below " ecut " GeV)") : "") > "/dev/stderr"
+        if (gneg)  printf "#   most negative: %.6g (%.3g of its spline maximum) at E=%.6g in %s\n", gnegv, gnegrel, gnegE, gnegname > "/dev/stderr"
+        if (gover) printf "#   largest overshoot: %.3g of its spline maximum (%.3g of the knot) from knot %d in %s\n", goverv, goverx, goverk, govername > "/dev/stderr"
+      }
+      exit (nbad > 0)
+    }'
+  rc=${PIPESTATUS[1]}
+  if [ ${rc} -eq 1 ]; then NFOUND=1 ; fi
+done
+exit ${NFOUND}

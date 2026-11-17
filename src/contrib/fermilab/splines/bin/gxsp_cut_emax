@@ -1,0 +1,100 @@
+#! /usr/bin/env bash
+#
+# gxsp_cut_emax -- shorten every spline in a GENIE spline file so that it
+#   ends a little above an energy cut (by default, at its second knot at or
+#   above it)
+#
+#   gxsp_cut_emax [-n N] [-q] ECUT [file.xml | file.xml.gz | -]  > cut.xml
+#   zcat gxspl-NUbig.xml.gz | gxsp_cut_emax 25 > gxspl-NUbig-e25.xml
+#
+#   ECUT  energy in GeV.  Each spline keeps its knots below ECUT and the
+#         first N knots at or above it, so it still covers E up to ECUT.
+#   -n N  knots to keep at or above ECUT (default 2: the cubic GENIE builds
+#         through the knots then changes less just below ECUT)
+#   -q    no summary on stderr
+#
+#   Reads the file named (plain or .gz), or standard input if none is
+#   named or it is "-"; writes the shortened file to standard output.
+#   Every other line is copied unchanged.  Each spline is cut on its own
+#   knots, so splines keep different numbers of knots; nknots="..." is set
+#   to the number kept.  A spline that already ends below ECUT is unchanged,
+#   and a spline always keeps at least 2 knots (ECUT below its second knot).
+#   Exit status 0, or 2 on usage/read errors.
+#
+##############################################################################
+unset GZIP   # a GZIP="-v" in the environment would add chatter to stderr
+ME=gxsp_cut_emax
+usage() { sed -n '3,23p' "$0" | sed 's/^# \{0,1\}//' ; }
+NABOVE=2
+QUIET=0
+ARGS=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -n)        NABOVE=$2 ; shift 2 || { echo "${ME}: -n needs a value" >&2 ; exit 2 ; } ;;
+    -q)        QUIET=1 ; shift ;;
+    -h|--help) usage ; exit 0 ;;
+    -)         ARGS+=("$1") ; shift ;;
+    -*)        echo "${ME}: unknown option $1" >&2 ; exit 2 ;;
+    *)         ARGS+=("$1") ; shift ;;
+  esac
+done
+[ ${#ARGS[@]} -ge 1 ] && [ ${#ARGS[@]} -le 2 ] || { usage >&2 ; exit 2 ; }
+ECUT=${ARGS[0]}
+IN=${ARGS[1]:--}
+awk -v e="${ECUT}" 'BEGIN { exit !(e ~ /^[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$/ && e + 0 > 0) }' ||
+  { echo "${ME}: ECUT must be a positive number (GeV), not '${ECUT}'" >&2 ; exit 2 ; }
+case "${NABOVE}" in ''|*[!0-9]*|0) echo "${ME}: -n must be a positive integer" >&2 ; exit 2 ;; esac
+
+if [ "${IN}" != "-" ]; then
+  [ -r "${IN}" ] || { echo "${ME}: can't read ${IN}" >&2 ; exit 2 ; }
+fi
+# the input as plain text: standard input, a plain file, or a .gz file
+read_input() {
+  if [ "${IN}" = "-" ]; then cat
+  else case "${IN}" in *.gz) gzip -dc "${IN}" ;; *) cat "${IN}" ;; esac
+  fi
+}
+
+read_input | awk -v ecut="${ECUT}" -v nabove="${NABOVE}" -v quiet="${QUIET}" '
+  # the E value on a knot line
+  function knotE(   s) {
+    if (!match($0, "<E>[^<]*</E>")) return ""
+    s = substr($0, RSTART + 3, RLENGTH - 7)
+    gsub(/[[:space:]]/, "", s)
+    return s
+  }
+  # a spline is held until its end, since nknots comes before its knots
+  /<spline / {
+    inspl = 1 ; head = $0 ; nk = 0 ; nkeep = 0 ; nat = 0 ; nbuf = 0
+    nspl++
+    next
+  }
+  inspl && /<knot>/ {
+    nk++
+    if (nat < nabove || nkeep < 2) {   # at least 2 knots, for a spline
+      if (knotE() + 0 >= ecut) nat++
+      buf[++nbuf] = $0 ; nkeep++
+    }
+    next
+  }
+  inspl && /<\/spline>/ {
+    if (nkeep < nk) ncut++
+    sub(/nknots="[0-9]*"/, "nknots=\"" nkeep "\"", head)
+    print head
+    for (i = 1; i <= nbuf; i++) print buf[i]
+    print
+    kin += nk ; kout += nkeep
+    inspl = 0
+    next
+  }
+  # anything else inside a spline (not expected) is kept, but not as a knot
+  inspl { buf[++nbuf] = $0 ; next }
+  { print }
+  END {
+    if (inspl) { print "'"${ME}"': input ends inside a spline" > "/dev/stderr" ; exit 2 }
+    if (!quiet)
+      printf "# '"${ME}"' %s GeV: %d splines, %d shortened; knots %d -> %d\n", ecut, nspl, ncut, kin, kout > "/dev/stderr"
+  }'
+rc=( "${PIPESTATUS[@]}" )
+[ "${rc[0]}" -eq 0 ] || { echo "${ME}: reading ${IN} failed" >&2 ; exit 2 ; }
+exit "${rc[1]}"

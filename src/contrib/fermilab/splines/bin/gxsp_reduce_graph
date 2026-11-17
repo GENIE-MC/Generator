@@ -1,0 +1,88 @@
+#! /usr/bin/env bash
+#
+# gxsp_reduce_graph -- stage 5: reduced spline file and TGraph ROOT file
+#
+#   gxsp_reduce_graph --stagedir STAGEDIR
+#
+#   fetches work-products/gxspl-NUbig.xml.gz and uncompresses it, then
+#   neutrinos only:  gawk -f reduce_gxspl.awk gxspl-NUbig.xml > gxspl-NUsmall.xml
+#   always:          gspl2root ... -o xsec_graphs.root  for the isotopes
+#                    marked "root" in isotopes.cfg
+#
+##############################################################################
+GXSP_ME=gxsp_reduce_graph
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)  sed -n '3,11p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)          echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+gxsp_bootstrap "${SD}"
+
+BIG=$(gxsp_big_file)
+GRAPH=$(gxsp_graph_file)
+SMALL=$(gxsp_small_file)
+gxsp_skip_if_done $(gxsp_expected 5)
+# a product already there (from an earlier attempt) is kept, not redone
+DOSMALL=0 DOGRAPH=1
+if [ "${ELECTRON}" -eq 0 ] && ! gxsp_have "work-products/${SMALL}" ; then DOSMALL=1 ; fi
+if gxsp_have "work-products/${GRAPH}" ; then DOGRAPH=0 ; fi
+LOG=stage5.log
+gxsp_log_header "${LOG}" "${GXSP_ME}"
+
+gxsp_fetch "work-products/$(gxsp_big_gz)"
+gzip -dc "$(gxsp_big_gz)" > "${BIG}" || gxsp_die 21 "can't uncompress $(gxsp_big_gz)"
+rm -f "$(gxsp_big_gz)"
+STATUS=0
+
+#-----------------------------------------------------------------------------
+# reduced file (neutrinos only)
+#-----------------------------------------------------------------------------
+if [ ${DOSMALL} -eq 1 ]; then
+  gxsp_msg "gawk -f reduce_gxspl.awk ${BIG} > ${SMALL}"
+  echo "+ gawk -f reduce_gxspl.awk ${BIG} > ${SMALL}" >> "${LOG}"
+  gawk -f "${GXSP_CFGDIR}/reduce_gxspl.awk" "${BIG}" > "${SMALL}" 2>> "${LOG}"
+  rc=$?
+  echo "+ status ${rc}; $(grep -c '<spline ' "${SMALL}") of $(grep -c '<spline ' "${BIG}") splines kept" >> "${LOG}"
+  [ ${rc} -eq 0 ] || STATUS=19
+  if [ ${STATUS} -eq 0 ]; then
+    gxsp_put "${SMALL}" "work-products/${SMALL}" || STATUS=15
+  fi
+fi
+
+#-----------------------------------------------------------------------------
+# TGraph file:  isotopes marked "root" (and also selected for this production)
+#-----------------------------------------------------------------------------
+if [ ${STATUS} -eq 0 ] && [ ${DOGRAPH} -eq 1 ]; then
+  gxsp_load_isotopes
+  GRAPHISO=($(gxsp_graph_isotopes | awk '{ print $1 }'))
+  if ! gxsp_graph_isotopes > /dev/null ; then
+    gxsp_warn "no 'root' isotopes in this production; graphing all of them"
+  fi
+  # graph up to TGEMAX (gxspinit --tgraph, default 125 GeV), but not beyond
+  # the spline range
+  EGRAPH=$(gxsp_tgraph_emax)
+  # --tgraph ,NPOINTS: gspl2root -n NPOINTS
+  NPOPT=()
+  if [ -n "${TGNPOINTS:-}" ]; then NPOPT=(-n "${TGNPOINTS}") ; fi
+  # --tgraph ,,log: points evenly spaced in log E
+  if [ "${TGLOG:-0}" -eq 1 ]; then NPOPT+=(-l) ; fi
+
+  rm -f "${GRAPH}"   # gspl2root won't redo entries that already exist
+  gxsp_run "${LOG}" gspl2root --event-generator-list "${GENLIST}" --tune "${TUNE}" \
+      -f "${BIG}" -p "$(gxsp_join , $(gxsp_probe_pdgs))" \
+      -t "$(gxsp_join , "${GRAPHISO[@]}")" -e "${EGRAPH}" "${NPOPT[@]}" -o "${GRAPH}"
+  STATUS=$?
+  if [ ${STATUS} -eq 0 ]; then
+    gxsp_put "${GRAPH}" "work-products/${GRAPH}" || STATUS=15
+  fi
+fi
+gxsp_put_log "${LOG}" "work-products/${LOG}"
+
+if [ ${STATUS} -ne 0 ]; then cat "${LOG}" ; fi
+gxsp_finish ${STATUS}

@@ -1,0 +1,82 @@
+#! /usr/bin/env bash
+#
+# gxsp_add_isotopes -- stage 4: combine the stage 3 (probe, isotope) splines
+#
+#   gxsp_add_isotopes --stagedir STAGEDIR
+#
+#   checks work-products/gxspl-freenuc.xml and all
+#   work-products/isotopes/gxspl-<probe>-<isotope>.xml exist;
+#   for each stage-3 isotope combines its probes into gxspl-<isotope>.xml
+#   (deleting the single probe copies right away), then combines
+#   gxspl-freenuc.xml (the free nucleon splines, from stage 2) and all the
+#   isotopes into work-products/gxspl-NUbig.xml.gz  (gxspl-ELECTRON.xml.gz)
+#
+#   With --average-qe the result is written instead as
+#   work-products/gxspl-NUbig-std<QE>.xml.gz (-stdCCQE, or -stdEMQE for
+#   electrons), which stage 4q reads to make
+#   gxspl-NUbig.xml.gz -- so no job ever has to delete or replace a file.
+#
+##############################################################################
+GXSP_ME=gxsp_add_isotopes
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)  sed -n '3,17p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)          echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+gxsp_bootstrap "${SD}"
+
+OUT=$(gxsp_big_file)
+LOG=${OUT%.xml}.log
+export GXSP_LOG=${LOG}
+OUTGZ=$(gxsp_stage4_out)          # gxspl-NUbig.xml.gz, or gxspl-NUbig-std<QE>.xml.gz
+gxsp_skip_if_done "work-products/${OUTGZ}"
+gxsp_log_header "${LOG}" "${GXSP_ME} -> work-products/${OUTGZ}"
+
+INPUTS=($(gxsp_expected 2) $(gxsp_expected 3))
+gxsp_require_inputs "stage 2/3" "${INPUTS[@]}"
+
+# the free nucleon splines come straight from stage 2
+FREENUC=$(gxsp_freenuc_file)
+gxsp_fetch "work-products/${FREENUC}"
+ISOFILES=("${FREENUC}")
+
+gxsp_load_stage3
+PROBES=($(gxsp_probe_pdgs))
+STATUS=0
+for (( i = 0 ; i < NS3 ; i++ )) ; do
+  T=${S3_PDGS[$i]}
+  ISOXML="gxspl-${S3_NAMES[$i]}.xml"
+  PFILES=()
+  for P in "${PROBES[@]}" ; do
+    F=$(gxsp_pair_file "${P}" "${T}")
+    gxsp_fetch "work-products/isotopes/${F}"
+    PFILES+=("${F}")
+  done
+  if [ ${#PFILES[@]} -eq 1 ]; then
+    mv "${PFILES[0]}" "${ISOXML}"
+  else
+    gxsp_spladd "${ISOXML}" "${PFILES[@]}" || { STATUS=18 ; break ; }
+    rm -f "${PFILES[@]}"
+  fi
+  ISOFILES+=("${ISOXML}")
+done
+
+if [ ${STATUS} -eq 0 ]; then
+  gxsp_spladd "${OUT}" "${ISOFILES[@]}" || STATUS=18
+fi
+if [ ${STATUS} -eq 0 ]; then
+  gzip --best -c "${OUT}" > "${OUTGZ}" || STATUS=21
+fi
+if [ ${STATUS} -eq 0 ]; then
+  gxsp_put "${OUTGZ}" "work-products/${OUTGZ}" || STATUS=15
+fi
+gxsp_put_log "${LOG}" "work-products/${LOG}"
+
+if [ ${STATUS} -ne 0 ]; then cat "${LOG}" ; fi
+gxsp_finish ${STATUS}

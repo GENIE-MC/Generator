@@ -1,0 +1,259 @@
+#! /usr/bin/env bash
+#
+# gxsp_mkspl -- stages 1 and 3: gmkspl for a single (probe, target) pair
+#
+#   gxsp_mkspl [-p P -t T | --pairs G] --stagedir STAGEDIR [--input FILE]
+#              [--seed N | --seed N,M | --seed N-M] [--genlist L]
+#
+#   -p, --probe P     probe name or pdg code   (nue, -14, electron, ...)
+#   -t, --isotope T   target name or pdg code  (freep, freen, Ar40, 1000180400, ...)
+#   --input FILE  fetch FILE from $STAGEDIR/work-products and pass it to
+#                 gmkspl as --input-cross-sections; output then goes to
+#                 work-products/isotopes (stage 3) instead of
+#                 work-products/freenucs (stage 1)
+#   --seed N      pass --seed N on to gmkspl (seeds are integers >= 0)
+#   --seed N,M    run gmkspl once for each seed N..M in turn, copying each
+#                 seed's products back as soon as it finishes (--seed N is
+#                 the same as --seed N,N; N-M is the same as N,M, and
+#                 --seed=... works too, as gxsp_status prints it)
+#   --genlist L   use L for gmkspl --event-generator-list instead of the
+#                 GENLIST chosen at initialization (define_cfg.sh)
+#
+#   Output is gxspl-<probe>-<target>.xml, with "-<L>" added when --genlist
+#   is not Default and "-seed<N>" when --seed is given, e.g.
+#   gxspl-numu-Ar40-CCQE-seed12345.xml.  Later stages only use the plain names.
+#   In an --average-qe production, stage-3 isotope runs with
+#   --genlist <QE> --seed N (<QE> = CCQE, or EMQE for electrons; stage 3q)
+#   go in work-products/isotopes/gxspl-<probe>-<isotope>-<QE>/.  They
+#   don't need --input; if one is given anyway, the free-nucleon splines
+#   that gmkspl copies in from it are removed from the output.
+#
+#   Without --probe/--isotope the pair is picked from the stage-3 list
+#   using $PROCESS (jobsub -N); --input (stage 3) or --genlist <QE> --seed
+#   (stage 3q) is then required.
+#   --pairs G     the list $PROCESS indexes: all (default), qez (only the
+#                 isotopes whose Z is in QEZ, from gxspinit --qe-z) or other
+#                 (all but those);
+#                 used by the --average-qe N1,N2 clusters of the extra seeds
+#
+##############################################################################
+GXSP_ME=gxsp_mkspl
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD="" PROBE="" TARGET="" INPUT="" SEED="" GENLISTARG="" PAIRS=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2     ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -p|--probe)    PROBE=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -t|--isotope)  TARGET=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    --input)    INPUT=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    --seed)     SEED=$2   ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    --seed=*)   SEED=${1#--seed=} ; shift ;;
+    --genlist)  GENLISTARG=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    --pairs)    PAIRS=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)  sed -n '3,37p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)          echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+# --seed N, --seed N,M or --seed N-M  ->  SEEDS = list to run ("" = no seed at all)
+SEEDS=("")
+if [ -n "${SEED}" ]; then
+  # seeds are non-negative integers (10# so that e.g. 08 isn't read as octal)
+  if [[ "${SEED}" =~ ^([0-9]+)$ ]]; then
+    SEED1=$(( 10#${BASH_REMATCH[1]} )) SEED2=$(( 10#${BASH_REMATCH[1]} ))
+  elif [[ "${SEED}" =~ ^([0-9]+)[,-]([0-9]+)$ ]]; then
+    SEED1=$(( 10#${BASH_REMATCH[1]} )) SEED2=$(( 10#${BASH_REMATCH[2]} ))
+  else
+    echo "${GXSP_ME}: --seed must be N, N,M or N-M (non-negative integers), got '${SEED}'" >&2 ; exit 10
+  fi
+  if [ "${SEED1}" -gt "${SEED2}" ]; then
+    echo "${GXSP_ME}: --seed ${SEED}: first seed is larger than the last" >&2 ; exit 10
+  fi
+  SEEDS=()
+  for (( s = SEED1 ; s <= SEED2 ; s++ )) ; do SEEDS+=("${s}") ; done
+fi
+case "${PAIRS}" in
+  ""|all|qez|other) ;;
+  *) echo "${GXSP_ME}: --pairs must be all, qez or other, got '${PAIRS}'" >&2 ; exit 10 ;;
+esac
+if [ -n "${PAIRS}" ] && { [ -n "${PROBE}" ] || [ -n "${TARGET}" ]; }; then
+  echo "${GXSP_ME}: --pairs only applies to \$PROCESS selection (no -p/-t)" >&2 ; exit 10
+fi
+
+gxsp_bootstrap "${SD}"
+
+# override the initialization's event generator list (after define_cfg.sh)
+if [ -n "${GENLISTARG}" ] && [ "${GENLISTARG}" != "${GENLIST}" ]; then
+  gxsp_msg "--genlist ${GENLISTARG} overrides GENLIST=${GENLIST} from define_cfg.sh"
+  GENLIST=${GENLISTARG}
+fi
+
+if [ -n "${PROBE}" ] && [ -n "${TARGET}" ]; then
+  PDGP=$(gxsp_probe_pdg "${PROBE}")   || gxsp_die 10 "unknown probe '${PROBE}'"
+  PDGT=$(gxsp_target_pdg "${TARGET}") || gxsp_die 10 "unknown isotope '${TARGET}'"
+elif [ -z "${PROBE}" ] && [ -z "${TARGET}" ]; then
+  [ -n "${PROCESS:-}" ] || gxsp_die 10 "no --probe/--isotope and no \$PROCESS"
+  # stage 3 (--input), or stage 3q (--genlist <QE> --seed, no input needed)
+  if [ -z "${INPUT}" ] && ! { [ "${GENLISTARG}" == "$(gxsp_qe_genlist)" ] && [ -n "${SEED}" ] && gxsp_qe_on ; }; then
+    gxsp_die 10 "\$PROCESS selection requires --input (stage 3) or --genlist $(gxsp_qe_genlist) --seed (stage 3q)"
+  fi
+  gxsp_pair_from_index 3 "${PROCESS}" "${PAIRS:-all}"
+  PDGP=${PAIR_PROBE} PDGT=${PAIR_TARGET}
+else
+  gxsp_die 10 "give both -p/--probe and -t/--isotope, or neither"
+fi
+
+BASEXML=$(gxsp_pair_file "${PDGP}" "${PDGT}")
+# non-standard runs get distinct names:  gxspl-<probe>-<target>[-<genlist>][-seed<N>].xml
+#   (such files are not picked up by the later stages or gxsp_status)
+GLSUFFIX=""
+if [ -n "${GENLISTARG}" ] && [ "${GENLISTARG}" != "Default" ]; then
+  GLSUFFIX="-$(echo "${GENLISTARG}" | tr -c 'A-Za-z0-9_.\n' '_')"
+fi
+if [ -n "${INPUT}" ]; then SUBDIR=work-products/isotopes ; else SUBDIR=work-products/freenucs ; fi
+# seeded QE stage-3 runs of an --average-qe production (any stage-3
+# isotope, with or without --input: the QE splines don't need the free
+# nucleon ones) go in their own per probe x isotope directory:
+# work-products/isotopes/gxspl-<probe>-<isotope>-<QE>/
+QESEEDED=0
+if [ "${GENLISTARG}" == "$(gxsp_qe_genlist)" ] && [ -n "${SEED}" ] && gxsp_qe_on &&
+   ! case " ${GXSP_FREENUC_PDGS[*]} " in *" ${PDGT} "*) true ;; *) false ;; esac ; then
+  QESEEDED=1
+  SUBDIR=$(gxsp_qe_dir "${PDGP}" "${PDGT}")
+  gxsp_mkdir "${SUBDIR}" || gxsp_die 15 "can't create ${SUBDIR}"
+fi
+
+#-----------------------------------------------------------------------------
+# an output already in the staging area (from an earlier attempt) is not
+# redone -- jobs never replace files in PNFS.  So a seed range that was cut
+# short can simply be submitted again.
+#-----------------------------------------------------------------------------
+outname() { echo "${BASEXML%.xml}${GLSUFFIX}${1:+-seed$1}.xml" ; }
+TODO=() NDONE=0
+gxsp_listing_try
+for s in "${SEEDS[@]}" ; do
+  if [ -s "${GXSP_LISTING}" ] && gxsp_have "${SUBDIR}/$(outname "${s}")" ; then
+    NDONE=$(( NDONE + 1 ))
+  else
+    TODO+=("${s}")
+  fi
+done
+if [ ${NDONE} -gt 0 ]; then
+  gxsp_msg "${NDONE} of ${#SEEDS[@]} output(s) already in ${SUBDIR}; not redone (remove interactively to redo)"
+fi
+if [ ${#TODO[@]} -eq 0 ]; then
+  gxsp_msg "nothing to do"
+  gxsp_finish 0
+fi
+
+#-----------------------------------------------------------------------------
+# seeded QE jobs: a local NewQELXSec.xml with NumNucleonThrows = $NTHROWS,
+# copied into the working directory (first on GXMLPATH).  Taken from the
+# first of:
+#   1. NewQELXSec.xml given to gxspinit as an override file
+#   2. the shipped tune directory:  <tunedir>/<TUNE>/,  then <tunedir>/
+#   3. GENIE's config area:  $GENIE/config/<CMC>/<TUNE>/,  $GENIE/config/<CMC>/,
+#      $GENIE/config/
+# (done once; the same file serves every seed)
+#-----------------------------------------------------------------------------
+QELNOTE=""
+if [ ${QESEEDED} -eq 1 ]; then
+  QEL=NewQELXSec.xml
+  CMC=$(gxsp_tune_cmc "${TUNE}")
+  CANDS=()
+  case " ${OVERRIDEXML} " in *" ${QEL} "*) CANDS+=("${GXSP_CFGDIR}/${QEL}") ;; esac
+  if [ -n "${TUNEDIRNAME}" ]; then
+    CANDS+=("${GXSP_CFGDIR}/${TUNEDIRNAME}/${TUNE}/${QEL}" "${GXSP_CFGDIR}/${TUNEDIRNAME}/${QEL}")
+  fi
+  if [ -n "${GENIE:-}" ]; then
+    CANDS+=("${GENIE}/config/${CMC}/${TUNE}/${QEL}" "${GENIE}/config/${CMC}/${QEL}" "${GENIE}/config/${QEL}")
+  else
+    gxsp_warn "\$GENIE is not set; can't look in GENIE's config area for ${QEL}"
+  fi
+  QELSRC=""
+  for c in "${CANDS[@]}" ; do
+    if [ -f "${c}" ]; then QELSRC=${c} ; break ; fi
+  done
+  if [ -z "${QELSRC}" ]; then
+    printf '  %s\n' "${CANDS[@]}" >&2
+    gxsp_die 22 "no ${QEL} found in any of the places above"
+  fi
+  # write to a temporary name first: the source may be ./NewQELXSec.xml itself
+  awk -v n="${NTHROWS}" '{ sub(/NumNucleonThrows"> *[0-9]+/, "NumNucleonThrows\"> " n " ") } 1' \
+      "${QELSRC}" > "${QEL}.new" || gxsp_die 22 "editing ${QELSRC} failed"
+  grep -q "NumNucleonThrows\"> ${NTHROWS} " "${QEL}.new" ||
+    gxsp_die 22 "no NumNucleonThrows parameter to set in ${QELSRC}"
+  cp "${QEL}.new" "${PWD}/${QEL}" && rm -f "${QEL}.new"
+  gxsp_msg "${QEL} from ${QELSRC}, NumNucleonThrows set to ${NTHROWS}"
+  QELNOTE="${QEL} from ${QELSRC}
+  $(grep 'NumNucleonThrows' "${PWD}/${QEL}" | sed 's/^[[:space:]]*//')"
+fi
+
+if [ -n "${INPUT}" ]; then
+  gxsp_fetch "work-products/${INPUT}" "${INPUT}"
+fi
+
+#-----------------------------------------------------------------------------
+# run_one <seed or "">  -- gmkspl for one seed; copy its products back
+#   right away; returns that seed's status
+#-----------------------------------------------------------------------------
+run_one() {
+  local seed=$1 rc
+  local xml=$(outname "${seed}")
+  local log=${xml%.xml}.log
+  gxsp_log_header "${log}" "${GXSP_ME} probe ${PDGP} target ${PDGT}${seed:+ seed ${seed}} -> ${SUBDIR}/${xml}"
+  if [ -n "${QELNOTE}" ]; then printf '%s\n\n' "${QELNOTE}" >> "${log}" ; fi
+
+  local args=(-e "${EMAX}" -n "${KNOTS}" --tune "${TUNE}" -t "${PDGT}" -p "${PDGP}"
+              --event-generator-list "${GENLIST}")
+  if [ -n "${INPUT}" ]; then args+=(--input-cross-sections "${INPUT}") ; fi
+  if [ -n "${seed}" ];  then args+=(--seed "${seed}") ; fi
+  args+=(-o "${xml}")
+
+  gxsp_run "${log}" gmkspl "${args[@]}"
+  rc=$?
+
+  if [ -f "${xml}" ]; then
+    # a seeded QE file only needs the pair's own splines: given --input,
+    # gmkspl also copied in every free-nucleon spline (~11 MB per file)
+    if [ ${QESEEDED} -eq 1 ] && [ -n "${INPUT}" ]; then
+      if gxsp_strip_freenuc "${xml}" ; then
+        echo "${STRIP_N} free-nucleon spline(s) from ${INPUT} removed; $(grep -c '<spline ' "${xml}") left" >> "${log}"
+      else
+        gxsp_warn "couldn't remove the free-nucleon splines from ${xml}; kept as is"
+      fi
+    fi
+    # NaN/inf (and, unless --keep-negative, negative) values -> 0.0; the
+    # original goes to the staging area as <xml>-NAN or <xml>-NEG
+    if ! gxsp_scrub "${xml}" ; then
+      echo "${SCRUB_NNAN} NaN/inf and ${SCRUB_NNEG} negative cross section value(s) replaced by 0.0; original kept as ${SCRUB_ORIG}" >> "${log}"
+      gxsp_put_log "${SCRUB_ORIG}" "${SUBDIR}/${SCRUB_ORIG}"
+    fi
+    gxsp_put "${xml}" "${SUBDIR}/${xml}" || rc=15
+    rm -f "${xml}" "${xml}-NAN" "${xml}-NEG"   # keep the scratch area small over a long loop
+  else
+    gxsp_warn "gmkspl produced no ${xml}"
+    echo "no ${xml} produced" >> "${log}"
+    if [ ${rc} -eq 0 ]; then rc=16 ; fi
+  fi
+  gxsp_put_log "${log}" "${SUBDIR}/${log}"
+  if [ ${rc} -ne 0 ]; then cat "${log}" ; fi
+  return ${rc}
+}
+
+STATUS=0 NFAIL=0
+for s in "${TODO[@]}" ; do
+  if [ ${#SEEDS[@]} -gt 1 ]; then gxsp_msg "seed ${s}  (${SEED1}..${SEED2})" ; fi
+  run_one "${s}"
+  rc=$?
+  if [ ${rc} -ne 0 ]; then
+    NFAIL=$(( NFAIL + 1 ))
+    if [ ${STATUS} -eq 0 ]; then STATUS=${rc} ; fi
+    gxsp_warn "seed ${s:-none} failed (status ${rc})"
+  fi
+done
+if [ ${#SEEDS[@]} -gt 1 ]; then
+  gxsp_msg "seeds ${SEED1}..${SEED2}: $(( ${#TODO[@]} - NFAIL )) of ${#TODO[@]} run succeeded, ${NDONE} already done"
+fi
+gxsp_finish ${STATUS}

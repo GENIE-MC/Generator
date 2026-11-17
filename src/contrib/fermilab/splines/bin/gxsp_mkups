@@ -1,0 +1,329 @@
+#! /usr/bin/env bash
+#
+# gxsp_mkups -- stage 6: build the UPS genie_xsec tarball
+#
+#   gxsp_mkups --stagedir STAGEDIR
+#
+#   genie_xsec/${SVERSION}.version/NULL_${UPSQUALDASH}
+#   genie_xsec/${SVERSION}/NULL/${UPSQUALDASH}/ups/genie_xsec.table
+#   genie_xsec/${SVERSION}/NULL/${UPSQUALDASH}/data/
+#       README.md isotopes.cfg xsec_graphs.root gxspl-freenuc.xml.gz
+#       gxsp_cut_emax (from $STAGEDIR/bin; left out, with a warning, if not there)
+#       neutrinos:  gxspl-NUbig.xml.gz gxspl-NUsmall.xml reduce_gxspl.awk
+#                   (+ gxspl-FNALbig.xml.gz gxspl-FNALsmall.xml symlinks)
+#       electrons:  gxspl-ELECTRON.xml
+#       any tune directory / override XML files shipped in cfg.tar.gz
+#
+#   -> $STAGEDIR/ups/genie_xsec-<dotted SVERSION>-noarch-${UPSQUALDASH}.tar.bz2
+#      (only the tarball name uses dots, e.g. v3_08_00 -> 3.08.00)
+#   and a copy of README.md in $STAGEDIR/work-products/
+#
+##############################################################################
+GXSP_ME=gxsp_mkups
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)  sed -n '3,18p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)          echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+# UPS setup isn't needed to build the tarball, just ifdh
+GXSP_NOSETUP=1 gxsp_bootstrap "${SD}"
+
+TARBALL=$(gxsp_ups_tarball)
+gxsp_skip_if_done "ups/${TARBALL}"
+LOG=stage6.log
+gxsp_log_header "${LOG}" "${GXSP_ME} -> ups/${TARBALL}"
+
+FREENUC=$(gxsp_freenuc_file)
+BIG=$(gxsp_big_file)
+SMALL=$(gxsp_small_file)
+GRAPH=$(gxsp_graph_file)
+
+# the freenuc file, the (final) big file, and the stage 5 products
+INPUTS=($(gxsp_expected 2) "work-products/$(gxsp_big_gz)" $(gxsp_expected 5))
+gxsp_require_inputs "UPS tarball input" "${INPUTS[@]}"
+
+UPSTOP=${PWD}/ups_tmp
+rm -rf "${UPSTOP}"
+PRODREL="genie_xsec/${SVERSION}/NULL/${UPSQUALDASH}"
+DATA="${UPSTOP}/${PRODREL}/data"
+mkdir -p "${UPSTOP}/genie_xsec/${SVERSION}.version" "${UPSTOP}/${PRODREL}/ups" "${DATA}"
+
+#-----------------------------------------------------------------------------
+# data files
+#-----------------------------------------------------------------------------
+for rel in "${INPUTS[@]}" ; do
+  gxsp_fetch "${rel}" "${DATA}/$(basename "${rel}")"
+done
+cp "${GXSP_CFGDIR}/isotopes.cfg" "${DATA}/"
+gzip --best "${DATA}/${FREENUC}"
+if [ "${ELECTRON}" -eq 0 ]; then
+  # the big file arrives already gzipped from work-products
+  cp "${GXSP_CFGDIR}/reduce_gxspl.awk" "${DATA}/"
+  # older names, still used by some
+  ( cd "${DATA}" && ln -s "${BIG}.gz" gxspl-FNALbig.xml.gz && ln -s "${SMALL}" gxspl-FNALsmall.xml )
+  DEFAULTXML=${SMALL}
+else
+  # electrons: the big file is the default one, shipped uncompressed
+  gzip -d "${DATA}/${BIG}.gz" || gxsp_die 21 "can't uncompress ${BIG}.gz"
+  DEFAULTXML=${BIG}
+fi
+if [ -n "${TUNEDIRNAME}" ]; then cp -R "${GXSP_CFGDIR}/${TUNEDIRNAME}" "${DATA}/" ; fi
+for x in ${OVERRIDEXML} ; do cp "${GXSP_CFGDIR}/${x}" "${DATA}/" ; done
+# the spline-shortening script, for users (a staging area made before it
+# existed doesn't have it: gxspinit --force adds it)
+CUTEMAX=0
+if gxsp_have "bin/gxsp_cut_emax" ; then
+  gxsp_fetch "bin/gxsp_cut_emax" "${DATA}/gxsp_cut_emax"
+  chmod +x "${DATA}/gxsp_cut_emax"
+  CUTEMAX=1
+else
+  gxsp_warn "no bin/gxsp_cut_emax in the staging area: not in the tarball (gxspinit --force adds it)"
+fi
+
+EMAXF=$(printf '%.1f' "${EMAX}")
+PROBES=($(gxsp_probe_pdgs))
+NPROBE=${#PROBES[@]}
+
+#-----------------------------------------------------------------------------
+# table file
+#-----------------------------------------------------------------------------
+cat > "${UPSTOP}/${PRODREL}/ups/genie_xsec.table" <<EOF
+File=Table
+Product=genie_xsec
+#*************************************************
+# Starting Group definition
+
+Group:
+
+Flavor=NULL
+Qualifiers="${UPSQUAL}"
+
+Common:
+   Action=setup
+      proddir()
+      setupenv()
+      envSet(GENIEXSECPATH, \${UPS_PROD_DIR}/data)
+      envSet(GENIEXSECFILE, \${UPS_PROD_DIR}/data/${DEFAULTXML})
+      pathPrepend(GXMLPATH, \${UPS_PROD_DIR}/data)
+      envSet(GENIE_XSEC_TUNE,"${TUNE}")
+      envSet(GENIE_XSEC_GENLIST,"${GENLIST}")
+      envSet(GENIE_XSEC_KNOTS,"${KNOTS}")
+      envSet(GENIE_XSEC_EMAX,"${EMAXF}")
+
+End:
+# End Group definition
+#*************************************************
+EOF
+
+#-----------------------------------------------------------------------------
+# version file
+#-----------------------------------------------------------------------------
+IAM=${GRID_USER:-$(whoami)}
+NOW=$(date -u '+%Y-%m-%d %H:%M:%S')
+cat > "${UPSTOP}/genie_xsec/${SVERSION}.version/NULL_${UPSQUALDASH}" <<EOF
+FILE = version
+PRODUCT = genie_xsec
+VERSION = ${SVERSION}
+
+#*************************************************
+#
+FLAVOR = NULL
+QUALIFIERS   = "${UPSQUAL}"
+  DECLARER   = ${IAM}
+  DECLARED   = ${NOW} GMT
+  MODIFIER   = ${IAM}
+  MODIFIED   = ${NOW} GMT
+  PROD_DIR   = ${PRODREL}
+  UPS_DIR    = ups
+  TABLE_FILE = genie_xsec.table
+#
+#*************************************************
+EOF
+
+#-----------------------------------------------------------------------------
+# README.md  (in the tarball's data/, and a copy in work-products/)
+#-----------------------------------------------------------------------------
+# iso_list: "pdg name" lines -> a Markdown table with one row per element,
+#   its Z (from the pdg code 10LZZZAAAI) and its isotopes,
+#   e.g. "| 18 | Ar36 Ar38 Ar39 Ar40 |"
+iso_list() {
+  awk 'BEGIN { print "| Z | isotopes |" ; print "|---:|---|" }
+       { z = int($1 / 10000) % 1000
+         if (NR == 1 || z != last) { if (NR > 1) print " |" ; printf "| %d |", z }
+         printf " %s", $2 ; last = z }
+       END { if (NR > 0) print " |" }'
+}
+# file_row <file> <description>  -> a row of the Files table
+file_row() { printf '| %-34s | %s |\n' "\`$1\`" "$2" ; }
+
+gxsp_load_isotopes
+NRED=$(gxsp_iso_select "${ISOFILE}" reduced | wc -l | tr -d ' ')
+PROBENAMES=$(for p in "${PROBES[@]}" ; do gxsp_probe_name "${p}" ; done | paste -sd, - | sed 's/,/, /g')
+if [ "${ELECTRON}" -eq 1 ]; then
+  PROBEDESC="electron"
+elif [ -z "$(gxsp_nuflavors_tag "${PROBES[*]}" -)" ]; then
+  PROBEDESC="all ${NPROBE} neutrino flavors: ${PROBENAMES}"
+else
+  PROBEDESC="${NPROBE} neutrino flavor(s) (\`--nuflavors\`): ${PROBENAMES}"
+fi
+if gxsp_qe_on ; then
+  QEDESC="${NQE} seeded $(gxsp_qe_genlist) runs per probe x isotope"
+  if [ "${NQEZ}" != "${NQE}" ]; then QEDESC="${QEDESC} (${NQEZ} for isotopes of $(gxsp_z_symbols "${QEZ}"))" ; fi
+  QEDESC="${QEDESC}, ${NTHROWS} nucleon throw(s) each; averaged, smoothed and put in place of the standard QE splines"
+else
+  QEDESC="none (standard QE splines)"
+fi
+# the TGraph file, as stage 5 made it
+GRAPHISONAMES=$(gxsp_graph_isotopes | awk '{ print $2 }' | paste -sd' ' -)
+NGRAPHISO=$(echo ${GRAPHISONAMES} | wc -w | tr -d ' ')
+if gxsp_graph_isotopes > /dev/null ; then
+  GRAPHISODESC="the ${NGRAPHISO} isotopes marked \`root\` in \`isotopes.cfg\`"
+else
+  GRAPHISODESC="all ${NGRAPHISO} isotopes (none are marked \`root\` in \`isotopes.cfg\`)"
+fi
+TGPTSDESC="as many points as the longest spline has knots"
+if [ -n "${TGNPOINTS:-}" ]; then TGPTSDESC="${TGNPOINTS} points" ; fi
+TGSPACE="E" ; if [ "${TGLOG:-0}" -eq 1 ]; then TGSPACE="log E" ; fi
+GRAPHSRC="${BIG}.gz" GRAPHEG="nu_mu_C12" GRAPHNAMES="\`tot_cc\`, \`tot_nc\`, \`res_cc_p\`, \`dis_cc\`, ..."
+if [ "${ELECTRON}" -eq 1 ]; then
+  GRAPHSRC="${BIG}" GRAPHEG="e-_C12" GRAPHNAMES="\`tot_em\`, \`res_em_p\`, \`dis_em_p\`, ..."
+fi
+README="${DATA}/README.md"
+{
+  echo "# GENIE cross section splines: \`genie_xsec ${SVERSION}\` \`${UPSQUAL}\`"
+  echo
+  echo "GENIE XML cross section spline files: the cross section for each probe, target and process at a set of energy knots."
+  echo
+  echo "|  |  |"
+  echo "|---|---|"
+  echo "| UPS product | \`genie_xsec\` \`${SVERSION}\`, qualifier \`${UPSQUAL}\` |"
+  echo "| Tune | \`${TUNE}\` |"
+  echo "| Event generator list | \`${GENLIST}\` |"
+  echo "| Probes | ${PROBEDESC} |"
+  echo "| Energies | ${EMIN} GeV to ${EMAXF} GeV, ${KNOTS} knots spaced logarithmically |"
+  if [ "${ELECTRON}" -eq 0 ]; then
+    echo "| Isotopes | ${NISO} in \`${BIG}.gz\`, ${NRED} in \`${SMALL}\` |"
+  else
+    echo "| Isotopes | ${NISO} in \`${BIG}\` |"
+  fi
+  echo "| QE averaging | ${QEDESC} |"
+  echo "| Made with | GENIE \`${GVERSION}\` \`-q ${GQUAL}\`; packaged ${NOW} GMT by ${IAM} |"
+  echo
+  echo "## Using it"
+  echo
+  echo '```bash'
+  echo "setup genie_xsec ${SVERSION} -q ${UPSQUAL}"
+  echo '```'
+  echo
+  echo "This sets \`GENIEXSECPATH\` to the \`data/\` directory, \`GENIEXSECFILE\` to the default spline file (\`${DEFAULTXML}\`), puts \`data/\` first on \`GXMLPATH\`, and sets \`GENIE_XSEC_TUNE\`, \`GENIE_XSEC_GENLIST\`, \`GENIE_XSEC_KNOTS\` and \`GENIE_XSEC_EMAX\`."
+  echo
+  echo "## Files"
+  echo
+  printf '| %-34s | %s |\n' "File" "Contents"
+  echo "|---|---|"
+  file_row "README.md" "this file"
+  if [ "${ELECTRON}" -eq 0 ]; then
+    file_row "${FREENUC}.gz" "splines for the probes below on free protons and neutrons"
+    file_row "${BIG}.gz" "the free nucleons and the full set of isotopes"
+    file_row "${SMALL}" "the free nucleons and the reduced set of isotopes (the default file)"
+    file_row "gxspl-FNALbig.xml.gz" "older name: a link to \`${BIG}.gz\`"
+    file_row "gxspl-FNALsmall.xml" "older name: a link to \`${SMALL}\`"
+  else
+    file_row "${FREENUC}.gz" "electron splines on free protons and neutrons"
+    file_row "${BIG}" "the free nucleons and the full set of isotopes (the default file)"
+  fi
+  file_row "${GRAPH}" "TGraph evaluations of some of the splines"
+  file_row "isotopes.cfg" "the isotope list used for this production"
+  if [ "${ELECTRON}" -eq 0 ]; then
+    file_row "reduce_gxspl.awk" "script for making spline files with fewer probes and isotopes"
+  fi
+  if [ "${CUTEMAX}" -eq 1 ]; then
+    file_row "gxsp_cut_emax" "script for making spline files that stop at a lower energy"
+  fi
+  if [ -n "${TUNEDIRNAME}" ]; then file_row "${TUNEDIRNAME}/" "tune configuration used for this production" ; fi
+  for x in ${OVERRIDEXML} ; do file_row "${x}" "override configuration used for this production" ; done
+  if [ "${ELECTRON}" -eq 0 ]; then
+    echo
+    echo "## Making a smaller spline file"
+    echo
+    echo "1. Edit \`reduce_gxspl.awk\`: set \`nukeep[...]\` (probes) and \`tgtkeep[...]\` (isotopes) to 1 to keep or 0 to drop."
+    echo "2. Run it on the big file (this takes a while):"
+    echo
+    echo '```bash'
+    echo "nohup zcat ${BIG}.gz 2>/dev/null | gawk -f reduce_gxspl.awk > gxspl-ALTsmall.xml 2>/dev/null &"
+    echo '```'
+  fi
+  if [ "${CUTEMAX}" -eq 1 ]; then
+    if [ "${ELECTRON}" -eq 0 ]; then CUTSRC="${BIG}.gz" ; CUTCAT="zcat" ; else CUTSRC="${BIG}" ; CUTCAT="cat" ; fi
+    echo
+    echo "## Making a spline file that stops at a lower energy"
+    echo
+    echo "\`gxsp_cut_emax ECUT\` shortens every spline so that it ends at its second knot at or above ECUT (in GeV). The file is smaller and quicker for GENIE to read, and still covers every energy up to ECUT. It reads a plain or \`.gz\` file, or standard input, and writes the new file to standard output (so write it somewhere other than \`data/\`):"
+    echo
+    echo '```bash'
+    echo "\$GENIEXSECPATH/gxsp_cut_emax 25 \$GENIEXSECPATH/${CUTSRC} > gxspl-e25.xml"
+    echo "${CUTCAT} \$GENIEXSECPATH/${CUTSRC} | \$GENIEXSECPATH/gxsp_cut_emax 25 > gxspl-e25.xml"
+    echo "\$GENIEXSECPATH/gxsp_cut_emax -n 3 25 \$GENIEXSECPATH/${CUTSRC} > gxspl-e25.xml   # keep 3 knots at or above 25 GeV, not 2"
+    echo '```'
+    echo
+    echo "- Each spline is cut on its own knots, so splines keep different numbers of knots, and the \`nknots\` on each \`<spline>\` line is set to the number kept. Every spline keeps at least 2 knots."
+    echo "- Use the new file only for energies up to ECUT. GENIE doesn't extrapolate: above a spline's last knot it takes the cross section to be 0, and it does so silently. There is no warning, and GENIE doesn't check a flux's energy range against the splines (only against the event generators' configured validity range), so neutrinos above the last knots simply never interact. \`GENIE_XSEC_EMAX\` still gives the energy of the full files (${EMAXF} GeV)."
+    echo "- GENIE interpolates with a cubic spline whose shape near the end depends on where the spline ends, so in the last few intervals below ECUT the cross section changes a little. On an AR23 production cut at 10, 25 and 125 GeV, the largest change was 0.4-1.7% in the interval that holds ECUT, 0.1-0.5% in the one below, then about 4 times smaller in each interval further down; fewer than 1 spline in 100 changed by more than 0.1% (with only 1 knot kept at or above ECUT, the change at 25 GeV was nearly 3 times larger). \`-n N\` keeps N knots at or above ECUT instead of 2 (\`-n 3\` makes the change smaller still)."
+    echo "- \`-q\` leaves out the summary line on standard error; \`-h\` gives the usage."
+  fi
+  echo
+  echo "## TGraphs: \`${GRAPH}\`"
+  echo
+  echo "\`gspl2root\` evaluations of the splines in \`${GRAPHSRC}\` as ROOT TGraphs, for every probe and ${GRAPHISODESC}: ${GRAPHISONAMES}."
+  echo
+  echo "- Energies from the tune's \`GVLD-Emin\` (in its \`CommonParam.xml\`) to $(gxsp_tgraph_emax) GeV, ${TGPTSDESC}, evenly spaced in ${TGSPACE}. Every TGraph has the same energies."
+  echo "- Cross sections in units of 10^-38 cm^2."
+  echo "- One directory per probe and isotope, named \`<probe>_<isotope>\` with GENIE's particle names (e.g. \`${GRAPHEG}\`), holding one TGraph per process (${GRAPHNAMES})."
+  echo
+  echo "## Probes"
+  echo
+  echo "| PDG | Probe |"
+  echo "|---:|---|"
+  for p in "${PROBES[@]}" ; do echo "| ${p} | $(gxsp_probe_name "${p}") |" ; done
+  echo
+  echo "## Isotopes"
+  echo
+  if [ "${ELECTRON}" -eq 0 ]; then
+    echo "### In \`${BIG}.gz\`: ${NISO} isotopes"
+  else
+    echo "### In \`${BIG}\`: ${NISO} isotopes"
+  fi
+  echo
+  for (( i = 0 ; i < NISO ; i++ )) ; do echo "${ISO_PDGS[$i]} ${ISO_NAMES[$i]}" ; done | iso_list
+  if [ "${ELECTRON}" -eq 0 ]; then
+    echo
+    echo "### In \`${SMALL}\`: ${NRED} isotopes"
+    echo
+    gxsp_iso_select "${ISOFILE}" reduced | iso_list
+  fi
+} > "${README}"
+
+#-----------------------------------------------------------------------------
+# tarball
+#-----------------------------------------------------------------------------
+STATUS=0
+( cd "${UPSTOP}" && tar cjf "../${TARBALL}" "genie_xsec/${SVERSION}" "genie_xsec/${SVERSION}.version" ) || STATUS=19
+tar tjvf "${TARBALL}" >> "${LOG}" 2>&1
+if [ ${STATUS} -eq 0 ]; then
+  gxsp_put "${TARBALL}" "ups/${TARBALL}" || STATUS=15
+else
+  gxsp_warn "tar of ${TARBALL} failed"
+fi
+# a copy of README.md next to the products (one from an earlier attempt is
+# kept as it is: jobs don't replace files)
+gxsp_put "${README}" "work-products/README.md"
+if [ $? -eq 1 ] && [ ${STATUS} -eq 0 ]; then STATUS=15 ; fi
+gxsp_put_log "${LOG}" "work-products/${LOG}"
+
+gxsp_finish ${STATUS}

@@ -1,0 +1,569 @@
+#! /usr/bin/env bash
+#
+# gxspinit -- initialize a GENIE spline production staging area
+#
+#   gxspinit --top TOPDIR --sversion SVERSION --tune TUNE \
+#            --knots KNOTS --emax EMAX --gversion GVERSION --gqual GQUAL \
+#            [--electron | --nuflavors F1,F2,...] [--genlist GENLIST] \
+#            [--fetch-isotopes isofile.txt] [--fetch-tune-from tunepath] \
+#            [--average-qe N1[,N2] [--qe-z Z1,Z2,...] [--average-throws NTHROWS]
+#             [--qe-chunk N] [--qe-smooth-jobs N] [--qe-scripts DIR]] \
+#            [--keep-negative] [--tgraph EMAX[,NPOINTS[,log]]] \
+#            [--jobsub-group GROUP] [--force] \
+#            [override1.xml override2.xml ...]
+#
+#   --top TOPDIR             parent of the staging area,
+#                            e.g. /pnfs/genie/scratch/users/rhatcher/GXSP
+#   --nuflavors F1,F2,...    only these neutrino flavors instead of all six
+#                            (names or pdg codes: nue,nuebar or 12,-12);
+#                            not with --electron.  Adds -<flavors> to the
+#                            staging area and UPS qualifier (-notau for
+#                            nue,nuebar,numu,numubar; nothing for all six)
+#   --average-qe N1[,N2]     also run seeded QE stage-3 passes (genlist CCQE,
+#                            or EMQE for electrons) and two extra stages
+#                            that average and smooth them (3s) and put them
+#                            into the big file (4q): N2 passes for the
+#                            isotopes whose Z is in --qe-z, N1 for the others
+#                            (N2 defaults to N1; default 0 = none;
+#                            typical: 100,1000)
+#   --qe-z Z1,Z2,...         the Z of the isotopes that get N2 passes
+#                            (default 6,8,18: carbon, oxygen, argon)
+#   --qe-chunk N             seeds per seeded QE job (default 250); each
+#                            -N cluster in the DAG runs a range of up to N
+#                            seeds, one after another (about 54 s per seed
+#                            with 1 throw: 250 seeds ~ 3.8h of the 15h limit;
+#                            more --average-throws take longer)
+#   --average-throws NTHROWS NumNucleonThrows for the seeded QE jobs (only
+#                            with --average-qe > 0; default 1)
+#   --qe-smooth-jobs N       stage 3s jobs (default 25, at most one per
+#                            averaged pair); the pairs are shared out so each
+#                            job fetches about the same number of seed files
+#   --qe-scripts DIR         where stage 3s gets the QE spline smoothing
+#                            scripts (default
+#                            /pnfs/genie/scratch/users/rhatcher/GXSPL/qe_spline_smoothing)
+#   --keep-negative          keep negative cross section values in the splines
+#                            (default: set them to 0.0, as NaN/inf always are,
+#                            keeping the original file as <file>-NEG)
+#   --tgraph EMAX[,NPOINTS[,log]]
+#                            stage 5's TGraphs (xsec_graphs.root): up to EMAX
+#                            GeV (default 125, never more than --emax), with
+#                            NPOINTS points (default: as many as the splines
+#                            have knots), evenly spaced in E, or in log E
+#                            with "log" (EMAX,,log keeps the default NPOINTS)
+#
+# Run interactively on a node where PNFS is mounted (plain Unix commands).
+# Creates
+#   $STAGEDIR/{bin,cfg,ups,work-products/{freenucs,isotopes}}
+#   $STAGEDIR/bin/          copies of the production scripts
+#   $STAGEDIR/cfg/          define_cfg.sh gxsplib.sh isotopes.cfg
+#                           [reduce_gxspl.awk] [tune dir] [override xml]
+#                           cfg.tar.gz (all of the above) genie_splines.dag
+#
+##############################################################################
+set -o pipefail
+
+BINDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+GXSP_ME=gxspinit
+source "${BINDIR}/gxsplib.sh" || { echo "can't source ${BINDIR}/gxsplib.sh" ; exit 1 ; }
+
+usage() {
+  sed -n '3,61p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  exit "${1:-0}"
+}
+
+##############################################################################
+# arguments
+##############################################################################
+TOPDIR="" SVERSION="" TUNE="" KNOTS="" EMAX="" GVERSION="" GQUAL=""
+ELECTRON=0 GENLIST="Default" ISOSRC="" TUNESRC="" FORCE=0 AVGQE=0 NTHROWS=""
+NUFLAVARG=""     # --nuflavors as given
+NEGZERO=1        # 0 with --keep-negative
+TGRAPHARG=125    # --tgraph EMAX[,NPOINTS[,log]]
+QECHUNK=250      # --qe-chunk: seeds per seeded QE job
+QESMJOBS=25      # --qe-smooth-jobs: stage 3s jobs
+QEZARG=6,8,18    # --qe-z: Z of the isotopes that get the second --average-qe count
+QESCRIPTS=/pnfs/genie/scratch/users/rhatcher/GXSPL/qe_spline_smoothing
+JOBSUB_GROUP=${JOBSUB_GROUP:-genie}
+OVERRIDES=()
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --top)             TOPDIR=$2   ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --sversion)        SVERSION=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --tune)            TUNE=$2     ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --knots)           KNOTS=$2    ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --emax)            EMAX=$2     ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --gversion)        GVERSION=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --gqual)           GQUAL=$2    ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --genlist)         GENLIST=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --electron)        ELECTRON=1  ; shift   ;;
+    --nuflavors)       NUFLAVARG=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --fetch-isotopes)  ISOSRC=$2   ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --fetch-tune-from) TUNESRC=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --average-qe)      AVGQE=$2    ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --average-throws)  NTHROWS=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --qe-chunk)        QECHUNK=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --qe-smooth-jobs)  QESMJOBS=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --qe-z)            QEZARG=$2   ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --qe-scripts)      QESCRIPTS=${2%/} ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --jobsub-group)    JOBSUB_GROUP=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --keep-negative)   NEGZERO=0   ; shift   ;;
+    --tgraph)          TGRAPHARG=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 1 ; } ;;
+    --force)           FORCE=1     ; shift   ;;
+    -h|--help)         usage 0 ;;
+    -*)                echo "unknown option $1" >&2 ; usage 1 ;;
+    *)                 OVERRIDES+=("$1") ; shift ;;
+  esac
+done
+
+for v in TOPDIR SVERSION TUNE KNOTS EMAX GVERSION GQUAL ; do
+  [ -n "${!v}" ] || gxsp_die 1 "missing required --$(echo $v | tr 'A-Z' 'a-z')"
+done
+gxsp_tune_valid "${TUNE}" || gxsp_die 1 "tune '${TUNE}' doesn't match ${GXSP_TUNE_RE}"
+[[ "${KNOTS}" =~ ^[0-9]+$ ]]       || gxsp_die 1 "--knots must be an integer"
+[[ "${EMAX}"  =~ ^[0-9.]+$ ]]      || gxsp_die 1 "--emax must be a number"
+if [[ "${AVGQE}" =~ ^([0-9]+)$ ]]; then
+  NQE=$(( 10#${BASH_REMATCH[1]} )) NQEZ=$(( 10#${BASH_REMATCH[1]} ))
+elif [[ "${AVGQE}" =~ ^([0-9]+),([0-9]+)$ ]]; then
+  NQE=$(( 10#${BASH_REMATCH[1]} )) NQEZ=$(( 10#${BASH_REMATCH[2]} ))
+else
+  gxsp_die 1 "--average-qe must be N or N1,N2 (non-negative integers), got '${AVGQE}'"
+fi
+[[ "${QECHUNK}" =~ ^[1-9][0-9]*$ ]] || gxsp_die 1 "--qe-chunk must be a positive integer, got '${QECHUNK}'"
+[[ "${QESMJOBS}" =~ ^[1-9][0-9]*$ ]] || gxsp_die 1 "--qe-smooth-jobs must be a positive integer, got '${QESMJOBS}'"
+# --qe-z Z1,Z2,...: QEZ is the Z values, space separated, sorted, each once
+[[ "${QEZARG}" =~ ^[1-9][0-9]*(,[1-9][0-9]*)*$ ]] ||
+  gxsp_die 1 "--qe-z must be Z1,Z2,... (positive integers), got '${QEZARG}'"
+QEZ=$(echo "${QEZARG}" | tr ',' '\n' | sort -nu | paste -sd' ' -)
+for z in ${QEZ} ; do
+  [ "${z}" -le 118 ] || gxsp_die 1 "--qe-z: Z ${z} is more than 118"
+done
+# --tgraph EMAX[,NPOINTS]: stage 5's TGraph range (capped at --emax) and points
+#   (EMAX,,log: log spacing with the default number of points)
+TGLOG=0
+if [[ "${TGRAPHARG}" =~ ^([0-9]*\.?[0-9]+)(,([1-9][0-9]*))?$ ]]; then
+  TGEMAX=${BASH_REMATCH[1]} TGNPOINTS=${BASH_REMATCH[3]}
+elif [[ "${TGRAPHARG}" =~ ^([0-9]*\.?[0-9]+),([1-9][0-9]*)?,log$ ]]; then
+  TGEMAX=${BASH_REMATCH[1]} TGNPOINTS=${BASH_REMATCH[2]} TGLOG=1
+else
+  gxsp_die 1 "--tgraph must be EMAX, EMAX,NPOINTS or EMAX,[NPOINTS],log (EMAX a number, NPOINTS a positive integer), got '${TGRAPHARG}'"
+fi
+awk -v e="${TGEMAX}" 'BEGIN { exit !(e > 0) }' || gxsp_die 1 "--tgraph EMAX must be more than 0, got '${TGEMAX}'"
+if [ -n "${TGNPOINTS}" ] && [ "${TGNPOINTS}" -lt 2 ]; then
+  gxsp_die 1 "--tgraph NPOINTS must be at least 2, got '${TGNPOINTS}'"
+fi
+if awk -v t="${TGEMAX}" -v e="${EMAX}" 'BEGIN { exit !(t > e) }' ; then
+  gxsp_msg "--tgraph: TGraphs up to ${EMAX} GeV (--emax), not ${TGEMAX}"
+  TGEMAX=${EMAX}
+fi
+# --nuflavors: a subset of the neutrino flavors (empty NUFLAVORS = the usual
+# probes: all six, or the electron)
+NUFLAVORS=""
+if [ -n "${NUFLAVARG}" ]; then
+  [ ${ELECTRON} -eq 0 ] || gxsp_die 1 "--nuflavors can't be used with --electron"
+  NUFLAVORS=$(gxsp_nuflavors_parse "${NUFLAVARG}" 2>&1) ||
+    gxsp_die 1 "--nuflavors ${NUFLAVARG}: ${NUFLAVORS}"
+fi
+if gxsp_qe_on ; then
+  if [ -z "${NTHROWS}" ]; then NTHROWS=1 ; fi
+  [[ "${NTHROWS}" =~ ^[1-9][0-9]*$ ]] || gxsp_die 1 "--average-throws must be a positive integer"
+  # (run where PNFS is mounted, so the scripts can be checked here)
+  for py in average_splines.py construct_representative_spline.py ; do
+    [ -f "${QESCRIPTS}/${py}" ] || gxsp_warn "--qe-scripts: ${QESCRIPTS}/${py} not found (stage 3s needs it)"
+  done
+else
+  if [ -n "${NTHROWS}" ]; then
+    gxsp_warn "--average-throws ${NTHROWS} ignored: it only applies with --average-qe > 0"
+  fi
+  NTHROWS=0
+fi
+
+if [ -z "${ISOSRC}" ]; then ISOSRC="${BINDIR}/../share/isotopes.cfg" ; fi
+[ -f "${ISOSRC}" ] || gxsp_die 1 "isotope file ${ISOSRC} not found"
+if [ -n "${TUNESRC}" ]; then
+  [ -d "${TUNESRC}" ] || gxsp_die 1 "--fetch-tune-from ${TUNESRC} is not a directory"
+  if [ "$(basename "${TUNESRC}")" != "$(gxsp_tune_cmc "${TUNE}")" ]; then
+    gxsp_warn "--fetch-tune-from directory is named $(basename "${TUNESRC}"), not $(gxsp_tune_cmc "${TUNE}") (the CMC of ${TUNE})"
+  fi
+fi
+for x in "${OVERRIDES[@]}" ; do
+  [[ "${x}" == *.xml && -f "${x}" ]] || gxsp_die 1 "override '${x}' is not an existing .xml file"
+done
+
+TUNESQ=$(gxsp_tune_squeeze "${TUNE}")
+UPSQUAL="${TUNESQ}:k${KNOTS}:e${EMAX}"
+UPSQUALDASH="${TUNESQ}-k${KNOTS}-e${EMAX}"
+STAGEDIR="${TOPDIR}/GXSPL-${SVERSION}-${UPSQUALDASH}"
+if [ ${ELECTRON} -eq 1 ]; then
+  STAGEDIR="${STAGEDIR}-electron"
+  UPSQUAL="${UPSQUAL}:electron"
+  UPSQUALDASH="${UPSQUALDASH}-electron"
+fi
+# only some neutrino flavors: -nue-nuebar, -notau, ... (nothing for all six)
+NUTAG=$(gxsp_nuflavors_tag "${NUFLAVORS:-${GXSP_NUFLAVORS_ALL}}" -)
+if [ ${ELECTRON} -eq 0 ] && [ -n "${NUTAG}" ]; then
+  STAGEDIR="${STAGEDIR}-${NUTAG}"
+  UPSQUAL="${UPSQUAL}:$(gxsp_nuflavors_tag "${NUFLAVORS}" :)"
+  UPSQUALDASH="${UPSQUALDASH}-${NUTAG}"
+fi
+
+##############################################################################
+# directory tree
+##############################################################################
+if [ -e "${STAGEDIR}/cfg/cfg.tar.gz" ]; then
+  if [ ${FORCE} -eq 0 ]; then
+    gxsp_die 1 "${STAGEDIR} is already initialized (use --force to redo bin/ and cfg/)"
+  fi
+  gxsp_msg "--force: clearing ${STAGEDIR}/bin and ${STAGEDIR}/cfg"
+  rm -rf "${STAGEDIR}/bin" "${STAGEDIR}/cfg"
+fi
+for d in bin cfg ups work-products/freenucs work-products/isotopes ; do
+  mkdir -p "${STAGEDIR}/${d}" || gxsp_die 1 "can't create ${STAGEDIR}/${d}"
+done
+gxsp_msg "staging area ${STAGEDIR}"
+
+# Everything is built in a local scratch area and then copied in with
+# stage_install: PNFS files can't be overwritten in place, so any existing
+# copy is removed first, and only cp + rm are used (never mv).
+#   (in $TMPDIR, or /tmp if TMPDIR isn't set; removed when gxspinit exits)
+WORKTOP=$(mktemp -d "${TMPDIR:-/tmp}/gxspinit.XXXXXX") && [ -d "${WORKTOP}" ] ||
+  gxsp_die 1 "can't create a scratch directory in ${TMPDIR:-/tmp}"
+trap 'rm -rf "${WORKTOP}"' EXIT
+gxsp_msg "scratch directory ${WORKTOP} (removed on exit)"
+WORK=${WORKTOP}
+
+# stage_install <local file or dir> <staging dir>
+stage_install() {
+  local dest="$2/$(basename "$1")"
+  if [ -e "${dest}" ] || [ -L "${dest}" ]; then
+    rm -rf "${dest}" || gxsp_die 1 "can't remove existing ${dest}"
+  fi
+  cp -R "$1" "${dest}" || gxsp_die 1 "copy of $(basename "$1") to $2 failed"
+}
+
+# jobsub ships only the script file, so inline gxsp_bootstrap.sh into each
+mkdir -p "${WORK}/bin"
+for f in "${BINDIR}"/gxsp* ; do
+  local_copy="${WORK}/bin/$(basename "${f}")"
+  awk -v bf="${BINDIR}/gxsp_bootstrap.sh" '
+    /^source .*gxsp_bootstrap\.sh.*GXSP_INLINE/ {
+      while ((getline line < bf) > 0) print line ; close(bf) ; next }
+    { print }' "${f}" > "${local_copy}" || gxsp_die 1 "preparing ${f} for bin failed"
+  if [ -x "${f}" ]; then chmod +x "${local_copy}" ; fi
+  stage_install "${local_copy}" "${STAGEDIR}/bin"
+done
+
+##############################################################################
+# build cfg/ contents in the local scratch area, then copy over
+##############################################################################
+mkdir -p "${WORK}/cfg" && WORK="${WORK}/cfg"
+CFGFILES=(define_cfg.sh gxsplib.sh isotopes.cfg)
+
+cp "${BINDIR}/gxsplib.sh" "${WORK}/gxsplib.sh"
+cp "${ISOSRC}"            "${WORK}/isotopes.cfg"
+ISOFILE="${WORK}/isotopes.cfg"
+
+TUNEDIRNAME=""
+if [ -n "${TUNESRC}" ]; then
+  TUNEDIRNAME=$(basename "${TUNESRC}")
+  cp -R "${TUNESRC}" "${WORK}/${TUNEDIRNAME}"
+  CFGFILES+=("${TUNEDIRNAME}")
+fi
+OVERRIDENAMES=()
+for x in "${OVERRIDES[@]}" ; do
+  cp "${x}" "${WORK}/"
+  OVERRIDENAMES+=("$(basename "${x}")")
+done
+CFGFILES+=("${OVERRIDENAMES[@]}")
+
+#-----------------------------------------------------------------------------
+# define_cfg.sh
+#-----------------------------------------------------------------------------
+cat > "${WORK}/define_cfg.sh" <<EOF
+# define_cfg.sh -- parameters for this GENIE spline production
+#   created by gxspinit on $(date '+%F %T') by ${USER}
+#   source this (bash) file; then call gxsp_setup_genie to set up GENIE
+#
+export TOPDIR="${TOPDIR}"
+export TOP="\${TOPDIR}"
+export STAGEDIR="${STAGEDIR}"
+
+export SVERSION="${SVERSION}"       # spline series version
+export TUNE="${TUNE}"
+export TUNESQ="${TUNESQ}"
+export KNOTS=${KNOTS}
+export EMIN=0.01                    # informational only (gmkspl ignores it)
+export EMAX=${EMAX}
+export GENLIST="${GENLIST}"         # --event-generator-list
+export ELECTRON=${ELECTRON}         # 1 = electron probe production
+export NUFLAVORS="${NUFLAVORS}"     # --nuflavors: neutrino pdg codes (empty = all six)
+export NQE=${NQE}                   # --average-qe N1[,N2]: seeded QE passes, N1 (0 = none) ...
+export NQEZ=${NQEZ}                  #   ... and N2, for the isotopes whose Z is in QEZ
+export QEZ="${QEZ}"               #   --qe-z: those Z ($(gxsp_z_symbols "${QEZ}"))
+export NTHROWS=${NTHROWS}             # --average-throws for the seeded QE jobs (0 without --average-qe)
+export NEGZERO=${NEGZERO}             # 1: negative cross sections set to 0.0 (0: --keep-negative)
+export QESCRIPTS="${QESCRIPTS}"     # --qe-scripts: stage 3s's smoothing scripts
+export QESMJOBS=${QESMJOBS}            # --qe-smooth-jobs: stage 3s jobs (at most one per averaged pair)
+export TGEMAX=${TGEMAX}               # --tgraph EMAX: stage 5's TGraphs up to this energy (GeV, <= EMAX)
+export TGNPOINTS="${TGNPOINTS}"        # --tgraph ,NPOINTS: points per TGraph (empty = the splines' knot count)
+export TGLOG=${TGLOG}                  # --tgraph ,,log: 1 = points evenly spaced in log E (gspl2root -l), 0 = in E
+
+export GVERSION="${GVERSION}"       # GENIE code version
+export GQUAL="${GQUAL}"             # GENIE code qualifiers
+
+export UPSQUAL="${UPSQUAL}"
+export UPSQUALDASH="${UPSQUALDASH}"
+
+# extra configuration shipped in cfg.tar.gz (may be empty)
+export TUNEDIRNAME="${TUNEDIRNAME}"
+export OVERRIDEXML="${OVERRIDENAMES[*]}"
+EOF
+
+cat >> "${WORK}/define_cfg.sh" <<'EOF'
+
+# directory holding the unpacked cfg.tar.gz (i.e. this file)
+export GXSP_CFGDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+export ISOFILE="${GXSP_CFGDIR}/isotopes.cfg"
+
+##############################################################################
+# gxsp_setup_genie -- set up GENIE ${GVERSION} -q ${GQUAL} (and ifdh)
+##############################################################################
+gxsp_is_sl7() {
+  grep -q 'Scientific Linux release 7.9' /etc/system-release 2>/dev/null
+}
+
+gxsp_setup_genie() {
+  if gxsp_is_sl7 ; then
+    source /cvmfs/fermilab.opensciencegrid.org/products/genie/bootstrap_many_ups.sh
+    source /cvmfs/fermilab.opensciencegrid.org/products/genie/externals/pochoarus-genie_he_data/setup_genie_he_data.sh
+    setup genie "${GVERSION}" -q "${GQUAL}" || return 1
+    if ! type ifdh > /dev/null 2>&1 ; then
+      setup ifdhc
+      export IFDH_CP_MAXRETRIES=2
+    fi
+  else
+    # non-SL7 (e.g. AlmaLinux 9): ifdh from spack's fife-utils
+    source /cvmfs/fermilab.opensciencegrid.org/packages/common/spack/current/NULL/share/spack/setup-env.sh
+    if ! type ifdh > /dev/null 2>&1 ; then spack load fife-utils@3.7.8%gcc@11.4.1 ; fi
+    # PLACEHOLDER: GENIE itself on non-SL7 nodes (spack load genie@... ?) TBD
+  fi
+  # always put the working directory (where cfg.tar.gz was unrolled on the
+  # grid node) first on GXMLPATH, whether or not a tune directory or override
+  # XML files were shipped; also the cfg directory if it is somewhere else
+  local d
+  for d in "${GXSP_CFGDIR}" "${PWD}" ; do
+    case ":${GXMLPATH}:" in
+      *":${d}:"*) ;;                                   # already there
+      *) export GXMLPATH="${d}${GXMLPATH:+:${GXMLPATH}}" ;;
+    esac
+  done
+  echo "GXMLPATH=${GXMLPATH}"
+  type gmkspl > /dev/null 2>&1
+}
+
+# shared helper functions
+if [ -f "${GXSP_CFGDIR}/gxsplib.sh" ]; then
+  source "${GXSP_CFGDIR}/gxsplib.sh"
+fi
+# end-of-file define_cfg.sh
+EOF
+
+#-----------------------------------------------------------------------------
+# reduce_gxspl.awk  (neutrino productions only)
+#-----------------------------------------------------------------------------
+if [ ${ELECTRON} -eq 0 ]; then
+  AWK="${WORK}/reduce_gxspl.awk"
+  cat > "${AWK}" <<'EOF'
+#! /usr/bin/gawk -f
+# Reduce the combinations of neutrino flavors and target isotopes in a
+# GENIE gxspl XML spline file.
+#    gawk -f reduce_gxspl.awk gxspl-NUbig.xml > gxspl-NUsmall.xml
+#
+# Set an entry to 1 to keep it, 0 to drop it.  Probes or targets not listed
+# are dropped.  This only limits what is kept; a combination that isn't in
+# the input file won't magically appear in the output.
+#
+BEGIN {
+  doout=1; keep=1;
+  # whether to keep each species of neutrino
+EOF
+  for p in $(gxsp_probe_pdgs) ; do
+    printf '  nukeep[%d] = 1;   # %s\n' "${p}" "$(gxsp_probe_name "${p}")" >> "${AWK}"
+  done
+  echo '  # whether to keep particular isotopes' >> "${AWK}"
+  gxsp_iso_select "${ISOFILE}" | while read -r pdg name ; do
+    keep=0
+    if gxsp_iso_select "${ISOFILE}" reduced | grep -q "^${pdg} " ; then keep=1 ; fi
+    printf '  tgtkeep[%d] = %d;   # %s\n' "${pdg}" "${keep}" "${name}"
+  done >> "${AWK}"
+  cat >> "${AWK}" <<'EOF'
+}
+# decide whether to keep or reject a sub-process x-section based on the
+# name string.  Picking out "nu:XY" and "tgt:XYZ" depends on the exact
+# naming formulation, e.g.
+#    <spline name="genie::AhrensNCELPXSec/Default/nu:-14;tgt:1000020040;N:2212;proc:Weak[NC],QES;" nknots="500">
+#
+/<spline/ {
+  split($0, array, ";");
+  split(array[2], tgtarray, ":");  tgtval = tgtarray[2];
+  split(array[1], genarray, "/");  split(genarray[3], nuarray, ":");
+  nuval = nuarray[2];
+  if ( tgtkeep[tgtval] == 1 && nukeep[nuval] == 1 ) { keep=1; doout=1; }
+  else                                              { keep=0; doout=0; }
+}
+# close out a particular spline
+/<\/spline/ {
+  if ( doout == 1 ) { keep = 1 } else { keep = 0 }
+  doout=1;
+}
+# regular lines depend on the current state
+// {
+  if ( keep  == 1 ) print $0;
+  if ( doout == 1 ) keep = 1;
+}
+# end-of-script reduce_gxspl.awk
+EOF
+  chmod +x "${AWK}"
+  CFGFILES+=(reduce_gxspl.awk)
+fi
+
+#-----------------------------------------------------------------------------
+# cfg.tar.gz
+#-----------------------------------------------------------------------------
+( cd "${WORK}" && tar czf cfg.tar.gz "${CFGFILES[@]}" ) || gxsp_die 1 "tar of cfg failed"
+
+#-----------------------------------------------------------------------------
+# genie_splines.dag
+#-----------------------------------------------------------------------------
+JSNOSING="jobsub_submit -n --group ${JOBSUB_GROUP}"
+JSNOSING+=" --resource-provides=usage_model=DEDICATED,OPPORTUNISTIC,OFFSITE"
+JSNOSING+=" --append_condor_requirements='(TARGET.HAS_CVMFS_dune_opensciencegrid_org==true)'"
+JS="${JSNOSING} --singularity-image=/cvmfs/singularity.opensciencegrid.org/fermilab/fnal-wn-sl7:latest"
+# (stages 3s and 4q run on the node itself, without the SL7 container: JSNOSING)
+BIGMEM=" --memory=4095MB"
+SHORTT=" --expected-lifetime 3h"
+LONGT=" --expected-lifetime 85200s"
+SUPERLONGT=" --expected-lifetime 170400s"
+QETH=15                          # hours: each QE cluster runs up to QECHUNK seeds (--qe-chunk)
+QET=" --expected-lifetime ${QETH}h"
+QEAVGT=" --expected-lifetime 12h" # stage 3s (gxsp_qe_smoothing)
+NORMALD=" --disk 2GB"
+BIGD=" --disk 10GB"               # stages 4, 4q, 5, 6
+QEAVGD=" --disk 30GB"            # stage 3s: one pair's seed files at a time (up to ~11 MB each when they still hold the freenuc splines) + venv
+SBIN="file://${STAGEDIR}/bin"
+SARG="--stagedir ${STAGEDIR}"
+
+DAG="${WORK}/genie_splines.dag"
+PROBES=$(gxsp_probe_pdgs)
+gxsp_load_stage3        # stage-3 targets: the isotopes minus free-n and H1
+{
+  echo "<parallel>"
+  for t in "${GXSP_FREENUC_NAMES[@]}" ; do
+    for p in ${PROBES} ; do
+      echo "  ${JS}${LONGT}${NORMALD} ${SBIN}/gxsp_mkspl -p $(gxsp_probe_name "$p") -t ${t} ${SARG}"
+    done
+  done
+  echo "</parallel>"
+  echo "<serial>"
+  echo "  ${JS}${SHORTT}${NORMALD} ${SBIN}/gxsp_add_freenuc ${SARG}"
+  echo "</serial>"
+  # stage 3: clusters of N jobs; --input says fetch gxspl-freenuc.xml,
+  # and with no -p/-t gxsp_mkspl maps $PROCESS to the pair.
+  # The Default cluster plus (with --average-qe) QE clusters (--genlist CCQE,
+  # or EMQE for electrons, without --input: the QE splines don't need the
+  # free-nucleon ones), each looping over a range of up to QECHUNK seeds
+  # (--seed first,last).  Seeds 1..min(N1,N2) run for every pair; the seeds
+  # above that only for the pairs with the larger count (--pairs qez for
+  # the isotopes whose Z is in QEZ; --pairs other for the rest), with their own -N.
+  # The free nucleons aren't stage-3 targets (their splines are already in
+  # gxspl-freenuc.xml); with nothing else, there's no stage 3 at all.
+  N3=$(gxsp_njobs 3)
+  if [ "${N3}" -gt 0 ]; then
+    echo "<parallel>"
+    echo "  ${JS} -N ${N3}${SUPERLONGT}${NORMALD} ${SBIN}/gxsp_mkspl ${SARG} --input $(gxsp_freenuc_file)"
+    gxsp_qe_clusters ${QECHUNK} | while read -r s e g ; do
+      nj=$(gxsp_njobs 3 "${g}")
+      [ "${nj}" -gt 0 ] || continue
+      pairs="" ; if [ "${g}" != "all" ]; then pairs=" --pairs ${g}" ; fi
+      echo "  ${JS} -N ${nj}${QET}${NORMALD} ${SBIN}/gxsp_mkspl ${SARG} --genlist $(gxsp_qe_genlist) --seed ${s},${e}${pairs}"
+    done
+    echo "</parallel>"
+  fi
+  # with --average-qe: stage 3s (averaging and smoothing, jobs sharing out
+  # the pairs) needs only the stage 3q files, so it runs alongside stage 4;
+  # stage 4q then puts the smooth splines into the big file.  Each 3s job is
+  # a node of its own (--job K), not one -N cluster: DAGMan removes the rest
+  # of a cluster when one of its jobs fails, and these jobs run for hours
+  if gxsp_qe_on ; then
+    echo "<parallel>"
+    echo "  ${JS}${BIGMEM}${SHORTT}${BIGD} ${SBIN}/gxsp_add_isotopes ${SARG}"
+    for (( k = 0 ; k < $(gxsp_qe_smooth_njobs) ; k++ )) ; do
+      echo "  ${JSNOSING}${BIGMEM}${QEAVGT}${QEAVGD} ${SBIN}/gxsp_qe_smoothing ${SARG} --job ${k}"
+    done
+    echo "</parallel>"
+    echo "<serial>"
+    echo "  ${JSNOSING}${BIGMEM}${SHORTT}${BIGD} ${SBIN}/gxsp_qe_replace_big ${SARG}"
+  else
+    echo "<serial>"
+    echo "  ${JS}${BIGMEM}${SHORTT}${BIGD} ${SBIN}/gxsp_add_isotopes ${SARG}"
+  fi
+  echo "  ${JS}${BIGMEM}${SHORTT}${BIGD} ${SBIN}/gxsp_reduce_graph ${SARG}"
+  echo "  ${JS}${BIGMEM}${SHORTT}${BIGD} ${SBIN}/gxsp_mkups ${SARG}"
+  echo "</serial>"
+} > "${DAG}"
+
+#-----------------------------------------------------------------------------
+# --average-qe: one directory per probe x isotope for the seeded QE files
+#   work-products/isotopes/gxspl-<probe>-<isotope>-<QE>/   (<QE> = CCQE or EMQE)
+#-----------------------------------------------------------------------------
+#   (the names from one awk pass over gxsp_pair_table, the same as
+#   gxsp_qe_dir; as few mkdir calls as possible, since 750 separate ones are
+#   slow in PNFS; xargs splits the list if it's ever too long for one)
+gxsp_load_stage3
+if gxsp_qe_on ; then
+  QEDIRS=($(gxsp_pair_table | awk -v sd="${STAGEDIR}" -v qe="$(gxsp_qe_genlist)" \
+            '$5 > 0 { print sd "/work-products/isotopes/gxspl-" $2 "-" $4 "-" qe }'))
+  if [ ${#QEDIRS[@]} -gt 0 ]; then
+    printf '%s\0' "${QEDIRS[@]}" | xargs -0 mkdir -p || gxsp_die 1 "can't create the ${#QEDIRS[@]} per-pair $(gxsp_qe_genlist) directories"
+  fi
+fi
+
+#-----------------------------------------------------------------------------
+# install into $STAGEDIR/cfg
+#-----------------------------------------------------------------------------
+for f in "${CFGFILES[@]}" cfg.tar.gz genie_splines.dag ; do
+  stage_install "${WORK}/${f}" "${STAGEDIR}/cfg"
+done
+
+NP=$(echo ${PROBES} | wc -w | tr -d ' ')
+gxsp_msg "probes: ${NP} ($(for p in ${PROBES} ; do gxsp_probe_name "$p" ; done | paste -sd' ' -))  isotopes: ${NISO} (stage 3: ${NS3}, free nucleons from stage 1)  stage-1 jobs: $(( 2 * NP ))  stage-3 jobs: $(( NS3 * NP ))"
+TGSPACE="E" ; if [ ${TGLOG} -eq 1 ]; then TGSPACE="log E" ; fi
+TGPTS="one point per spline knot" ; if [ -n "${TGNPOINTS}" ]; then TGPTS="${TGNPOINTS} points" ; fi
+gxsp_msg "stage 5 TGraphs: up to ${TGEMAX} GeV, ${TGPTS}, evenly spaced in ${TGSPACE}"
+if gxsp_qe_on ; then
+  NQEPAIR=$(( $(gxsp_njobs 3 other) / NP ))
+  NQEZPAIR=$(( $(gxsp_njobs 3 qez) / NP ))
+  gxsp_msg "average-qe: $(gxsp_qe_genlist) seeds ${NQE} for ${NQEPAIR} isotope(s), ${NQEZ} for ${NQEZPAIR} isotope(s) with Z in (${QEZ}: $(gxsp_z_symbols "${QEZ}"));  average-throws: ${NTHROWS}"
+  gxsp_qe_clusters ${QECHUNK} | while read -r s e g ; do
+    nj=$(gxsp_njobs 3 "${g}")
+    [ "${nj}" -gt 0 ] || continue
+    gxsp_msg "    QE cluster: seeds ${s}..${e} for ${g} pairs, ${nj} jobs"
+  done
+  NSM=$(gxsp_qe_smooth_njobs)
+  SMMAX=$(gxsp_qe_smooth_assign | awk '{ s[$1] += $4 } END { for (j in s) if (s[j] > m) m = s[j] ; print m + 0 }')
+  gxsp_msg "    stage 3s: ${NSM} averaging/smoothing jobs, up to ${SMMAX} seed files each; then stage 4q"
+  # a seeded CCQE gmkspl with 1 throw takes about 54 s (1000 in ~15h);
+  # more throws take longer: estimated here as proportional to NTHROWS
+  # (a rough guess, likely on the high side)
+  QEH=$(awk -v n="${QECHUNK}" -v t="${NTHROWS}" 'BEGIN { printf "%.1f", n * t * 54 / 3600 }')
+  QEHOW="with 1 throw" ; if [ "${NTHROWS}" -gt 1 ]; then QEHOW="with ${NTHROWS} throws, if time scales with throws" ; fi
+  gxsp_msg "    up to ${QECHUNK} seeds per QE job: about ${QEH}h ${QEHOW} (~54 s per seed per throw); expected lifetime ${QET# --expected-lifetime }"
+  if awk -v h="${QEH}" -v lim="${QETH}" 'BEGIN { exit !(h > lim) }' ; then
+    gxsp_warn "--qe-chunk ${QECHUNK}: about ${QEH}h per QE job ${QEHOW}, more than the ${QET# --expected-lifetime } expected lifetime; consider a smaller --qe-chunk"
+  fi
+fi
+gxsp_msg "cfg.tar.gz contents:"
+tar tzf "${STAGEDIR}/cfg/cfg.tar.gz" | sed 's/^/    /'
+gxsp_msg "submit with:  jobsub_submit_dag -G ${JOBSUB_GROUP} file://${STAGEDIR}/cfg/genie_splines.dag"
+gxsp_msg "progress:     ${BINDIR}/gxsp_status ${STAGEDIR}"
+# end-of-script gxspinit

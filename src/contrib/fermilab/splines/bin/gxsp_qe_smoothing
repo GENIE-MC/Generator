@@ -1,0 +1,284 @@
+#! /usr/bin/env bash
+#
+# gxsp_qe_smoothing -- stage 3s (only with --average-qe N1[,N2]): average
+#   the seeded QE stage-3 runs of each probe x isotope and fit a smooth
+#   representative spline (<QE> = generator list CCQE, or EMQE for
+#   electrons), using the QE spline smoothing scripts in QESCRIPTS
+#   (gxspinit --qe-scripts, default
+#   /pnfs/genie/scratch/users/rhatcher/GXSPL/qe_spline_smoothing)
+#
+#   gxsp_qe_smoothing --stagedir STAGEDIR [--job K | -p P -t T]
+#
+#   Without -p/-t, QESMJOBS jobs (gxspinit --qe-smooth-jobs) share out the
+#   averaged pairs: job K (--job K, else $PROCESS) does the pairs
+#   gxsp_qe_smooth_assign gives it (about the same number of seed files for
+#   each job).  The DAG makes each job a node of its own, so one job's
+#   failure doesn't get the others removed (DAGMan removes the rest of a
+#   node's -N cluster when one of its jobs fails).  With -p/-t (names or
+#   pdg codes, as for gxsp_mkspl) it does just that pair, e.g. to redo one
+#   gxsp_status lists.
+#
+#   For each of its pairs (D = gxspl-<probe>-<isotope>-<QE>, in
+#   work-products/isotopes/D/ in the staging area):
+#     - fetch its seeded files into ./D/
+#     - average_splines.py -b D -o D-average      -> D-average.{xml,parquet}
+#       (electrons: one parquet per hit nucleon instead,
+#       D-average_nu11_tgt<isotope pdg>_N2212.parquet and _N2112.parquet)
+#       copy them back; delete the local copies
+#     - construct_representative_spline.py -i D-average.parquet -o D-smooth
+#         --tune $TUNE -p <probe pdg> --tgtpdg <isotope pdg>  -> D-smooth.{xml,parquet}
+#       (electrons: twice, -i D-average_..._N2212.parquet --nucleon 2212
+#       -o D-smooth-p and -i D-average_..._N2112.parquet --nucleon 2112
+#       -o D-smooth-n)
+#       NaN/inf (and, unless --keep-negative, negative) values -> 0.0, the
+#       original going back as D-smooth.xml-NAN or -NEG; copy both back
+#   Stage 4q then puts all the D-smooth splines into the big file.
+#
+#   Nothing in the staging area is ever deleted or replaced.  A pair whose
+#   smooth file(s) are already there is skipped, and one whose average
+#   parquet(s) are there skips the averaging, so a job cut short
+#   picks up where it stopped when it is run again.  If all its pairs are
+#   done, the job ends at once.  A pair that fails (a script, or a copy
+#   still failing after the retries) doesn't stop the job: it goes on with
+#   its other pairs, then exits with the first failure's status, naming the
+#   failed pairs.  Without --average-qe it does nothing.
+#   GXSP_PYTHON (default python3) is the python used for the scripts.
+#   Unless GXSP_PYTHON is set (or GXSP_VENV=0), a venv with
+#   numpy, pandas 2.2.3, fastparquet, tqdm, colorama and scikit-learn is built first with
+#   pip in the scratch area (exit 24 if that fails).
+#
+##############################################################################
+GXSP_ME=gxsp_qe_smoothing
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD="" PROBE="" TARGET="" JOB=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir)   SD=$2     ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -p|--probe)   PROBE=$2  ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -t|--isotope) TARGET=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    --job)        JOB=$2    ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)    sed -n '3,45p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)            echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+# GENIE isn't needed here (the scripts come from QESCRIPTS, python from the
+# venv or the node), and this job runs without the SL7 container, where
+# gxsp_setup_genie wouldn't work: just ifdh
+GXSP_NOSETUP=1 gxsp_bootstrap "${SD}"
+
+if ! gxsp_qe_on ; then
+  gxsp_msg "NQE=${NQE:-0}: no QE averaging for this production, skipping"
+  gxsp_finish 0
+fi
+
+#-----------------------------------------------------------------------------
+# this job's pairs:  "<probe pdg> <target pdg> <seeds>"
+#-----------------------------------------------------------------------------
+if [ -n "${PROBE}" ] && [ -n "${TARGET}" ]; then
+  P=$(gxsp_probe_pdg "${PROBE}")   || gxsp_die 10 "unknown probe '${PROBE}'"
+  T=$(gxsp_target_pdg "${TARGET}") || gxsp_die 10 "unknown isotope '${TARGET}'"
+  MINE=$(gxsp_qe_pairs | awk -v p="${P}" -v t="${T}" '$1 == p && $2 == t')
+  [ -n "${MINE}" ] || gxsp_die 10 "${PROBE} on ${TARGET} is not an averaged pair of this production"
+  JOBTAG=$(basename "$(gxsp_pair_file "${P}" "${T}")" .xml | sed 's/^gxspl-//')    # e.g. numu-Ar40
+elif [ -z "${PROBE}" ] && [ -z "${TARGET}" ]; then
+  JOB=${JOB:-${PROCESS:-}}
+  [ -n "${JOB}" ] || gxsp_die 10 "no -p/-t, no --job and no \$PROCESS"
+  NJ=$(gxsp_qe_smooth_njobs)
+  if ! [[ "${JOB}" =~ ^[0-9]+$ ]] || [ "${JOB}" -ge "${NJ}" ]; then
+    gxsp_die 11 "job index '${JOB}' out of range [0,${NJ}) for stage 3s"
+  fi
+  MINE=$(gxsp_qe_smooth_assign | awk -v j="${JOB}" '$1 == j { print $2, $3, $4 }')
+  JOBTAG="job${JOB}"
+else
+  gxsp_die 10 "give both -p/--probe and -t/--isotope, or neither"
+fi
+PAIRS=() ; while read -r p t n ; do PAIRS+=("${p} ${t} ${n}") ; done <<< "${MINE}"
+
+# the smooth files of all of them: if every one is there, nothing to do
+WANT=()
+for pr in "${PAIRS[@]}" ; do
+  read -r p t n <<< "${pr}"
+  while read -r sm nuc par ; do WANT+=("$(gxsp_qe_dir "${p}" "${t}")/${sm}.xml") ; done < <(gxsp_qe_smooths "${p}" "${t}")
+done
+gxsp_skip_if_done "${WANT[@]}"
+
+PY=${GXSP_PYTHON:-python3}
+LOG=stage3s-${JOBTAG}.log
+export GXSP_LOG=${LOG}
+NSEEDS=$(printf '%s\n' "${PAIRS[@]}" | awk '{ s += $3 } END { print s + 0 }')
+gxsp_log_header "${LOG}" "${GXSP_ME} ${JOBTAG}: ${#PAIRS[@]} pair(s), ${NSEEDS} seed files  NQE=${NQE} NQEZ=${NQEZ} (Z in ${QEZ}) NTHROWS=${NTHROWS}"
+
+# fail after saving the log, so the reason is in the staging area too
+fail() {
+  local rc=$1 ; shift
+  echo "ERROR: $*" >> "${LOG}"
+  gxsp_put_log "${LOG}" "work-products/${LOG}"
+  gxsp_die "${rc}" "$*"
+}
+# put_keep <local> <rel>   copy back; a copy already there (earlier attempt) is fine
+put_keep() {
+  gxsp_put "$1" "$2"
+  case $? in 0|2) return 0 ;; *) return 1 ;; esac
+}
+
+#-----------------------------------------------------------------------------
+# inputs present?  smoothing scripts
+#-----------------------------------------------------------------------------
+INPUTS=()
+for pr in "${PAIRS[@]}" ; do
+  read -r p t n <<< "${pr}"
+  for (( s = 1 ; s <= n ; s++ )) ; do INPUTS+=("$(gxsp_qe_dir "${p}" "${t}")/$(gxsp_qe_file "${p}" "${t}" "${s}")") ; done
+done
+gxsp_check_inputs "${INPUTS[@]}"
+case $? in
+  0) ;;
+  3) fail 12 "could not list ${STAGEDIR}" ;;
+  *) fail 17 "${GXSP_NMISSING} of ${#INPUTS[@]} stage 3q files missing" ;;
+esac
+
+# the smoothing scripts come from QESCRIPTS (gxspinit --qe-scripts), copied
+# with ifdh on the grid like everything else in PNFS
+SMOOTHDIR=${QESCRIPTS:-/pnfs/genie/scratch/users/rhatcher/GXSPL/qe_spline_smoothing}
+for py in average_splines.py construct_representative_spline.py ; do
+  gxsp_cp "${SMOOTHDIR}/${py}" "${py}" && [ -s "${py}" ] || fail 23 "can't copy ${SMOOTHDIR}/${py}"
+done
+
+#-----------------------------------------------------------------------------
+# python packages the smoothing scripts need (numpy, pandas, fastparquet,
+# tqdm, colorama, scikit-learn) aren't in the node's python3: build a venv
+# for them in the scratch area, on any node.  GXSP_PYTHON (a ready python)
+# skips this; GXSP_VENV=0 turns it off.
+#-----------------------------------------------------------------------------
+USEVENV=0
+if [ -z "${GXSP_PYTHON:-}" ] && [ "${GXSP_VENV:-1}" != "0" ]; then USEVENV=1 ; fi
+if [ ${USEVENV} -eq 1 ]; then
+  gxsp_msg "building a python venv for the smoothing scripts"
+  gxsp_run "${LOG}" python3 -m venv pyenv || fail 24 "python3 -m venv failed"
+  source pyenv/bin/activate || fail 24 "can't activate pyenv"
+  gxsp_run "${LOG}" python3 -m pip install numpy &&
+  gxsp_run "${LOG}" python3 -m pip install "pandas==2.2.3" &&      # newer and meson complains
+  gxsp_run "${LOG}" python3 -m pip install fastparquet "pandas<2.3" &&
+  gxsp_run "${LOG}" python3 -m pip install tqdm colorama &&
+  gxsp_run "${LOG}" python3 -m pip install scikit-learn ||         # (import sklearn)
+    fail 24 "pip install of the smoothing scripts' packages failed"
+  PY=python3
+elif [ -z "${GXSP_PYTHON:-}" ]; then
+  gxsp_warn "GXSP_VENV=0: using $(command -v python3) as is for the smoothing scripts (no venv)"
+fi
+echo "smoothing scripts from ${SMOOTHDIR}, run with $(command -v "${PY}")" >> "${LOG}"
+
+#-----------------------------------------------------------------------------
+# each pair in turn: only its seed files are on local disk at any time.
+# A pair's work runs in a subshell, so a failure (a script, or a copy that
+# still fails after gxsp_fetch's retries) ends just that pair: the job goes
+# on with its other pairs and exits with the first failure's status at the
+# end, naming the failed pairs.
+#-----------------------------------------------------------------------------
+# pfail <rc> <msg>   (inside a pair's subshell) note the error and end the pair
+pfail() {
+  local rc=$1 ; shift
+  echo "ERROR: $*" >> "${LOG}"
+  gxsp_die "${rc}" "$*"
+}
+
+# do_pair <P> <T> <N> <REL> <D> <AVG>   average (unless the average
+#   parquets are all there) and smooth one pair; SMOOTHS / NUCS / PARQS: the
+#   smooth files to make, their nucleons and their average parquets (one
+#   parquet per spline: D-average.parquet for neutrinos, one per nucleon,
+#   D-average_nu11_tgt<T>_N<nucleon>.parquet, for electrons)
+do_pair() {
+  local P=$1 T=$2 N=$3 REL=$4 D=$5 AVG=$6 s F ext k SMOOTH NUCARG pq have=1
+  for pq in "${PARQS[@]}" ; do gxsp_have "${REL}/${pq}.parquet" || have=0 ; done
+  if [ ${have} -eq 1 ]; then
+    for pq in "${PARQS[@]}" ; do
+      gxsp_fetch "${REL}/${pq}.parquet"
+      echo "${D}: using the existing ${pq}.parquet" >> "${LOG}"
+    done
+  else
+    # seeded files -> ./D/, then average
+    rm -rf "${D}" ; mkdir -p "${D}"
+    for (( s = 1 ; s <= N ; s++ )) ; do
+      F=$(gxsp_qe_file "${P}" "${T}" "${s}")
+      gxsp_fetch "${REL}/${F}" "${D}/${F}"
+    done
+    gxsp_run "${LOG}" "${PY}" average_splines.py -b "${D}" -o "${AVG}" ||
+      pfail 20 "average_splines.py failed for ${D}"
+    [ -f "${AVG}.xml" ] || pfail 20 "average_splines.py made no ${AVG}.xml"
+    for pq in "${PARQS[@]}" ; do
+      [ -f "${pq}.parquet" ] ||
+        pfail 20 "average_splines.py made no ${pq}.parquet (it made: $(ls "${AVG}"*.parquet 2>/dev/null | paste -sd' ' -))"
+    done
+    for F in "${AVG}.xml" "${PARQS[@]/%/.parquet}" ; do
+      put_keep "${F}" "${REL}/${F}" || pfail 15 "can't copy back ${F}"
+    done
+    rm -rf "${D}" "${AVG}.xml"
+  fi
+
+  for (( k = 0 ; k < ${#SMOOTHS[@]} ; k++ )) ; do
+    SMOOTH=${SMOOTHS[$k]}
+    NUCARG=()
+    if [ "${NUCS[$k]}" != "-" ]; then NUCARG=(--nucleon "${NUCS[$k]}") ; fi
+    gxsp_run "${LOG}" "${PY}" construct_representative_spline.py -i "${PARQS[$k]}.parquet" -o "${SMOOTH}" \
+        --tune "${TUNE}" -p "${P}" --tgtpdg "${T}" "${NUCARG[@]}" ||
+      pfail 20 "construct_representative_spline.py failed for ${SMOOTH}"
+    # NaN/inf (and, unless --keep-negative, negative) values -> 0.0 in
+    # the smooth spline that goes into the big file; the original goes
+    # back as ${SMOOTH}.xml-NAN or -NEG
+    if [ -f "${SMOOTH}.xml" ] && ! gxsp_scrub "${SMOOTH}.xml" ; then
+      echo "${SMOOTH}.xml: ${SCRUB_NNAN} NaN/inf and ${SCRUB_NNEG} negative value(s) replaced by 0.0; original kept as ${SCRUB_ORIG}" >> "${LOG}"
+      gxsp_put_log "${SCRUB_ORIG}" "${REL}/${SCRUB_ORIG}"
+      rm -f "${SCRUB_ORIG}"
+    fi
+    for ext in xml parquet ; do
+      [ -f "${SMOOTH}.${ext}" ] || pfail 20 "construct_representative_spline.py made no ${SMOOTH}.${ext}"
+      put_keep "${SMOOTH}.${ext}" "${REL}/${SMOOTH}.${ext}" || pfail 15 "can't copy back ${SMOOTH}.${ext}"
+    done
+    rm -f "${SMOOTH}.xml" "${SMOOTH}.parquet"
+  done
+}
+
+IPAIR=0 NREUSED=0 FAILED=() FIRSTRC=0
+for pr in "${PAIRS[@]}" ; do
+  read -r P T N <<< "${pr}"
+  IPAIR=$(( IPAIR + 1 ))
+  REL=$(gxsp_qe_dir "${P}" "${T}")         # work-products/isotopes/D
+  D=$(gxsp_qe_base "${P}" "${T}")          # D = gxspl-<probe>-<isotope>-<QE>
+  AVG=$(gxsp_qe_avg "${P}" "${T}")         # D-average
+  gxsp_msg "[${IPAIR}/${#PAIRS[@]}] ${D}  (${N} seeds)"
+  # the smooth file(s): D-smooth, or for electrons D-smooth-p and D-smooth-n
+  # (construct_representative_spline.py --nucleon 2212 / 2112, each from its
+  # nucleon's average parquet); those done by an earlier attempt are left as
+  # they are
+  SMOOTHS=() NUCS=() PARQS=()
+  while read -r sm nuc par ; do
+    if gxsp_have "${REL}/${sm}.xml" ; then
+      NREUSED=$(( NREUSED + 1 ))
+      echo "${D}: ${sm}.xml already there" >> "${LOG}"
+    else
+      SMOOTHS+=("${sm}") ; NUCS+=("${nuc}") ; PARQS+=("${par}")
+    fi
+  done < <(gxsp_qe_smooths "${P}" "${T}")
+  [ ${#SMOOTHS[@]} -gt 0 ] || continue
+
+  ( do_pair "${P}" "${T}" "${N}" "${REL}" "${D}" "${AVG}" )
+  rc=$?
+  # whatever a failed pair left on local disk
+  rm -rf "${D}" "${AVG}.xml" "${AVG}"*.parquet
+  for sm in "${SMOOTHS[@]}" ; do rm -f "${sm}.xml" "${sm}.parquet" "${sm}.xml-NAN" "${sm}.xml-NEG" ; done
+  if [ ${rc} -ne 0 ]; then
+    FAILED+=("${D}")
+    [ ${FIRSTRC} -ne 0 ] || FIRSTRC=${rc}
+    gxsp_msg "${D} failed (status ${rc}); going on with the other pairs"
+  fi
+done
+if [ ${NREUSED} -gt 0 ]; then
+  gxsp_msg "${NREUSED} smooth file(s) were already there from an earlier attempt"
+fi
+if [ ${#FAILED[@]} -gt 0 ]; then
+  fail "${FIRSTRC}" "${#FAILED[@]} of ${#PAIRS[@]} pair(s) failed: ${FAILED[*]}"
+fi
+
+gxsp_put_log "${LOG}" "work-products/${LOG}"
+gxsp_finish 0

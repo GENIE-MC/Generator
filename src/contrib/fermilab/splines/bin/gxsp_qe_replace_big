@@ -1,0 +1,112 @@
+#! /usr/bin/env bash
+#
+# gxsp_qe_replace_big -- stage 4q (only with --average-qe N1[,N2]):
+#   replace the QE splines in the big file with the smoothed averages of
+#   the seeded QE stage-3 runs that stage 3s (gxsp_qe_smoothing) made
+#   (<QE> = generator list CCQE, or EMQE for electrons)
+#
+#   gxsp_qe_replace_big --stagedir STAGEDIR
+#
+#   1. check that work-products/gxspl-NUbig-std<QE>.xml.gz (stage 4's
+#      output with --average-qe) and every stage 3s smooth file are there
+#   2. fetch the smooth files (D-smooth.xml, or D-smooth-p.xml and
+#      D-smooth-n.xml for electrons, D = gxspl-<probe>-<isotope>-<QE>, from
+#      work-products/isotopes/D/)
+#   3. one pass over the big file (gxsp_qe_replace): each smooth spline's
+#      knots go in place of those of the spline with the same name, and its
+#      nknots is set; every other line is copied as it is.  It reads the
+#      gzipped file as a stream, so memory use is small.
+#   4. gzip the result and copy it in as the new file
+#      work-products/gxspl-NUbig.xml.gz
+#
+#   Nothing in the staging area is ever deleted or replaced.  If
+#   work-products/gxspl-NUbig.xml.gz already exists there's nothing to do.
+#   Exit 17 if an input is missing, 20 if a smooth spline has no spline of
+#   the same name in the big file.  Without --average-qe (N1 = N2 = 0) it
+#   does nothing and exits 0.  No python is needed.
+#
+##############################################################################
+GXSP_ME=gxsp_qe_replace_big
+source "$(dirname "${BASH_SOURCE[0]}")/gxsp_bootstrap.sh"   # GXSP_INLINE
+
+SD=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --stagedir) SD=$2 ; shift 2 || { echo "${GXSP_ME}: $1 needs a value" >&2 ; exit 10 ; } ;;
+    -h|--help)  sed -n '3,27p' "$0" | sed 's/^# \{0,1\}//' ; exit 0 ;;
+    *)          echo "${GXSP_ME}: unknown argument $1" >&2 ; exit 10 ;;
+  esac
+done
+
+# GENIE isn't needed here, and this job runs without the SL7 container,
+# where gxsp_setup_genie wouldn't work: just ifdh
+GXSP_NOSETUP=1 gxsp_bootstrap "${SD}"
+
+if ! gxsp_qe_on ; then
+  gxsp_msg "NQE=${NQE:-0}: no QE averaging for this production, skipping"
+  gxsp_finish 0
+fi
+
+BIG=$(gxsp_big_file)                 # gxspl-NUbig.xml
+BIGGZ=$(gxsp_big_gz)                 # gxspl-NUbig.xml.gz         (staging area: the result)
+STDGZ=$(gxsp_big_std_file)           # gxspl-NUbig-std<QE>.xml.gz (staging area: stage 4's output)
+gxsp_skip_if_done "work-products/${BIGGZ}"
+LOG=stage4q.log
+export GXSP_LOG=${LOG}
+gxsp_log_header "${LOG}" "${GXSP_ME} NQE=${NQE} NQEZ=${NQEZ} (Z in ${QEZ}) NTHROWS=${NTHROWS} ->work-products/${BIGGZ}"
+
+# fail after saving the log, so the reason is in the staging area too
+fail() {
+  local rc=$1 ; shift
+  echo "ERROR: $*" >> "${LOG}"
+  gxsp_put_log "${LOG}" "work-products/${LOG}"
+  gxsp_die "${rc}" "$*"
+}
+
+#-----------------------------------------------------------------------------
+# 1. inputs present?
+#-----------------------------------------------------------------------------
+SMOOTHS=($(gxsp_expected 3s))
+INPUTS=("work-products/${STDGZ}" "${SMOOTHS[@]}")
+gxsp_check_inputs "${INPUTS[@]}"
+case $? in
+  0) ;;
+  3) fail 12 "could not list ${STAGEDIR}" ;;
+  *) fail 17 "${GXSP_NMISSING} of ${#INPUTS[@]} stage 3s / stage 4 files missing" ;;
+esac
+
+#-----------------------------------------------------------------------------
+# 2. the smooth files -> ./smooth/
+#-----------------------------------------------------------------------------
+mkdir -p smooth
+: > smooth.list
+for rel in "${SMOOTHS[@]}" ; do
+  gxsp_fetch "${rel}" "smooth/$(basename "${rel}")"
+  echo "${PWD}/smooth/$(basename "${rel}")" >> smooth.list
+done
+echo "${#SMOOTHS[@]} smooth file(s) fetched" >> "${LOG}"
+
+#-----------------------------------------------------------------------------
+# 3. one pass over stage 4's big file
+#-----------------------------------------------------------------------------
+gxsp_fetch "work-products/${STDGZ}" "${STDGZ}"
+echo "+ gzip -dc ${STDGZ} | gxsp_qe_replace smooth.list > ${BIG}" >> "${LOG}"
+T0=$(date '+%s')
+gzip -dc "${STDGZ}" | gxsp_qe_replace smooth.list > "${BIG}" 2> replace.err
+RCS=("${PIPESTATUS[@]}")
+cat replace.err >> "${LOG}"
+echo "+ wall time $(( $(date '+%s') - T0 )) s" >> "${LOG}"
+[ "${RCS[0]}" -eq 0 ] || fail 21 "can't uncompress ${STDGZ}"
+[ "${RCS[1]}" -eq 0 ] || fail 20 "smooth splines missing from ${STDGZ}: $(grep -c 'is not in the big file\|has no knots\| is in ' replace.err) problem(s), see ${LOG}"
+rm -f "${STDGZ}"
+rm -rf smooth smooth.list replace.err
+
+#-----------------------------------------------------------------------------
+# 4. the result is the new big file (a new file: nothing is replaced)
+#-----------------------------------------------------------------------------
+echo "finished with $(grep -c '<spline ' "${BIG}") splines in ${BIG}" >> "${LOG}"
+gzip --best -c "${BIG}" > "${BIGGZ}" || fail 21 "can't compress ${BIG}"
+gxsp_put "${BIGGZ}" "work-products/${BIGGZ}" || fail 15 "can't copy in work-products/${BIGGZ}"
+gxsp_put_log "${LOG}" "work-products/${LOG}"
+
+gxsp_finish 0
