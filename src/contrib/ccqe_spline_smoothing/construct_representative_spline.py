@@ -27,9 +27,38 @@ models = {
     "AR25_20i_01_000": "genie::NievesQELCCPXSec/ZExpNoRPA_minerva",
     "AR25_20i_01_001": "genie::NievesQELCCPXSec/ZExpNoRPA_minervaNature",
     "AR25_20i_02_000": "genie::NievesQELCCPXSec/ZExpNoRPA_lqcd",
-    "G18_01a_00_000" : "genie::LwlynSmithQELCCPXSec/Dipole", # same for all G18_(01, 02)* and G18_10(a, b, c, d) tunes
-    "G21_11a_00_000" : "genie::HybridXSecAlgorithm/SuSAv2-QEL" # same for all G21_11* tunes
+    "G18_01a_00_000" : "genie::LwlynSmithQELCCPXSec/Dipole", # same for all G18_(01, 02)* tunes
+    "G18_10a_00_000" : "genie::NievesQELCCPXSec/Dipole", # same for all G18_10(a, b, c, d) tunes
+    "G21_11a_00_000" : "genie::HybridXSecAlgorithm/SuSAv2-QEL", # same for all G21_11* tunes
+    "G24_12a_00_000" : "genie::HybridXSecAlgorithm/Martini-QEL",
+    "GEM26_11a_00_000": "genie::UnifiedQELPXSec/Dipole", # electron probe (proc:EM,QES); one spline per struck nucleon, see --nucleon
+
+    "AR25_20i_01_002": "genie::NievesQELCCPXSec/ZExpNoRPA_lqcd",
+    # old name for 01_002 "AR25_20i_02_000": "genie::NievesQELCCPXSec/ZExpNoRPA_lqcd",
+    "AR23_20i_01_002": "genie::NievesQELCCPXSec/ZExp_lqcd",
+    "AR23_20i_02_001": "genie::NievesQELCCPXSec/ZExp_minervaNature", # Julia's BY tune
+    "G18_10a_02_11b" : "genie::NievesQELCCPXSec/Dipole",
+    "N24_20i_02_11b" : "genie::NievesQELCCPXSec/ZExp",
+
+    # 20m: same QE models as the 20i tunes
+    "AR23_20m_00_000": "genie::NievesQELCCPXSec/ZExp",
+    "AR23_20m_01_000": "genie::NievesQELCCPXSec/ZExp_minerva",
+    "AR23_20m_01_001": "genie::NievesQELCCPXSec/ZExp_minervaNature",
+    "AR23_20m_01_002": "genie::NievesQELCCPXSec/ZExp_lqcd",
+    "AR25_20m_00_000": "genie::NievesQELCCPXSec/ZExpNoRPA",
+    "AR25_20m_01_000": "genie::NievesQELCCPXSec/ZExpNoRPA_minerva",
+    "AR25_20m_01_001": "genie::NievesQELCCPXSec/ZExpNoRPA_minervaNature",
+    "AR25_20m_01_002": "genie::NievesQELCCPXSec/ZExpNoRPA_lqcd",
+    # 22i/22m: CRPA
+    "AR23_22i_00_000": "genie::HybridXSecAlgorithm/CRPA-QEL",
+    "AR23_22m_00_000": "genie::HybridXSecAlgorithm/CRPA-QEL",
+    "AR25_22i_00_000": "genie::HybridXSecAlgorithm/CRPA-QEL",
+    "AR25_22m_00_000": "genie::HybridXSecAlgorithm/CRPA-QEL",
 }
+
+# Lower bound on the kernel length scale, in ln(E). One bin of the 250-knot grid between 0.01 and 1000 GeV is 0.046;
+# the optimiser can otherwise settle on a length scale of a few bins and follow the noise.
+LENGTH_SCALE_MIN = 0.3
 
 # Custom formatter for XML tags to be "genie-like"
 def format_text(elem):
@@ -91,8 +120,12 @@ def main(args):
     # The points gmkspl gives you are equidistant in log space, we'll take advantage of that
     # Support is only in idx[:]
     lidx  = np.log(idx)
-    ckernel = ConstantKernel(1.0) * RBF(length_scale = 0.5)
-    cgp = GaussianProcessRegressor(kernel=ckernel, alpha=err**2, normalize_y=True)
+    ckernel = ConstantKernel(1.0) * RBF(length_scale = 0.5, length_scale_bounds = (LENGTH_SCALE_MIN, 1e5))
+    # normalize_y=True divides the targets by their standard deviation but sklearn does not rescale alpha with it,
+    # so the noise term has to be given in the same units: (err / std(mean))^2. The floor guards against err == 0.
+    ys   = mean.std()
+    err2 = np.maximum(err, 1e-9 * max(ys, 1e-30))**2
+    cgp = GaussianProcessRegressor(kernel=ckernel, alpha=err2 / ys**2, normalize_y=True)
     cgp.fit(lidx.reshape(-1, 1), mean)
 
     resp, cov = cgp.predict(lidx.reshape(-1, 1), return_cov=True)
@@ -114,15 +147,20 @@ def main(args):
 
     # careful which tune was given...
     model_choice = None
-    if "G18_01" in args.tune or "G18_02" in args.tune or \
-       ("G18_10" in args.tune and args.tune[6] in ['a', 'b', 'c', 'd']):
+    if args.tune in models:
+        model_choice = models[args.tune]
+    elif "G18_01" in args.tune or "G18_02" in args.tune:
         model_choice = models["G18_01a_00_000"]
-    elif "G18_10" in args.tune or "G24_20" in args.tune or args.tune == "AR23_20i_00_000":
+    elif "G18_10" in args.tune and args.tune[6] in ['a', 'b', 'c', 'd']:
+        model_choice = models["G18_10a_00_000"]
+    elif "G18_10" in args.tune or "G24_20" in args.tune:
         model_choice = models["AR23_20i_00_000"]
     elif "G21_11" in args.tune:
         model_choice = models["G21_11a_00_000"]
+    elif "GEM26" in args.tune:
+        model_choice = models["GEM26_11a_00_000"]
     else:
-        model_choice = models[args.tune]
+        raise SystemExit(f"no QE model known for tune {args.tune}: add it to models")
 
     with open(Path(f"{args.output}.xml").resolve(), 'wb') as fxout:
         root = ET.Element("genie_xsec_spline_list")
@@ -132,8 +170,14 @@ def main(args):
         tune = ET.SubElement(root, "genie_tune")
         tune.set("name", f"{args.tune}")
         spl  = ET.SubElement(tune, "spline")
-        nucpdg = 2112 if int(args.nupdg) > 0 else 2212
-        spl.set("name", f"{model_choice}/nu:{args.nupdg};tgt:{args.tgtpdg};N:{nucpdg};proc:Weak[CC],QES;")
+        if args.nucleon is not None:
+            nucpdg = args.nucleon
+        elif "GEM26" in args.tune:
+            raise SystemExit("GEM26 splines are made per struck nucleon (neutron or proton): pass --nucleon 2112 or 2212.")
+        else:
+            nucpdg = 2112 if int(args.nupdg) > 0 else 2212
+        proc = "EM,QES" if "GEM26" in args.tune else "Weak[CC],QES"
+        spl.set("name", f"{model_choice}/nu:{args.nupdg};tgt:{args.tgtpdg};N:{nucpdg};proc:{proc};")
         lknots = len(df.index)
         spl.set("nknots", str(lknots))
         for Enu, xs in zip(df.index, out_resp):
@@ -158,6 +202,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', "--tune", type=str, required=True, help="GENIE tune used.")
     parser.add_argument('-p', "--nupdg", type=int, required=True, help="Neutrino PDG code.")
     parser.add_argument('-n', "--tgtpdg", type=int, required=True, help="Target PDG code.")
+    parser.add_argument("--nucleon", type=int, default=None, choices=[2112, 2212], help="Struck nucleon PDG for the spline name. Required for GEM26 (electron probe, nupdg 11).")
     args = parser.parse_args()
 
     main(args)
