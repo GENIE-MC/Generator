@@ -65,6 +65,9 @@ string        gOptSF      = "";         // --structure-func argument
 string        gOptOutFile = "sf_comp";  // -o argument
 std::pair<double, double> Q2range = {1e-1, 1e2};
 unsigned int nx = 50;
+int target = kPdgProton;
+int freeT = kPdgTgtFreeP;
+std::string interac = "CC";
 vector<const DISStructureFuncModelI *> gSFAlgList;
 
 // function prototypes
@@ -191,7 +194,16 @@ void MakePlots (void)
       sf.SetModel(gSFAlgList[im]);
       for(unsigned int iq2 = 0; iq2 < nx; iq2++) {
         double Q2 = Q2_arr[iq2];
-        Interaction * interaction = Interaction::DISCC(kPdgTgtFreeP,kPdgProton,kPdgNuMu);
+        
+
+        Interaction * interaction = nullptr;
+        if (interac == "CC"){
+          interaction = Interaction::DISCC(freeT,target,kPdgNuMu)
+        } else if (interac == "NC") { 
+          interaction = Interaction::DISNC(freeT,target,kPdgNuMu)
+        } else if (interac == "EM"){
+          interaction = Interaction::DISEM(freeT,target,kPdgElectron)
+        }
         LOG("gsfcomp", pNOTICE) << "Setting x = " << x << ", Q2 = " << Q2;
         interaction->KinePtr()->Setx(x);
         interaction->KinePtr()->SetQ2(Q2);
@@ -601,6 +613,16 @@ void GetCommandLineArgs(int argc, char ** argv)
   if( parser.OptionExists('n') ) {
     LOG("gsfcomp", pINFO) << "Reading n";
     nx = parser.ArgAsInt('n');
+  }
+
+  if ( parser.OptionExists('g') ) {
+    interac = parser.ArgAsString('g');
+    assert(interac == "CC" || interac == "NC" || interac == "EM")
+  }
+
+  if ( parser.OptionExists("neutron")){
+    target = kPdgNeutron;
+    freeT = kPdgTgtFreeN;
   }
   if( parser.OptionExists("Q2") ) {
     LOG("gsfcomp", pINFO) << "Reading Q2 range";
