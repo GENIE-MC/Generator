@@ -198,11 +198,11 @@ void MakePlots (void)
 
         Interaction * interaction = nullptr;
         if (interac == "CC"){
-          interaction = Interaction::DISCC(freeT,target,kPdgNuMu)
+          interaction = Interaction::DISCC(freeT,target,kPdgNuMu);
         } else if (interac == "NC") { 
-          interaction = Interaction::DISNC(freeT,target,kPdgNuMu)
+          interaction = Interaction::DISNC(freeT,target,kPdgNuMu);
         } else if (interac == "EM"){
-          interaction = Interaction::DISEM(freeT,target,kPdgElectron)
+          interaction = Interaction::DISEM(freeT,target,kPdgElectron);
         }
         LOG("gsfcomp", pNOTICE) << "Setting x = " << x << ", Q2 = " << Q2;
         interaction->KinePtr()->Setx(x);
@@ -617,7 +617,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   if ( parser.OptionExists('g') ) {
     interac = parser.ArgAsString('g');
-    assert(interac == "CC" || interac == "NC" || interac == "EM")
+    assert(interac == "CC" || interac == "NC" || interac == "EM");
   }
 
   if ( parser.OptionExists("neutron")){
