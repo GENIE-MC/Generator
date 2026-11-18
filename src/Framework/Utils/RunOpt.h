@@ -53,6 +53,13 @@ public:
   bool   BareXSecPreCalc        (void) const { return fEnableBareXSecPreCalc;  }
   string XMLPath                (void) const { return fXMLPath;  }
 
+  double EMax                (void) const  {return fEnergyMax;};
+  double EMin                (void) const  {return fEnergyMin;}; 
+  int    KNots               (void) const  {return fknots;};
+
+  void SetEMax                (double E)  {fEnergyMax = E > 0 ? E : 0;};
+  void SetEMin                (double E)  {fEnergyMin = E > 0 ? E : 0;}; 
+  void SetKNots               (int k)     {fknots = k > 0 ? k : 0;};
   // If a user accesses the GENIE objects directly, then most of the options above
   // can be set directly to the relevant objects (Messenger, Cache, etc).
   //
@@ -80,7 +87,9 @@ private:
   bool   fEnableBareXSecPreCalc;     ///< Cache calcs relevant to free-nucleon xsecs before any nuclear xsec computation?
                                      ///< The option switches on/off cacheing calculations which interfere with event reweighting.
   string fXMLPath;                   ///< An path to look for XML in. Higher priority than GXMLPATH
-
+  double fEnergyMin;
+  double fEnergyMax;
+  int fknots;
   // Self
   static RunOpt * fInstance;
 
