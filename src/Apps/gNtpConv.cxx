@@ -198,6 +198,7 @@ string DefaultOutputFile         (void);
 int    LatestFormatVersionNumber (void);
 bool   CheckRootFilename         (string filename);
 int    HAProbeFSI                (int, int, int, double [], int [], int, int, int); //Test code
+bool   PrimaryHadronsPythia8DIS  (const EventRecord & event, vector<int> & prim_had_syst);
 #ifdef __GENIE_HEAVY_NEUTRAL_LEPTON_ENABLED__
 void   DeclareHNLBranches        (TTree * tree, TTree * intree, 
 				  double * dVars, int * iVars);
@@ -878,7 +879,17 @@ void ConvertToGST(void)
 	    }
 	  }
 	}
-	if(is_dis){
+	// DIS: prim_had_syst is filled EITHER by PrimaryHadronsPythia8DIS
+	// (records hadronized by PYTHIA 8, where it returns true) OR by the
+	// loop below (all other records, where it returns false and adds
+	// nothing), never by both. The loop below takes the children of the
+	// last status-12 entry; in PYTHIA 8 records the hadrons point to the
+	// leading quark, not to the last status-12 entry (the remnant diquark),
+	// so the loop would find none.
+	if(is_dis && PrimaryHadronsPythia8DIS(event, prim_had_syst)) {
+	  // done: filled from the PYTHIA 8 record
+	}
+	else if(is_dis){
 	  while( (p = (GHepParticle *) piter_prim.Next()) ){
 	    ip++;      
 	    int ist_comp  = p->Status();
@@ -3217,6 +3228,76 @@ string DefaultOutputFile(void)
   name << inpname << ext;
 
   return gSystem->BaseName(name.str().c_str());
+}
+//____________________________________________________________________________________
+bool PrimaryHadronsPythia8DIS(const EventRecord & event, vector<int> & prim_had_syst)
+{
+// Fills prim_had_syst, the primary (pre-FSI) hadronic system of a DIS event,
+// for events hadronized by PYTHIA 8 (Pythia8Hadro2019, AGCharmPythia8Hadro2023).
+//
+// Returns true if the event record comes from PYTHIA 8; prim_had_syst then
+// holds the GHEP indices of the primary hadrons. Returns false, adding
+// nothing, for any other record (PYTHIA 6, KNO / AGKYLowW2019); the generic
+// DIS loop in ConvertToGST is then used instead. For a DIS event exactly
+// one of the two fills prim_had_syst.
+//
+// Why this is needed: the generic loop takes the children of the last
+// status-12 (kIStDISPreFragmHadronicState) entry. That works for PYTHIA 6
+// records, where the hadrons are children of the string (pdg 92), the
+// last status-12 entry. PYTHIA 8 records keep only the string ends q and
+// qq (status 12, children of HadrSyst) and make the hadrons children of q
+// (or, in the charm remnant, of HadrSyst), so the children of the last
+// status-12 entry (qq) are usually none.
+//
+// The primary hadrons are the hadronization output, ie what enters the
+// hadron transport: the status-14 (or status-1, eg photons from decays
+// inside PYTHIA) entries that descend from HadrSyst. Decayed hadrons
+// (status 3) are not counted, only their decay products: hadrons decayed
+// before the hadron transport and, with KeepHadronizationHistory, the
+// hadrons PYTHIA decayed. So the result does not depend on that option.
+
+  int ihadsyst = event.FinalStateHadronicSystemPosition();
+  if(ihadsyst < 0) return false;
+
+  // Is this a PYTHIA 8 record? It is if a status-12 quark or diquark is a
+  // child of HadrSyst (the string ends) and no status-12 entry is a
+  // cluster, string or independent-fragmentation system (pdg 91, 92, 93).
+  // Those systems appear in PYTHIA 6 (and other generators') records,
+  // which the generic DIS loop already handles, so return false for them.
+  int n = event.GetEntries();
+  bool has_string_ends = false;
+  for(int i = 0; i < n; i++) {
+    GHepParticle * p = event.Particle(i);
+    if(p->Status() != kIStDISPreFragmHadronicState) continue;
+    int pdgc = TMath::Abs(p->Pdg());
+    if(pdgc == kPdgCluster || pdgc == kPdgString || pdgc == kPdgIndep) return false;
+    if(p->FirstMother() == ihadsyst &&
+       (pdg::IsQuark(pdgc) || pdg::IsDiQuark(pdgc))) // incl. anti-(di)quarks
+    {
+       has_string_ends = true;
+    }
+  }
+  if(!has_string_ends) return false;
+
+  for(int i = ihadsyst+1; i < n; i++) {
+    GHepParticle * p = event.Particle(i);
+    int ist = p->Status();
+    // skip everything but hadrons in the nucleus and final state particles
+    if(ist != kIStHadronInTheNucleus && ist != kIStStableFinalState) continue;
+    // Walk back up the mother links while the ancestor is a
+    // DISPreFragmHadronicState (q, qq) or DecayedState (decayed hadron)
+    // entry. If the walk ends at HadrSyst (ihadsyst), the i-th particle is
+    // a primary hadron. GHEP mother indices always point to an earlier
+    // entry, so the walk terminates.
+    int im = p->FirstMother();
+    while(im > ihadsyst) {
+      int istm = event.Particle(im)->Status();
+      if(istm != kIStDISPreFragmHadronicState && istm != kIStDecayedState) break;
+      im = event.Particle(im)->FirstMother();
+    }
+    if(im == ihadsyst) prim_had_syst.push_back(i);
+  }
+  return true;
 }
 //____________________________________________________________________________________
 int LatestFormatVersionNumber(void)
