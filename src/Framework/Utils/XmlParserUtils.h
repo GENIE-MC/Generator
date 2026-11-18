@@ -77,7 +77,9 @@ namespace xml   {
 inline std::string GetXMLDefaultPath() {
     std::string result = "$GENIE/config";
 
-    for (const auto& entry : std::filesystem::directory_iterator("$GENIE/config")) {
+    const char* genie = std::getenv("GENIE");
+    if (!genie) return "$GENIE/config";
+    for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(std::filesystem::path(genie) / "config")) {
         if (entry.is_directory()) {
             result += ":" + entry.path().string();
         }
