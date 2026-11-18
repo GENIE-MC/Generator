@@ -22,7 +22,7 @@
 
 \created  September 20, 2025
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 
 	Sepr 2025:  MI, SD: copied from Intranuke2018.h with no modifications except labels

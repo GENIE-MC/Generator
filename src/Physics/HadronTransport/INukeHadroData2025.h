@@ -25,7 +25,7 @@
 
 \created  September 01, 2025
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
     @ september,2025 Mohamed Ismail <msi10@pitt.edu>, SD
 Data sources for hA splines updated.

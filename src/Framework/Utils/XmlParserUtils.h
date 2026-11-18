@@ -10,7 +10,7 @@
 
 \created    May 04, 2004
  
-\cpright    Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright    Copyright (c) 2003-2026, The GENIE Collaboration
             For the full text of the license visit http://copyright.genie-mc.org
             
 */
@@ -74,39 +74,17 @@ namespace xml   {
   // user additions should be in $GXMLPATH
 
   //_________________________________________________________________________
-  inline string GetXMLDefaultPath() { 
-    return "$GENIE/config:" 
-           "$GENIE/config/Tunes:"
-           "$GENIE/config/AnomalyMediatedNuGamma:"
-           "$GENIE/config/HELepton:"
-           "$GENIE/config/NuclearState:"
-           "$GENIE/config/BeamHNL:"
-           "$GENIE/config/NucleonDecay:"
-           "$GENIE/config/BoostedDarkMatter:"
-           "$GENIE/config/Diffractive:"
-           "$GENIE/config/NuElectron:"
-           "$GENIE/config/Charm:"
-           "$GENIE/config/Hadronisation:"
-           "$GENIE/config/InverseBetaDecay:"
-           "$GENIE/config/Multinucleon:"
-           "$GENIE/config/PartonDistributions:"
-           "$GENIE/config/Coherent:"
-           "$GENIE/config/DarkNeutrino:"
-           "$GENIE/config/EventGen:"
-           "$GENIE/config/HadronTensors:"
-           "$GENIE/config/MuonEnergyLoss:"
-           "$GENIE/config/QuasiElastic:"
-           "$GENIE/config/Common:"
-           "$GENIE/config/Decay:"
-           "$GENIE/config/EvtLib:"
-           "$GENIE/config/HadronTransport:"
-           "$GENIE/config/NNBarOscillation:"
-           "$GENIE/config/Resonance:"
-           "$GENIE/config/DeepInelastic:"
-           "$GENIE/config/HEDIS:"
-           "$GENIE/config/NuclearDeExcitation:"
-           "$GENIE/config/Strange";
-  }
+inline std::string GetXMLDefaultPath() {
+    std::string result = "$GENIE/config";
+
+    for (const auto& entry : std::filesystem::directory_iterator("$GENIE/config")) {
+        if (entry.is_directory()) {
+            result += ":" + entry.path().string();
+        }
+    }
+
+    return result;
+}
   //standard path in case no env variable are set
 
   //_________________________________________________________________________
