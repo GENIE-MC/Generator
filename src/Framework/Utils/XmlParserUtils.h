@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-
+#include <filesystem>
 
 #if !defined(__CINT__) && !defined(__MAKECINT__)
 #include "libxml/parser.h"
@@ -74,7 +74,19 @@ namespace xml   {
   // user additions should be in $GXMLPATH
 
   //_________________________________________________________________________
-  inline string GetXMLDefaultPath() { return "$GENIE/config" ; }
+inline std::string GetXMLDefaultPath() {
+    std::string result = "$GENIE/config";
+
+    const char* genie = std::getenv("GENIE");
+    if (!genie) return "$GENIE/config";
+    for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(std::filesystem::path(genie) / "config")) {
+        if (entry.is_directory()) {
+            result += ":" + entry.path().string();
+        }
+    }
+
+    return result;
+}
   //standard path in case no env variable are set
 
   //_________________________________________________________________________

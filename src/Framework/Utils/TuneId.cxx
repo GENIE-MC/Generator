@@ -211,7 +211,7 @@ bool TuneId::CheckDirectory() {
   std::string top_path = tmp;
   delete[] tmp;
   tmp = gSystem->ExpandPathName( utils::xml::GetXMLDefaultPath().c_str() ) ;
-  string def_path = tmp;
+  std::string def_path = tmp;
   delete[] tmp;
 
   if ( top_path != def_path ) {
