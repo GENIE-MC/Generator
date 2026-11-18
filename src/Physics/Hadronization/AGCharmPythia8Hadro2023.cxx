@@ -16,6 +16,8 @@
 #include <TF1.h>
 #include <TROOT.h>
 
+#include <vector>
+
 #include "Framework/Algorithm/AlgConfigPool.h"
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
@@ -36,6 +38,7 @@
 #include "Framework/Utils/PrintUtils.h"
 #include "Physics/Hadronization/AGCharmPythia8Hadro2023.h"
 #include "Physics/Hadronization/FragmentationFunctionI.h"
+#include "Physics/Hadronization/Pythia8StatusCodes.h"
 
 using namespace genie;
 using namespace genie::constants;
@@ -185,6 +188,14 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
   int mom = -1; // event->FinalStateHadronicSystemPosition();
   const TLorentzVector vtx(0,0,0,0);
 
+  // Optionally keep the hadronization history (see Pythia8Hadro2019): hadrons
+  // decayed by PYTHIA are added as kIStDecayedState entries. Mothers are given
+  // as positions in particle_list (ProcessEventRecord adds the offset);
+  // with the history kept the remnant hadrons point to the remnant quark
+  // and decay products to the hadron they come from.
+  bool keep_history = fKeepHadronizationHistory;
+  std::vector<int> list_pos(np, -1); // PYTHIA index -> position in particle_list
+
   for (int i=0; i<np; ++i) {
     if (fEvent[i].id() == 90) continue;   // ignore (system) pseudoparticle
 
@@ -203,10 +214,13 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
           return false;
         }
     }
-    // copy the initial quark systemcs (satus = -23) and all undecayed particles
+    // copy the initial quark systems (fragmented string ends) and all undecayed particles
     // ignore particle we asked PYTHIA to decay but record their decay products
-    bool copy = (pythia_particle_status==-23) ||
-      (pythia_particle_status > 0);
+    // (and, if the history is kept, the decayed particles too)
+    bool decayed = keep_history &&
+      IsPythia8DecayedHadron(pythia_particle_status);
+    bool copy = (pythia_particle_status == kPythia8StFragmentedStringEnd) ||
+      (pythia_particle_status > 0) || decayed;
     if (copy) {
       // the fragmenation products are generated in the remnant hadronic CM frame
       // where the z>0 asix is the \vec{p4R} direction.
@@ -233,15 +247,32 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
       bool is_lchg  = pdg::IsChargedLepton(particle_pdg_code);
       bool not_hadr = is_gamma || is_nu || is_lchg;
       if (not_hadr) { ist = kIStStableFinalState; }
+      if (decayed)  { ist = kIStDecayedState;     }
 
       int mother1 = mom;
       int mother2 = -1;
+      if (keep_history &&
+          pythia_particle_status != kPythia8StFragmentedStringEnd) {
+        // nearest copied ancestor: a decayed hadron or the remnant q / qq
+        int im = fEvent[i].mother1();
+        while (im > 0 && list_pos[im] < 0) { im = fEvent[im].mother1(); }
+        if (im > 0) { mother1 = list_pos[im]; }
+      }
 
       int daughter1 = -1;
       int daughter2 = -1;
 
+      // decayed hadrons unknown to GENIE are kept (links stay valid) as blobs
+      if (decayed && ! PDGLibrary::Instance()->Find(particle_pdg_code, false)) {
+        LOG("AGCharmPythia8Hadro2023", pWARN)
+          << "Decayed hadron with PDG code " << particle_pdg_code
+          << " is unknown to GENIE: recorded as " << kPdgHadronicBlob;
+        particle_pdg_code = kPdgHadronicBlob;
+      }
+
       // create GHepParticle
 
+      list_pos[i] = rpos;
       bremn = new ((*particle_list)[rpos++]) GHepParticle(
                                                           particle_pdg_code, // pdg
                                                           ist,               // status
