@@ -64,7 +64,7 @@ private:
   double fX2;    ///< correction param X2
   double fUpScale; ///< Scaling parameter to scale up contributions. Default 0.
   double fDownScale; ///< Scaling parameter to scale down contributions. Default 0.
-  double fQ2min; ///< min. Q2 for PDF evaluation
+
 };
 
 }         // genie namespace

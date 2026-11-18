@@ -148,19 +148,21 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
 void GRV98LO::Configure(const Registry & config)
 {
   Algorithm::Configure(config);
+  GetParam("PDF-Q2min", fPDFQ2Min);
   this->Initialize();
 }
 //____________________________________________________________________________
 void GRV98LO::Configure(string config)
 {
   Algorithm::Configure(config);
+  GetParam("PDF-Q2min", fPDFQ2Min);
   this->Initialize();
 }
 //____________________________________________________________________________
 void GRV98LO::Initialize(void)
 {
   fInitialized = false;
-  GetParam("PDF-Q2min", fPDFQ2Min);
+  
 
   const char * genie_dir = gSystem->Getenv("GENIE");
   if(!genie_dir) return;
@@ -320,5 +322,6 @@ void GRV98LO::Initialize(void)
   fXGF  = std::make_unique<Interpolator2D>(gridLogXbj.size(),&gridLogXbj[0],gridLogQ2.size(),&gridLogQ2[0],&knotsXGF [0]);
 
   fInitialized = true;
+
 }
 //____________________________________________________________________________
