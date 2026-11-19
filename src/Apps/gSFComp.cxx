@@ -66,6 +66,7 @@ string        gOptOutFile = "sf_comp";  // -o argument
 std::pair<double, double> Q2range = {1e-1, 1e2};
 unsigned int nx = 50;
 int target = kPdgProton;
+int probe = kPdgNuMu;
 int freeT = kPdgTgtFreeP;
 std::string interac = "CC";
 vector<const DISStructureFuncModelI *> gSFAlgList;
@@ -198,11 +199,11 @@ void MakePlots (void)
 
         Interaction * interaction = nullptr;
         if (interac == "CC"){
-          interaction = Interaction::DISCC(freeT,target,kPdgNuMu);
+          interaction = Interaction::DISCC(freeT, target, probe);
         } else if (interac == "NC") { 
-          interaction = Interaction::DISNC(freeT,target,kPdgNuMu);
+          interaction = Interaction::DISNC(freeT, target, probe);
         } else if (interac == "EM"){
-          interaction = Interaction::DISEM(freeT,target,kPdgElectron);
+          interaction = Interaction::DISEM(freeT, target, probe);
         }
         LOG("gsfcomp", pNOTICE) << "Setting x = " << x << ", Q2 = " << Q2;
         interaction->KinePtr()->Setx(x);
@@ -318,8 +319,14 @@ void MakePlots (void)
       for(int ibinx = 1; 
               ibinx <= h2_F1[im]->GetYaxis()->GetNbins(); ibinx++) {
          double Q2 = h2_F1[im]->GetYaxis()->GetBinCenter(ibinx);
-         Interaction * interaction = Interaction::DISCC(kPdgTgtFreeP,kPdgProton,kPdgNuMu);
-       //LOG("gsfcomp", pNOTICE) << "Setting x (bin " << ibinx << ") = " << x << ", Q2 (bin " << ibinx << ") = " << Q2;
+        Interaction * interaction = nullptr;
+        if (interac == "CC"){
+          interaction = Interaction::DISCC(freeT, target, probe);
+        } else if (interac == "NC") { 
+          interaction = Interaction::DISNC(freeT, target, probe);
+        } else if (interac == "EM"){
+          interaction = Interaction::DISEM(freeT, target, probe);
+        }       //LOG("gsfcomp", pNOTICE) << "Setting x (bin " << ibinx << ") = " << x << ", Q2 (bin " << ibinx << ") = " << Q2;
          interaction->KinePtr()->Setx(x);
          interaction->KinePtr()->SetQ2(Q2);
          sf.Calculate(interaction);
@@ -614,7 +621,11 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gsfcomp", pINFO) << "Reading n";
     nx = parser.ArgAsInt('n');
   }
-
+  if ( parser.OptionExists('p') ) {
+    LOG("gsfcomp", pINFO) << "Reading probe pdg";
+    probe = parser.ArgAsInt('p');
+  }
+  
   if ( parser.OptionExists('g') ) {
     interac = parser.ArgAsString('g');
     assert(interac == "CC" || interac == "NC" || interac == "EM");
