@@ -16,7 +16,7 @@ PACKAGE           = Physics/XSectionIntegration
 PACKAGE_ABBREV    = PhXSIg
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
-EXTRA_EXT_LIBS    = $(ROOT_LIBRARIES) -L$(GENIE_LIB_PATH) -lGFwAlg
+EXTRA_EXT_LIBS    = $(ROOT_LIBRARIES) -L$(GENIE_LIB_PATH) -lGFwAlg -lGFwMsg
 
 all     : rootcint lib lib-link
 install : install-inc install-lib

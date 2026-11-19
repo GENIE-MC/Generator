@@ -76,26 +76,24 @@ framework: FORCE
 	cd ${GENIE}/src/Framework && \
 	cd Messenger       &&  $(MAKE) && cd .. && \
 	cd Algorithm       &&  $(MAKE) && cd .. && \
-	cd EventGen        &&  $(MAKE) && cd .. && \
-	cd GHEP            &&  $(MAKE) && cd .. && \
 	cd Interaction     &&  $(MAKE) && cd .. && \
-	cd Ntuple          &&  $(MAKE) && cd .. && \
 	cd Numerical       &&  $(MAKE) && cd .. && \
 	cd ParticleData    &&  $(MAKE) && cd .. && \
 	cd Registry        &&  $(MAKE) && cd .. && \
-	cd Utils           &&  $(MAKE) && \
+	cd Utils           &&  $(MAKE) && cd .. && \
+	cd GHEP            &&  $(MAKE) && cd .. && \
+	cd EventGen        &&  $(MAKE) && cd .. && \
+	cd Ntuple          &&  $(MAKE) && \
 	cd ${GENIE}
 
 
-physics-neutrino-scattering-modes: framework physics-nuclear-environment physics-utilities FORCE
+physics-neutrino-scattering-modes: framework physics-nuclear-environment physics-utilities physics-hadronic-simulations FORCE
 	@echo " "
 	@echo "** Building simulation modules for neutrino scattering modes..."
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/XSection  &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/AnomalyMediatedNuGamma/EventGen  &&  $(MAKE) &&   \
-	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Coherent/XSection                &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Coherent/EventGen                &&  $(MAKE) &&   \
-	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/DeepInelastic/EventGen           &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/DeepInelastic/NuclearModel       &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Diffractive/XSection             &&  $(MAKE) &&   \
@@ -109,13 +107,15 @@ physics-neutrino-scattering-modes: framework physics-nuclear-environment physics
 	cd ${GENIE}/src/Physics/NuElectron/XSection              &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/NuElectron/EventGen              &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/QuasiElastic/XSection            &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/DeepInelastic/XSection           &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/Charm/XSection                   &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/QuasiElastic/EventGen            &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Resonance/XSection               &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Resonance/EventGen               &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Strange/XSection                 &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/Strange/EventGen                 &&  $(MAKE) &&   \
-	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) &&   \
 	cd ${GENIE}/src/Physics/HEDIS/EventGen                   &&  $(MAKE) &&   \
+	cd ${GENIE}/src/Physics/HEDIS/XSection                   &&  $(MAKE) &&   \
 	cd ${GENIE}
 
 physics-nucleon-decay: framework physics-nuclear-environment
@@ -132,7 +132,7 @@ else
 endif
 
 
-physics-nnbar-oscillation: physics-nuclear-environment
+physics-nnbar-oscillation: framework physics-nuclear-environment
 	@echo " "
 	@echo "** Building n-nbar oscillation library..."
 ifeq ($(strip $(GOPT_ENABLE_NNBAR_OSCILLATION)),YES)
@@ -146,12 +146,12 @@ else
 endif
 
 
-physics-boosted-dark-matter:
+physics-boosted-dark-matter: framework physics-nuclear-environment physics-utilities physics-neutrino-scattering-modes
 	@echo " "
 	@echo "** Building boosted dark matter library..."
 ifeq ($(strip $(GOPT_ENABLE_BOOSTED_DARK_MATTER)),YES)
-	cd ${GENIE}/src/Physics/BoostedDarkMatter/EventGen && $(MAKE) && \
 	cd ${GENIE}/src/Physics/BoostedDarkMatter/XSection && $(MAKE) && \
+	cd ${GENIE}/src/Physics/BoostedDarkMatter/EventGen && $(MAKE) && \
 	cd ${GENIE}
 else
 	@echo " "
@@ -159,7 +159,7 @@ else
 endif
 
 
-physics-heavy-neutral-lepton:
+physics-heavy-neutral-lepton: framework physics-nuclear-environment tools-flux-drivers
 	@echo " "
 	@echo "** Building neutral heavy lepton library..."
 ifeq ($(strip $(GOPT_ENABLE_HEAVY_NEUTRAL_LEPTON)),YES)
@@ -171,7 +171,7 @@ else
 endif
 
 
-physics-dark-neutrino:
+physics-dark-neutrino: framework physics-utilities
 	@echo " "
 	@echo "** Building dark neutrino library..."
 ifeq ($(strip $(GOPT_ENABLE_DARK_NEUTRINO)),YES)
@@ -184,7 +184,7 @@ else
 endif
 
 
-physics-utilities: framework FORCE
+physics-utilities: framework physics-nuclear-environment FORCE
 	@echo " "
 	@echo "** Building misc physics utility libraries..."
 	cd ${GENIE}/src/Physics && \
@@ -197,7 +197,7 @@ physics-utilities: framework FORCE
 	cd ${GENIE}
 
 
-physics-nuclear-environment: FORCE
+physics-nuclear-environment: framework FORCE
 	@echo " "
 	@echo "** Building libraries for simulation of nuclear environment..."
 	cd ${GENIE}/src/Physics && \
@@ -206,7 +206,7 @@ physics-nuclear-environment: FORCE
 	cd ${GENIE}
 
 
-physics-hadronic-simulations: physics-nuclear-environment FORCE
+physics-hadronic-simulations: framework physics-nuclear-environment FORCE
 	@echo " "
 	@echo "** Building libraries for hadronic simulations..."
 	cd ${GENIE}/src/Physics && \
@@ -216,7 +216,7 @@ physics-hadronic-simulations: physics-nuclear-environment FORCE
 
 #
 
-tools-flux-drivers: FORCE
+tools-flux-drivers: framework FORCE
 ifeq ($(strip $(GOPT_ENABLE_FLUX_DRIVERS)),YES)
 	@echo " "
 	@echo "** Building flux-drivers..."
@@ -229,7 +229,7 @@ else
 endif
 
 
-tools-geometry-drivers: FORCE
+tools-geometry-drivers: framework FORCE
 ifeq ($(strip $(GOPT_ENABLE_GEOM_DRIVERS)),YES)
 	@echo " "
 	@echo "** Building geometry-drivers..."
@@ -265,7 +265,7 @@ else
 	@echo "** Building Professor2 was not enabled. Skipping..."
 endif
 
-tools-evtlib: FORCE
+tools-evtlib: framework FORCE
 ifeq ($(strip $(GOPT_ENABLE_EVTLIB)),YES)
 	@echo " "
 	@echo "** Building EvtLib..."
@@ -278,7 +278,7 @@ else
 endif
 
 
-tools-masterclass: FORCE
+tools-masterclass: framework physics-nuclear-environment FORCE
 ifeq ($(strip $(GOPT_ENABLE_MASTERCLASS)),YES)
 	@echo " "
 	@echo "** Building Masterclass package..."
@@ -330,13 +330,7 @@ install-scripts: FORCE
 	cd ${GENIE}
 
 
-all-libs: base-framework \
-	  utils \
-	  physics-models-modules \
-	  event-generation-modules \
-	  flux-drivers \
-	  geom-drivers \
-	  mueloss
+all-libs: $(INITIAL_BUILD_TARGETS)
 
 
 save-build-env: FORCE

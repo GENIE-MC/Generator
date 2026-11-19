@@ -16,7 +16,7 @@ PACKAGE           = Physics/Multinucleon/EventGen
 PACKAGE_ABBREV    = PhMNucEG
 DICTIONARY        = _ROOT_DICT_$(PACKAGE_ABBREV)
 LIBNAME           = libG$(PACKAGE_ABBREV)
-EXTRA_EXT_LIBS    = $(XML_LIBRARIES) -L$(GENIE_LIB_PATH) -lGFwAlg -lGFwEG -lGFwGHEP -lGPhMNucXS -lGPhNuclSt
+EXTRA_EXT_LIBS    = $(XML_LIBRARIES) -L$(GENIE_LIB_PATH) -lGFwAlg -lGFwEG -lGFwGHEP -lGPhMNucXS -lGPhNuclSt -lGFwMsg
 
 all     : rootcint lib lib-link
 install : install-inc install-lib
