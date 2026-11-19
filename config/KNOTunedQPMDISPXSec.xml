@@ -23,19 +23,19 @@ Wcut                        double  no                                        Co
     <param type="double" name="NRB-EM-XSecScale"> 1. </param>
   </param_set>
 
-  <param_set name="BY2000">
-    <!-- BY2000 is equivalent to Default, but uses the 2016 Correction -->
+  <param_set name="BY00">
+    <!-- BY00 is equivalent to Default, but uses the 2016 Correction -->
     <param type="string" name="CommonParam"> NonResBackground </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
-    <param type="alg" name="DISModel">   genie::QPMDISPXSec/BY2000 </param>
+    <param type="alg" name="DISModel">   genie::QPMDISPXSec/BY00 </param>
   </param_set>
 
-  <param_set name="BY2021">
-    <!-- BY2021 considers different Aixial and vector responses, nuclear corrections -->
+  <param_set name="BY21">
+    <!-- BY21 considers different Axial and vector responses, nuclear corrections -->
     <param type="string" name="CommonParam"> NonResBackground </param>
-    <param type="alg" name="XSec-Integrator"> genie::DISXSec/BY2021 </param>
+    <param type="alg" name="XSec-Integrator"> genie::DISXSec/BY21 </param>
     <param type="alg" name="Hadronizer"> genie::AGKYLowW2019/Default </param>
-    <param type="alg" name="DISModel">   genie::QPMDISPXSec/BY2021 </param>
+    <param type="alg" name="DISModel">   genie::QPMDISPXSec/BY21 </param>
   </param_set>
 
 </alg_conf>

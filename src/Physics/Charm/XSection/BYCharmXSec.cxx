@@ -139,7 +139,7 @@ void BYCharmXSec::Configure(string param_set)
 }
 void BYCharmXSec::LoadConfig(void)
 {
-  GetParam("DIS-CC-XSecScale", fCCScale);
+  GetParam("DIS-CC-XSecScale", fCCScale, 1.0);
   fDISSFModel = 0;
   fDISSFModel =
       dynamic_cast<const QPMDISStrucFuncBase *>(this->SubAlg("SFAlg"));

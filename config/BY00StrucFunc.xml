@@ -21,7 +21,6 @@ BY-Cv2D                    double  No    Bodek-Yang d val K factor param
 
 PDF-Set                    alg     No    PDF model
 Charm-Mass                 double  No    charm mass                             CommonParam[Masses]
-PDF-Q2min                  double  No    min Q2 for PDF evaluation              From "PDF-Set" 
 IncludeR                   bool    No    include R factor?              
 IncludeNuclMod             bool    No    include nuclear factor?            
 CKM-Vcd                    double  No                                           CommonParam[CKM]
@@ -66,7 +65,7 @@ WeinbergAngle              double  No                                           
     <param type="alg" name="DISNuclModel">  genie::BY00DISNuclearModel/Default </param>
   </param_set>
 
-  <param_set name="BY2000">
+  <param_set name="BY00">
     <!-- Table 2 from https://arxiv.org/pdf/2108.09240, vector parameters only -->
     <param type="double" name="BY-A">     0.621   </param>
     <param type="double" name="BY-B">     0.380   </param>
