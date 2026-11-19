@@ -254,7 +254,7 @@ else
 	@echo "** Building Professor2 was not enabled. Skipping..."
 endif
 
-lib-professor2-install: FORCE
+lib-professor2-install: make-install-dirs FORCE
 ifeq ($(strip $(GOPT_ENABLE_PROFESSOR2)),YES)
 	@echo " "
 	@echo "** Building Professor2..."
@@ -362,7 +362,7 @@ ifeq ($(strip $(GENIE_PREVIOUS_INSTALLATION)),YES)
 endif
 
 
-make-install-dirs: FORCE
+make-install-dirs: check-previous-installation FORCE
 	@echo " "
 	@echo "** Creating directory structure for GENIE installation..."
 ifeq (${GENIE_INSTALLATION_PATH},/usr)
@@ -457,7 +457,7 @@ endif
 	mkdir ${GENIE_INC_INSTALLATION_PATH}/Tools/EvtLib
 
 
-copy-install-files: FORCE
+copy-install-files: make-install-dirs FORCE
 	@echo " "
 	@echo "** Copying libraries/binaries/headers to installation location..."
 	cp ${GENIE_BIN_PATH}/* ${GENIE_BIN_INSTALLATION_PATH} && \
@@ -650,7 +650,7 @@ clean-files: FORCE
 	cd ${GENIE}/src/scripts                                  &&  $(MAKE) clean && \
 	cd ${GENIE}
 
-clean-dir: FORCE
+clean-dir: clean-files FORCE
 	@echo "Deleting GENIE lib and bin directories..." && \
 	cd $(GENIE) && \
 	[ ! -d ./bin ] || rmdir ./bin && \
