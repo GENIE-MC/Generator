@@ -608,7 +608,7 @@ void MakePlots (void)
 
   string root_filename = gOptOutFile + ".root";
   TFile f(root_filename.c_str(),"recreate");
-  ntpl->Write("sfntp");
+  ntpl->Write(Form("sfntp_%s", vsfset[im].c_str()));
   for (unsigned int im = 0; im < gSFAlgList.size(); im++) {
 
       h2_F1[im]->Write(Form("F1_%s", vsfset[im].c_str()));
@@ -680,7 +680,7 @@ void GetCommandLineArgs(int argc, char ** argv)
       exit(1);    
     }
     xRange = {atof(range[0].c_str()),atof(range[1].c_str())};
-  }  (else if parser.OptionExists("x") ) {
+  } else if (parser.OptionExists("x") ) {
     LOG("gsfcomp", pINFO) << "Reading x range";
     std::string tmp = parser.ArgAsString("x");
     vector<string> range = utils::str::Split(tmp, ",");
