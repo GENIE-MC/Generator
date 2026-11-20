@@ -33,7 +33,6 @@
 #include <vector>
 #include <string>
 
-#include <TNtuple.h>
 #include <TFile.h>
 #include <TMath.h>
 #include <TPostScript.h>
@@ -119,8 +118,6 @@ void MakePlots (void)
   for (int i = 0; i < nx; ++i) {
       x_arr[i] = TMath::Power(10, log10Xmin + i*dlog10X);
   }
-  // Output ntuple
-  TNtuple * ntpl = new TNtuple("nt","structure functions","i:F1:F2:F3:F4:F5:F6:x:Q2");
 
   // Canvas for output plots
   TCanvas * cnv = new TCanvas("c","",20,20,500,650);
@@ -228,7 +225,6 @@ void MakePlots (void)
         F4_arr [im][iq2] = F4;
         F5_arr [im][iq2] = F5;
         F6_arr [im][iq2] = F6;
-        ntpl->Fill(im,F1,F2,F3,F4,F5,F6,x,Q2);
         delete interaction;
       }//iq2
 
@@ -608,7 +604,6 @@ void MakePlots (void)
 
   string root_filename = gOptOutFile + ".root";
   TFile f(root_filename.c_str(),"recreate");
-  ntpl->Write("sfntp");
   for (unsigned int im = 0; im < gSFAlgList.size(); im++) {
 
       h2_F1[im]->Write(Form("F1_%s", vsfset[im].c_str()));
@@ -620,7 +615,7 @@ void MakePlots (void)
 
   }
   f.Close();
-  delete ntpl;
+
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
