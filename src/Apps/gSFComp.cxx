@@ -507,12 +507,12 @@ void MakePlots (void)
     h2_F5_r [im] -> GetXaxis() -> SetTitle("x");
     h2_F6_r [im] -> GetXaxis() -> SetTitle("x");
 
-    h2_F1_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F2_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F3_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F4_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F5_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F6_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F1_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F2_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F3_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F4_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F5_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F6_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
 
     cnv->Divide(2,3);
 
