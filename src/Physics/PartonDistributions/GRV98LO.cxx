@@ -107,8 +107,8 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
     << "Inputs x = " << x << ", Q2 = " << Q2;
 #endif
   // apply kinematical limits
-//Q2 = TMath::Max(Q2, fGridQ2[0]);
-  Q2 = std::max(Q2, fPDFQ2Min);
+  Q2 = TMath::Max(Q2, fGridQ2[0]); // range what is saved
+  Q2 = std::max(Q2, fPDFQ2Min); // minimim to what one trusts GRV98LO
   Q2 = std::min(Q2, fGridQ2[kNQ2-1]);
   x  = std::max(x,  fGridXbj[0]);
   x  = std::min(x,  fGridXbj[kNXbj-1]);
