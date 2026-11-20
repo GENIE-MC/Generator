@@ -33,7 +33,6 @@
 #include <vector>
 #include <string>
 
-#include <TNtuple.h>
 #include <TFile.h>
 #include <TMath.h>
 #include <TPostScript.h>
@@ -63,6 +62,14 @@ using namespace genie::utils;
 // globals
 string        gOptSF      = "";         // --structure-func argument
 string        gOptOutFile = "sf_comp";  // -o argument
+std::pair<double, double> Q2range = {1e-1, 1e2};
+std::pair<double, double> xRange = {1e-5, 1};
+unsigned int nx = 50;
+int target = kPdgProton;
+int probe = kPdgNuMu;
+int freeT = kPdgTgtFreeP;
+vector<string> vsfset;
+std::string interac = "CC";
 vector<const DISStructureFuncModelI *> gSFAlgList;
 
 // function prototypes
@@ -93,56 +100,24 @@ void MakePlots (void)
   const char * lgopt [nm] = { "P",  "L", "L", "L" };
 
   // Q2 range and values for 1-D plots
-  const unsigned int nQ2 = 20;
-  const double Q2min = 1E-1; // GeV^2
-  const double Q2max = 1E+3; // GeV^2
+  const double Q2min = Q2range.first; // GeV^2
+  const double Q2max = Q2range.second; // GeV^2
   const double log10Q2min = TMath::Log10(Q2min);
   const double log10Q2max = TMath::Log10(Q2max);
-  const double dlog10Q2 = (log10Q2max-log10Q2min)/(nQ2-1);
-  double Q2_arr [nQ2];
-  for(unsigned int iq2 = 0; iq2 < nQ2; iq2++) {
+  const double dlog10Q2 = (log10Q2max-log10Q2min)/(nx-1);
+  double Q2_arr [nx];
+  for(unsigned int iq2 = 0; iq2 < nx; iq2++) {
      double Q2 = TMath::Power(10, log10Q2min + iq2*dlog10Q2);
      Q2_arr[iq2] = Q2;
   }
-
-  // x values for 1-D plots
-  const unsigned int nx = 22;
-  double x_arr [nx] = {
-    0.0001, 0.0010, 0.0100, 0.0250, 0.0500, 
-    0.0750, 0.1000, 0.1500, 0.2000, 0.2500, 
-    0.3500, 0.4000, 0.4500, 0.5000, 0.5500, 
-    0.6000, 0.7000, 0.7500, 0.8000, 0.8500, 
-    0.9000, 0.9500
-  };
-
-  // Q2 range and values for 2-D plots
-  const unsigned int nQ2_2d = 50;
-  const double Q2min_2d = 1E-1; // GeV^2
-  const double Q2max_2d = 1E+3; // GeV^2
-  const double log10Q2min_2d = TMath::Log10(Q2min_2d);
-  const double log10Q2max_2d = TMath::Log10(Q2max_2d);
-  const double dlog10Q2_2d = (log10Q2max_2d-log10Q2min_2d)/(nQ2_2d-1);
-  double Q2_bin_edges_2d [nQ2_2d];
-  for(unsigned int iq2 = 0; iq2 < nQ2_2d; iq2++) {
-     double Q2 = TMath::Power(10, log10Q2min_2d + iq2*dlog10Q2_2d);
-     Q2_bin_edges_2d[iq2] = Q2;
+  double eps = nx > 1 ? 1.0 / nx : 0.1;
+  double x_arr[nx];
+  const double log10Xmin = TMath::Log10(xRange.first);
+  const double log10Xmax = TMath::Log10(xRange.second);
+  const double dlog10X = (log10Xmax-log10Xmin)/(nx-1);
+  for (int i = 0; i < nx; ++i) {
+      x_arr[i] = TMath::Power(10, log10Xmin + i*dlog10X);
   }
-
-  // x range and values for 2-D plots
-  const unsigned int nx_2d = 50;
-  const double xmin_2d = 1E-4; 
-  const double xmax_2d = 0.95; 
-  const double log10xmin_2d = TMath::Log10(xmin_2d);
-  const double log10xmax_2d = TMath::Log10(xmax_2d);
-  const double dlog10x_2d = (log10xmax_2d-log10xmin_2d)/(nx_2d-1);
-  double x_bin_edges_2d [nx_2d];
-  for(unsigned int ix = 0; ix < nx_2d; ix++) {
-     double x = TMath::Power(10, log10xmin_2d + ix*dlog10x_2d);
-     x_bin_edges_2d[ix] = x;
-  }
-
-  // Output ntuple
-  TNtuple * ntpl = new TNtuple("nt","structure functions","i:F1:F2:F3:F4:F5:F6:x:Q2");
 
   // Canvas for output plots
   TCanvas * cnv = new TCanvas("c","",20,20,500,650);
@@ -211,19 +186,30 @@ void MakePlots (void)
 
   for(unsigned int ix=0; ix < nx; ix++) {
     double x = x_arr[ix];
-    double F1_arr [nm][nQ2];
-    double F2_arr [nm][nQ2];
-    double F3_arr [nm][nQ2];
-    double F4_arr [nm][nQ2];
-    double F5_arr [nm][nQ2];
-    double F6_arr [nm][nQ2];
+    double F1_arr [nm][nx];
+    double F2_arr [nm][nx];
+    double F3_arr [nm][nx];
+    double F4_arr [nm][nx];
+    double F5_arr [nm][nx];
+    double F6_arr [nm][nx];
     for(unsigned int im=0; im < gSFAlgList.size(); im++) {
       DISStructureFunc sf;
       sf.SetModel(gSFAlgList[im]);
-      for(unsigned int iq2 = 0; iq2 < nQ2; iq2++) {
+      for(unsigned int iq2 = 0; iq2 < nx; iq2++) {
         double Q2 = Q2_arr[iq2];
-        Interaction * interaction = Interaction::DISCC(kPdgTgtFreeP,kPdgProton,kPdgNuMu);
-      //LOG("gsfcomp", pNOTICE) << "Setting x = " << x << ", Q2 = " << Q2;
+        
+
+        Interaction * interaction = nullptr;
+        if (interac == "CC"){
+          interaction = Interaction::DISCC(freeT, target, probe);
+        } else if (interac == "NC") { 
+          interaction = Interaction::DISNC(freeT, target, probe);
+        } else if (interac == "EM"){
+          interaction = Interaction::DISEM(freeT, target, probe);
+        }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+        LOG("gsfcomp", pNOTICE) << "Setting x = " << x << ", Q2 = " << Q2;
+#endif
         interaction->KinePtr()->Setx(x);
         interaction->KinePtr()->SetQ2(Q2);
         sf.Calculate(interaction);
@@ -239,16 +225,15 @@ void MakePlots (void)
         F4_arr [im][iq2] = F4;
         F5_arr [im][iq2] = F5;
         F6_arr [im][iq2] = F6;
-        ntpl->Fill(im,F1,F2,F3,F4,F5,F6,x,Q2);
         delete interaction;
       }//iq2
 
-      gr_F1_Q2 [im] = new TGraph (nQ2, Q2_arr, F1_arr [im]);
-      gr_F2_Q2 [im] = new TGraph (nQ2, Q2_arr, F2_arr [im]);
-      gr_F3_Q2 [im] = new TGraph (nQ2, Q2_arr, F3_arr [im]);
-      gr_F4_Q2 [im] = new TGraph (nQ2, Q2_arr, F4_arr [im]);
-      gr_F5_Q2 [im] = new TGraph (nQ2, Q2_arr, F5_arr [im]);
-      gr_F6_Q2 [im] = new TGraph (nQ2, Q2_arr, F6_arr [im]);
+      gr_F1_Q2 [im] = new TGraph (nx, Q2_arr, F1_arr [im]);
+      gr_F2_Q2 [im] = new TGraph (nx, Q2_arr, F2_arr [im]);
+      gr_F3_Q2 [im] = new TGraph (nx, Q2_arr, F3_arr [im]);
+      gr_F4_Q2 [im] = new TGraph (nx, Q2_arr, F4_arr [im]);
+      gr_F5_Q2 [im] = new TGraph (nx, Q2_arr, F5_arr [im]);
+      gr_F6_Q2 [im] = new TGraph (nx, Q2_arr, F6_arr [im]);
 
       genie::utils::style::Format( gr_F1_Q2 [im], col[im], sty[im], 2, col[im], mrk[im], msz[im]);
       genie::utils::style::Format( gr_F2_Q2 [im], col[im], sty[im], 2, col[im], mrk[im], msz[im]);
@@ -323,22 +308,31 @@ void MakePlots (void)
   //
 
   for(unsigned int im=0; im < gSFAlgList.size(); im++) {
-    h2_F1 [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F2 [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F3 [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F4 [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F5 [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F6 [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
+    h2_F1 [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F2 [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F3 [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F4 [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F5 [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F6 [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
     DISStructureFunc sf;
     sf.SetModel(gSFAlgList[im]);
     for(int ibinx = 1; 
             ibinx <= h2_F1[im]->GetXaxis()->GetNbins(); ibinx++) {
       double x = h2_F1[im]->GetXaxis()->GetBinCenter(ibinx);
-      for(int ibinq2 = 1; 
-              ibinq2 <= h2_F1[im]->GetYaxis()->GetNbins(); ibinq2++) {
-         double Q2 = h2_F1[im]->GetYaxis()->GetBinCenter(ibinq2);
-         Interaction * interaction = Interaction::DISCC(kPdgTgtFreeP,kPdgProton,kPdgNuMu);
-       //LOG("gsfcomp", pNOTICE) << "Setting x (bin " << ibinx << ") = " << x << ", Q2 (bin " << ibinq2 << ") = " << Q2;
+      for(int ibiny = 1; 
+              ibiny <= h2_F1[im]->GetYaxis()->GetNbins(); ibiny++) {
+         double Q2 = h2_F1[im]->GetYaxis()->GetBinCenter(ibiny);
+        Interaction * interaction = nullptr;
+        if (interac == "CC"){
+          interaction = Interaction::DISCC(freeT, target, probe);
+        } else if (interac == "NC") { 
+          interaction = Interaction::DISNC(freeT, target, probe);
+        } else if (interac == "EM"){
+          interaction = Interaction::DISEM(freeT, target, probe);
+        }   
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__    
+        LOG("gsfcomp", pNOTICE) << "Setting x (bin " << ibinx << ") = " << x << ", Q2 (bin " << ibinx << ") = " << Q2;
+#endif
          interaction->KinePtr()->Setx(x);
          interaction->KinePtr()->SetQ2(Q2);
          sf.Calculate(interaction);
@@ -348,12 +342,12 @@ void MakePlots (void)
          double F4 = sf.F4();
          double F5 = sf.F5();
          double F6 = sf.F6();
-         h2_F1 [im] -> SetBinContent(ibinx, ibinq2, F1);
-         h2_F2 [im] -> SetBinContent(ibinx, ibinq2, F2); 
-         h2_F3 [im] -> SetBinContent(ibinx, ibinq2, F3); 
-         h2_F4 [im] -> SetBinContent(ibinx, ibinq2, F4); 
-         h2_F5 [im] -> SetBinContent(ibinx, ibinq2, F5); 
-         h2_F6 [im] -> SetBinContent(ibinx, ibinq2, F6); 
+         h2_F1 [im] -> SetBinContent(ibinx, ibiny, F1);
+         h2_F2 [im] -> SetBinContent(ibinx, ibiny, F2); 
+         h2_F3 [im] -> SetBinContent(ibinx, ibiny, F3); 
+         h2_F4 [im] -> SetBinContent(ibinx, ibiny, F4); 
+         h2_F5 [im] -> SetBinContent(ibinx, ibiny, F5); 
+         h2_F6 [im] -> SetBinContent(ibinx, ibiny, F6); 
          delete interaction;
       }
     }
@@ -460,30 +454,30 @@ void MakePlots (void)
   // 
 
   for(unsigned int im=1; im < gSFAlgList.size(); im++) {
-    h2_F1_r [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F2_r [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F3_r [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F4_r [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F5_r [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
-    h2_F6_r [im] = new TH2D("","", nx_2d-1, x_bin_edges_2d, nQ2_2d-1, Q2_bin_edges_2d);
+    h2_F1_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F2_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F3_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F4_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F5_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
+    h2_F6_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
     for(int ibinx = 1; 
             ibinx <= h2_F1[im]->GetXaxis()->GetNbins(); ibinx++) {
-      for(int ibinq2 = 1; 
-              ibinq2 <= h2_F1[im]->GetYaxis()->GetNbins(); ibinq2++) {
+      for(int ibiny = 1; 
+              ibiny <= h2_F1[im]->GetYaxis()->GetNbins(); ibiny++) {
 
-         double F1  = h2_F1 [im] -> GetBinContent(ibinx, ibinq2);
-         double F2  = h2_F2 [im] -> GetBinContent(ibinx, ibinq2);
-         double F3  = h2_F3 [im] -> GetBinContent(ibinx, ibinq2);
-         double F4  = h2_F4 [im] -> GetBinContent(ibinx, ibinq2);
-         double F5  = h2_F5 [im] -> GetBinContent(ibinx, ibinq2);
-         double F6  = h2_F6 [im] -> GetBinContent(ibinx, ibinq2);
+         double F1  = h2_F1 [im] -> GetBinContent(ibinx, ibiny);
+         double F2  = h2_F2 [im] -> GetBinContent(ibinx, ibiny);
+         double F3  = h2_F3 [im] -> GetBinContent(ibinx, ibiny);
+         double F4  = h2_F4 [im] -> GetBinContent(ibinx, ibiny);
+         double F5  = h2_F5 [im] -> GetBinContent(ibinx, ibiny);
+         double F6  = h2_F6 [im] -> GetBinContent(ibinx, ibiny);
 
-         double F10 = h2_F1 [0]  -> GetBinContent(ibinx, ibinq2);
-         double F20 = h2_F2 [0]  -> GetBinContent(ibinx, ibinq2);
-         double F30 = h2_F3 [0]  -> GetBinContent(ibinx, ibinq2);
-         double F40 = h2_F4 [0]  -> GetBinContent(ibinx, ibinq2);
-         double F50 = h2_F5 [0]  -> GetBinContent(ibinx, ibinq2);
-         double F60 = h2_F6 [0]  -> GetBinContent(ibinx, ibinq2);
+         double F10 = h2_F1 [0]  -> GetBinContent(ibinx, ibiny);
+         double F20 = h2_F2 [0]  -> GetBinContent(ibinx, ibiny);
+         double F30 = h2_F3 [0]  -> GetBinContent(ibinx, ibiny);
+         double F40 = h2_F4 [0]  -> GetBinContent(ibinx, ibiny);
+         double F50 = h2_F5 [0]  -> GetBinContent(ibinx, ibiny);
+         double F60 = h2_F6 [0]  -> GetBinContent(ibinx, ibiny);
 
          double F1r = ((F10 > 0.) ? (F1-F10)/F10 : 0.);
          double F2r = ((F20 > 0.) ? (F2-F20)/F20 : 0.);
@@ -492,12 +486,12 @@ void MakePlots (void)
          double F5r = ((F50 > 0.) ? (F5-F50)/F50 : 0.);
          double F6r = ((F60 > 0.) ? (F6-F60)/F60 : 0.);
 
-         h2_F1_r [im] -> SetBinContent(ibinx, ibinq2, F1r);
-         h2_F2_r [im] -> SetBinContent(ibinx, ibinq2, F2r); 
-         h2_F3_r [im] -> SetBinContent(ibinx, ibinq2, F3r); 
-         h2_F4_r [im] -> SetBinContent(ibinx, ibinq2, F4r); 
-         h2_F5_r [im] -> SetBinContent(ibinx, ibinq2, F5r); 
-         h2_F6_r [im] -> SetBinContent(ibinx, ibinq2, F6r); 
+         h2_F1_r [im] -> SetBinContent(ibinx, ibiny, F1r);
+         h2_F2_r [im] -> SetBinContent(ibinx, ibiny, F2r); 
+         h2_F3_r [im] -> SetBinContent(ibinx, ibiny, F3r); 
+         h2_F4_r [im] -> SetBinContent(ibinx, ibiny, F4r); 
+         h2_F5_r [im] -> SetBinContent(ibinx, ibiny, F5r); 
+         h2_F6_r [im] -> SetBinContent(ibinx, ibiny, F6r); 
       }
     }
 
@@ -510,12 +504,12 @@ void MakePlots (void)
     h2_F5_r [im] -> GetXaxis() -> SetTitle("x");
     h2_F6_r [im] -> GetXaxis() -> SetTitle("x");
 
-    h2_F1_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F2_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F3_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F4_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F5_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
-    h2_F6_r [im] -> GetXaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F1_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F2_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F3_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F4_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F5_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
+    h2_F6_r [im] -> GetYaxis() -> SetTitle("Q^2 (GeV^2/c^2)");
 
     cnv->Divide(2,3);
 
@@ -610,9 +604,18 @@ void MakePlots (void)
 
   string root_filename = gOptOutFile + ".root";
   TFile f(root_filename.c_str(),"recreate");
-  ntpl->Write("sfntp");
+  for (unsigned int im = 0; im < gSFAlgList.size(); im++) {
+
+      h2_F1[im]->Write(Form("F1_%s", vsfset[im].c_str()));
+      h2_F2[im]->Write(Form("F2_%s", vsfset[im].c_str()));
+      h2_F3[im]->Write(Form("F3_%s", vsfset[im].c_str()));
+      h2_F4[im]->Write(Form("F4_%s", vsfset[im].c_str()));
+      h2_F5[im]->Write(Form("F5_%s", vsfset[im].c_str()));
+      h2_F6[im]->Write(Form("F6_%s", vsfset[im].c_str()));
+
+  }
   f.Close();
-  delete ntpl;
+
 }
 //_________________________________________________________________________________
 void GetCommandLineArgs(int argc, char ** argv)
@@ -629,6 +632,62 @@ void GetCommandLineArgs(int argc, char ** argv)
     gAbortingInErr = true;
     exit(1);
   }
+  if( parser.OptionExists('n') ) {
+    LOG("gsfcomp", pINFO) << "Reading n";
+    nx = parser.ArgAsInt('n');
+  }
+  if ( parser.OptionExists('p') ) {
+    LOG("gsfcomp", pINFO) << "Reading probe pdg";
+    probe = parser.ArgAsInt('p');
+  }
+  
+  if ( parser.OptionExists('g') ) {
+    interac = parser.ArgAsString('g');
+    assert(interac == "CC" || interac == "NC" || interac == "EM");
+  }
+
+  if ( parser.OptionExists("neutron")){
+    target = kPdgNeutron;
+    freeT = kPdgTgtFreeN;
+  }
+  if( parser.OptionExists("Q2") ) {
+    LOG("gsfcomp", pINFO) << "Reading Q2 range";
+    std::string tmp = parser.ArgAsString("Q2");
+    vector<string> range = utils::str::Split(tmp, ",");
+    if (range.size() != 2 ){
+      LOG("gsfcomp", pFATAL)
+      << "Could not read Q2 range";
+      gAbortingInErr = true;
+      exit(1);    
+    }
+    Q2range = {atof(range[0].c_str()),atof(range[1].c_str())};
+
+  }  
+
+  if( parser.OptionExists('x') ) {
+    LOG("gsfcomp", pINFO) << "Reading x range";
+    std::string tmp = parser.ArgAsString('x');
+    vector<string> range = utils::str::Split(tmp, ",");
+    if (range.size() != 2 ){
+      LOG("gsfcomp", pFATAL)
+      << "Could not read x range";
+      gAbortingInErr = true;
+      exit(1);    
+    }
+    xRange = {atof(range[0].c_str()),atof(range[1].c_str())};
+  } else if (parser.OptionExists("x") ) {
+    LOG("gsfcomp", pINFO) << "Reading x range";
+    std::string tmp = parser.ArgAsString("x");
+    vector<string> range = utils::str::Split(tmp, ",");
+    if (range.size() != 2 ){
+      LOG("gsfcomp", pFATAL)
+      << "Could not read x range";
+      gAbortingInErr = true;
+      exit(1);    
+    }
+    xRange = {atof(range[0].c_str()),atof(range[1].c_str())};
+  }  
+  LOG("gsfcomp", pNOTICE) << "Found parameter range x = (" << xRange.first << "," << xRange.second << "),  Q2 = (" << Q2range.first << "," << Q2range.second << ")";
 
   if(parser.OptionExists('o')){
     gOptOutFile = parser.Arg('o');
@@ -638,7 +697,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 //_________________________________________________________________________________
 void GetAlgorithms(void)
 {
-  vector<string> vsfset = str::Split(gOptSF, ",");
+  vsfset = str::Split(gOptSF, ",");
   LOG("gsfcomp", pNOTICE) 
       << "Number of input structure functions: " << vsfset.size();
   if(vsfset.size() == 0) {
@@ -677,6 +736,7 @@ void GetAlgorithms(void)
 
      gSFAlgList.push_back(sf_alg);
  }
+ assert (vsfset.size() == gSFAlgList.size());
 }
 //_________________________________________________________________________________
 
