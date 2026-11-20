@@ -43,6 +43,16 @@ University of Liverpool
      <param type="bool" name="DecayParticleWithCode=4112">  false </param>  <!--  Sigma_{c}^{0}     -->
      <param type="bool" name="DecayParticleWithCode=4212">  false </param>  <!--  Sigma_{c}^{+}     -->
      <param type="bool" name="DecayParticleWithCode=4222">  false </param>  <!--  Sigma_{c}^{++}    -->
+     <param type="bool" name="DecayParticleWithCode=4132">  false </param>  <!--  Xi_{c}^{0}        -->
+     <param type="bool" name="DecayParticleWithCode=4232">  false </param>  <!--  Xi_{c}^{+}        -->
+     <param type="bool" name="DecayParticleWithCode=4332">  false </param>  <!--  Omega_{c}^{0}     -->
+     <param type="bool" name="DecayParticleWithCode=-4122"> false </param>  <!--  \bar{Lambda_{c}^{+}} -->
+     <param type="bool" name="DecayParticleWithCode=-4112"> false </param>  <!--  \bar{Sigma_{c}^{0}}  -->
+     <param type="bool" name="DecayParticleWithCode=-4212"> false </param>  <!--  \bar{Sigma_{c}^{+}}  -->
+     <param type="bool" name="DecayParticleWithCode=-4222"> false </param>  <!--  \bar{Sigma_{c}^{++}} -->
+     <param type="bool" name="DecayParticleWithCode=-4132"> false </param>  <!--  \bar{Xi_{c}^{0}}     -->
+     <param type="bool" name="DecayParticleWithCode=-4232"> false </param>  <!--  \bar{Xi_{c}^{+}}     -->
+     <param type="bool" name="DecayParticleWithCode=-4332"> false </param>  <!--  \bar{Omega_{c}^{0}}  -->
 
      <!--
 	     Taus: Not decayed by default.
@@ -51,6 +61,48 @@ University of Liverpool
      -->
      <param type="bool" name="DecayParticleWithCode=15">    false </param>  <!--  tau^{-}           -->
      <param type="bool" name="DecayParticleWithCode=-15">   false </param>  <!--  tau^{+}           -->
+
+     <!--
+	     K0_S and long-lived hyperons: Not decayed by default.
+	     Listing them explicitly also stops the decayer (Pythia) from decaying
+	     them when they appear in the decay chain of another particle (e.g.
+	     phi -> K0_S K0_L, or charm decays when those are switched on), so they
+	     reach the detector simulation, which handles their displaced decays.
+     -->
+     <param type="bool" name="DecayParticleWithCode=310">   false </param>  <!--  K_{S}^{0}         -->
+     <param type="bool" name="DecayParticleWithCode=3122">  false </param>  <!--  Lambda^{0}        -->
+     <param type="bool" name="DecayParticleWithCode=-3122"> false </param>  <!--  \bar{Lambda^{0}}  -->
+     <param type="bool" name="DecayParticleWithCode=3222">  false </param>  <!--  Sigma^{+}         -->
+     <param type="bool" name="DecayParticleWithCode=-3222"> false </param>  <!--  \bar{Sigma^{+}}   -->
+     <param type="bool" name="DecayParticleWithCode=3112">  false </param>  <!--  Sigma^{-}         -->
+     <param type="bool" name="DecayParticleWithCode=-3112"> false </param>  <!--  \bar{Sigma^{-}}   -->
+     <param type="bool" name="DecayParticleWithCode=3322">  false </param>  <!--  Xi^{0}            -->
+     <param type="bool" name="DecayParticleWithCode=-3322"> false </param>  <!--  \bar{Xi^{0}}      -->
+     <param type="bool" name="DecayParticleWithCode=3312">  false </param>  <!--  Xi^{-}            -->
+     <param type="bool" name="DecayParticleWithCode=-3312"> false </param>  <!--  \bar{Xi^{-}}      -->
+     <param type="bool" name="DecayParticleWithCode=3334">  false </param>  <!--  Omega^{-}         -->
+     <param type="bool" name="DecayParticleWithCode=-3334"> false </param>  <!--  \bar{Omega^{-}}   -->
+
+     <!--
+	     B hadrons (weakly decaying ground states): Always decayed by GENIE.
+	     Detector simulations often lack complete B decay tables.
+     -->
+     <param type="bool" name="DecayParticleWithCode=511">   true  </param>  <!--  B^{0}             -->
+     <param type="bool" name="DecayParticleWithCode=-511">  true  </param>  <!--  \bar{B^{0}}       -->
+     <param type="bool" name="DecayParticleWithCode=521">   true  </param>  <!--  B^{+}             -->
+     <param type="bool" name="DecayParticleWithCode=-521">  true  </param>  <!--  B^{-}             -->
+     <param type="bool" name="DecayParticleWithCode=531">   true  </param>  <!--  B_{s}^{0}         -->
+     <param type="bool" name="DecayParticleWithCode=-531">  true  </param>  <!--  \bar{B_{s}^{0}}   -->
+     <param type="bool" name="DecayParticleWithCode=541">   true  </param>  <!--  B_{c}^{+}         -->
+     <param type="bool" name="DecayParticleWithCode=-541">  true  </param>  <!--  B_{c}^{-}         -->
+     <param type="bool" name="DecayParticleWithCode=5122">  true  </param>  <!--  Lambda_{b}^{0}    -->
+     <param type="bool" name="DecayParticleWithCode=-5122"> true  </param>  <!--  \bar{Lambda_{b}^{0}} -->
+     <param type="bool" name="DecayParticleWithCode=5132">  true  </param>  <!--  Xi_{b}^{-}        -->
+     <param type="bool" name="DecayParticleWithCode=-5132"> true  </param>  <!--  \bar{Xi_{b}^{-}}  -->
+     <param type="bool" name="DecayParticleWithCode=5232">  true  </param>  <!--  Xi_{b}^{0}        -->
+     <param type="bool" name="DecayParticleWithCode=-5232"> true  </param>  <!--  \bar{Xi_{b}^{0}}  -->
+     <param type="bool" name="DecayParticleWithCode=5332">  true  </param>  <!--  Omega_{b}^{-}     -->
+     <param type="bool" name="DecayParticleWithCode=-5332"> true  </param>  <!--  \bar{Omega_{b}^{-}} -->
 
      <!--
 	     Standard particles that get decayed by GENIE
