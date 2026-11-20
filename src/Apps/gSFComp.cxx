@@ -111,8 +111,11 @@ void MakePlots (void)
   }
   double eps = nx > 1 ? 1.0 / nx : 0.1;
   double x_arr[nx];
+  const double log10Xmin = TMath::Log10(eps);
+  const double log10Xmax = TMath::Log10(1);
+  const double dlog10X = (log10Xmax-log10Xmin)/(nx-1);
   for (int i = 0; i < nx; ++i) {
-      x_arr[i] = eps + i * (1 - eps) / (nx - 1);
+      x_arr[i] = TMath::Power(10, log10Xmin + i*dlog10X);
   }
   // Output ntuple
   TNtuple * ntpl = new TNtuple("nt","structure functions","i:F1:F2:F3:F4:F5:F6:x:Q2");
@@ -316,9 +319,9 @@ void MakePlots (void)
     for(int ibinx = 1; 
             ibinx <= h2_F1[im]->GetXaxis()->GetNbins(); ibinx++) {
       double x = h2_F1[im]->GetXaxis()->GetBinCenter(ibinx);
-      for(int ibinx = 1; 
-              ibinx <= h2_F1[im]->GetYaxis()->GetNbins(); ibinx++) {
-         double Q2 = h2_F1[im]->GetYaxis()->GetBinCenter(ibinx);
+      for(int ibiny = 1; 
+              ibiny <= h2_F1[im]->GetYaxis()->GetNbins(); ibiny++) {
+         double Q2 = h2_F1[im]->GetYaxis()->GetBinCenter(ibiny);
         Interaction * interaction = nullptr;
         if (interac == "CC"){
           interaction = Interaction::DISCC(freeT, target, probe);
@@ -336,12 +339,12 @@ void MakePlots (void)
          double F4 = sf.F4();
          double F5 = sf.F5();
          double F6 = sf.F6();
-         h2_F1 [im] -> SetBinContent(ibinx, ibinx, F1);
-         h2_F2 [im] -> SetBinContent(ibinx, ibinx, F2); 
-         h2_F3 [im] -> SetBinContent(ibinx, ibinx, F3); 
-         h2_F4 [im] -> SetBinContent(ibinx, ibinx, F4); 
-         h2_F5 [im] -> SetBinContent(ibinx, ibinx, F5); 
-         h2_F6 [im] -> SetBinContent(ibinx, ibinx, F6); 
+         h2_F1 [im] -> SetBinContent(ibinx, ibiny, F1);
+         h2_F2 [im] -> SetBinContent(ibinx, ibiny, F2); 
+         h2_F3 [im] -> SetBinContent(ibinx, ibiny, F3); 
+         h2_F4 [im] -> SetBinContent(ibinx, ibiny, F4); 
+         h2_F5 [im] -> SetBinContent(ibinx, ibiny, F5); 
+         h2_F6 [im] -> SetBinContent(ibinx, ibiny, F6); 
          delete interaction;
       }
     }
@@ -599,6 +602,24 @@ void MakePlots (void)
   string root_filename = gOptOutFile + ".root";
   TFile f(root_filename.c_str(),"recreate");
   ntpl->Write("sfntp");
+  for (unsigned int im = 0; im < gSFAlgList.size(); im++) {
+
+    h2_F1[im]->Write(Form("F1_model%d", im));
+    h2_F2[im]->Write(Form("F2_model%d", im));
+    h2_F3[im]->Write(Form("F3_model%d", im));
+    h2_F4[im]->Write(Form("F4_model%d", im));
+    h2_F5[im]->Write(Form("F5_model%d", im));
+    h2_F6[im]->Write(Form("F6_model%d", im));
+
+    if (im > 0) {
+        h2_F1_r[im]->Write(Form("F1_ratio_model%d", im));
+        h2_F2_r[im]->Write(Form("F2_ratio_model%d", im));
+        h2_F3_r[im]->Write(Form("F3_ratio_model%d", im));
+        h2_F4_r[im]->Write(Form("F4_ratio_model%d", im));
+        h2_F5_r[im]->Write(Form("F5_ratio_model%d", im));
+        h2_F6_r[im]->Write(Form("F6_ratio_model%d", im));
+    }
+}
   f.Close();
   delete ntpl;
 }
