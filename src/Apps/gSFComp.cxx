@@ -68,6 +68,7 @@ unsigned int nx = 50;
 int target = kPdgProton;
 int probe = kPdgNuMu;
 int freeT = kPdgTgtFreeP;
+vector<string> vsfset;
 std::string interac = "CC";
 vector<const DISStructureFuncModelI *> gSFAlgList;
 
@@ -208,7 +209,9 @@ void MakePlots (void)
         } else if (interac == "EM"){
           interaction = Interaction::DISEM(freeT, target, probe);
         }
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
         LOG("gsfcomp", pNOTICE) << "Setting x = " << x << ", Q2 = " << Q2;
+#endif
         interaction->KinePtr()->Setx(x);
         interaction->KinePtr()->SetQ2(Q2);
         sf.Calculate(interaction);
@@ -329,7 +332,10 @@ void MakePlots (void)
           interaction = Interaction::DISNC(freeT, target, probe);
         } else if (interac == "EM"){
           interaction = Interaction::DISEM(freeT, target, probe);
-        }       //LOG("gsfcomp", pNOTICE) << "Setting x (bin " << ibinx << ") = " << x << ", Q2 (bin " << ibinx << ") = " << Q2;
+        }   
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__    
+        LOG("gsfcomp", pNOTICE) << "Setting x (bin " << ibinx << ") = " << x << ", Q2 (bin " << ibinx << ") = " << Q2;
+#endif
          interaction->KinePtr()->Setx(x);
          interaction->KinePtr()->SetQ2(Q2);
          sf.Calculate(interaction);
@@ -459,22 +465,22 @@ void MakePlots (void)
     h2_F6_r [im] = new TH2D("","", nx-1, x_arr, nx-1, Q2_arr);
     for(int ibinx = 1; 
             ibinx <= h2_F1[im]->GetXaxis()->GetNbins(); ibinx++) {
-      for(int ibinx = 1; 
-              ibinx <= h2_F1[im]->GetYaxis()->GetNbins(); ibinx++) {
+      for(int ibiny = 1; 
+              ibiny <= h2_F1[im]->GetYaxis()->GetNbins(); ibiny++) {
 
-         double F1  = h2_F1 [im] -> GetBinContent(ibinx, ibinx);
-         double F2  = h2_F2 [im] -> GetBinContent(ibinx, ibinx);
-         double F3  = h2_F3 [im] -> GetBinContent(ibinx, ibinx);
-         double F4  = h2_F4 [im] -> GetBinContent(ibinx, ibinx);
-         double F5  = h2_F5 [im] -> GetBinContent(ibinx, ibinx);
-         double F6  = h2_F6 [im] -> GetBinContent(ibinx, ibinx);
+         double F1  = h2_F1 [im] -> GetBinContent(ibinx, ibiny);
+         double F2  = h2_F2 [im] -> GetBinContent(ibinx, ibiny);
+         double F3  = h2_F3 [im] -> GetBinContent(ibinx, ibiny);
+         double F4  = h2_F4 [im] -> GetBinContent(ibinx, ibiny);
+         double F5  = h2_F5 [im] -> GetBinContent(ibinx, ibiny);
+         double F6  = h2_F6 [im] -> GetBinContent(ibinx, ibiny);
 
-         double F10 = h2_F1 [0]  -> GetBinContent(ibinx, ibinx);
-         double F20 = h2_F2 [0]  -> GetBinContent(ibinx, ibinx);
-         double F30 = h2_F3 [0]  -> GetBinContent(ibinx, ibinx);
-         double F40 = h2_F4 [0]  -> GetBinContent(ibinx, ibinx);
-         double F50 = h2_F5 [0]  -> GetBinContent(ibinx, ibinx);
-         double F60 = h2_F6 [0]  -> GetBinContent(ibinx, ibinx);
+         double F10 = h2_F1 [0]  -> GetBinContent(ibinx, ibiny);
+         double F20 = h2_F2 [0]  -> GetBinContent(ibinx, ibiny);
+         double F30 = h2_F3 [0]  -> GetBinContent(ibinx, ibiny);
+         double F40 = h2_F4 [0]  -> GetBinContent(ibinx, ibiny);
+         double F50 = h2_F5 [0]  -> GetBinContent(ibinx, ibiny);
+         double F60 = h2_F6 [0]  -> GetBinContent(ibinx, ibiny);
 
          double F1r = ((F10 > 0.) ? (F1-F10)/F10 : 0.);
          double F2r = ((F20 > 0.) ? (F2-F20)/F20 : 0.);
@@ -483,12 +489,12 @@ void MakePlots (void)
          double F5r = ((F50 > 0.) ? (F5-F50)/F50 : 0.);
          double F6r = ((F60 > 0.) ? (F6-F60)/F60 : 0.);
 
-         h2_F1_r [im] -> SetBinContent(ibinx, ibinx, F1r);
-         h2_F2_r [im] -> SetBinContent(ibinx, ibinx, F2r); 
-         h2_F3_r [im] -> SetBinContent(ibinx, ibinx, F3r); 
-         h2_F4_r [im] -> SetBinContent(ibinx, ibinx, F4r); 
-         h2_F5_r [im] -> SetBinContent(ibinx, ibinx, F5r); 
-         h2_F6_r [im] -> SetBinContent(ibinx, ibinx, F6r); 
+         h2_F1_r [im] -> SetBinContent(ibinx, ibiny, F1r);
+         h2_F2_r [im] -> SetBinContent(ibinx, ibiny, F2r); 
+         h2_F3_r [im] -> SetBinContent(ibinx, ibiny, F3r); 
+         h2_F4_r [im] -> SetBinContent(ibinx, ibiny, F4r); 
+         h2_F5_r [im] -> SetBinContent(ibinx, ibiny, F5r); 
+         h2_F6_r [im] -> SetBinContent(ibinx, ibiny, F6r); 
       }
     }
 
@@ -604,22 +610,14 @@ void MakePlots (void)
   ntpl->Write("sfntp");
   for (unsigned int im = 0; im < gSFAlgList.size(); im++) {
 
-    h2_F1[im]->Write(Form("F1_model%d", im));
-    h2_F2[im]->Write(Form("F2_model%d", im));
-    h2_F3[im]->Write(Form("F3_model%d", im));
-    h2_F4[im]->Write(Form("F4_model%d", im));
-    h2_F5[im]->Write(Form("F5_model%d", im));
-    h2_F6[im]->Write(Form("F6_model%d", im));
+      h2_F1[im]->Write(Form("F1_%s", vsfset[im].c_str()));
+      h2_F2[im]->Write(Form("F2_%s", vsfset[im].c_str()));
+      h2_F3[im]->Write(Form("F3_%s", vsfset[im].c_str()));
+      h2_F4[im]->Write(Form("F4_%s", vsfset[im].c_str()));
+      h2_F5[im]->Write(Form("F5_%s", vsfset[im].c_str()));
+      h2_F6[im]->Write(Form("F6_%s", vsfset[im].c_str()));
 
-    if (im > 0) {
-        h2_F1_r[im]->Write(Form("F1_ratio_model%d", im));
-        h2_F2_r[im]->Write(Form("F2_ratio_model%d", im));
-        h2_F3_r[im]->Write(Form("F3_ratio_model%d", im));
-        h2_F4_r[im]->Write(Form("F4_ratio_model%d", im));
-        h2_F5_r[im]->Write(Form("F5_ratio_model%d", im));
-        h2_F6_r[im]->Write(Form("F6_ratio_model%d", im));
-    }
-}
+  }
   f.Close();
   delete ntpl;
 }
@@ -677,7 +675,7 @@ void GetCommandLineArgs(int argc, char ** argv)
 //_________________________________________________________________________________
 void GetAlgorithms(void)
 {
-  vector<string> vsfset = str::Split(gOptSF, ",");
+  vsfset = str::Split(gOptSF, ",");
   LOG("gsfcomp", pNOTICE) 
       << "Number of input structure functions: " << vsfset.size();
   if(vsfset.size() == 0) {
@@ -716,6 +714,7 @@ void GetAlgorithms(void)
 
      gSFAlgList.push_back(sf_alg);
  }
+ assert (vsfset.size() == gSFAlgList.size());
 }
 //_________________________________________________________________________________
 
