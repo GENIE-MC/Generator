@@ -64,6 +64,7 @@ using namespace genie::utils;
 string        gOptSF      = "";         // --structure-func argument
 string        gOptOutFile = "sf_comp";  // -o argument
 std::pair<double, double> Q2range = {1e-1, 1e2};
+std::pair<double, double> xRange = {1e-5, 1};
 unsigned int nx = 50;
 int target = kPdgProton;
 int probe = kPdgNuMu;
@@ -112,8 +113,8 @@ void MakePlots (void)
   }
   double eps = nx > 1 ? 1.0 / nx : 0.1;
   double x_arr[nx];
-  const double log10Xmin = TMath::Log10(eps);
-  const double log10Xmax = TMath::Log10(1);
+  const double log10Xmin = TMath::Log10(xRange.first);
+  const double log10Xmax = TMath::Log10(xRange.second);
   const double dlog10X = (log10Xmax-log10Xmin)/(nx-1);
   for (int i = 0; i < nx; ++i) {
       x_arr[i] = TMath::Power(10, log10Xmin + i*dlog10X);
@@ -667,6 +668,32 @@ void GetCommandLineArgs(int argc, char ** argv)
     Q2range = {atof(range[0].c_str()),atof(range[1].c_str())};
 
   }  
+
+  if( parser.OptionExists('x') ) {
+    LOG("gsfcomp", pINFO) << "Reading x range";
+    std::string tmp = parser.ArgAsString('x');
+    vector<string> range = utils::str::Split(tmp, ",");
+    if (range.size() != 2 ){
+      LOG("gsfcomp", pFATAL)
+      << "Could not read x range";
+      gAbortingInErr = true;
+      exit(1);    
+    }
+    xRange = {atof(range[0].c_str()),atof(range[1].c_str())};
+  }  (else if parser.OptionExists("x") ) {
+    LOG("gsfcomp", pINFO) << "Reading x range";
+    std::string tmp = parser.ArgAsString("x");
+    vector<string> range = utils::str::Split(tmp, ",");
+    if (range.size() != 2 ){
+      LOG("gsfcomp", pFATAL)
+      << "Could not read x range";
+      gAbortingInErr = true;
+      exit(1);    
+    }
+    xRange = {atof(range[0].c_str()),atof(range[1].c_str())};
+  }  
+  LOG("gsfcomp", pNOTICE) << "Found parameter range x = (" << xRange.first << "," << xRange.second << "),  Q2 = (" << Q2range.first << "," << Q2range.second << ")";
+
   if(parser.OptionExists('o')){
     gOptOutFile = parser.Arg('o');
   }
