@@ -429,6 +429,15 @@ void HNIntranuke2025::AbsorbHN(
   // Library instance for reference
   PDGLibrary * pLib = PDGLibrary::Instance();
 
+  // only pi+, pi-, pi0 probes are handled
+  //if (pdgc!=kPdgPiP && pdgc!=kPdgPiM && pdgc!=kPdgPi0)
+  //  {
+  //    LOG("HNIntranuke2025", pWARN)
+  //      << "AbsorbHN() cannot handle probe: " << pdgc;
+  //    return;
+  //  }
+  pcode = pdgc;
+
   // Handle fermi target
   Target target(ev->TargetNucleus()->Pdg());
 
