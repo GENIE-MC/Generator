@@ -8,7 +8,7 @@ Configuration sets for PhotonCOHGenerator EventRecordVisitorI
 
   <param_set name="Default"> 
    <param type="string" name="CommonParam">                     HEDIS-PYTHIA </param>
-   <param type="alg"    name="WDecayer">  genie::PhotonCOHWdecPythia6/Default </param>
+   <param type="alg"    name="WDecayer">  genie::PhotonCOHWdecPythia8/Default </param>
   </param_set>
 
 </alg_conf>
