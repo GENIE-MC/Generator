@@ -14,7 +14,7 @@ Configuration sets for HEDISGenerator EventRecordVisitorI
      <param type="double" name="Primordial-kT">                            0.44 </param>
      <param type="double" name="Remnant-pT">                               0.35 </param>
      <param type="double" name="Energy-Singlet">                            0.5 </param>
-     <param type="alg"    name="Hadronizer">     genie::LeptoHadPythia6/Default </param>
+     <param type="alg"    name="Hadronizer">     genie::LeptoHadPythia8/Default </param>
   </param_set>
 
 </alg_conf>
