@@ -608,7 +608,7 @@ void MakePlots (void)
 
   string root_filename = gOptOutFile + ".root";
   TFile f(root_filename.c_str(),"recreate");
-  ntpl->Write(Form("sfntp_%s", vsfset[im].c_str()));
+  ntpl->Write("sfntp");
   for (unsigned int im = 0; im < gSFAlgList.size(); im++) {
 
       h2_F1[im]->Write(Form("F1_%s", vsfset[im].c_str()));
