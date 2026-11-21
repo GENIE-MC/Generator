@@ -929,7 +929,7 @@ bool genie::utils::intranuke2018::TwoBodyKinematics(
   t4Ptot = t4P1buf + t4P2buf;
 
   LOG("INukeUtils",pINFO) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
-  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
+  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L;
   LOG("INukeUtils",pINFO) <<"bindE = " << bindE;
 
   // binding energy
