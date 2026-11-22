@@ -74,7 +74,7 @@ void AGCharmPythia8Hadro2023::Initialize(void) const
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
   gPythia->readString("Random:setSeed = on");
-  gPythia->settings.mode("Random:seed", seed);
+  gPythia->settings.mode("Random:seed", RandomGen::Pythia8Seed(seed));
   LOG("AGCharmPythia8Hadro2023", pINFO)
     << "PYTHIA8 seed = " << gPythia->settings.mode("Random:seed");
   gPythia->init();

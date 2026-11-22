@@ -86,6 +86,14 @@ public:
   long int GetSeed (void)         const { return fCurrSeed; }
   void     SetSeed (long int seed);
 
+  //! PYTHIA8 seed for a GENIE seed. PYTHIA8's Random:seed accepts only
+  //! values up to 900000000 and rejects larger ones (PYTHIA8 then runs with
+  //! its default seed), so every GENIE seed above that would give the same
+  //! PYTHIA8 random stream in every job. Seeds up to 900000000 are returned
+  //! unchanged; larger ones are folded into [1, 900000000] by
+  //! 1 + (seed - 1) % 900000000.
+  static long int Pythia8Seed (long int seed);
+
 private:
 
   RandomGen();

@@ -372,7 +372,7 @@ void Pythia8Hadro2019::Initialize(void)
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
   gPythia->readString("Random:setSeed = on");
-  gPythia->settings.mode("Random:seed", seed);
+  gPythia->settings.mode("Random:seed", RandomGen::Pythia8Seed(seed));
   LOG("Pythia8Had", pINFO)
     << "PYTHIA8  seed = " << gPythia->settings.mode("Random:seed");
 
