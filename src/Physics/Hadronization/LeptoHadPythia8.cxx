@@ -562,7 +562,7 @@ void LeptoHadPythia8::Initialize(void) const
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
   fPythia->readString("Random:setSeed = on");
-  fPythia->settings.mode("Random:seed", seed);
+  fPythia->settings.mode("Random:seed", RandomGen::Pythia8Seed(seed));
   LOG("LeptoHad", pINFO) << "PYTHIA8  seed = " << fPythia->settings.mode("Random:seed");
 
   //needed to only do hadronization

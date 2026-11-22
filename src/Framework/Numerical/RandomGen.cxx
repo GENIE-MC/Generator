@@ -123,6 +123,13 @@ bool RandomGen::IsInitialized()
   return fInitialized;
 }
 //____________________________________________________________________________
+long int RandomGen::Pythia8Seed(long int seed)
+{
+  const long int kPythia8MaxSeed = 900000000; // PYTHIA8 Random:seed maximum
+  if (seed <= kPythia8MaxSeed) return seed;
+  return 1 + (seed - 1) % kPythia8MaxSeed;
+}
+//____________________________________________________________________________
 void RandomGen::SetSeed(long int seed)
 {
   LOG("Rndm", pNOTICE)
@@ -154,8 +161,8 @@ void RandomGen::SetSeed(long int seed)
   Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
   gPythia->readString("ProcessLevel:all = off");
   gPythia->readString("Print:quiet = on");
-  gPythia->readString("Random::setSeed = on");
-  gPythia->settings.mode("Random:seed",seed);
+  gPythia->readString("Random:setSeed = on");
+  gPythia->settings.mode("Random:seed", RandomGen::Pythia8Seed(seed));
   gPythia->init();
 #endif
 

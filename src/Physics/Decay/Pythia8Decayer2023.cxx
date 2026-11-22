@@ -265,8 +265,8 @@ void Pythia8Decayer2023::Initialize(void) const
   // sync GENIE and PYTHIA8 seeds
   RandomGen * rnd = RandomGen::Instance();
   long int seed = rnd->GetSeed();
-  gPythia->readString("Random::setSeed = on");
-  gPythia->settings.mode("Random:seed",seed);
+  gPythia->readString("Random:setSeed = on");
+  gPythia->settings.mode("Random:seed", RandomGen::Pythia8Seed(seed));
   gPythia->init();
 
   LOG("Pythia8Decay", pINFO)
