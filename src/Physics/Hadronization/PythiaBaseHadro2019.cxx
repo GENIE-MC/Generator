@@ -364,6 +364,7 @@ void PythiaBaseHadro2019::Initialize(void)
   fLunda                  = 0.;
   fLundb                  = 0.;
   fLundaDiq               = 0.;
+  fKeepHadronizationHistory = false;
   fOriDecayFlag_pi0       = false;
   fOriDecayFlag_K0        = false;
   fOriDecayFlag_K0b       = false;
@@ -397,6 +398,12 @@ void PythiaBaseHadro2019::LoadConfig(void)
   this->GetParam( "PYTHIA-Lunda",                  fLunda                  );
   this->GetParam( "PYTHIA-Lundb",                  fLundb                  );
   this->GetParam( "PYTHIA-LundaDiq",               fLundaDiq               );
+
+  // Optionally record the hadrons that PYTHIA decays during hadronization
+  // (eg rho, omega, eta, K*, Sigma0, Delta) as kIStDecayedState entries
+  // with mother/daughter links. Off by default: the record is then
+  // identical to what earlier versions produced.
+  this->GetParamDef( "KeepHadronizationHistory", fKeepHadronizationHistory, true );
 
   // Set required PYTHIA decay flags
   fReqDecayFlag_pi0       = false; // don't decay pi0

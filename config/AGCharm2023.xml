@@ -10,6 +10,8 @@ Name                          Type       Opt   Comment                          
 FragmentationFunc             alg        No    Fragmentation function algorithm
 HadronizeRemnants             bool       yes   handle to allow the hadronization             true
                                                (with Pytha) of the charm remnants
+KeepHadronizationHistory      bool       yes   record the hadrons PYTHIA decays while        true
+                                               hadronizing the remnant (status 3, linked)
 PTFunction                    string     No    Function in form of a string for the
                                                P_t distribution of the Charmed hadron
                                                The variable as to be x
@@ -33,6 +35,7 @@ CharmFrac-Ds                  vec-double No    fractions for D_s meson
 
      <param type="alg"      name="FragmentationFunc">  genie::PetersonFragm/Default </param>
      <param type="bool"     name="HadronizeRemnants">  true                         </param>
+     <param type="bool"     name="KeepHadronizationHistory"> true                 </param>
 
      <param type="string"   name="PTFunction">  exp(-0.213362-6.62464*x)            </param>
 

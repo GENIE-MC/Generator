@@ -13,6 +13,8 @@
 
 #include <RVersion.h>
 #include <TClonesArray.h>
+
+#include <vector>
 // Avoid the inclusion of dlfcn.h by Pythia.h that CINT is not able to process
 #ifdef __CINT__
 #define _DLFCN_H_
@@ -29,9 +31,11 @@
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/RandomGen.h"
 #include "Framework/ParticleData/PDGCodes.h"
+#include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Utils/KineUtils.h"
 #include "Physics/Hadronization/Pythia8Hadro2019.h"
+#include "Physics/Hadronization/Pythia8StatusCodes.h"
 
 #ifdef __GENIE_PYTHIA8_ENABLED__
 #include "Pythia8/Pythia.h"
@@ -162,6 +166,15 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
   GHepParticle * neutrino  = event->Probe();
   const TLorentzVector & vtx = *(neutrino->X4());
 
+  // Optionally keep the hadronization history: hadrons that PYTHIA decayed
+  // during hadronization (see Pythia8StatusCodes.h) are added as kIStDecayedState entries
+  // and their decay products point to them. No extra PYTHIA calls or random
+  // numbers are used, so the remaining entries are identical to those
+  // obtained with the history switched off.
+  bool keep_history = fKeepHadronizationHistory;
+  // PYTHIA index -> GHEP index of the copied decayed hadron (-1 if none)
+  std::vector<int> ghep_decayed(np, -1);
+
   // Loop over PYTHIA8 event particles and copy relevant entries
   for (int i = 0; i < np; i++) {
 
@@ -182,10 +195,13 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
        }
      }
 
-     // Copy the initial q, qq (status = -23) and all undecayed particles
+     // Copy the initial q, qq (fragmented string ends) and all undecayed particles
      // Ignore particles we asked PYTHIA to decay (eg omega, Delta) but
-     // record their decay products
-     bool copy = (pythia_particle_status==-23) || (pythia_particle_status > 0);
+     // record their decay products, unless the history is to be kept
+     bool decayed = keep_history &&
+         IsPythia8DecayedHadron(pythia_particle_status);
+     bool copy = (pythia_particle_status == kPythia8StFragmentedStringEnd) ||
+                 (pythia_particle_status > 0) || decayed;
      if(copy) {
         // The fragmentation products are generated in the hadronic CM frame
         // where the z>0 axis is the \vec{phad} direction. For each particle
@@ -210,18 +226,45 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
         bool is_lchg  = pdg::IsChargedLepton(particle_pdg_code);
         bool not_hadr = is_gamma || is_nu || is_lchg;
         if(not_hadr)  { ist = kIStStableFinalState; }
+        if(decayed)   { ist = kIStDecayedState;     }
 
         // Set mother/daugher indices
         // int mother1 = mom+ fEvent[i].mother1();
         // int mother2 = (pythia_particle_status > 0) ? mom + fEvent[i].mother2() : -1;
         int mother1 = mom; // fEvent[i].mother1();
         int mother2 = -1; //(pythia_particle_status > 0) ? mom + fEvent[i].mother2() : -1;
-        if(pythia_particle_status > 0) {
+        if(pythia_particle_status > 0 || decayed) {
           mother1 = mom+1;
           mother2 = mom+2;
         }
+        if(keep_history &&
+           pythia_particle_status != kPythia8StFragmentedStringEnd) {
+          // decay products point to the decayed hadron they come from: follow
+          // the PYTHIA first-mother chain up to the nearest copied decayed
+          // hadron; stop at the string ends (q, qq), which keep the mothers above
+          int im = fEvent[i].mother1();
+          while(im > 0 && ghep_decayed[im] < 0 &&
+                fEvent[im].status() != kPythia8StFragmentedStringEnd) {
+            im = fEvent[im].mother1();
+          }
+          if(im > 0 && ghep_decayed[im] >= 0) {
+            mother1 = ghep_decayed[im];
+            mother2 = -1;
+          }
+        }
         int daughter1 = -1;//(fEvent[i].daughter1() <= 0 ) ? -1 : mom  + fEvent[i].daughter1();
         int daughter2 = -1;//(fEvent[i].daughter1() <= 0 ) ? -1 : mom  + fEvent[i].daughter2();
+
+        // A decayed hadron unknown to GENIE's particle table can not be stored
+        // under its own code (GHepParticle aborts on unknown codes): keep the
+        // entry, so that the links of its decay products stay valid, as a
+        // generic hadronic blob
+        if(decayed && ! PDGLibrary::Instance()->Find(particle_pdg_code, false)) {
+          LOG("Pythia8Had", pWARN)
+            << "Decayed hadron with PDG code " << particle_pdg_code
+            << " is unknown to GENIE: recorded as " << kPdgHadronicBlob;
+          particle_pdg_code = kPdgHadronicBlob;
+        }
 
         // Create GHepParticle
         GHepParticle particle = GHepParticle(
@@ -246,6 +289,7 @@ bool Pythia8Hadro2019::Hadronize(GHepRecord *
              << " with status = " << particle.Status();
 
         // Insert the particle in the list
+        if(decayed) { ghep_decayed[i] = event->GetEntries(); }
         event->AddParticle(particle);
      }// copy?
   }// loop over particles

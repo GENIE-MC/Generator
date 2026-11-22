@@ -57,6 +57,9 @@ DIS-HMultWgt-vbn-NC-m3          double  No    scaling factor, vbn NC, multiplici
 DIS-HMultWgt-vbn-EM-m2          double  No    scaling factor, vbn EM, multiplicity=2                   CommonParam[NonResBackground]
 DIS-HMultWgt-vbn-EM-m3          double  No    scaling factor, vbn EM, multiplicity=3                   CommonParam[NonResBackground] 
 Decayer                         alg     Yes   particle decayer algorithm in case of -manual- decays    -unused-
+KeepHadronizationHistory        bool    Yes   record the hadrons PYTHIA decays during hadronization    true
+                                              (rho, omega, eta, K*, Sigma0, ...) with status 3 and
+                                              mother/daughter links to their decay products
 KNO2PYTHIA-Wmin                 double  No    Validity checks with Wcut                                CommonParam[KNO2Pythia]        
 -->
 
@@ -89,6 +92,13 @@ KNO2PYTHIA-Wmin                 double  No    Validity checks with Wcut         
     <param type="double" name="PYTHIA-Lunda"> 0.30 </param>
     <param type="double" name="PYTHIA-Lundb"> 0.58 </param>
     <param type="double" name="PYTHIA-LundaDiq"> 0.5 </param>
+
+    <!--
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         Event-record options: set true to keep the hadrons decayed inside PYTHIA (status 3 entries).
+         The other entries of the record are not affected.
+    -->
+    <param type="bool" name="KeepHadronizationHistory"> true </param>
 
   </param_set>
   
