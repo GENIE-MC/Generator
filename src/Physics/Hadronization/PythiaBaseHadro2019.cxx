@@ -403,7 +403,7 @@ void PythiaBaseHadro2019::LoadConfig(void)
   // (eg rho, omega, eta, K*, Sigma0, Delta) as kIStDecayedState entries
   // with mother/daughter links. Off by default: the record is then
   // identical to what earlier versions produced.
-  this->GetParamDef( "KeepHadronizationHistory", fKeepHadronizationHistory, false );
+  this->GetParamDef( "KeepHadronizationHistory", fKeepHadronizationHistory, true );
 
   // Set required PYTHIA decay flags
   fReqDecayFlag_pi0       = false; // don't decay pi0

@@ -745,7 +745,7 @@ void AGCharmPythiaBaseHadro2023::LoadConfig(void)
 
   // Optionally record the hadrons that PYTHIA decays while hadronizing the
   // remnant as kIStDecayedState entries with mother/daughter links
-  GetParamDef( "KeepHadronizationHistory", fKeepHadronizationHistory, false ) ;
+  GetParamDef( "KeepHadronizationHistory", fKeepHadronizationHistory, true ) ;
 
   //-- Get a fragmentation function
   fFragmFunc = dynamic_cast<const FragmentationFunctionI *> (
