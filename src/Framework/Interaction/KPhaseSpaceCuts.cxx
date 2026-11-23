@@ -28,9 +28,7 @@ fLoaded(false),
 fHasEMQ2Min(false),
 fHasWeakQ2Min(false),
 fEMQ2Min(-1.),
-fWeakQ2Min(-1.),
-fHasQ2MinOverride(false),
-fQ2MinOverride(-1.)
+fWeakQ2Min(-1.)
 {
   fInstance = 0;
 }
@@ -50,27 +48,20 @@ KPhaseSpaceCuts * KPhaseSpaceCuts::Instance(void)
   return fInstance;
 }
 //____________________________________________________________________________
-void KPhaseSpaceCuts::SetQ2MinOverride(double Q2min)
-{
-  fQ2MinOverride = this->ValidateQ2Min("command-line Q2-min", Q2min);
-  fHasQ2MinOverride = true;
-}
-//____________________________________________________________________________
 bool KPhaseSpaceCuts::HasQ2MinCut(const Interaction * interaction) const
 {
   this->LoadConfig();
 
-  if(!interaction) return fHasQ2MinOverride || fHasEMQ2Min || fHasWeakQ2Min;
+  if(!interaction) return fHasEMQ2Min || fHasWeakQ2Min;
 
   const ProcessInfo & proc = interaction->ProcInfo();
   if(proc.IsEM()) {
-    if(fHasQ2MinOverride) return true;
     if(!fHasEMQ2Min) this->FailMissingEMQ2Min();
     return true;
   }
 
   if(proc.IsWeak()) {
-    return fHasQ2MinOverride || fHasWeakQ2Min;
+    return fHasWeakQ2Min;
   }
 
   return false;
@@ -81,20 +72,15 @@ double KPhaseSpaceCuts::Q2MinCut(
 {
   this->LoadConfig();
 
-  if(!interaction) {
-    if(fHasQ2MinOverride) return this->RaiseDefault(default_Q2min, fQ2MinOverride);
-    return default_Q2min;
-  }
+  if(!interaction) return default_Q2min;
 
   const ProcessInfo & proc = interaction->ProcInfo();
   if(proc.IsEM()) {
-    if(fHasQ2MinOverride) return this->RaiseDefault(default_Q2min, fQ2MinOverride);
     if(!fHasEMQ2Min) this->FailMissingEMQ2Min();
     return this->RaiseDefault(default_Q2min, fEMQ2Min);
   }
 
   if(proc.IsWeak()) {
-    if(fHasQ2MinOverride) return this->RaiseDefault(default_Q2min, fQ2MinOverride);
     if(fHasWeakQ2Min) return this->RaiseDefault(default_Q2min, fWeakQ2Min);
   }
 
@@ -105,14 +91,13 @@ bool KPhaseSpaceCuts::HasSplineQ2MinCut(void) const
 {
   this->LoadConfig();
 
-  return fHasQ2MinOverride || fHasWeakQ2Min || fHasEMQ2Min;
+  return fHasWeakQ2Min || fHasEMQ2Min;
 }
 //____________________________________________________________________________
 double KPhaseSpaceCuts::SplineQ2MinCut(void) const
 {
   this->LoadConfig();
 
-  if(fHasQ2MinOverride) return fQ2MinOverride;
   if(fHasWeakQ2Min)     return fWeakQ2Min;
   if(fHasEMQ2Min)       return fEMQ2Min;
   return -1.;
@@ -122,7 +107,6 @@ string KPhaseSpaceCuts::SplineQ2MinCutSource(void) const
 {
   this->LoadConfig();
 
-  if(fHasQ2MinOverride) return "command-line --q2-min";
   if(fHasWeakQ2Min || fHasEMQ2Min) return "CommonPhaseSpaceCuts.xml";
   return "";
 }
@@ -131,7 +115,6 @@ bool KPhaseSpaceCuts::HasSplineQ2MinCutForProbe(int probe_pdg) const
 {
   this->LoadConfig();
 
-  if(fHasQ2MinOverride) return true;
   if(pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg)) {
     return fHasWeakQ2Min;
   }
@@ -145,7 +128,6 @@ double KPhaseSpaceCuts::SplineQ2MinCutForProbe(int probe_pdg) const
 {
   this->LoadConfig();
 
-  if(fHasQ2MinOverride) return fQ2MinOverride;
   if(pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg)) {
     if(fHasWeakQ2Min) return fWeakQ2Min;
     return -1.;
@@ -164,7 +146,6 @@ string KPhaseSpaceCuts::SplineQ2MinCutSourceForProbe(int probe_pdg) const
   this->LoadConfig();
 
   if(!this->HasSplineQ2MinCutForProbe(probe_pdg)) return "";
-  if(fHasQ2MinOverride) return "command-line --q2-min";
   return "CommonPhaseSpaceCuts.xml";
 }
 //____________________________________________________________________________
@@ -214,7 +195,7 @@ void KPhaseSpaceCuts::FailMissingEMQ2Min(void) const
 {
   LOG("KPhaseSpaceCuts", pFATAL)
     << "Electromagnetic interactions require EM-Q2-min in "
-    << "CommonPhaseSpaceCuts.xml [Default], or a command-line --q2-min override.";
+    << "CommonPhaseSpaceCuts.xml [Default].";
   exit(78);
 }
 //____________________________________________________________________________

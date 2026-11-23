@@ -31,7 +31,6 @@ Syntax:
              [--force-flux-ray-interaction]
              [--seed random_number_seed]
              [--cross-sections xml_file]
-             [--q2-min q2_value]
 
              // command line args handled by RunOpt:
              [--event-generator-list list_name] // default "Default"
@@ -106,11 +105,6 @@ Syntax:
            --cross-sections
               Name (incl. full path) of an XML file with pre-computed
               cross-section values used for constructing splines.
-           --q2-min
-              Override the minimum Q^2 phase-space cut (in GeV^2). By default,
-              the EM cut is configured in CommonPhaseSpaceCuts.xml [Default]
-              as EM-Q2-min. For weak interactions, this explicitly opts the
-              run into the Q2 cut.
 
            --event-generator-list
               List of event generators to load in event generation drivers.
@@ -250,8 +244,6 @@ long int        gOptRanSeed;      // random number seed
 string          gOptInpXSecFile;  // cross-section splines
 string          gOptOutFileName;  // Optional outfile name
 string          gOptStatFileName; // Status file name, set if gOptOutFileName was set.
-double          gOptQ2Min;        // Q2 minimum override value
-bool            gOptQ2MinSet;     // whether --q2-min was specified
 
 //____________________________________________________________________________
 int main(int argc, char ** argv)
@@ -290,14 +282,6 @@ void Initialize()
     exit(-1);
   }
   RunOpt::Instance()->BuildTune();
-
-  // Apply Q2 minimum override before physics code queries phase-space cuts.
-  if(gOptQ2MinSet) {
-    KPhaseSpaceCuts::Instance()->SetQ2MinOverride(gOptQ2Min);
-    LOG("gevgen", pNOTICE)
-      << "Overriding Q2 minimum phase-space cut from command line: "
-      << gOptQ2Min << " GeV^2";
-  }
 
   // Initialization of random number generators, cross-section table,
   // messenger thresholds, cache file
@@ -886,16 +870,6 @@ void GetCommandLineArgs(int argc, char ** argv)
     gOptInpXSecFile = "";
   }
 
-  // Q2 minimum override
-  gOptQ2MinSet = false;
-  if(parser.OptionExists("q2-min")) {
-    gOptQ2Min = parser.ArgAsDouble("q2-min");
-    LOG("gevgen", pINFO)
-      << "Using command-line --q2-min override for the minimum Q2 "
-      << "phase-space cut: " << gOptQ2Min << " GeV^2";
-    gOptQ2MinSet = true;
-  }
-
   //
   // print-out the command line options
   //
@@ -945,10 +919,6 @@ void GetCommandLineArgs(int argc, char ** argv)
       LOG("gevgen", pNOTICE)
           << " >> " <<  tgtpdgc << " (weight fraction = " << wgt << ")";
   }
-  if(gOptQ2MinSet) {
-     LOG("gevgen", pNOTICE)
-       << "Q2 minimum override: " << gOptQ2Min << " GeV^2";
-  }
   LOG("gevgen", pNOTICE) << "\n";
 
   LOG("gevgen", pNOTICE) << *RunOpt::Instance();
@@ -971,7 +941,6 @@ void PrintSyntax(void)
     << "\n              [--force-flux-ray-interaction]"
     << "\n              [--seed random_number_seed]"
     << "\n              [--cross-sections xml_file]"
-    << "\n              [--q2-min q2_value]"
     << RunOpt::RunOptSyntaxString(true)
     << "\n";
 

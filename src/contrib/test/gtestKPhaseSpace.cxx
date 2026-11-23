@@ -123,16 +123,6 @@ int RunDefaultChecks(const char * self)
   failures += !Check(NearlyEqual(cuts->SplineQ2MinCutForProbe(kPdgElectron), em_Q2_min),
     "electron spline metadata uses EM-Q2-min");
 
-  cuts->SetQ2MinOverride(0.25);
-  failures += !Check(cuts->HasQ2MinCut(weak),
-    "command-line Q2 override opts weak interactions into the cut");
-  failures += !Check(NearlyEqual(cuts->Q2MinCut(weak, 0.), 0.25),
-    "command-line Q2 override is applied to weak interactions");
-  failures += !Check(cuts->HasSplineQ2MinCutForProbe(kPdgNuMu),
-    "command-line Q2 override provides spline metadata");
-  failures += !Check(NearlyEqual(cuts->SplineQ2MinCutForProbe(kPdgNuMu), 0.25),
-    "spline metadata uses the command-line Q2 override");
-
   delete em;
   delete weak;
 

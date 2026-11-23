@@ -30,7 +30,6 @@ class KPhaseSpaceCuts {
 public:
   static KPhaseSpaceCuts * Instance(void);
 
-  void   SetQ2MinOverride(double Q2min);
   bool   HasQ2MinCut(const Interaction * interaction) const;
   double Q2MinCut(const Interaction * interaction, double default_Q2min) const;
   bool   HasSplineQ2MinCut(void) const;
@@ -57,9 +56,6 @@ private:
   mutable bool   fHasWeakQ2Min;
   mutable double fEMQ2Min;
   mutable double fWeakQ2Min;
-
-  bool   fHasQ2MinOverride;
-  double fQ2MinOverride;
 
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }
