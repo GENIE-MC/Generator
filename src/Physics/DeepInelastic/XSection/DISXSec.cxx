@@ -280,6 +280,10 @@ void DISXSec::CacheFreeNucleonXSec(const XSecAlgorithmI *model,
             << "W integration range = [" << Wl.min << ", " << Wl.max << "]";
        LOG("DISXSec", pINFO)
          << "Q2 integration range = [" << Q2l.min << ", " << Q2l.max << "]";
+       LOG("DISXSec", pINFO)
+         << "X limits  = [" << kps.XLim().min << ", " << kps.XLim().max << "]";
+       LOG("DISXSec", pINFO)
+         << "Y limits = [" << kps.YLim().min << ", " << kps.YLim().max << "]";
 #endif
        bool phsp_ok =
           (Q2l.min >= 0. && Q2l.max >= 0. && Q2l.max >= Q2l.min &&
