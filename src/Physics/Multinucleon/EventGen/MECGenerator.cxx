@@ -249,11 +249,20 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);
 
-  // **** NOTE / TODO:
-  // **** Hardcode bogus limits for the time-being
-  // **** Should be able to get limits via Interaction::KPhaseSpace
-  double Q2min =  0.01;
-  double Q2max =  8.00;
+  // Keep the historical proposal bound for runs without a configured cut.
+  // Otherwise scan and sample down to the same floor used by the cross section.
+  const KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+  const double Q2min = cuts->HasQ2MinCut(interaction)
+    ? cuts->Q2MinCut(interaction, interaction->ProcInfo().IsEM() ? 0. : kMinQ2Limit)
+    : 0.01;
+  const double Q2max = 8.00;
+  if (Q2min >= Q2max) {
+    event->EventFlags()->SetBitNumber(kKineGenErr, true);
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Q2 cut leaves no empirical MEC proposal range");
+    exception.SwitchOnFastForward();
+    throw exception;
+  }
   double Wmin  =  1.88;
   double Wmax  =  3.00;
 
