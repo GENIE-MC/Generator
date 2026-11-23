@@ -32,12 +32,6 @@ public:
 
   bool   HasQ2MinCut(const Interaction * interaction) const;
   double Q2MinCut(const Interaction * interaction, double default_Q2min) const;
-  bool   HasSplineQ2MinCut(void) const;
-  double SplineQ2MinCut(void) const;
-  string SplineQ2MinCutSource(void) const;
-  bool   HasSplineQ2MinCutForProbe(int probe_pdg) const;
-  double SplineQ2MinCutForProbe(int probe_pdg) const;
-  string SplineQ2MinCutSourceForProbe(int probe_pdg) const;
 
 private:
   KPhaseSpaceCuts();

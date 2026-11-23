@@ -147,7 +147,6 @@ Syntax:
 #include <cstdlib>
 #include <cassert>
 #include <algorithm>
-#include <cmath>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -173,7 +172,6 @@ Syntax:
 #include "Framework/EventGen/GMCJDriver.h"
 #include "Framework/EventGen/GMCJMonitor.h"
 #include "Framework/Interaction/Interaction.h"
-#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Ntuple/NtpWriter.h"
 #include "Framework/Ntuple/NtpMCFormat.h"
@@ -210,7 +208,6 @@ using namespace genie::controls;
 void GetCommandLineArgs (int argc, char ** argv);
 void Initialize         (void);
 void PrintSyntax        (void);
-void ValidateQ2MinAgainstSplineMetadata(void);
 
 #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX_OR_TGTMIX__
 void            GenerateEventsUsingFluxOrTgtMix();
@@ -289,59 +286,10 @@ void Initialize()
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
   utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::XSecTable(gOptInpXSecFile, false);
-  ValidateQ2MinAgainstSplineMetadata();
+  XSecSplineList::Instance()->EnableQ2CutValidation();
 
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
-}
-//____________________________________________________________________________
-void ValidateQ2MinAgainstSplineMetadata(void)
-{
-  if(gOptInpXSecFile.empty()) return;
-
-  KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
-  if(!cuts->HasSplineQ2MinCutForProbe(gOptNuPdgCode)) return;
-
-  double configured_Q2_min = cuts->SplineQ2MinCutForProbe(gOptNuPdgCode);
-  string configured_source =
-    cuts->SplineQ2MinCutSourceForProbe(gOptNuPdgCode);
-
-  XSecSplineList * xspl = XSecSplineList::Instance();
-  double spline_Q2_min = -1.;
-  string unit = "";
-  string source = "";
-
-  if(!xspl->GetCurrentTuneQ2MinKinematics(spline_Q2_min, &unit, &source)) {
-    LOG("gevgen", pFATAL)
-      << "Input cross-section spline file [" << gOptInpXSecFile
-      << "] does not declare <kinematics><q2 min=\"...\"/> metadata "
-      << "for tune " << RunOpt::Instance()->Tune()->Name()
-      << ". Refusing to run because the configured Q2 cut from "
-      << configured_source << " cannot be checked against the spline.";
-    gAbortingInErr = true;
-    exit(1);
-  }
-
-  const double abs_tol = 1E-12;
-  const double rel_tol = 1E-12;
-  const double diff = std::fabs(configured_Q2_min - spline_Q2_min);
-  const double scale = std::max(std::fabs(configured_Q2_min), std::fabs(spline_Q2_min));
-  if(diff > abs_tol && diff > rel_tol * scale) {
-    LOG("gevgen", pFATAL)
-      << "Q2 minimum cut mismatch between the configured run cut and "
-      << "input spline file [" << gOptInpXSecFile << "]. "
-      << configured_source << " sets " << configured_Q2_min
-      << " GeV^2, but the spline metadata records " << spline_Q2_min
-      << " " << unit << " from " << source << ".";
-    gAbortingInErr = true;
-    exit(1);
-  }
-
-  LOG("gevgen", pNOTICE)
-    << "Validated configured Q2 minimum " << configured_Q2_min
-    << " GeV^2 from " << configured_source
-    << " against spline metadata for tune "
-    << RunOpt::Instance()->Tune()->Name();
 }
 //____________________________________________________________________________
 void GenerateEventsAtFixedInitState(void)

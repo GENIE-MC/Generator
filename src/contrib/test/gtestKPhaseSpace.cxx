@@ -39,7 +39,7 @@ void PrintLimits(const Interaction * interaction);
 int  RunDefaultChecks(const char * self);
 int  RunMissingEMCutCheck(void);
 int  RunWeakConfigCutCheck(void);
-int  RunNoSplineQ2CutCheck(void);
+int  RunNoWeakQ2CutCheck(void);
 bool Check(bool ok, const char * msg);
 bool NearlyEqual(double a, double b);
 int  RunChild(const char * self, const char * mode, const std::string & xml);
@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
     std::string mode = argv[1];
     if(mode == "--expect-missing-em-cut") _exit(RunMissingEMCutCheck());
     if(mode == "--expect-weak-config-cut") _exit(RunWeakConfigCutCheck());
-    if(mode == "--expect-no-spline-q2-cut") _exit(RunNoSplineQ2CutCheck());
+    if(mode == "--expect-no-weak-Q2-cut") _exit(RunNoWeakQ2CutCheck());
   }
 
   // -- get a DIS interaction object & access its kinematics
@@ -116,13 +116,6 @@ int RunDefaultChecks(const char * self)
     "weak interactions do not use a configurable Q2 cut by default");
   failures += !Check(NearlyEqual(cuts->Q2MinCut(weak, weak_default), weak_default),
     "weak interactions keep the caller default without an explicit cut");
-  failures += !Check(!cuts->HasSplineQ2MinCutForProbe(kPdgNuMu),
-    "neutrino spline metadata ignores EM-only Q2 cuts");
-  failures += !Check(cuts->HasSplineQ2MinCutForProbe(kPdgElectron),
-    "electron spline metadata sees EM Q2 cuts");
-  failures += !Check(NearlyEqual(cuts->SplineQ2MinCutForProbe(kPdgElectron), em_Q2_min),
-    "electron spline metadata uses EM-Q2-min");
-
   delete em;
   delete weak;
 
@@ -167,57 +160,71 @@ int RunDefaultChecks(const char * self)
     "  </param_set>\n"
     "</common_PhaseSpaceCuts_list>\n");
   if(empty_xml.empty()) {
-    failures += !Check(false, "temporary XML for empty Q2 metadata was created");
+    failures += !Check(false, "temporary XML for an empty Q2 configuration was created");
   } else {
-    int empty_status = RunChild(self, "--expect-no-spline-q2-cut", empty_xml);
+    int empty_status = RunChild(self, "--expect-no-weak-Q2-cut", empty_xml);
     failures += !Check(WIFEXITED(empty_status) &&
       WEXITSTATUS(empty_status) == 0,
-      "empty CommonPhaseSpaceCuts.xml produces no spline Q2 metadata");
+      "empty CommonPhaseSpaceCuts.xml configures no weak Q2 cut");
   }
   RemoveTempXML(empty_xml);
 
-  std::string spline_xml = WriteSplineXML(
-    "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+  const std::string spline_header =
     "<genie_xsec_spline_list version=\"3.00\" uselog=\"1\">\n"
-    "  <genie_tune name=\"UnitTestTune\">\n"
-    "    <kinematics>\n"
-    "      <q2 min=\"0.25\" unit=\"GeV^2\" source=\"unit-test\"/>\n"
-    "    </kinematics>\n"
-    "    <spline name=\"dummy\" nknots=\"3\">\n"
+    "  <genie_tune name=\"UnitTestTune\">\n";
+  const std::string spline_footer = "  </genie_tune>\n</genie_xsec_spline_list>\n";
+  const std::string knots =
     "      <knot> <E> 0.10000 </E> <xsec> 1.0000000000e-38 </xsec> </knot>\n"
     "      <knot> <E> 1.00000 </E> <xsec> 2.0000000000e-38 </xsec> </knot>\n"
     "      <knot> <E> 2.00000 </E> <xsec> 3.0000000000e-38 </xsec> </knot>\n"
-    "    </spline>\n"
-    "  </genie_tune>\n"
-    "</genie_xsec_spline_list>\n");
-  if(spline_xml.empty()) {
-    failures += !Check(false, "temporary spline XML was created");
+    "    </spline>\n";
+  const std::string known_key = "known;proc:EM,QES;";
+  const std::string legacy_key = "legacy;proc:EM,QES;";
+  const std::string default_key = "default;proc:Weak[CC],QES;";
+  const std::string known_spline = "    <spline name=\"" + known_key + "\" nknots=\"3\">\n";
+  const std::string known_cut =
+    "      <kinematics><q2 min=\"0.25\" unit=\"GeV^2\" source=\"unit-test\"/></kinematics>\n";
+  const std::string no_cut = "      <kinematics><q2 status=\"unconfigured\"/></kinematics>\n";
+  std::string spline_xml = WriteSplineXML(
+    spline_header
+    // Old tune-level stamps cannot establish the cut on a particular spline.
+    + "    <kinematics><q2 min=\"0.6\" unit=\"GeV^2\"/></kinematics>\n"
+    + known_spline + known_cut + knots
+    + "    <spline name=\"" + legacy_key + "\" nknots=\"3\">\n" + knots
+    + "    <spline name=\"" + default_key + "\" nknots=\"3\">\n" + no_cut + knots
+    + spline_footer);
+  std::string conflict_xml = WriteSplineXML(
+    spline_header + known_spline
+    + "      <kinematics><q2 min=\"0.15\" unit=\"GeV^2\"/></kinematics>\n"
+    + knots + spline_footer);
+
+  if(spline_xml.empty() || conflict_xml.empty()) {
+    failures += !Check(false, "temporary spline XML files were created");
   } else {
     XSecSplineList * xspl = XSecSplineList::Instance();
-    failures += !Check(xspl->LoadFromXml(spline_xml) == kXmlOK,
-      "spline XML with kinematics metadata loads");
-    double Q2min = -1.;
-    std::string unit = "";
-    std::string source = "";
-    failures += !Check(xspl->GetTuneQ2MinKinematics(
-      "UnitTestTune", Q2min, &unit, &source),
-      "loaded spline XML exposes Q2 metadata");
-    failures += !Check(NearlyEqual(Q2min, 0.25),
-      "loaded spline XML preserves Q2 metadata value");
+    xspl->SetCurrentTune("UnitTestTune");
+    failures += !Check(xspl->LoadFromXml(spline_xml, false, true) == kXmlOK,
+      "spline XML with known and legacy entries loads");
+    failures += !Check(xspl->LoadFromXml(conflict_xml, true, true) != kXmlOK,
+      "merge checks a conflicting EM cut before discarding its duplicate key");
 
     std::string saved_spline_xml = spline_xml + ".roundtrip.xml";
     xspl->SaveAsXml(saved_spline_xml);
     failures += !Check(xspl->LoadFromXml(saved_spline_xml) == kXmlOK,
-      "saved spline XML with kinematics metadata reloads");
-    Q2min = -1.;
-    failures += !Check(xspl->GetTuneQ2MinKinematics(
-      "UnitTestTune", Q2min, &unit, &source),
-      "round-tripped spline XML exposes Q2 metadata");
-    failures += !Check(NearlyEqual(Q2min, 0.25),
-      "round-tripped spline XML preserves Q2 metadata value");
+      "saved spline XML reloads");
+    double Q2min = -1.;
+    failures += !Check(xspl->GetSplineQ2MinKinematics(known_key, Q2min)
+        && NearlyEqual(Q2min, 0.25),
+      "round-tripped EM spline keeps its own cut after the failed merge");
+    failures += !Check(xspl->SplineExists(legacy_key)
+        && !xspl->GetSplineQ2MinKinematics(legacy_key, Q2min),
+      "a legacy spline remains unknown after a round trip");
+    failures += !Check(xspl->GetSplineQ2MinKinematics(default_key, Q2min) && Q2min == 0.,
+      "a generated spline with no configured cut remains distinct from legacy");
     unlink(saved_spline_xml.c_str());
   }
   RemoveTempXML(spline_xml);
+  RemoveTempXML(conflict_xml);
 
   return failures == 0 ? 0 : 1;
 }
@@ -241,29 +248,17 @@ int RunWeakConfigCutCheck(void)
     "weak interaction sees Weak-Q2-min from XML");
   failures += !Check(NearlyEqual(cuts->Q2MinCut(weak, 0.), 0.25),
     "weak interaction uses Weak-Q2-min from XML");
-  failures += !Check(cuts->HasSplineQ2MinCut(),
-    "Weak-Q2-min provides spline metadata");
-  failures += !Check(NearlyEqual(cuts->SplineQ2MinCut(), 0.25),
-    "spline metadata uses Weak-Q2-min from XML");
-  failures += !Check(cuts->HasSplineQ2MinCutForProbe(kPdgNuMu),
-    "Weak-Q2-min provides neutrino spline metadata");
-  failures += !Check(NearlyEqual(cuts->SplineQ2MinCutForProbe(kPdgNuMu), 0.25),
-    "neutrino spline metadata uses Weak-Q2-min from XML");
   delete weak;
   return failures == 0 ? 0 : 1;
 }
 //__________________________________________________________________________
-int RunNoSplineQ2CutCheck(void)
+int RunNoWeakQ2CutCheck(void)
 {
-  KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
-  int failures = 0;
-  failures += !Check(!cuts->HasSplineQ2MinCut(),
-    "empty CommonPhaseSpaceCuts.xml has no spline Q2 metadata");
-  failures += !Check(!cuts->HasSplineQ2MinCutForProbe(kPdgNuMu),
-    "empty CommonPhaseSpaceCuts.xml has no neutrino spline Q2 metadata");
-  failures += !Check(!cuts->HasSplineQ2MinCutForProbe(kPdgElectron),
-    "empty CommonPhaseSpaceCuts.xml has no electron spline Q2 metadata");
-  return failures == 0 ? 0 : 1;
+  Interaction * weak = Interaction::QELCC(
+    kPdgTgtFe56, kPdgProton, kPdgNuMu, 3.);
+  bool has_cut = KPhaseSpaceCuts::Instance()->HasQ2MinCut(weak);
+  delete weak;
+  return Check(!has_cut, "empty configuration has no configured weak Q2 cut") ? 0 : 1;
 }
 //__________________________________________________________________________
 bool Check(bool ok, const char * msg)

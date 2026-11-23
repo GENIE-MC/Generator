@@ -15,7 +15,6 @@
 #include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Interaction/ProcessInfo.h"
 #include "Framework/Messenger/Messenger.h"
-#include "Framework/ParticleData/PDGUtils.h"
 #include "Framework/Registry/Registry.h"
 
 using namespace genie;
@@ -85,68 +84,6 @@ double KPhaseSpaceCuts::Q2MinCut(
   }
 
   return default_Q2min;
-}
-//____________________________________________________________________________
-bool KPhaseSpaceCuts::HasSplineQ2MinCut(void) const
-{
-  this->LoadConfig();
-
-  return fHasWeakQ2Min || fHasEMQ2Min;
-}
-//____________________________________________________________________________
-double KPhaseSpaceCuts::SplineQ2MinCut(void) const
-{
-  this->LoadConfig();
-
-  if(fHasWeakQ2Min)     return fWeakQ2Min;
-  if(fHasEMQ2Min)       return fEMQ2Min;
-  return -1.;
-}
-//____________________________________________________________________________
-string KPhaseSpaceCuts::SplineQ2MinCutSource(void) const
-{
-  this->LoadConfig();
-
-  if(fHasWeakQ2Min || fHasEMQ2Min) return "CommonPhaseSpaceCuts.xml";
-  return "";
-}
-//____________________________________________________________________________
-bool KPhaseSpaceCuts::HasSplineQ2MinCutForProbe(int probe_pdg) const
-{
-  this->LoadConfig();
-
-  if(pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg)) {
-    return fHasWeakQ2Min;
-  }
-  if(pdg::IsChargedLepton(probe_pdg)) {
-    return fHasEMQ2Min;
-  }
-  return fHasWeakQ2Min || fHasEMQ2Min;
-}
-//____________________________________________________________________________
-double KPhaseSpaceCuts::SplineQ2MinCutForProbe(int probe_pdg) const
-{
-  this->LoadConfig();
-
-  if(pdg::IsNeutrino(probe_pdg) || pdg::IsAntiNeutrino(probe_pdg)) {
-    if(fHasWeakQ2Min) return fWeakQ2Min;
-    return -1.;
-  }
-  if(pdg::IsChargedLepton(probe_pdg)) {
-    if(fHasEMQ2Min) return fEMQ2Min;
-    return -1.;
-  }
-  if(fHasWeakQ2Min) return fWeakQ2Min;
-  if(fHasEMQ2Min)   return fEMQ2Min;
-  return -1.;
-}
-//____________________________________________________________________________
-string KPhaseSpaceCuts::SplineQ2MinCutSourceForProbe(int probe_pdg) const
-{
-  this->LoadConfig();
-
-  if(!this->HasSplineQ2MinCutForProbe(probe_pdg)) return "";
-  return "CommonPhaseSpaceCuts.xml";
 }
 //____________________________________________________________________________
 void KPhaseSpaceCuts::LoadConfig(void) const

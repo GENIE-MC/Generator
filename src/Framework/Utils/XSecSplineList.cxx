@@ -11,11 +11,14 @@
 #include <fenv.h>  //provides: int feenableexcept(int excepts);
 #include <cmath>   //provides: std::isnan()
 
+#include <algorithm>
 #include <chrono>
 
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>
+#include <limits>
+#include <sstream>
 
 #include "libxml/parser.h"
 #include "libxml/xmlmemory.h"
@@ -27,6 +30,7 @@
 #include "Framework/EventGen/XSecAlgorithmI.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/GBuild.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/Messenger/Messenger.h"
 #include "Framework/Numerical/Spline.h"
 #include "Framework/Utils/StringUtils.h"
@@ -64,19 +68,6 @@ XSecSplineList::~XSecSplineList()
 {
 // Clean up.
 
-  map<string,  map<string, Spline *> >::iterator mm_iter = fSplineMap.begin();
-  for( ; mm_iter != fSplineMap.end(); ++mm_iter) {
-    // loop over splines for given tune
-    map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-    map<string, Spline *>::iterator m_iter = spl_map_curr_tune.begin();
-    for( ; m_iter != spl_map_curr_tune.end(); ++m_iter) {
-      Spline * spline = m_iter->second;
-      delete spline;
-      spline = 0;
-    }
-    spl_map_curr_tune.clear();
-  }
-  fSplineMap.clear();
   fInstance = 0;
 }
 //____________________________________________________________________________
@@ -108,14 +99,14 @@ bool XSecSplineList::SplineExists(string key) const
   SLOG("XSecSplLst", pDEBUG)
     << "Checking for spline: " << key << " in tune: " << fCurrentTune;
 
-  map<string,  map<string, Spline *> >::const_iterator //
+  map<string, SplineMap>::const_iterator //
   mm_iter = fSplineMap.find(fCurrentTune);
   if(mm_iter == fSplineMap.end()) {
     SLOG("XSecSplLst", pWARN)
        << "No splines for tune " << fCurrentTune << " were found!";
     return false;
   }
-  const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
+  const SplineMap & spl_map_curr_tune = mm_iter->second;
   bool exists = (spl_map_curr_tune.count(key) == 1);
   SLOG("XSecSplLst", pDEBUG)
     << "Spline found?...." << utils::print::BoolAsYNString(exists);
@@ -126,36 +117,36 @@ const Spline * XSecSplineList::GetSpline(
             const XSecAlgorithmI * alg, const Interaction * interaction) const
 {
   string key = this->BuildSplineKey(alg,interaction);
-  return this->GetSpline(key);
+  const SplineEntry * entry = this->FindSpline(key);
+  if(!entry) return 0;
+  if(fValidateQ2Cuts && !entry->validated) this->ValidateQ2Cut(key, interaction, *entry);
+  return entry->spline.get();
 }
 //____________________________________________________________________________
 const Spline * XSecSplineList::GetSpline(string key) const
 {
-
-  if ( fCurrentTune.size() == 0 ) {
-    SLOG("XSecSplLst", pFATAL) << "Spline requested while CurrentTune not set" ;
-    exit(0) ;
+  const SplineEntry * entry = this->FindSpline(key);
+  return entry ? entry->spline.get() : 0;
+}
+//____________________________________________________________________________
+const XSecSplineList::SplineEntry * XSecSplineList::FindSpline(const string & key) const
+{
+  if(fCurrentTune.empty()) {
+    SLOG("XSecSplLst", pFATAL) << "Spline requested while CurrentTune not set";
+    exit(0);
   }
 
-  SLOG("XSecSplLst", pDEBUG)
-    << "Getting spline: " << key << " in tune: " << fCurrentTune;
-
-  map<string,  map<string, Spline *> >::const_iterator //\/
-  mm_iter = fSplineMap.find(fCurrentTune);
-  if(mm_iter == fSplineMap.end()) {
-    SLOG("XSecSplLst", pWARN)
-       << "No splines for tune " << fCurrentTune << " were found!";
+  auto tune = fSplineMap.find(fCurrentTune);
+  if(tune == fSplineMap.end()) {
+    SLOG("XSecSplLst", pWARN) << "No splines for tune " << fCurrentTune << " were found!";
     return 0;
   }
-  const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-  map<string, Spline *>::const_iterator //\/
-  m_iter = spl_map_curr_tune.find(key);
-  if(m_iter == spl_map_curr_tune.end()) {
-    SLOG("XSecSplLst", pWARN)
-      << "Couldn't find spline: " << key << " in tune: " << fCurrentTune;
+  auto spline = tune->second.find(key);
+  if(spline == tune->second.end()) {
+    SLOG("XSecSplLst", pWARN) << "Couldn't find spline: " << key << " in tune: " << fCurrentTune;
     return 0;
   }
-  return m_iter->second;
+  return &spline->second;
 }
 //____________________________________________________________________________
 void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
@@ -279,34 +270,27 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
       << " xsec[nknots-2] " << xsec[nknots-2];
   }
 
-  // Build
-  //
-  Spline * spline = new Spline(nknots, E.data(), xsec.data());
-
-  // Save
-  //
-  map<string,  map<string, Spline *> >::iterator //\/
-  mm_iter = fSplineMap.find(fCurrentTune);
-  if(mm_iter == fSplineMap.end()) {
-    map<string, Spline *> spl_map_curr_tune;
-    fSplineMap.insert( map<string, map<string, Spline *> >::value_type(
-      fCurrentTune, spl_map_curr_tune) );
-    mm_iter = fSplineMap.find(fCurrentTune);
+  SplineEntry entry;
+  entry.spline.reset(new Spline(nknots, E.data(), xsec.data()));
+  entry.cuts.known = true;
+  KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+  if(cuts->HasQ2MinCut(interaction)) {
+    entry.cuts.Q2_min = cuts->Q2MinCut(interaction, 0.);
+    entry.cuts.Q2_source = "CommonPhaseSpaceCuts.xml";
   }
-  map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-  spl_map_curr_tune.insert( map<string, Spline *>::value_type(key, spline) );
+  fSplineMap[fCurrentTune].emplace(key, std::move(entry));
 }
 //____________________________________________________________________________
 int XSecSplineList::NSplines(void) const
 {
-  map<string,  map<string, Spline *> >::const_iterator //
+  map<string, SplineMap>::const_iterator //
   mm_iter = fSplineMap.find(fCurrentTune);
   if(mm_iter == fSplineMap.end()) {
     SLOG("XSecSplLst", pWARN)
        << "No splines for tune " << fCurrentTune << " were found!";
     return 0;
   }
-  const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
+  const SplineMap & spl_map_curr_tune = mm_iter->second;
   return (int) spl_map_curr_tune.size();
 }
 //____________________________________________________________________________
@@ -337,36 +321,70 @@ void XSecSplineList::SetMaxE(double Ev)
   if(Ev>0) fEmax = Ev;
 }
 //____________________________________________________________________________
-void XSecSplineList::SetTuneQ2MinKinematics(
-  const string & tune, double Q2min, const string & source)
-{
-  if(tune.empty()) return;
+namespace {
+  bool SameQ2Cut(double left, double right)
+  {
+    if(left == 0. || right == 0.) return left == right;
+    double scale = std::max(1., std::max(std::fabs(left), std::fabs(right)));
+    return std::fabs(left - right) <= 1E-12 * scale;
+  }
 
-  KinematicsMetadata & meta = fKinematicsMetadata[tune];
-  meta.has_Q2_min = true;
-  meta.Q2_min     = Q2min;
-  meta.Q2_unit    = "GeV^2";
-  meta.Q2_source  = source;
+  string ReadXMLAttribute(xmlTextReaderPtr reader, const char * name)
+  {
+    xmlChar * value = xmlTextReaderGetAttribute(reader, BAD_CAST name);
+    if(!value) return "";
+    string result = utils::str::TrimSpaces(reinterpret_cast<const char *>(value));
+    xmlFree(value);
+    return result;
+  }
 }
 //____________________________________________________________________________
-bool XSecSplineList::HasTuneQ2MinKinematics(const string & tune) const
+bool XSecSplineList::GetSplineQ2MinKinematics(const string & key, double & Q2min) const
 {
-  map<string, KinematicsMetadata>::const_iterator it =
-    fKinematicsMetadata.find(tune);
-  return it != fKinematicsMetadata.end() && it->second.has_Q2_min;
-}
-//____________________________________________________________________________
-bool XSecSplineList::GetTuneQ2MinKinematics(
-  const string & tune, double & Q2min, string * unit, string * source) const
-{
-  map<string, KinematicsMetadata>::const_iterator it =
-    fKinematicsMetadata.find(tune);
-  if(it == fKinematicsMetadata.end() || !it->second.has_Q2_min) return false;
-
-  Q2min = it->second.Q2_min;
-  if(unit)   *unit   = it->second.Q2_unit;
-  if(source) *source = it->second.Q2_source;
+  const SplineEntry * entry = this->FindSpline(key);
+  if(!entry || !entry->cuts.known) return false;
+  Q2min = entry->cuts.Q2_min;
   return true;
+}
+//____________________________________________________________________________
+void XSecSplineList::ValidateQ2Cut(
+  const string & key, const Interaction * interaction, const SplineEntry & entry) const
+{
+  KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+  double Q2min = cuts->HasQ2MinCut(interaction) ? cuts->Q2MinCut(interaction, 0.) : 0.;
+  if(!entry.cuts.known && Q2min > 0.) {
+    LOG("XSecSplLst", pFATAL)
+      << "Unknown Q2 minimum cut for spline [" << key << "] in tune " << fCurrentTune
+      << ". Regenerate it with per-spline Q2 metadata to verify the configured cut of "
+      << Q2min << " GeV^2.";
+    gAbortingInErr = true;
+    exit(1);
+  }
+  if(entry.cuts.known && !SameQ2Cut(Q2min, entry.cuts.Q2_min)) {
+    LOG("XSecSplLst", pFATAL)
+      << "Q2 minimum cut mismatch for spline [" << key << "] in tune " << fCurrentTune
+      << ". Configured cut: " << Q2min << " GeV^2. Spline cut: "
+      << entry.cuts.Q2_min << " GeV^2. Zero denotes no configured cut.";
+    gAbortingInErr = true;
+    exit(1);
+  }
+  entry.validated = true;
+}
+//____________________________________________________________________________
+bool XSecSplineList::CheckEMCutForMerge(const string & tune, const string & key,
+  const KinematicsMetadata & cuts, const string & filename)
+{
+  // Interaction::AsString() includes the interaction type as ";proc:TYPE,...".
+  if(!cuts.known || key.find(";proc:EM,") == string::npos) return true;
+
+  const auto first = fMergedEMCuts.emplace(tune, EMCutOrigin{cuts.Q2_min, filename}).first;
+  if(SameQ2Cut(cuts.Q2_min, first->second.Q2_min)) return true;
+  LOG("XSecSplLst", pERROR)
+    << "Conflicting EM Q2 minimum cuts for tune " << tune
+    << ": [" << first->second.filename << "] has " << first->second.Q2_min
+    << " GeV^2, while [" << filename << "] has " << cuts.Q2_min
+    << " GeV^2 for spline [" << key << "]. Zero denotes no configured cut.";
+  return false;
 }
 //____________________________________________________________________________
 void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
@@ -392,7 +410,7 @@ void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
   outxml << endl << endl;
 
   // loop over tunes
-  map<string,  map<string, Spline *> >::const_iterator //\/
+  map<string, SplineMap>::const_iterator //\/
   mm_iter = fSplineMap.begin();
   for( ; mm_iter != fSplineMap.end(); ++mm_iter) {
 
@@ -400,42 +418,27 @@ void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
     outxml << "  <genie_tune name=\"" << tune_name << "\">";
     outxml << endl << endl;
 
-    map<string, KinematicsMetadata>::const_iterator kiter =
-      fKinematicsMetadata.find(tune_name);
-    if(kiter != fKinematicsMetadata.end() && kiter->second.has_Q2_min) {
-      outxml << "    <kinematics>" << endl;
-      outxml << "      <q2 min=\"" << std::setprecision(16)
-             << kiter->second.Q2_min
-             << "\" unit=\"" << kiter->second.Q2_unit
-             << "\" source=\"" << kiter->second.Q2_source
-             << "\"/>" << endl;
-      outxml << "    </kinematics>" << endl << endl;
-    }
+    for(const auto & item : mm_iter->second) {
+      const SplineEntry & entry = item.second;
+      if(entry.loaded && !save_init) continue;
 
-    // loop over splines for given tune
-    const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-    map<string, Spline *>::const_iterator //\/
-    m_iter = spl_map_curr_tune.begin();
-    for( ; m_iter != spl_map_curr_tune.end(); ++m_iter) {
-      string key = m_iter->first;
-
-      // If current spline is from the initial loaded set,
-      // look-up input option to decide whether to write out in
-      // new output file or not
-      bool from_init_set = false;
-      map<string, set<string> >::const_iterator //\/
-      it = fLoadedSplineSet.find(tune_name);
-      if(it != fLoadedSplineSet.end()) {
-         const set<string> & init_set_curr_tune = it->second;
-         from_init_set = (init_set_curr_tune.count(key) == 1);
+      std::ostringstream header;
+      if(entry.cuts.known) {
+        header << "      <kinematics>\n";
+        if(entry.cuts.Q2_min > 0.) {
+          xmlChar * source = xmlEncodeSpecialChars(nullptr, BAD_CAST entry.cuts.Q2_source.c_str());
+          header << "        <q2 min=\"" << std::setprecision(std::numeric_limits<double>::max_digits10)
+                 << entry.cuts.Q2_min << "\" unit=\"GeV^2\" source=\""
+                 << (source ? reinterpret_cast<const char *>(source) : "") << "\"/>\n";
+          xmlFree(source);
+        } else {
+          header << "        <q2 status=\"unconfigured\"/>\n";
+        }
+        header << "      </kinematics>\n";
       }
-      if(from_init_set && !save_init) continue;
 
-      // Add current spline to output file
-      Spline * spline = m_iter->second;
-      spline->SaveAsXml(outxml,"E","xsec", key);
-    }//spline loop
-
+      entry.spline->SaveAsXml(outxml, "E", "xsec", item.first, header.str());
+    }
     outxml << "  </genie_tune>" << endl;
   }//tune loop
 
@@ -446,181 +449,121 @@ void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
 //____________________________________________________________________________
 XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep)
 {
-//! Load XSecSplineList from ROOT file. If keep = true, then the loaded splines
-//! are added to the existing list. If false, then the existing list is reset
-//! before loading the splines.
+  return this->LoadFromXml(filename, keep, false);
+}
+//____________________________________________________________________________
+XmlParserStatus_t XSecSplineList::LoadFromXml(
+  const string & filename, bool keep, bool require_consistent_em_cuts)
+{
+// If keep is true, add the loaded splines to the existing list.
 
-  SLOG("XSecSplLst", pNOTICE)
-    << "Loading splines from: " << filename;
-  SLOG("XSecSplLst", pINFO)
-    << "Option to keep pre-existing splines is switched "
-    << ( (keep) ? "ON" : "OFF" );
-
+  SLOG("XSecSplLst", pNOTICE) << "Loading splines from: " << filename;
   if(!keep) {
     fSplineMap.clear();
-    fKinematicsMetadata.clear();
+    fMergedEMCuts.clear();
   }
 
-  const int kNodeTypeStartElement = 1;
-  const int kNodeTypeEndElement   = 15;
-  const int kKnotX                = 0;
-  const int kKnotY                = 1;
+  std::unique_ptr<_xmlTextReader, decltype(&xmlFreeTextReader)> reader(
+    xmlNewTextReaderFilename(filename.c_str()), xmlFreeTextReader);
+  if(!reader) {
+    LOG("XSecSplLst", pERROR) << "Could not open spline XML file [" << filename << "]";
+    return kXmlNotParsed;
+  }
 
-  xmlTextReaderPtr reader;
-
-  int ret = 0, val_type = -1, iknot = 0, nknots = 0;
-  double * E = 0, * xsec = 0;
-  string spline_name = "";
-  string temp_tune ;
+  string tune, key;
+  vector<double> E, xsec;
+  int nknots = 0;
+  vector<double> * values = nullptr;
   bool in_kinematics = false;
+  KinematicsMetadata cuts;
 
-  reader = xmlNewTextReaderFilename(filename.c_str());
-  if (reader != NULL) {
-        ret = xmlTextReaderRead(reader);
-        while (ret == 1) {
-            xmlChar * name  = xmlTextReaderName     (reader);
-            xmlChar * value = xmlTextReaderValue    (reader);
-            int       type  = xmlTextReaderNodeType (reader);
-            int       depth = xmlTextReaderDepth    (reader);
+  int result = 0;
+  while((result = xmlTextReaderRead(reader.get())) == 1) {
+    const xmlChar * name = xmlTextReaderConstName(reader.get());
+    int type = xmlTextReaderNodeType(reader.get());
+    int depth = xmlTextReaderDepth(reader.get());
 
-            if(depth==0 && type==kNodeTypeStartElement) {
-               LOG("XSecSplLst", pDEBUG) << "Root element = " << name;
-               if(xmlStrcmp(name, (const xmlChar *) "genie_xsec_spline_list")) {
-                   LOG("XSecSplLst", pERROR)
-                     << "\nXML doc. has invalid root element! [filename: " << filename << "]";
-                   return kXmlInvalidRoot;
-               }
-
-               xmlChar * xvrs   = xmlTextReaderGetAttribute(reader,(const xmlChar*)"version");
-               xmlChar * xinlog = xmlTextReaderGetAttribute(reader,(const xmlChar*)"uselog");
-               string svrs      = utils::str::TrimSpaces((const char *)xvrs);
-               string sinlog    = utils::str::TrimSpaces((const char *)xinlog);
-
-               LOG("XSecSplLst", pNOTICE)
-                   << "Input x-section spline XML file format version: " << svrs;
-
-               if (atoi(sinlog.c_str()) == 1) this->SetLogE(true);
-               else this->SetLogE(false);
-
-               xmlFree(xvrs);
-               xmlFree(xinlog);
-            }
-
-            if( (!xmlStrcmp(name, (const xmlChar *) "genie_tune")) && type==kNodeTypeStartElement) {
-               xmlChar * xtune = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
-               temp_tune    = utils::str::TrimSpaces((const char *)xtune);
-               SLOG("XSecSplLst", pNOTICE) << "Loading x-section splines for GENIE tune: " << temp_tune;
-               xmlFree(xtune);
-            }
-
-            if( (!xmlStrcmp(name, (const xmlChar *) "kinematics")) && type==kNodeTypeStartElement) {
-               in_kinematics = true;
-            }
-
-            if( in_kinematics && (!xmlStrcmp(name, (const xmlChar *) "q2")) &&
-                type==kNodeTypeStartElement) {
-               xmlChar * xmin    = xmlTextReaderGetAttribute(reader,(const xmlChar*)"min");
-               xmlChar * xunit   = xmlTextReaderGetAttribute(reader,(const xmlChar*)"unit");
-               xmlChar * xsource = xmlTextReaderGetAttribute(reader,(const xmlChar*)"source");
-
-               if(xmin) {
-                 string smin = utils::str::TrimSpaces((const char *)xmin);
-                 double Q2min = atof(smin.c_str());
-                 if(std::isfinite(Q2min) && Q2min > 0.) {
-                   KinematicsMetadata & meta = fKinematicsMetadata[temp_tune];
-                   meta.has_Q2_min = true;
-                   meta.Q2_min = Q2min;
-                   meta.Q2_unit = xunit ?
-                     utils::str::TrimSpaces((const char *)xunit) : "GeV^2";
-                   meta.Q2_source = xsource ?
-                     utils::str::TrimSpaces((const char *)xsource) : "";
-                   SLOG("XSecSplLst", pNOTICE)
-                     << "Loaded Q2 minimum metadata for tune " << temp_tune
-                     << ": " << meta.Q2_min << " " << meta.Q2_unit;
-                 } else {
-                   SLOG("XSecSplLst", pWARN)
-                     << "Ignoring invalid Q2 minimum metadata in " << filename
-                     << ": " << smin;
-                 }
-               }
-
-               if(xmin)    xmlFree(xmin);
-               if(xunit)   xmlFree(xunit);
-               if(xsource) xmlFree(xsource);
-            }
-
-            if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeStartElement) {
-               xmlChar * xname = xmlTextReaderGetAttribute(reader,(const xmlChar*)"name");
-               xmlChar * xnkn  = xmlTextReaderGetAttribute(reader,(const xmlChar*)"nknots");
-               string sname    = utils::str::TrimSpaces((const char *)xname);
-               string snkn     = utils::str::TrimSpaces((const char *)xnkn);
-
-               spline_name = sname;
-               SLOG("XSecSplLst", pNOTICE) << "Loading spline: " << spline_name;
-
-               nknots = atoi( snkn.c_str() );
-               iknot=0;
-               E     = new double[nknots];
-               xsec  = new double[nknots];
-
-               xmlFree(xname);
-               xmlFree(xnkn);
-            }
-
-            if( (!xmlStrcmp(name, (const xmlChar *) "E"))    && type==kNodeTypeStartElement) { val_type = kKnotX; }
-            if( (!xmlStrcmp(name, (const xmlChar *) "xsec")) && type==kNodeTypeStartElement) { val_type = kKnotY; }
-
-            if( (!xmlStrcmp(name, (const xmlChar *) "#text")) && depth==5) {
-                if      (val_type==kKnotX) E   [iknot] = atof((const char *)value);
-                else if (val_type==kKnotY) xsec[iknot] = atof((const char *)value);
-            }
-            if( (!xmlStrcmp(name, (const xmlChar *) "knot")) && type==kNodeTypeEndElement) {
-               iknot++;
-            }
-            if( (!xmlStrcmp(name, (const xmlChar *) "spline")) && type==kNodeTypeEndElement) {
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-               LOG("XSecSplLst", pINFO) << "Done with current spline";
-               for(int i=0; i<nknots; i++) {
-                  LOG("XSecSplLst", pINFO) << "xsec[E = " << E[i] << "] = " << xsec[i];
-               }
-#endif
-               // done looping over knots - build the spline
-               Spline * spline = new Spline(nknots, E, xsec);
-               delete [] E;
-               delete [] xsec;
-
-               // insert the spline to the map
-               map<string,  map<string, Spline *> >::iterator //\/
-               mm_iter = fSplineMap.find( temp_tune );
-               if(mm_iter == fSplineMap.end()) {
-                 map<string, Spline *> spl_map_curr_tune;
-                 fSplineMap.insert( map<string, map<string, Spline *> >::value_type(
-                    temp_tune, spl_map_curr_tune) );
-                 mm_iter = fSplineMap.find( temp_tune );
-               }
-               map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-               spl_map_curr_tune.insert(
-                  map<string, Spline *>::value_type(spline_name, spline) );
-               fLoadedSplineSet[temp_tune].insert(spline_name);
-            }
-            if( (!xmlStrcmp(name, (const xmlChar *) "kinematics")) && type==kNodeTypeEndElement) {
-               in_kinematics = false;
-            }
-            xmlFree(name);
-            xmlFree(value);
-            ret = xmlTextReaderRead(reader);
-        }
-        xmlFreeTextReader(reader);
-        if (ret != 0) {
-          LOG("XSecSplLst", pERROR)
-            << "\nXML file could not be parsed! [filename: " << filename << "]";
+    if(type == XML_READER_TYPE_ELEMENT) {
+      if(depth == 0) {
+        if(!xmlStrEqual(name, BAD_CAST "genie_xsec_spline_list")) return kXmlInvalidRoot;
+        this->SetLogE(ReadXMLAttribute(reader.get(), "uselog") == "1");
+        continue;
+      }
+      if(depth == 1 && xmlStrEqual(name, BAD_CAST "genie_tune")) {
+        tune = ReadXMLAttribute(reader.get(), "name");
+        continue;
+      }
+      if(depth == 2 && xmlStrEqual(name, BAD_CAST "spline")) {
+        key = ReadXMLAttribute(reader.get(), "name");
+        nknots = atoi(ReadXMLAttribute(reader.get(), "nknots").c_str());
+        E.clear();
+        xsec.clear();
+        values = nullptr;
+        in_kinematics = false;
+        cuts = KinematicsMetadata{};
+        continue;
+      }
+      if(depth == 3 && xmlStrEqual(name, BAD_CAST "kinematics")) {
+        // Tune-level stamps from older files cannot attest to any individual spline.
+        in_kinematics = !key.empty() && !xmlTextReaderIsEmptyElement(reader.get());
+        continue;
+      }
+      if(depth == 4 && in_kinematics && xmlStrEqual(name, BAD_CAST "q2")) {
+        string minimum = ReadXMLAttribute(reader.get(), "min");
+        string unit = ReadXMLAttribute(reader.get(), "unit");
+        string status = ReadXMLAttribute(reader.get(), "status");
+        char * end = nullptr;
+        double Q2min = strtod(minimum.c_str(), &end);
+        bool configured = !minimum.empty() && *end == '\0' && std::isfinite(Q2min)
+                       && Q2min > 0. && (unit.empty() || unit == "GeV^2") && status.empty();
+        bool unconfigured = minimum.empty() && status == "unconfigured";
+        if(cuts.known || (!configured && !unconfigured)) {
+          LOG("XSecSplLst", pERROR) << "Invalid or duplicate Q2 cut stamp for spline ["
+            << key << "] in file [" << filename << "]";
           return kXmlNotParsed;
         }
-  } else {
-    LOG("XSecSplLst", pERROR)
-          << "\nXML file could not be found! [filename: " << filename << "]";
+        cuts.known = true;
+        cuts.Q2_min = configured ? Q2min : 0.;
+        cuts.Q2_source = ReadXMLAttribute(reader.get(), "source");
+        continue;
+      }
+      if(depth == 4) {
+        if(xmlStrEqual(name, BAD_CAST "E")) values = &E;
+        if(xmlStrEqual(name, BAD_CAST "xsec")) values = &xsec;
+      }
+    } else if(type == XML_READER_TYPE_TEXT && depth == 5 && values) {
+      values->push_back(atof(reinterpret_cast<const char *>(xmlTextReaderConstValue(reader.get()))));
+      values = nullptr;
+    } else if(type == XML_READER_TYPE_END_ELEMENT) {
+      if(depth == 3 && xmlStrEqual(name, BAD_CAST "kinematics")) in_kinematics = false;
+      if(depth != 2 || !xmlStrEqual(name, BAD_CAST "spline")) continue;
+      if(tune.empty() || key.empty() || nknots <= 0
+         || E.size() != static_cast<size_t>(nknots) || xsec.size() != E.size()) {
+        LOG("XSecSplLst", pERROR) << "Invalid knots for spline [" << key
+          << "] in file [" << filename << "]";
+        return kXmlNotParsed;
+      }
+
+      // Compare input stamps before duplicate keys can discard a spline.
+      if(require_consistent_em_cuts && !this->CheckEMCutForMerge(tune, key, cuts, filename)) {
+        return kXmlNotParsed;
+      }
+      auto & splines = fSplineMap[tune];
+      if(splines.count(key) == 0) {
+        SplineEntry entry;
+        entry.spline.reset(new Spline(nknots, E.data(), xsec.data()));
+        entry.cuts = std::move(cuts);
+        entry.loaded = true;
+        splines.emplace(key, std::move(entry));
+      }
+      key.clear();
+    }
   }
 
+  if(result != 0) {
+    LOG("XSecSplLst", pERROR) << "Could not parse spline XML file [" << filename << "]";
+    return kXmlNotParsed;
+  }
   return kXmlOK;
 }
 //____________________________________________________________________________
@@ -650,17 +593,17 @@ string XSecSplineList::BuildSplineKey(
 //____________________________________________________________________________
 const vector<string> * XSecSplineList::GetSplineKeys(void) const
 {
-  map<string,  map<string, Spline *> >::const_iterator //\/
+  map<string, SplineMap>::const_iterator //\/
   mm_iter = fSplineMap.find(fCurrentTune);
   if(mm_iter == fSplineMap.end()) {
     SLOG("XSecSplLst", pWARN)
        << "No splines for tune " << fCurrentTune << " were found!";
     return 0;
   }
-  const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
+  const SplineMap & spl_map_curr_tune = mm_iter->second;
   vector<string> * keyv = new vector<string>(spl_map_curr_tune.size());
   unsigned int i=0;
-  map<string, Spline *>::const_iterator m_iter = spl_map_curr_tune.begin();
+  SplineMap::const_iterator m_iter = spl_map_curr_tune.begin();
   for( ; m_iter != spl_map_curr_tune.end(); ++m_iter) {
     string key = m_iter->first;
     (*keyv)[i++]=key;
@@ -679,15 +622,15 @@ void XSecSplineList::Print(ostream & stream) const
   stream << "\n  |-----o  Spline NKnots............." << fNKnots;
   stream << "\n  |";
 
-  map<string, map<string, Spline *> >::const_iterator mm_iter;
+  map<string, SplineMap>::const_iterator mm_iter;
   for(mm_iter = fSplineMap.begin(); mm_iter != fSplineMap.end(); ++mm_iter) {
 
     string curr_tune = mm_iter->first;
     stream << "\n [-] Available x-section splines for tune: " << curr_tune ;
     stream << "\n  |";
 
-    const map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-    map<string, Spline *>::const_iterator m_iter = spl_map_curr_tune.begin();
+    const SplineMap & spl_map_curr_tune = mm_iter->second;
+    SplineMap::const_iterator m_iter = spl_map_curr_tune.begin();
     for( ; m_iter != spl_map_curr_tune.end(); ++m_iter) {
       string key = m_iter->first;
       stream << "\n  |-----o  " << key;
