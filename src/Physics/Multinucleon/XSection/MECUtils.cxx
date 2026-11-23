@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
 
@@ -209,7 +209,7 @@ double genie::utils::mec::Qvalue(int targetpdg, int nupdg)
 double genie::utils::mec::OldTensorContraction(
   int nupdg, int targetpdg,
   double Enu, double Ml, double Tl, double costhl,
-  int tensorpdg,
+  int /*tensorpdg*/,
   HadronTensorType_t tensor_type,
   char* tensor_model)
 {

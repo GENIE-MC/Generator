@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -254,10 +254,10 @@ double DMDISKinematicsGenerator::ComputeMaxXSec(
 #endif
   double max_xsec = 0.0;
 
-  const InitialState & init_state = interaction->InitState();
+  //const InitialState & init_state = interaction->InitState();
   //double Ev = init_state.ProbeE(kRfHitNucRest);
   //const ProcessInfo & proc = interaction->ProcInfo();
-  const Target & tgt = init_state.Tgt();
+  //const Target & tgt = init_state.Tgt();
 
   int Ny  = 20;
   int Nx  = 40;

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -143,8 +143,6 @@ double SlowRsclCharmDISPXSecLO::XSec(
 
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
-
-  //----- Nuclear cross section (simple scaling here)
   int NNucl = (isP) ? target.Z() : target.N();
   xsec *= NNucl;
 

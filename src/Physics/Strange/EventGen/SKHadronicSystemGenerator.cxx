@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Chris Marshall <marshall \at pas.rochester.edu>
@@ -129,7 +129,7 @@ void SKHadronicSystemGenerator::CalculateHadronicSystem_AtharSingleKaon(GHepReco
     "Cosine theta_kq = " << cos_thetaKq << "\n" <<
     "q.E = " << q.E() << " M = " << M << " kaon E " << kaon_E << " q3 = " << q3 << " pk = " << pk;
 
-  if(cos_thetaKq > 1.0) {
+  if(cos_thetaKq > 1.0 || cos_thetaKq < -1.0) {
      LOG("SKHadron", pWARN) << "Invalid selected kinematics; Attempt regenerating";
      evrec->EventFlags()->SetBitNumber(kKineGenErr, true);
      genie::exceptions::EVGThreadException exception;

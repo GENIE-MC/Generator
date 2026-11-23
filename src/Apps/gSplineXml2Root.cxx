@@ -74,7 +74,7 @@
 
 \created December 15, 2005
 
-\cpright Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -150,8 +150,10 @@ bool   gWriteOutPlots;   // write out a postscript file with plots
 double gEmin;
 double gEmax;
 bool gInlogE;
-int    kNP       = 300;
-int    kNSplineP = 1000;
+int    kNP       = 0;
+int    kNSplineP = 0;
+string interpolation = "TSpline3";
+bool kNPset = false;
 const int    kPsType   = 111;  // ps type: portrait
 
 //____________________________________________________________________________
@@ -195,6 +197,16 @@ void LoadSplines(void)
   XSecSplineList * splist = XSecSplineList::Instance();
   XmlParserStatus_t ist = splist->LoadFromXml(gOptXMLFilename);
   assert(ist == kXmlOK);
+  splist->SetInterpolationType(interpolation);
+  if (kNPset) return;
+  const std::vector<std::string> *keys = splist->GetSplineKeys();
+
+  if (!keys) return; 
+  for (const std::string &name : *keys) {
+    const Spline *s = splist->GetSpline(name);
+    kNP = std::max(s->NKnots()-1, kNP);
+    kNSplineP = kNP + 1;
+  }
 }
 //____________________________________________________________________________
 GEVGDriver GetEventGenDriver(void)
@@ -598,11 +610,8 @@ void SaveGraphsToRootFile(void)
 
     if      (proc.IsQuasiElastic()     ) { title << "qel";   }
     else if (proc.IsMEC()              ) { title << "mec";   }
-    else if (proc.IsResonant()         ) { 
-      title << "res";   
-      if ( ! xcls.KnownResonance() ) 
-	title << "_single_pion" ;
-    }
+    else if (proc.IsResonant()         ) { title << "res";   }
+    else if (proc.IsSinglePion()       ) { title << "1pion";}
     else if (proc.IsDeepInelastic()    ) { title << "dis";   }
     else if (proc.IsDiffractive()      ) { title << "dfr";   }
     else if (proc.IsCoherentProduction() ) {
@@ -670,33 +679,33 @@ void SaveGraphsToRootFile(void)
         else      { title << "val"; }
       }
     }
-    if(proc.IsResonant()) {
-      if ( xcls.KnownResonance() ) {
-	Resonance_t res = xcls.Resonance();
-	string resname = res::AsString(res);
-	resname = str::FilterString(")", resname);
-	resname = str::FilterString("(", resname);
-	title << "_" << resname.substr(3,4) << resname.substr(0,3);
+    if(proc.IsResonant()) 
+    {
+      if ( xcls.KnownResonance() ) 
+      {
+         Resonance_t res = xcls.Resonance();
+         string resname = res::AsString(res);
+         resname = str::FilterString(")", resname);
+         resname = str::FilterString("(", resname);
+         title << "_" << resname.substr(3,4) << resname.substr(0,3);
       }
-      else if ( xcls.NPions() == 1 ) {
-	// we are in the case of the single pion production
-	// since the hiht nucleon is known and we also know if 
-	// it is CC or NC, the only missing information to identify the channel
-	// is only the flavour of the pion
-	string channel ;
-	if ( xcls.NPiPlus() == 1 ) {
-	  channel = "pip" ;
-	}
-	else if ( xcls.NPiMinus() == 1 ) {
-	  channel = "pim" ;
-	}
-	else if ( xcls.NPi0() == 1 ) {
-	  channel = "pi0" ;
-	}
-	
-	title << '_' << channel ;
-      }  // single resonsance or single pion
     }  // resonance case
+    if(proc.IsSinglePion() )
+    {
+        // we are in the case of the single pion production
+        // since the hiht nucleon is known and we also know if 
+        // it is CC or NC, the only missing information to identify the channel
+        // is only the flavour of the pion
+        string channel = "->";
+        if ( xcls.NPiPlus() == 1 ) channel += "pip" ;
+        else if ( xcls.NPiMinus() == 1 ) channel += "pim" ;
+        else if ( xcls.NPi0() == 1 ) channel += "pi0" ;
+        if ( xcls.NProtons() == 1 ) channel += ",p" ;
+        else if ( xcls.NNeutrons() == 1 ) channel += ",n" ;
+        title << channel;
+    }  // single resonsance or single pion
+      
+
 
     if(xcls.IsStrangeEvent()) {
       title << "_strange";
@@ -842,7 +851,7 @@ void SaveGraphsToRootFile(void)
 
        const Spline * spl = evg_driver.XSecSpline(interaction);
 
-       if(xcls.IsCharmEvent()) continue;
+       //if(xcls.IsCharmEvent()) continue;
 
        if (proc.IsDeepInelastic() && proc.IsWeakCC() && pdg::IsProton(tgt.HitNucPdg())) {
          for(int i=0; i<kNSplineP; i++) {
@@ -1483,7 +1492,12 @@ void GetCommandLineArgs(int argc, char ** argv)
     PrintSyntax();
     exit(1);
   }
-
+  if (parser.OptionExists('n')){
+    LOG("gspl2root", pINFO) << "Reading number of knots";
+    kNP       = parser.ArgAsInt('n');
+    kNSplineP = parser.ArgAsInt('n') - 1;
+    kNPset = true;
+  }
   // probe PDG code:
   if( parser.OptionExists('p') ) {
     LOG("gspl2root", pINFO) << "Reading probe PDG code";
@@ -1504,6 +1518,11 @@ void GetCommandLineArgs(int argc, char ** argv)
       << "Unspecified target PDG code - Exiting";
     PrintSyntax();
     exit(1);
+  }
+
+  if( parser.OptionExists('x') ) {
+    LOG("gspl2root", pINFO) << "Reading interpolation type";
+    interpolation = parser.ArgAsString('x');
   }
 
   // min,max neutrino energy

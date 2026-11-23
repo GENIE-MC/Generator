@@ -1,7 +1,7 @@
 //____________________________________________________________________________
 /*
 
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -93,7 +93,7 @@ InteractionList * DMDISInteractionListGenerator::CreateInteractionList(
       if(fSetHitQuark) {
         // Add interactions for all possible hit (valence or sea) quarks
 
-        multimap<int,bool> hq = this->GetHitQuarks(interaction);
+        multimap<int,bool> hq = this->GetHitQuarks();
         multimap<int,bool>::const_iterator hqi = hq.begin();
 
         for( ; hqi != hq.end(); ++hqi) {
@@ -146,15 +146,10 @@ void DMDISInteractionListGenerator::LoadConfigData(void)
         
 }
 //____________________________________________________________________________
-multimap<int,bool> DMDISInteractionListGenerator::GetHitQuarks(
-                                        const Interaction * interaction) const
+multimap<int,bool> DMDISInteractionListGenerator::GetHitQuarks(void) const
 {
-// Set (PDG code, from-sea flag) for all possible hit quarks for the input
-// interaction
-
+  // Determine the list of possible struck quarks for the current configuration
   multimap<int,bool> hq;
-
-  const ProcessInfo & proc = interaction->ProcInfo();
 
   if(!fIsCharm) {
     hq.insert(pair<int,bool>(kPdgUQuark,     false));

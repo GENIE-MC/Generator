@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -94,6 +94,7 @@ void INukeDeltaPropg::ProcessEventRecord(GHepRecord * event) const
         
     // Set clone's mom to be the hadron that was cloned
     sp->SetFirstMother(icurr);
+    sp->SetLastMother(-1);  // in case mother had 2 mothers
 
     // Start stepping particle out of the nucleus
     bool has_interacted = false;

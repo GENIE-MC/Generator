@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
 
@@ -340,7 +340,7 @@ double QPMDMDISStrucFuncBase::Q2(const Interaction * interaction) const
   return 0;
 }
 //____________________________________________________________________________
-double QPMDMDISStrucFuncBase::ScalingVar(const Interaction* interaction) const
+double QPMDMDISStrucFuncBase::ScalingVar(const Interaction* interaction, double /*fM*/) const
 {
 // The scaling variable is set to the normal Bjorken x.
 // Override DISStructureFuncModel::ScalingVar() to compute corrections

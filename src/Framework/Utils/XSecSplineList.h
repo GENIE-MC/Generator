@@ -10,8 +10,8 @@
 
 \created  May 12, 2005
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
-          For the full text of the license visit http://copyright.genie-mc.org          
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
+          For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
 
@@ -68,6 +68,8 @@ public:
   void   EnableQ2CutValidation(void) { fValidateQ2Cuts = true; }
   bool   Q2CutValidationEnabled(void) const { return fValidateQ2Cuts; }
 
+  std::vector< std::string > GetLoadedTunes(void) const;
+
   // Query the existence, access or create a spline
   // The results of the following methods depend on the current tune setting
   bool           SplineExists (const XSecAlgorithmI * alg, const Interaction * i) const;
@@ -83,7 +85,7 @@ public:
   // The results of the following methods depend on the current tune setting
   string BuildSplineKey(const XSecAlgorithmI * alg, const Interaction * i) const;
   const vector<string> * GetSplineKeys(void) const;
-
+  void SetInterpolationType(string type);
 
   // XSecSplineList options
   void   SetLogE   (bool   on); ///< set opt to build splines as f(E) or as f(logE)

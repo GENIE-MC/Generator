@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<alg_conf>
+
+  <!--
+  Configuration for the DMRESXSec cross section algorithm
+  -->
+
+
+  <param_set name="Default">
+    <param type="string" name ="CommonParam">           Resonances  </param>
+    <param type="double" name ="ESplineMax">                   500  </param>
+    <param type="string" name ="gsl-integration-type">     adaptive </param>
+    <param type="int"    name ="gsl-max-eval">           1000000000 </param>
+    <param type="double" name ="gsl-relative-tolerance">      1e-9  </param>
+<!-- NC Scattering uses no Pauli Blocking-->
+    <param type="bool"   name="UsePauliBlockingForRES">  false  </param>
+  </param_set>
+</alg_conf>

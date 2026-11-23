@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -63,6 +63,11 @@ bool GAtmoFlux::GenerateNext(void)
      double wght = this->Weight();
 
      bool accept = (E<=Emax && E>=Emin && wght>0);
+     
+     LOG("Flux", pDEBUG) << "Neutrino w/ energy : " << E;
+     LOG("Flux", pDEBUG) << "Max : " << Emax;
+     LOG("Flux", pDEBUG) << "Min : " << Emin;
+     LOG("Flux", pDEBUG) << "Weight : " << wght;
      if(accept) return true;
   }
   return false;

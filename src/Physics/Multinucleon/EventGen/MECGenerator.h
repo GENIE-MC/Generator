@@ -13,7 +13,7 @@
 
 \created  Sep. 22, 2008
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -60,6 +60,7 @@ private:
   void    DecayNucleonCluster               (GHepRecord * event) const;
   void    SelectNSVLeptonKinematics         (GHepRecord * event) const;
   void    SelectSuSALeptonKinematics        (GHepRecord * event) const;
+  void    SelectMartiniLeptonKinematics     (GHepRecord * event) const;
   void    GenerateNSVInitialHadrons         (GHepRecord * event) const;
   PDGCodeList NucleonClusterConstituents    (int pdgc)           const;
 

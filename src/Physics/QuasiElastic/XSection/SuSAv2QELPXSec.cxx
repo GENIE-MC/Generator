@@ -1,6 +1,6 @@
 //_________________________________________________________________________
 /*
-   Copyright (c) 2003-2025, The GENIE Collaboration
+   Copyright (c) 2003-2026, The GENIE Collaboration
    For the full text of the license visit http://copyright.genie-mc.org
    or see $GENIE/LICENSE
 
@@ -48,6 +48,15 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 		KinePhaseSpace_t kps) const
 {
 	if ( !this->ValidProcess(interaction) ) return 0.;
+
+	if ( kps != kPSTlctl ) {
+		LOG("SuSAv2QE", pWARN)
+			<< "Doesn't support transformation from "
+			<< KinePhaseSpace::AsString(kPSTlctl) << " to "
+			<< KinePhaseSpace::AsString(kps);
+		return 0.;
+	}
+
 
 	// Check that the input kinematical point is within the range
 	// in which hadron tensors are known (for chosen target)
@@ -470,14 +479,6 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	else if( interaction->ProcInfo().IsEM() ) xsec_scale = fXSecEMScale;
 
 	xsec *= xsec_scale ;
-
-	if ( kps != kPSTlctl ) {
-		LOG("SuSAv2QE", pWARN)
-			<< "Doesn't support transformation from "
-			<< KinePhaseSpace::AsString(kPSTlctl) << " to "
-			<< KinePhaseSpace::AsString(kps);
-		xsec = 0.;
-	}
 
 	return xsec;
 }

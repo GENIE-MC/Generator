@@ -10,7 +10,7 @@
 
 \created  October 20, 2005
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org        
 */
 //____________________________________________________________________________
@@ -38,6 +38,7 @@ public:
   AlgId();
   AlgId(string name, string config);
   AlgId(const AlgId & id);
+  AlgId& operator=(const AlgId&) = default;
   AlgId(const RgAlg & registry_item);
  ~AlgId();
 

@@ -1,6 +1,6 @@
 ///____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -196,6 +196,20 @@ void FermiMover::KickHitNucleon(GHepRecord * evrec) const
   p4->SetE ( EN      );
 
   nucleon->SetMomentum(*p4); // update GHEP value
+
+  // The below call to KPhaseSpace::IsAboveThreshold() depends on the target p4.
+  // If the EN < p3.Mag() then this is unphysical and kills code. Handle it here
+  if( p4->Mag2() < 0.0 ) {
+    LOG("FermiMover", pNOTICE)
+                  << "Event generates an unphysical initial state target with p4 = "
+		  << utils::print::P4AsShortString(p4)
+		  << ". Skipping event";
+    evrec->EventFlags()->SetBitNumber(kBelowThrNRF, true);
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Unphysical initial state 4-momentum after FermiMover acted on it");
+    exception.SwitchOnFastForward();
+    throw exception;
+  }
 
   // Sometimes, for interactions near threshold, Fermi momentum might bring
   // the neutrino energy in the nucleon rest frame below threshold (for the

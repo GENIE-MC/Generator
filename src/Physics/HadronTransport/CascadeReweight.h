@@ -9,7 +9,7 @@
 
 \created  July 2021
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
           
 */
@@ -19,6 +19,7 @@
 #define _CASCADE_REWEIGHT_H_
 
 #include "Framework/EventGen/EventRecordVisitorI.h"
+#include "Framework/Conventions/GBuild.h"
 #include "Physics/HadronTransport/INukeHadroFates2018.h" 
 
 namespace genie {
@@ -43,14 +44,14 @@ public :
 private:
   void LoadConfig     (void); ///< read configuration from xml file
 
-  static const std::map<INukeFateHN_t,string> & GetEINukeFateKeysMap( void ) {
-    static const std::map<INukeFateHN_t,string> map_keys { {kIHNFtNoInteraction,"NoInteraction"},{kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},{kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
+  static const std::map<INukeFateHN2018_t,string> & GetEINukeFateKeysMap( void ) {
+    static const std::map<INukeFateHN2018_t,string> map_keys { {kIHNFtNoInteraction,"NoInteraction"},{kIHNFtCEx,"CEx"}, {kIHNFtElas,"Elastic"}, {kIHNFtInelas,"Inelastic"},{kIHNFtAbs,"Abs"}, {kIHNFtCmp,"Cmp"} } ;
     return map_keys ; 
   }
 
   // Class member
-  std::map< INukeFateHN_t, double > fDefaultMap ; // fate, weight 
-  std::map< INukeFateHN_t, map<int,double> > fFateWeightsMap ; // < fate, <pdg,weight> > 
+  std::map< INukeFateHN2018_t, double > fDefaultMap ; // fate, weight 
+  std::map< INukeFateHN2018_t, map<int,double> > fFateWeightsMap ; // < fate, <pdg,weight> > 
 
 };
 

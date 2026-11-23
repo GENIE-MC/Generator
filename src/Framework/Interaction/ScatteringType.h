@@ -13,7 +13,7 @@
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -34,7 +34,7 @@ namespace genie {
 // append to the end of the total list and set a new enum counter value.
 typedef enum EScatteringType {
 
-  kScUnknown = -100, 
+  kScUnknown = -100,
   kScNull = 0,
   kScQuasiElastic,
   kScSingleKaon,
@@ -56,7 +56,8 @@ typedef enum EScatteringType {
   kScDarkMatterElastic = 101,
   kScDarkMatterDeepInelastic,
   kScDarkMatterElectron,
-  kScNorm
+  kScDarkMatterResonant,
+  kScNorm = 110
 } ScatteringType_t;
 
 class ScatteringType
@@ -89,6 +90,7 @@ public:
       case(kScDarkMatterElastic) :       return "DMEL";      break;
       case(kScDarkMatterDeepInelastic) : return "DMDIS";     break;
       case(kScDarkMatterElectron) :      return "DME";       break;
+      case(kScDarkMatterResonant) :      return "DMRES";     break;
       default :                          return "Unknown";   break;
     }
     return "Unknown";

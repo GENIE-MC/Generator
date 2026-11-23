@@ -84,7 +84,7 @@
          Costas Andreopoulos <c.andreopoulos \at cern.ch>
  University of Liverpool
 
-\cpright Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -174,6 +174,9 @@ int main(int argc, char** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
@@ -182,7 +185,6 @@ int main(int argc, char** argv)
 
   // Init
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
-  utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::XSecTable(gOptInpXSecFile, true);
 
 

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -319,7 +319,8 @@ void Intranuke::TransportHadrons(GHepRecord * evrec) const
     GHepParticle * sp = new GHepParticle(*p); 
 
     // Set clone's mom to be the hadron that was cloned
-    sp->SetFirstMother(icurr); 
+    sp->SetFirstMother(icurr);
+    sp->SetLastMother(-1);  // in case mother had 2 mothers
 
     // Check whether the particle can be rescattered 
     if(!this->CanRescatter(sp)) {

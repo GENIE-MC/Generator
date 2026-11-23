@@ -8,7 +8,7 @@
 # Costas Andreopoulos <c.andreopoulos \at cern.ch>
 #
 
-version=5.7.0
+version=6.5.6
 doclean=0
 refetch=0
 while [ $# -gt 0 ] ; do
@@ -51,24 +51,43 @@ cd ${topdir}/download
 whichfetchit=`which wget | grep -v "no wget in"`
 if [ ! -z "${whichfetchit}" ] ; then
   echo use \"wget\" for fetching files
-  fetchit='wget '  
+  fetchit='wget '
+  oopt="--output-document"
 else
   whichfetchit=`which curl | grep -v "no curl in"`
   if [ ! -z "${whichfetchit}" ] ; then
-    # -f = fail without creating dummy, -O output local named like remoteza
-    echo use \"curl -f -O\" for fetching files
-    fetchit='curl -f -O '
+    oopt="--output"
+    # -f = fail without creating dummy
+    # --location to follow redirection
+    # use explicit --output as new hepforge URL is funky
+    ####, -O output local named like remoteza
+    echo use \"curl -f --location ${oopt}\" for fetching files
+    fetchit='curl -f --location '
   else
     echo "Neither wget nor curl available -- can't download files"
     exit 1
   fi
 fi
 
-echo "$fetchit http://www.hepforge.org/archive/lhapdf/lhapdf-${major}.${minor}.${revis}.tar.gz"
-$fetchit http://www.hepforge.org/archive/lhapdf/lhapdf-${major}.${minor}.${revis}.tar.gz
+### example links
+# https://lhapdf.hepforge.org/downloads/?f=old/lhapdf-5.7.0.tar.gz
+# https://lhapdf.hepforge.org/downloads/?f=LHAPDF-6.5.6.tar.gz
 
-tar xzvf lhapdf-${major}.${minor}.${revis}.tar.gz
-mv lhapdf-${major}.${minor}.${revis} ${topdir}/src
+if [ ${major} -eq 5 ]; then
+   basepath=lhapdf-${major}.${minor}.${revis}
+   tarfile=${basepath}.tar.gz
+   fetchpath="?f=old/${tarfile}"
+else
+   basepath=LHAPDF-${major}.${minor}.${revis}
+   tarfile=${basepath}.tar.gz
+   fetchpath="?f=${tarfile}"
+fi
+
+echo "$fetchit ${oopt} ${tarfile} https://lhapdf.hepforge.org/downloads/${fetchpath}"
+$fetchit ${oopt} ${tarfile}  "https://lhapdf.hepforge.org/downloads/${fetchpath}"
+
+tar xzvf ${tarfile}
+mv ${basepath} ${topdir}/src
 cd ${topdir}/src
 ./configure --prefix=${topdir}/stage/
 make

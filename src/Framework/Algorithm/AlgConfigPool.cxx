@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -530,7 +530,12 @@ int  AlgConfigPool::AddParameterMatrix  (Registry * r, string pt, string pn, str
     int i_col = 0;
     while (iss >> value) {
       std::string name = Algorithm::BuildParamMatKey( pn, i_row, i_col ) ;
-      this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( std::to_string(value) ) );
+      // full-precision formatting: std::to_string uses fixed 6 decimal places,
+      // which quantizes small covariance elements
+      // and can flip a near-singular positive-definite matrix indefinite
+      std::ostringstream val_ss;
+      val_ss << std::setprecision(17) << value;
+      this -> AddConfigParameter( r, pt, name, utils::str::TrimSpaces( val_ss.str() ) );
       i_col++;
     }
     if(i_row == 0)

@@ -10,7 +10,7 @@
 
 \created  Jun 09, 2009
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
            
 */
@@ -40,6 +40,7 @@ typedef enum EFermiMoverInteractionType {
   kFermiMoveEffectiveSF1p1h,
   kFermiMoveEffectiveSF2p2h_eject,
   kFermiMoveEffectiveSF2p2h_noeject,
+  kFermiMoveSpectralFunc,
 } FermiMoverInteractionType_t;  
 
 class NuclearModel {

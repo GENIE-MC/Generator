@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -915,7 +915,7 @@ Interaction * Interaction::MECNC(
 Interaction * Interaction::MECEM(int tgt, int probe, double E)
 {
 
-  Interaction * interaction = 
+  Interaction * interaction =
      Interaction::Create(tgt, probe, kScMEC, kIntEM);
 
   InitialState * init_state = interaction->InitStatePtr();
@@ -1089,6 +1089,31 @@ Interaction * Interaction::DMDI(
   Target * tgt = interaction->InitStatePtr()->TgtPtr();
   tgt -> SetHitQrkPdg (hitqrk);
   tgt -> SetHitSeaQrk (fromsea);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::RESDM(int target, int hitnuc, int probe, double E)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScDarkMatterResonant, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeE(E);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
+
+  return interaction;
+}
+//___________________________________________________________________________
+Interaction * Interaction::RESDM(
+   int target, int hitnuc, int probe, const TLorentzVector & p4probe)
+{
+  Interaction * interaction =
+     Interaction::Create(target,probe,kScDarkMatterResonant, kIntDarkMatter);
+
+  InitialState * init_state = interaction->InitStatePtr();
+  init_state->SetProbeP4(p4probe);
+  init_state->TgtPtr()->SetHitNucPdg(hitnuc);
 
   return interaction;
 }

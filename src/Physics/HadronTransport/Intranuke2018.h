@@ -21,7 +21,7 @@
 
 \created  September 20, 2005
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 
 */
@@ -153,6 +153,9 @@ protected:
   double       fNucleonFracAbsScale;
   double       fNucleonFracPiProdScale;
 
+  /// Bias parameter used to adjust pion production distribution away from pure
+  /// three-body phase space
+  double       fPiProdThreeBodyBias;
 };
 
 }      // genie namespace

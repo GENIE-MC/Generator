@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <constantinos.andreopoulos \at cern.ch>
@@ -269,6 +269,9 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
   return true;
 
 #else
+  (void) p4R;
+  (void) rpos;
+  (void) particle_list;
   LOG("AGCharmPythia8Hadro2023", pFATAL)
     << "calling GENIE/PYTHIA8 charm hadronization without enabling PYTHIA8"
     << " qrkSyst " << qrkSyst1 << "," << qrkSyst2 << " WR " << WR;

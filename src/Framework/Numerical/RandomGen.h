@@ -14,7 +14,7 @@
 
 \created  September 22, 2004
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org          
 */
 //____________________________________________________________________________
@@ -32,6 +32,10 @@ public:
 
   //! Access instance
   static RandomGen * Instance();
+  static RandomGen * Instance(long int seed);
+
+  //! Check if initialized
+  static bool IsInitialized();
 
   //! Random number generators used by various GENIE modules.
   //! (See note at http://root.cern.ch/root/html//TRandom.html
@@ -85,14 +89,15 @@ public:
 private:
 
   RandomGen();
+  RandomGen(long int seed);
   RandomGen(const RandomGen & rgen);
   virtual ~RandomGen();
 
   static RandomGen * fInstance;
 
-  TRandom3 * fRandom3;    ///< Mersenne Twistor
-  long int   fCurrSeed;   ///< random number generator seed number
-  bool       fInitalized; ///< done initializing singleton?
+  TRandom3 *  fRandom3;     ///< Mersenne Twistor
+  long int    fCurrSeed;    ///< random number generator seed number
+  static bool fInitialized; ///< done initializing singleton?
 
   void InitRandomGenerators(long int seed);
 

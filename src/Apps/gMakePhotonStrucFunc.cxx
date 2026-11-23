@@ -14,7 +14,7 @@
 \author  Alfonso Garcia <aagarciasoto \at km3net.de>
          Harvard University & IFIC
 \created Dev 8, 2020
-\cpright Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          or see $GENIE/LICENSE
 */
@@ -68,7 +68,8 @@ extern "C" void externalsetapfellept_(double* x, double* q, int* irep, double* x
 
 
 // Requires a global cache of pdf_cache LHAPDF::PDF
-void externalsetapfellept_(double* x, double* q, int* irep, double* xl, double* xf){
+void externalsetapfellept_(double* x, double* q, int* /*irep*/, double* xl, double* xf){
+  
   if (*x >= 1 || *x < 0) {
     for ( int i=0; i<13; i++ ) xf[i] = 0.;
     for ( int i=0; i<7; i++ )  xl[i] = 0.;
@@ -108,7 +109,7 @@ void externalsetapfellept_(double* x, double* q, int* irep, double* xl, double* 
 #endif
 
 //____________________________________________________________________________
-int main(int argc, char ** argv)
+int main(void)
 {
 
   string basedir = "";

@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -532,6 +532,7 @@ void genie::utils::intranuke::PreEquilibrium(
   // decay a clone particle
   GHepParticle * t = new GHepParticle(*(ev->Particle(f_loc)));
   t->SetFirstMother(f_loc);
+  t->SetLastMother(-1);  // in case mother had 2 mothers
   genie::utils::intranuke::Equilibrium(ev,t,RemnA,RemnZ,RemnP4,DoFermi,FermiFac,Nuclmodel,NucRmvE,mode);
 
   delete t;

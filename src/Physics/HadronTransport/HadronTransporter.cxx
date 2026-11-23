@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -116,6 +116,7 @@ void HadronTransporter::TransportInTransparentNuc(GHepRecord * evrec) const
     GHepParticle * cp = new GHepParticle(*p); // create a clone
 
     cp->SetFirstMother(icurr);                // clone's mother
+    cp->SetLastMother(-1);                    // in case mother had 2 mothers
     cp->SetStatus(kIStStableFinalState);      // mark it & done with it
 
     evrec->AddParticle(*cp); // add it at the event record

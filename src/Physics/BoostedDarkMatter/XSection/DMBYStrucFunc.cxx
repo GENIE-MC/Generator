@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
 
@@ -92,7 +92,7 @@ void DMBYStrucFunc::Init(void)
   fCv2D = 0;
 }
 //____________________________________________________________________________
-double DMBYStrucFunc::ScalingVar(const Interaction * interaction) const
+double DMBYStrucFunc::ScalingVar(const Interaction * interaction, double /*Mf*/ ) const
 {
 // Overrides QPMDMDISStrucFuncBase::ScalingVar() to compute the BY scaling var
 

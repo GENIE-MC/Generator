@@ -12,7 +12,7 @@
 
 \created  September 29, 2004
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -58,9 +58,12 @@ private:
 
   const PDFModelI * fBasePDFModel; ///< base (uncorrected) PDF model
 
+  bool   fApplyDelta; ///< Apply small u/d correction to u/d valance distributions 
   double fX0;    ///< correction param X0
   double fX1;    ///< correction param X1
   double fX2;    ///< correction param X2
+  double fUpScale; ///< Scaling parameter to scale up contributions. Default 0.
+  double fDownScale; ///< Scaling parameter to scale down contributions. Default 0.
   double fQ2min; ///< min. Q2 for PDF evaluation
 };
 

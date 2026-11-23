@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -10,6 +10,8 @@
 
 #include <fenv.h>  //provides: int feenableexcept(int excepts);
 #include <cmath>   //provides: std::isnan()
+#include <string>
+#include <vector>
 
 #include <algorithm>
 #include <chrono>
@@ -239,7 +241,7 @@ void XSecSplineList::CreateSpline(const XSecAlgorithmI * alg,
 
     steady_clock::time_point start = steady_clock::now();
 
-    xsec[i] = alg->Integral(interaction);
+    xsec[i] = TMath::Max(alg->Integral(interaction), 0.);
 
     steady_clock::time_point end = steady_clock::now();
 
@@ -639,5 +641,20 @@ void XSecSplineList::Print(ostream & stream) const
   }
 }
 //___________________________________________________________________________
-
+void XSecSplineList::SetInterpolationType(string type)
+{
+  for(auto & tune : fSplineMap) {
+    for(auto & entry : tune.second) {
+      entry.second.spline->SetType(type);
+    }
+  }
+}
+//___________________________________________________________________________
+std::vector< std::string > XSecSplineList::GetLoadedTunes() const {
+  std::vector< std::string > tunes;
+  for ( auto it = fSplineMap.begin(); it != fSplineMap.end(); ++it )
+    tunes.push_back( it->first );
+  return tunes;
+}
+//___________________________________________________________________________
 } // genie namespace

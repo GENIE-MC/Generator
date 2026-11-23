@@ -1,8 +1,7 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
-
 
  Author: Tomek Golan <tomasz.golan@uwr.edu.pl>, FNAL/Rochester
          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
@@ -29,6 +28,7 @@ potential in (e,e'p).  GENIE code was adapted from NuWro implementation.
 #include "Physics/HadronTransport/INukeNucleonCorr.h"
 #include "Physics/HadronTransport/INukeUtils2018.h"
 #include "Physics/HadronTransport/INukeHadroData2018.h"
+#include "Physics/HadronTransport/INukeHadroFates2018.h"
 #include "Framework/ParticleData/PDGLibrary.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Numerical/RandomGen.h"

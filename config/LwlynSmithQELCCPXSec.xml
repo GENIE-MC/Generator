@@ -22,7 +22,6 @@ Name                                 Type     Optional   Comment
 .....................................................................................................
 IntegralAverageOverNucleonMomentum   bool     No       Will be overridden to true if nuclear model is LFG
 IntegralNuclearModel                 alg      No        
-IntegralNuclearInfluenceCutoffEnergy double   No
 -->
 
   <param_set name="Default"> 
@@ -36,8 +35,6 @@ IntegralNuclearInfluenceCutoffEnergy double   No
     
      <param type="alg"  name="IntegralNuclearModel"> genie::NuclearModelMap/Default </param>
      <param type="string" name="IntegralNucleonBindingMode"> UseNuclearModel </param>
-     <param type="double" name = "IntegralNuclearInfluenceCutoffEnergy"> 10.0 </param>
-
      <param type="alg" name = "PauliBlockerAlg"> genie::PauliBlocker/Default </param>
      <param type="bool" name = "DoPauliBlocking"> true </param>
 

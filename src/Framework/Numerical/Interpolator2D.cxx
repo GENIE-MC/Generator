@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Steve Dennis <s.r.dennis \at liverpool.ac.uk >
@@ -160,31 +160,31 @@ double Interpolator2D::Eval(const double & x, const double & y) const
   return fSpline->spl->Interpolate(x,y);
 }
 //____________________________________________________________________________
-double Interpolator2D::DerivX(const double & x, const double & y) const
+double Interpolator2D::DerivX(const double & /*x*/, const double & /*y*/) const
 {
   assert(!"Method requires GSL version 2 or higher.");
   return -999;
 }
 //____________________________________________________________________________
-double Interpolator2D::DerivY(const double & x, const double & y) const
+double Interpolator2D::DerivY(const double & /*x*/, const double & /*y*/) const
 {
   assert(!"Method requires GSL version 2 or higher.");
   return -999;
 }
 //____________________________________________________________________________
-double Interpolator2D::DerivXX(const double & x, const double & y) const
+double Interpolator2D::DerivXX(const double & /*x*/, const double & /*y*/) const
 {
   assert(!"Method requires GSL version 2 or higher.");
   return -999;
 }
 //____________________________________________________________________________
-double Interpolator2D::DerivXY(const double & x, const double & y) const
+double Interpolator2D::DerivXY(const double & /*x*/, const double & /*y*/) const
 {
   assert(!"Method requires GSL version 2 or higher.");
   return -999;
 }
 //____________________________________________________________________________
-double Interpolator2D::DerivYY(const double & x, const double & y) const
+double Interpolator2D::DerivYY(const double & /*x*/, const double & /*y*/) const
 {
   assert(!"Method requires GSL version 2 or higher.");
   return -999;

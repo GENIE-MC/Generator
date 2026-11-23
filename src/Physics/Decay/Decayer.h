@@ -13,7 +13,7 @@
 
 \created  November 14, 2018
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -52,6 +52,8 @@ protected:
   virtual bool IsHandled     (int pdgc) const = 0;
   virtual void InhibitDecay  (int pdgc, TDecayChannel * dc=0) const = 0;
   virtual void UnInhibitDecay(int pdgc, TDecayChannel * dc=0) const = 0;
+
+  virtual void PrintDecayChannelInfo (int pdgc) const;
 
   bool        fGenerateWeighted;    ///< generate weighted or unweighted decays?
   bool        fRunBefHadroTransp;   ///< is invoked before or after FSI?

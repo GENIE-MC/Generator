@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Alfonso Garcia <aagarciasoto \at km3net.de>
@@ -79,7 +79,7 @@ double HELeptonXSec::Integrate(
     Target * target = interaction->InitStatePtr()->TgtPtr();
 
     int NNucl = 0;
-    bool skip = false;
+    //bool skip = false;
     if ( proc_info.IsGlashowResonance() ) {
       NNucl = init_state.Tgt().Z();
       target->SetId(kPdgTgtFreeP);

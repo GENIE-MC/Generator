@@ -1,0 +1,44 @@
+This directory contains covariance matrices for the parameters of
+neutrino-nucleus interaction models. They are used by the reweighting
+machinery to propagate parameter uncertainties (e.g. via Cholesky
+sampling of the covariance).
+
+File format: comment lines start with '%', followed by the matrix
+elements in plain text, one row per line. The matrices are covariances
+(error matrices) of the free z-expansion coefficients a1..aN, in the
+same order as the QEL-Z_A entries of the corresponding param_set.
+Note that GENIE stores the coefficients with FA(0) = +gA sign
+convention; covariance matrices are invariant under this overall sign
+flip.
+
+Contents:
+
+FormFactor/Axial/ - z-expansion axial form factor (ZExpAxialFormFactorModel)
+  AxialZExpFF_Deuterium.dat
+      4x4 error matrix from the deuterium fit of A. Meyer et al.,
+      PRD 93, 113015 (2016) [arXiv:1603.03048], Eqs. (32)-(33).
+      Used by the "Default" param_set.
+  AxialZExpFF_minervaElementaryTarget.dat
+      2x2 covariance from the fit to MINERvA hydrogen data,
+      A. Meyer et al., arXiv:2512.14097, Eq. (32).
+      Used by the "minerva" param_set.
+  AxialZExpFF_LQCD_updated.dat
+      2x2 covariance from the updated LQCD-based fit,
+      A. Meyer et al., arXiv:2512.14097 latest version, Eq. (40).
+      Used by the "lqcd" param_set.
+      - AxialZExpFF_LQCD.dat
+        2x2 covariance from the LQCD-based fit,
+        A. Meyer et al., arXiv:2512.14097 v1.
+        Old version, comment out by default
+  AxialZExpFF_minervaNature4x4.dat
+      4x4 covariance from the MINERvA measurement, Nature 614, 48 (2023),
+      Supplementary Tables 4-5 (kmax=8, lambda=0.13 fit).
+      Used by the "minervaNature" param_set.
+  AxialZExpFF_minervaNature2x2.dat
+      2x2 covariance from the same reference (kmax=6, lambda=0 fit).
+
+FormFactor/Vector/ - z-expansion vector form factor (ZExpELFormFactorModel)
+  ELZExpFF.dat
+      16x16 block-diagonal covariance for the proton (a_p, b_p) and
+      neutron (a_n, b_n) electromagnetic form factor coefficients
+      used by the "Default" param_set of ZExpELFormFactorModel.

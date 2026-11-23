@@ -28,7 +28,7 @@ University of Liverpool
     <param type="double" name="RES-Ma">  1.088962  </param>
     <param type="double" name="DIS-XSecScale"> 1.062213 </param>
     <param type="double" name="RES-CC-XSecScale"> 0.838730 </param>
- 
+
   </param_set>
 
 
@@ -328,7 +328,7 @@ Or changing the name of this parameter set
 	GENIE validity range
     -->
     <param type="double" name="GVLD-Emin">    0.010  </param>
-    <param type="double" name="GVLD-Emax"> 1000.000  </param>
+    <param type="double" name="GVLD-Emax"> 1000.010  </param>
 
   </param_set>
 

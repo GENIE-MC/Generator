@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -118,7 +118,7 @@ const NaturalIsotopeElementData *
   }
   
   vector<NaturalIsotopeElementData*> vec = miter->second;
-  for (int i; i<vec.size(); i++) {
+  for (std::size_t i; i<vec.size(); ++i) {
     if (vec[i]->PdgCode()==pdgcode) return vec[i];
   }
 

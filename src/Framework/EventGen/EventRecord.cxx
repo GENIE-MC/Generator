@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -62,7 +62,7 @@ void EventRecord::Copy(const EventRecord & record)
 
     GHepRecord::Copy(ghep);
 
-  } catch( std::bad_cast ) {
+  } catch( const std::bad_cast& ) {
     LOG("EventRecord", pERROR) 
           << "Bad casting to 'const GHepRecord &'. Can not copy EventRecord";
   }

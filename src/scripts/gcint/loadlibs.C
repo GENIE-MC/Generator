@@ -6,6 +6,7 @@ Long_t load_single_lib(const char * libname)
   //  1 if lib already loaded
   // -1 error or non-existent
   // -2 if version mismatch
+  // std::cout << "load_single_lib(\"" << libname << "\")" << std::endl;
   return gSystem->Load(libname);
 }
 Long_t add_single_lpath(const char * lpath, bool verbose = false)
@@ -16,7 +17,7 @@ Long_t add_single_lpath(const char * lpath, bool verbose = false)
    return 0;
 }
 
-Long_t has_feature(const char * feature_name, bool verbose = true)
+Long_t has_feature(const char * feature_name, bool verbose = false)
 {
   // take a feature name, e.g. "pythia6" and
   // Returns 1 if enabled, 0 if not
@@ -137,8 +138,12 @@ int loadlibs()
   // GSL
   gSystem->Load("libgslcblas");
   gSystem->Load("libgsl");
-  gSystem->Load("libm");
-  //~ load_libs_from_command("gsl-config --libs"); // not guaranteed to be in the right order
+
+  TString arch = gSystem->GetBuildArch();  // "macosxarm64", "linuxx8664gcc"
+  if ( ! arch.BeginsWith("macosx")) {
+    // MacOS doesn't have an explicit libm
+    gSystem->Load("libm");
+  }
 
   //
   // GENIE libs

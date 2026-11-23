@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -102,10 +102,10 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
     pdf.gl   = 0.;
     return pdf;
   }
-
+#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GRV98LO", pDEBUG)
     << "Inputs x = " << x << ", Q2 = " << Q2;
-
+#endif
   // apply kinematical limits
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
   if(Q2 <= 0.8) Q2 = 0.80001;

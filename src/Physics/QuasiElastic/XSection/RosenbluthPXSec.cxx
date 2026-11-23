@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>
@@ -57,7 +57,7 @@ double RosenbluthPXSec::XSec(
   const InitialState & init_state = interaction -> InitState();
   const Kinematics &   kinematics = interaction -> Kine();
   const Target &       target     = init_state.Tgt();
-  const ProcessInfo & proc_info = interaction->ProcInfo();
+  //const ProcessInfo & proc_info = interaction->ProcInfo();
 
   int nucpdgc = target.HitNucPdg();
   double E  = init_state.ProbeE(kRfHitNucRest);

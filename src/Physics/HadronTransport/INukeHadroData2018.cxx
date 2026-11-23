@@ -1,8 +1,7 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
- 
 
  Costas Andreopoulos <c.andreopoulos \at cern.ch>, Rutherford Lab.
          Steve Dytman <dytman+@pitt.edu>, Pittsburgh Univ.
@@ -1228,7 +1227,7 @@ void INukeHadroData2018::ReadhNFile(
 }
 //____________________________________________________________________________
 double INukeHadroData2018::XSec(
-  int hpdgc, int tgtpdgc, int nppdgc, INukeFateHN_t fate, double ke, double costh) const
+  int hpdgc, int tgtpdgc, int nppdgc, INukeFateHN2018_t fate, double ke, double costh) const
 {
 // inputs
 //      fate    : h+N fate code
@@ -1374,7 +1373,7 @@ double INukeHadroData2018::XSec(
   return 0;
 }
 //____________________________________________________________________________
-double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, int targA) const
+double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA2018_t fate, double ke, int targA) const
 {
   // return the x-section fraction for the input fate for the particle with the input pdg
   // code and the target with the input mass number at the input kinetic energy
@@ -1408,7 +1407,7 @@ double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
       std::string sign("+");
       if ( hpdgc == kPdgPiM ) sign = "-";
       else if ( hpdgc == kPdgPi0 ) sign = "0";
-      LOG("INukeData", pWARN) << "Pi" << sign << "'s don't have this fate: " << INukeHadroFates::AsString(fate);
+      LOG("INukeData", pWARN) << "Pi" << sign << "'s don't have this fate: " << INukeHadroFates2018::AsString(fate);
       return 0.;
     }
   }
@@ -1417,7 +1416,7 @@ double INukeHadroData2018::FracADep(int hpdgc, INukeFateHA_t fate, double ke, in
   return 0.;
 }
 //____________________________________________________________________________
-double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) const
+double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA2018_t fate, double ke) const
 {
   // return the x-section fraction for the input fate for the particle with the input pdg
   // code at the input kinetic energy
@@ -1447,7 +1446,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
     else if ( fate == kIHAFtCmp    ) return frac_comp / total; // cmp - add support for this later
     else {
       LOG("INukeData", pWARN)
-        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Protons don't have this fate: " << INukeHadroFates2018::AsString(fate);
       return 0;
     }
   }
@@ -1471,7 +1470,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
     else if ( fate == kIHAFtCmp    ) return frac_comp / total; // cmp - add support for this later
     else {
       LOG("INukeData", pWARN)
-        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Neutrons don't have this fate: " << INukeHadroFates2018::AsString(fate);
       return 0;
     }
   }
@@ -1489,7 +1488,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
     else if ( fate == kIHAFtAbs ) return frac_abs / total;
     else {
       LOG("INukeData", pWARN)
-        << "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "K+'s don't have this fate: " << INukeHadroFates2018::AsString(fate);
       return 0.;
     }
   }
@@ -1497,7 +1496,7 @@ double INukeHadroData2018::FracAIndep(int hpdgc, INukeFateHA_t fate, double ke) 
   return 0.;
 }
 //____________________________________________________________________________
-double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const
+double INukeHadroData2018::XSec(int hpdgc, INukeFateHN2018_t fate, double ke, int targA, int targZ) const
 {
 // return the x-section for the input fate for the particle with the input pdg
 // code at the input kinetic energy
@@ -1524,7 +1523,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else {
      LOG("INukeData", pWARN)
-        << "Pi+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Pi+'s don't have this fate: " << INukeHadroFates2018::AsString(fate);
      return 0;
     }
 
@@ -1543,7 +1542,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else {
      LOG("INukeData", pWARN)
-        << "Pi-'s don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Pi-'s don't have this fate: " << INukeHadroFates2018::AsString(fate);
      return 0;
     }
 
@@ -1562,7 +1561,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else {
      LOG("INukeData", pWARN)
-        << "Pi0's don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Pi0's don't have this fate: " << INukeHadroFates2018::AsString(fate);
      return 0;
     }
 
@@ -1579,7 +1578,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else {
      LOG("INukeData", pWARN)
-        << "Protons don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Protons don't have this fate: " << INukeHadroFates2018::AsString(fate);
      return 0;
     }
 
@@ -1596,7 +1595,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
                                     return xsec;}
     else {
      LOG("INukeData", pWARN)
-        << "Neutrons don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Neutrons don't have this fate: " << INukeHadroFates2018::AsString(fate);
      return 0;
     }
     //Adding here kaons, why elastic only on protons? hA or hN? No _Reac for kaons...
@@ -1612,7 +1611,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}*/
     	else {
     		LOG("INukeData", pWARN)
-        	<< "K+'s don't have this fate: " << INukeHadroFates::AsString(fate);
+        	<< "K+'s don't have this fate: " << INukeHadroFates2018::AsString(fate);
      	return 0;
     }
     //------------------------------------------------
@@ -1623,7 +1622,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
 				    return xsec;}
     else {
      LOG("INukeData", pWARN)
-        << "Gamma's don't have this fate: " << INukeHadroFates::AsString(fate);
+        << "Gamma's don't have this fate: " << INukeHadroFates2018::AsString(fate);
      return 0;
      }*/
    }
@@ -1633,7 +1632,7 @@ double INukeHadroData2018::XSec(int hpdgc, INukeFateHN_t fate, double ke, int ta
   return 0;
 }
 
-double INukeHadroData2018::Frac(int hpdgc, INukeFateHN_t fate, double ke, int targA, int targZ) const
+double INukeHadroData2018::Frac(int hpdgc, INukeFateHN2018_t fate, double ke, int targA, int targZ) const
 {
 // return the x-section fraction for the input fate for the particle with the
 // input pdg code at the input kinetic energy
@@ -1664,7 +1663,7 @@ double INukeHadroData2018::Frac(int hpdgc, INukeFateHN_t fate, double ke, int ta
   return frac;
 }
 //____________________________________________________________________________
-double INukeHadroData2018::IntBounce(const GHepParticle* p, int target, int scode, INukeFateHN_t fate)
+double INukeHadroData2018::IntBounce(const GHepParticle* p, int target, int scode, INukeFateHN2018_t fate)
 {
   // This method returns a random cos(ang) according to a distribution
   // based upon the particle and fate. The sampling uses the
@@ -1798,7 +1797,7 @@ while(iter)
             {
  	      LOG("Intranuke", pWARN) << "Hung-up in IntBounce method - Exiting";
 	      LOG("Intranuke", pWARN) << (*p);
-	      LOG("Intranuke", pWARN) << "Target: " << target << ", Scode: " << scode << ", fate: " << INukeHadroFates::AsString(fate);
+	      LOG("Intranuke", pWARN) << "Target: " << target << ", Scode: " << scode << ", fate: " << INukeHadroFates2018::AsString(fate);
 	      for(int ie=0;ie<200;ie+=10) {
 		LOG("Intranuke", pWARN)   << points[ie+0] << ", " << points[ie+1] << ", " << points[ie+2] << ", "
 		   << points[ie+3] << ", " << points[ie+4] << ", " << points[ie+5] << ", " << points[ie+6] << ", "

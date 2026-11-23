@@ -1,6 +1,6 @@
 //____________________________________________________________________________
 /*
- Copyright (c) 2003-2025, The GENIE Collaboration
+ Copyright (c) 2003-2026, The GENIE Collaboration
  For the full text of the license visit http://copyright.genie-mc.org
  or see $GENIE/LICENSE
 
@@ -93,7 +93,9 @@ void SPPEventGenerator::ProcessEventRecord(GHepRecord * evrec) const
   double ml2  = ml*ml;
   
   // 4-momentum of neutrino in lab frame
-  TLorentzVector k1(*(init_state.GetProbeP4(kRfLab)));
+  TLorentzVector* tempNeutrino = init_state.GetProbeP4(kRfLab);
+  TLorentzVector k1 = *tempNeutrino;
+  delete tempNeutrino;
   // 4-momentum of hit nucleon in lab frame
   TLorentzVector p1(*(evrec->HitNucleon())->P4());
   TLorentzVector p1_copy(p1);

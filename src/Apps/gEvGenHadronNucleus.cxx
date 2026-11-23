@@ -77,7 +77,7 @@
 
 \created May 1, 2007
 
-\cpright Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -161,6 +161,9 @@ int main(int argc, char ** argv)
   // Parse command line arguments
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
+  utils::app_init::RandGen(gOptRanSeed);
+
   if ( ! RunOpt::Instance()->Tune() ) {
     LOG("gmkspl", pFATAL) << " No TuneId in RunOption";
     exit(-1);
@@ -170,7 +173,6 @@ int main(int argc, char ** argv)
   // Init random number generator generator with user-specified seed number,
   // set user-specified mesg thresholds, set user-specified GHEP print-level
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
-  utils::app_init::RandGen(gOptRanSeed);
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());
 
   // Build the incident hadron kinetic energy spectrum, if required
@@ -245,11 +247,11 @@ const EventRecordVisitorI * GetIntranuke(void)
   } else if ( gOptMode.compare("hN") == 0 ) {
      sname = "genie::HNIntranuke";
      sconf = "Default";
-  } else if ( gOptMode.compare("hA2019") == 0 ) {
-     sname = "genie::HAIntranuke2019";
+  } else if ( gOptMode.compare("hA2025") == 0 ) {
+     sname = "genie::HAIntranuke2025";
      sconf = "Default";
-  } else if ( gOptMode.compare("hN2019") == 0 ) {
-     sname = "genie::HNIntranuke2019";
+  } else if ( gOptMode.compare("hN2025") == 0 ) {
+     sname = "genie::HNIntranuke2025";
      sconf = "Default";
   } else if ( gOptMode.compare("hA2018") == 0 ) {
      sname = "genie::HAIntranuke2018";

@@ -1,0 +1,12 @@
+#Ashery (LAMPF) 160 MeV
+# PRC 30, 946 (1984)
+probe     target        xs (mb)     error (mb)
+
+pi+/-       12C           64             10
+pi+/-       16O           80             12
+pi+           Ni             158            20
+pi+           Pb            252            30
+
+pi-         18O        73              15
+pi-        129Sn       127             25
+pi-        Pb         113            16

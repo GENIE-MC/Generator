@@ -10,7 +10,7 @@
 
 \created  May 06, 2004
 
-\cpright  Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright  Copyright (c) 2003-2026, The GENIE Collaboration
           For the full text of the license visit http://copyright.genie-mc.org
 */
 //____________________________________________________________________________
@@ -67,7 +67,7 @@ typedef enum EKinePhaseSpace {
               // TODO: rename this value when the correct variables are identified
   kPSTAfE,
   kPSEgTlOgfE,
-  kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering  
+  kPSDMELEvGen, // Equivalent to kPSQELEvGen for Dark Matter scattering
   kPSxQ2fE,
   kPSlog10xlog10Q2fE,
   kPSEDNufE, // Used for Dark Neutrinos, two body final state
@@ -119,7 +119,7 @@ public:
       case(kPSW2q2fE)     : return "<{W2,q2}|E>";     break;
       case(kPSxytfE)      : return "<{x,y,t}|E>";     break;
       case(kPSQ2yfE)      : return "<{Q2,y}|E>";      break;
-      case(kPSlogQ2logyfE): return "<{Q2,y}|E>";      break;
+      case(kPSlogQ2logyfE): return "<{logQ2,logy}|E>";  break;
       case(kPSTlctl)      : return "<{Tl,cos(theta_l)}|E>";     break;
       case(kPSElOlOpifE)  : return "<{El,Omega_l,Omega_pi}|E>"; break;
       case(kPSEgTlOgfE)   : return "<{Egamma,Theta_l,Omega_gamma}|E>"; break;

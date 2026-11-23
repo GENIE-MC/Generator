@@ -63,7 +63,7 @@
 
 \created September 27, 2005
 
-\cpright Copyright (c) 2003-2025, The GENIE Collaboration
+\cpright Copyright (c) 2003-2026, The GENIE Collaboration
          For the full text of the license visit http://copyright.genie-mc.org
          
 */
@@ -113,6 +113,7 @@ int main(int argc, char ** argv)
 {
   GetCommandLineArgs(argc,argv);
 
+  // Seed should always be initialised first to ensure all RNG seeds are consistent.
   utils::app_init::RandGen(gOptRanSeed);
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
 
