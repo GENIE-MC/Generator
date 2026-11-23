@@ -95,7 +95,7 @@ void PrintLimits(const Interaction * interaction)
 int RunDefaultChecks(const char * self)
 {
   int failures = 0;
-  const double em_q2_min = 0.02;
+  const double em_Q2_min = 0.02;
   const double weak_default = 0.123;
 
   Interaction * em = Interaction::QELEM(
@@ -107,9 +107,9 @@ int RunDefaultChecks(const char * self)
 
   failures += !Check(cuts->HasQ2MinCut(em),
     "EM interactions have a configured Q2 cut");
-  failures += !Check(NearlyEqual(cuts->Q2MinCut(em, 0.), em_q2_min),
+  failures += !Check(NearlyEqual(cuts->Q2MinCut(em, 0.), em_Q2_min),
     "EM Q2 cut is loaded from CommonPhaseSpaceCuts.xml");
-  failures += !Check(em->PhaseSpace().Limits(kKVQ2).min >= em_q2_min,
+  failures += !Check(em->PhaseSpace().Limits(kKVQ2).min >= em_Q2_min,
     "KPhaseSpace applies the EM Q2 cut to Q2 limits");
 
   failures += !Check(!cuts->HasQ2MinCut(weak),
@@ -120,7 +120,7 @@ int RunDefaultChecks(const char * self)
     "neutrino spline metadata ignores EM-only Q2 cuts");
   failures += !Check(cuts->HasSplineQ2MinCutForProbe(kPdgElectron),
     "electron spline metadata sees EM Q2 cuts");
-  failures += !Check(NearlyEqual(cuts->SplineQ2MinCutForProbe(kPdgElectron), em_q2_min),
+  failures += !Check(NearlyEqual(cuts->SplineQ2MinCutForProbe(kPdgElectron), em_Q2_min),
     "electron spline metadata uses EM-Q2-min");
 
   cuts->SetQ2MinOverride(0.25);
@@ -206,24 +206,24 @@ int RunDefaultChecks(const char * self)
     XSecSplineList * xspl = XSecSplineList::Instance();
     failures += !Check(xspl->LoadFromXml(spline_xml) == kXmlOK,
       "spline XML with kinematics metadata loads");
-    double q2min = -1.;
+    double Q2min = -1.;
     std::string unit = "";
     std::string source = "";
     failures += !Check(xspl->GetTuneQ2MinKinematics(
-      "UnitTestTune", q2min, &unit, &source),
+      "UnitTestTune", Q2min, &unit, &source),
       "loaded spline XML exposes Q2 metadata");
-    failures += !Check(NearlyEqual(q2min, 0.25),
+    failures += !Check(NearlyEqual(Q2min, 0.25),
       "loaded spline XML preserves Q2 metadata value");
 
     std::string saved_spline_xml = spline_xml + ".roundtrip.xml";
     xspl->SaveAsXml(saved_spline_xml);
     failures += !Check(xspl->LoadFromXml(saved_spline_xml) == kXmlOK,
       "saved spline XML with kinematics metadata reloads");
-    q2min = -1.;
+    Q2min = -1.;
     failures += !Check(xspl->GetTuneQ2MinKinematics(
-      "UnitTestTune", q2min, &unit, &source),
+      "UnitTestTune", Q2min, &unit, &source),
       "round-tripped spline XML exposes Q2 metadata");
-    failures += !Check(NearlyEqual(q2min, 0.25),
+    failures += !Check(NearlyEqual(Q2min, 0.25),
       "round-tripped spline XML preserves Q2 metadata value");
     unlink(saved_spline_xml.c_str());
   }

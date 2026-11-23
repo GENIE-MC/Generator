@@ -318,16 +318,16 @@ void ValidateQ2MinAgainstSplineMetadata(void)
   KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
   if(!cuts->HasSplineQ2MinCutForProbe(gOptNuPdgCode)) return;
 
-  double configured_q2_min = cuts->SplineQ2MinCutForProbe(gOptNuPdgCode);
+  double configured_Q2_min = cuts->SplineQ2MinCutForProbe(gOptNuPdgCode);
   string configured_source =
     cuts->SplineQ2MinCutSourceForProbe(gOptNuPdgCode);
 
   XSecSplineList * xspl = XSecSplineList::Instance();
-  double spline_q2_min = -1.;
+  double spline_Q2_min = -1.;
   string unit = "";
   string source = "";
 
-  if(!xspl->GetCurrentTuneQ2MinKinematics(spline_q2_min, &unit, &source)) {
+  if(!xspl->GetCurrentTuneQ2MinKinematics(spline_Q2_min, &unit, &source)) {
     LOG("gevgen", pFATAL)
       << "Input cross-section spline file [" << gOptInpXSecFile
       << "] does not declare <kinematics><q2 min=\"...\"/> metadata "
@@ -340,21 +340,21 @@ void ValidateQ2MinAgainstSplineMetadata(void)
 
   const double abs_tol = 1E-12;
   const double rel_tol = 1E-12;
-  const double diff = std::fabs(configured_q2_min - spline_q2_min);
-  const double scale = std::max(std::fabs(configured_q2_min), std::fabs(spline_q2_min));
+  const double diff = std::fabs(configured_Q2_min - spline_Q2_min);
+  const double scale = std::max(std::fabs(configured_Q2_min), std::fabs(spline_Q2_min));
   if(diff > abs_tol && diff > rel_tol * scale) {
     LOG("gevgen", pFATAL)
       << "Q2 minimum cut mismatch between the configured run cut and "
       << "input spline file [" << gOptInpXSecFile << "]. "
-      << configured_source << " sets " << configured_q2_min
-      << " GeV^2, but the spline metadata records " << spline_q2_min
+      << configured_source << " sets " << configured_Q2_min
+      << " GeV^2, but the spline metadata records " << spline_Q2_min
       << " " << unit << " from " << source << ".";
     gAbortingInErr = true;
     exit(1);
   }
 
   LOG("gevgen", pNOTICE)
-    << "Validated configured Q2 minimum " << configured_q2_min
+    << "Validated configured Q2 minimum " << configured_Q2_min
     << " GeV^2 from " << configured_source
     << " against spline metadata for tune "
     << RunOpt::Instance()->Tune()->Name();

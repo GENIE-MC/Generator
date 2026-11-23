@@ -50,9 +50,9 @@ KPhaseSpaceCuts * KPhaseSpaceCuts::Instance(void)
   return fInstance;
 }
 //____________________________________________________________________________
-void KPhaseSpaceCuts::SetQ2MinOverride(double q2min)
+void KPhaseSpaceCuts::SetQ2MinOverride(double Q2min)
 {
-  fQ2MinOverride = this->ValidateQ2Min("command-line Q2-min", q2min);
+  fQ2MinOverride = this->ValidateQ2Min("command-line Q2-min", Q2min);
   fHasQ2MinOverride = true;
 }
 //____________________________________________________________________________
@@ -77,28 +77,28 @@ bool KPhaseSpaceCuts::HasQ2MinCut(const Interaction * interaction) const
 }
 //____________________________________________________________________________
 double KPhaseSpaceCuts::Q2MinCut(
-  const Interaction * interaction, double default_q2min) const
+  const Interaction * interaction, double default_Q2min) const
 {
   this->LoadConfig();
 
   if(!interaction) {
-    if(fHasQ2MinOverride) return this->RaiseDefault(default_q2min, fQ2MinOverride);
-    return default_q2min;
+    if(fHasQ2MinOverride) return this->RaiseDefault(default_Q2min, fQ2MinOverride);
+    return default_Q2min;
   }
 
   const ProcessInfo & proc = interaction->ProcInfo();
   if(proc.IsEM()) {
-    if(fHasQ2MinOverride) return this->RaiseDefault(default_q2min, fQ2MinOverride);
+    if(fHasQ2MinOverride) return this->RaiseDefault(default_Q2min, fQ2MinOverride);
     if(!fHasEMQ2Min) this->FailMissingEMQ2Min();
-    return this->RaiseDefault(default_q2min, fEMQ2Min);
+    return this->RaiseDefault(default_Q2min, fEMQ2Min);
   }
 
   if(proc.IsWeak()) {
-    if(fHasQ2MinOverride) return this->RaiseDefault(default_q2min, fQ2MinOverride);
-    if(fHasWeakQ2Min) return this->RaiseDefault(default_q2min, fWeakQ2Min);
+    if(fHasQ2MinOverride) return this->RaiseDefault(default_Q2min, fQ2MinOverride);
+    if(fHasWeakQ2Min) return this->RaiseDefault(default_Q2min, fWeakQ2Min);
   }
 
-  return default_q2min;
+  return default_Q2min;
 }
 //____________________________________________________________________________
 bool KPhaseSpaceCuts::HasSplineQ2MinCut(void) const
@@ -194,20 +194,20 @@ void KPhaseSpaceCuts::LoadConfig(void) const
   }
 }
 //____________________________________________________________________________
-double KPhaseSpaceCuts::ValidateQ2Min(const char * name, double q2min) const
+double KPhaseSpaceCuts::ValidateQ2Min(const char * name, double Q2min) const
 {
-  if(!std::isfinite(q2min) || q2min <= 0.) {
+  if(!std::isfinite(Q2min) || Q2min <= 0.) {
     LOG("KPhaseSpaceCuts", pFATAL)
-      << "Invalid " << name << " phase-space cut: " << q2min
+      << "Invalid " << name << " phase-space cut: " << Q2min
       << " GeV^2. Q2 minimum cuts must be finite and > 0.";
     exit(78);
   }
-  return q2min;
+  return Q2min;
 }
 //____________________________________________________________________________
-double KPhaseSpaceCuts::RaiseDefault(double default_q2min, double cut_q2min) const
+double KPhaseSpaceCuts::RaiseDefault(double default_Q2min, double cut_Q2min) const
 {
-  return TMath::Max(default_q2min, cut_q2min);
+  return TMath::Max(default_Q2min, cut_Q2min);
 }
 //____________________________________________________________________________
 void KPhaseSpaceCuts::FailMissingEMQ2Min(void) const

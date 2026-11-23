@@ -62,17 +62,17 @@ public:
   void   SetCurrentTune (const string & tune) { fCurrentTune = tune; }
   string CurrentTune    (void) const  { return fCurrentTune; }
   bool   HasSplineFromTune( const string & tune ) const { return fSplineMap.count(tune) > 0 ; }
-  void   SetTuneQ2MinKinematics(const string & tune, double q2min, const string & source);
+  void   SetTuneQ2MinKinematics(const string & tune, double Q2min, const string & source);
   bool   HasTuneQ2MinKinematics(const string & tune) const;
-  bool   GetTuneQ2MinKinematics(const string & tune, double & q2min,
+  bool   GetTuneQ2MinKinematics(const string & tune, double & Q2min,
                                 string * unit = 0, string * source = 0) const;
-  void   SetCurrentTuneQ2MinKinematics(double q2min, const string & source)
-         { this->SetTuneQ2MinKinematics(fCurrentTune, q2min, source); }
+  void   SetCurrentTuneQ2MinKinematics(double Q2min, const string & source)
+         { this->SetTuneQ2MinKinematics(fCurrentTune, Q2min, source); }
   bool   HasCurrentTuneQ2MinKinematics(void) const
          { return this->HasTuneQ2MinKinematics(fCurrentTune); }
-  bool   GetCurrentTuneQ2MinKinematics(double & q2min,
+  bool   GetCurrentTuneQ2MinKinematics(double & Q2min,
                                 string * unit = 0, string * source = 0) const
-         { return this->GetTuneQ2MinKinematics(fCurrentTune, q2min, unit, source); }
+         { return this->GetTuneQ2MinKinematics(fCurrentTune, Q2min, unit, source); }
 
   // Query the existence, access or create a spline
   // The results of the following methods depend on the current tune setting
@@ -117,11 +117,11 @@ private:
   string fCurrentTune; ///< The `active' tune, out the many that can co-exist
 
   struct KinematicsMetadata {
-    KinematicsMetadata() : has_q2_min(false), q2_min(-1.), q2_unit("GeV^2"), q2_source("") { }
-    bool   has_q2_min;
-    double q2_min;
-    string q2_unit;
-    string q2_source;
+    KinematicsMetadata() : has_Q2_min(false), Q2_min(-1.), Q2_unit("GeV^2"), Q2_source("") { }
+    bool   has_Q2_min;
+    double Q2_min;
+    string Q2_unit;
+    string Q2_source;
   };
 
   map<string, map<string, Spline *> > fSplineMap;       ///< tune -> { xsec_alg/xsec_config/interaction -> Spline }

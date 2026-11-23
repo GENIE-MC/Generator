@@ -30,9 +30,9 @@ class KPhaseSpaceCuts {
 public:
   static KPhaseSpaceCuts * Instance(void);
 
-  void   SetQ2MinOverride(double q2min);
+  void   SetQ2MinOverride(double Q2min);
   bool   HasQ2MinCut(const Interaction * interaction) const;
-  double Q2MinCut(const Interaction * interaction, double default_q2min) const;
+  double Q2MinCut(const Interaction * interaction, double default_Q2min) const;
   bool   HasSplineQ2MinCut(void) const;
   double SplineQ2MinCut(void) const;
   string SplineQ2MinCutSource(void) const;
@@ -46,8 +46,8 @@ private:
   virtual ~KPhaseSpaceCuts();
 
   void   LoadConfig(void) const;
-  double ValidateQ2Min(const char * name, double q2min) const;
-  double RaiseDefault(double default_q2min, double cut_q2min) const;
+  double ValidateQ2Min(const char * name, double Q2min) const;
+  double RaiseDefault(double default_Q2min, double cut_Q2min) const;
   void   FailMissingEMQ2Min(void) const;
 
   static KPhaseSpaceCuts * fInstance;

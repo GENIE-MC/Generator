@@ -221,29 +221,29 @@ int main(int argc, char ** argv)
   // Save the splines at the requested XML file
   XSecSplineList * xspl = XSecSplineList::Instance();
   KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
-  bool has_q2_metadata = false;
-  double q2_metadata = -1.;
-  string q2_metadata_source = "";
+  bool has_Q2_metadata = false;
+  double Q2_metadata = -1.;
+  string Q2_metadata_source = "";
   for(nuiter = neutrinos->begin(); nuiter != neutrinos->end(); ++nuiter) {
     int nupdgc = *nuiter;
     if(!cuts->HasSplineQ2MinCutForProbe(nupdgc)) continue;
 
-    double probe_q2_metadata = cuts->SplineQ2MinCutForProbe(nupdgc);
-    string probe_q2_metadata_source =
+    double probe_Q2_metadata = cuts->SplineQ2MinCutForProbe(nupdgc);
+    string probe_Q2_metadata_source =
       cuts->SplineQ2MinCutSourceForProbe(nupdgc);
-    if(!has_q2_metadata) {
-      has_q2_metadata = true;
-      q2_metadata = probe_q2_metadata;
-      q2_metadata_source = probe_q2_metadata_source;
-    } else if(std::fabs(q2_metadata - probe_q2_metadata) > 1E-12) {
+    if(!has_Q2_metadata) {
+      has_Q2_metadata = true;
+      Q2_metadata = probe_Q2_metadata;
+      Q2_metadata_source = probe_Q2_metadata_source;
+    } else if(std::fabs(Q2_metadata - probe_Q2_metadata) > 1E-12) {
       LOG("gmkspl", pFATAL)
         << "Cannot write one spline Q2 metadata value for mixed probes "
         << "with different configured Q2 cuts.";
       exit(1);
     }
   }
-  if(has_q2_metadata) {
-    xspl->SetCurrentTuneQ2MinKinematics(q2_metadata, q2_metadata_source);
+  if(has_Q2_metadata) {
+    xspl->SetCurrentTuneQ2MinKinematics(Q2_metadata, Q2_metadata_source);
   }
   bool save_init = !gOptNoCopy;
   xspl->SaveAsXml(gOptOutXSecFile, save_init);

@@ -338,34 +338,34 @@ void XSecSplineList::SetMaxE(double Ev)
 }
 //____________________________________________________________________________
 void XSecSplineList::SetTuneQ2MinKinematics(
-  const string & tune, double q2min, const string & source)
+  const string & tune, double Q2min, const string & source)
 {
   if(tune.empty()) return;
 
   KinematicsMetadata & meta = fKinematicsMetadata[tune];
-  meta.has_q2_min = true;
-  meta.q2_min     = q2min;
-  meta.q2_unit    = "GeV^2";
-  meta.q2_source  = source;
+  meta.has_Q2_min = true;
+  meta.Q2_min     = Q2min;
+  meta.Q2_unit    = "GeV^2";
+  meta.Q2_source  = source;
 }
 //____________________________________________________________________________
 bool XSecSplineList::HasTuneQ2MinKinematics(const string & tune) const
 {
   map<string, KinematicsMetadata>::const_iterator it =
     fKinematicsMetadata.find(tune);
-  return it != fKinematicsMetadata.end() && it->second.has_q2_min;
+  return it != fKinematicsMetadata.end() && it->second.has_Q2_min;
 }
 //____________________________________________________________________________
 bool XSecSplineList::GetTuneQ2MinKinematics(
-  const string & tune, double & q2min, string * unit, string * source) const
+  const string & tune, double & Q2min, string * unit, string * source) const
 {
   map<string, KinematicsMetadata>::const_iterator it =
     fKinematicsMetadata.find(tune);
-  if(it == fKinematicsMetadata.end() || !it->second.has_q2_min) return false;
+  if(it == fKinematicsMetadata.end() || !it->second.has_Q2_min) return false;
 
-  q2min = it->second.q2_min;
-  if(unit)   *unit   = it->second.q2_unit;
-  if(source) *source = it->second.q2_source;
+  Q2min = it->second.Q2_min;
+  if(unit)   *unit   = it->second.Q2_unit;
+  if(source) *source = it->second.Q2_source;
   return true;
 }
 //____________________________________________________________________________
@@ -402,12 +402,12 @@ void XSecSplineList::SaveAsXml(const string & filename, bool save_init) const
 
     map<string, KinematicsMetadata>::const_iterator kiter =
       fKinematicsMetadata.find(tune_name);
-    if(kiter != fKinematicsMetadata.end() && kiter->second.has_q2_min) {
+    if(kiter != fKinematicsMetadata.end() && kiter->second.has_Q2_min) {
       outxml << "    <kinematics>" << endl;
       outxml << "      <q2 min=\"" << std::setprecision(16)
-             << kiter->second.q2_min
-             << "\" unit=\"" << kiter->second.q2_unit
-             << "\" source=\"" << kiter->second.q2_source
+             << kiter->second.Q2_min
+             << "\" unit=\"" << kiter->second.Q2_unit
+             << "\" source=\"" << kiter->second.Q2_source
              << "\"/>" << endl;
       outxml << "    </kinematics>" << endl << endl;
     }
@@ -525,18 +525,18 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
 
                if(xmin) {
                  string smin = utils::str::TrimSpaces((const char *)xmin);
-                 double q2min = atof(smin.c_str());
-                 if(std::isfinite(q2min) && q2min > 0.) {
+                 double Q2min = atof(smin.c_str());
+                 if(std::isfinite(Q2min) && Q2min > 0.) {
                    KinematicsMetadata & meta = fKinematicsMetadata[temp_tune];
-                   meta.has_q2_min = true;
-                   meta.q2_min = q2min;
-                   meta.q2_unit = xunit ?
+                   meta.has_Q2_min = true;
+                   meta.Q2_min = Q2min;
+                   meta.Q2_unit = xunit ?
                      utils::str::TrimSpaces((const char *)xunit) : "GeV^2";
-                   meta.q2_source = xsource ?
+                   meta.Q2_source = xsource ?
                      utils::str::TrimSpaces((const char *)xsource) : "";
                    SLOG("XSecSplLst", pNOTICE)
                      << "Loaded Q2 minimum metadata for tune " << temp_tune
-                     << ": " << meta.q2_min << " " << meta.q2_unit;
+                     << ": " << meta.Q2_min << " " << meta.Q2_unit;
                  } else {
                    SLOG("XSecSplLst", pWARN)
                      << "Ignoring invalid Q2 minimum metadata in " << filename

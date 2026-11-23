@@ -40,19 +40,19 @@ using namespace genie::constants;
 ClassImp(KPhaseSpace)
 
 namespace {
-  void ApplyQ2MinCut(const Interaction * interaction, Range1D_t & q2lim, double default_q2min)
+  void ApplyQ2MinCut(const Interaction * interaction, Range1D_t & Q2lim, double default_Q2min)
   {
-    // default_q2min is the legacy kinematic floor. EM callers pass 0 here so
+    // default_Q2min is the legacy kinematic floor. EM callers pass 0 here so
     // the EM-Q2-min value comes only from KPhaseSpaceCuts/CommonPhaseSpaceCuts.
     KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
     bool has_cut = cuts->HasQ2MinCut(interaction);
-    if(q2lim.min < 0. || q2lim.max < 0. || !has_cut) return;
+    if(Q2lim.min < 0. || Q2lim.max < 0. || !has_cut) return;
 
-    double q2min = cuts->Q2MinCut(interaction, default_q2min);
-    if(q2lim.min < q2min) q2lim.min = q2min;
-    if(q2lim.max < q2lim.min) {
-      q2lim.min = -1.;
-      q2lim.max = -1.;
+    double Q2min = cuts->Q2MinCut(interaction, default_Q2min);
+    if(Q2lim.min < Q2min) Q2lim.min = Q2min;
+    if(Q2lim.max < Q2lim.min) {
+      Q2lim.min = -1.;
+      Q2lim.max = -1.;
     }
   }
 }
