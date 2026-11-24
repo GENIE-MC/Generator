@@ -95,16 +95,15 @@ double AivazisCharmPXSecLO::XSec(
   if(xi<=0 || xi>1) return 0;
 
   //----- Calculate the PDFs
-  PDF pdfs;
-  pdfs.SetModel(fPDFModel);  // <-- attach algorithm
-  pdfs.Calculate(xi, Q2);    // <-- calculate
+  fPDF  -> Reset();
+  fPDF->Calculate(xi, Q2);    // <-- calculate
 
   //----- proton pdfs
-  double us = pdfs.UpSea();
-  double uv = pdfs.UpValence();
-  double ds = pdfs.DownSea();
-  double dv = pdfs.DownValence();
-  double s  = pdfs.Strange();
+  double us = fPDF->UpSea();
+  double uv = fPDF->UpValence();
+  double ds = fPDF->DownSea();
+  double dv = fPDF->DownValence();
+  double s  = fPDF->Strange();
 
   //----- if the hit nucleon is a neutron, swap u<->d
   double tmp;
@@ -212,7 +211,7 @@ void AivazisCharmPXSecLO::LoadConfig(void)
   // load PDF set
   fPDFModel = dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   assert(fPDFModel);
-
+  fPDF->SetModel(fPDFModel);  // <-- attach algorithm
   // load XSec Integrator
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));

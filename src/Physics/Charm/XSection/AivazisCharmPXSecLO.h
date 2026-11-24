@@ -24,6 +24,8 @@
 #define _AIVAZIS_CHARM_PARTIAL_XSEC_LO_H_
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Physics/PartonDistributions/PDFModelI.h"
+#include "Physics/PartonDistributions/PDF.h"
 
 namespace genie {
 
@@ -48,7 +50,7 @@ public:
   void Configure (string param_set);
 
 private:
-
+  PDF *  fPDF;
   void LoadConfig(void);
 
   const PDFModelI *       fPDFModel;
