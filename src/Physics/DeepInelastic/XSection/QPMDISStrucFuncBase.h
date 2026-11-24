@@ -48,7 +48,7 @@ public:
   virtual double F6 (void) const { return fF6; }
 
   virtual void Calculate (const Interaction * interaction) const;
-
+  virtual double ScalingVar (const Interaction * i, double /*Mf*/ = 0) const;
   // overload Algorithm's Configure() to set the PDF data member
   // from the configuration registry
   void   Configure  (const Registry & config);
@@ -64,7 +64,6 @@ protected:
   virtual void   LoadConfig (void);
   virtual void   InitPDF    (void);
   virtual double Q2         (const Interaction * i) const;
-  virtual double ScalingVar (const Interaction * i, double /*Mf*/ = 0) const;
   virtual void   CalcPDFs   (const Interaction * i) const;
   virtual double R          (const Interaction * i) const;
   virtual double KCharm     (const Interaction * /*i*/, double /*Mf */= 0) const;
