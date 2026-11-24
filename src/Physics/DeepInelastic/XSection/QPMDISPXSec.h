@@ -56,8 +56,6 @@ private:
   const DISStructureFuncModelI * fDISSFModel;         ///< SF model
   const XSecIntegratorI *        fXSecIntegrator;     ///< diff. xsec integrator
 
-  const XSecAlgorithmI * fCharmProdModel;
-
   double fCCScale;            ///< cross section scaling factor
   double fNCScale;            ///< cross section scaling factor
   double fEMScale;            ///< cross section scaling factor
