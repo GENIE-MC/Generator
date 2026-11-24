@@ -574,7 +574,7 @@ void GEVGDriver::UseSplines(void)
   }//use-splines?
 }
 //___________________________________________________________________________
-void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
+void GEVGDriver::CreateSplines(int nknots, double emin, double emax, bool useLogE)
 {
 // Creates all the cross section splines that are needed by this driver.
 // It will check for pre-loaded splines and it will skip the creation of the
@@ -610,7 +610,7 @@ void GEVGDriver::CreateSplines(int nknots, double emax, bool useLogE)
 
      // get the energy range of the spline from the EventGenerator
      // validity context
-     double Emin = evgen->ValidityContext().Emin() ;
+     double Emin = std::max(emin, evgen->ValidityContext().Emin()) ;
      xsl -> SetMinE( Emin ) ;
 
      double valid_Emax = evgen->ValidityContext().Emax();

@@ -88,7 +88,7 @@ public :
   const Spline * XSecSpline          (const Interaction * interaction) const;
 
   // Instruct the driver to create all the splines it needs
-  void CreateSplines (int nknots=-1, double emax=-1, bool inLogE=true);
+  void CreateSplines (int nknots=-1, double emin=-1, double emax=-1, bool inLogE=true);
 
   // Methods used for building the 'total' cross section spline
   double XSecSum             (const TLorentzVector & nup4);
