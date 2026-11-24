@@ -31,7 +31,7 @@ class PDFModelI;
 class XSecIntegratorI;
 
 class AivazisCharmPXSecLO : public XSecAlgorithmI {
-
+//For details on this model see https://arxiv.org/pdf/hep-ph/9312318
 public:
   AivazisCharmPXSecLO();
   AivazisCharmPXSecLO(string config);

@@ -125,7 +125,7 @@ double AivazisCharmPXSecLO::XSec(
   if(isnub) dv=0;
 
   //----- calculate the cross section
-  double Gw2    = TMath::Power((kGF/kSqrt2)*(1+Q2/kMw2), 2);
+  double Gw2    = TMath::Power((kGF/kSqrt2)/(1+Q2/kMw2), 2);
   double f1     = TMath::Power( (1+coshpsi)/2, 2);
   double f2     = 0.25 * (fMc2/Q2) * sinh2psi;
   double xsec_0 = 2 * Gw2 * (y*Q2/kPi) * (f1+f2);
