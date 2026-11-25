@@ -99,11 +99,11 @@ double AivazisCharmPXSecLO::XSec(
   fPDF->Calculate(xi, Q2);    // <-- calculate
 
   //----- proton pdfs
-  double us = pdfs.UpSea()/xi;
-  double uv = pdfs.UpValence()/xi;
-  double ds = pdfs.DownSea()/xi;
-  double dv = pdfs.DownValence()/xi;
-  double s  = pdfs.Strange()/xi;
+  double us = fPDF->UpSea()/xi;
+  double uv = fPDF->UpValence()/xi;
+  double ds = fPDF->DownSea()/xi;
+  double dv = fPDF->DownValence()/xi;
+  double s  = fPDF->Strange()/xi;
 
   //----- if the hit nucleon is a neutron, swap u<->d
   double tmp;
