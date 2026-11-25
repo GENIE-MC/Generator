@@ -607,12 +607,12 @@ void HNIntranuke2018::AbsorbHN(
   p->SetMomentum(t4P3L);
   p->SetStatus(kIStHadronInTheNucleus);
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2018", pDEBUG)
-    << "|p3| = " << (P3L) << ", E3 = " << (E3L);
-  LOG("HNIntranuke2018", pDEBUG)
-    << "|p4| = " << (P4L) << ", E4 = " << (E4L);
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("HNIntranuke2018", pDEBUG)
+//    << "|p3| = " << (P3L) << ", E3 = " << (E3L);
+//  LOG("HNIntranuke2018", pDEBUG)
+//    << "|p4| = " << (P4L) << ", E4 = " << (E4L);
+//#endif
 
   ev->AddParticle(*p);
   ev->AddParticle(*t);
@@ -638,11 +638,11 @@ void HNIntranuke2018::ElasHN(
 {
   // scatters particle within nucleus
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2018", pDEBUG)
-    << "ElasHN() is invoked for a : " << p->Name()
-    << " whose fate is : " << INukeHadroFates2018::AsString(fate);
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("HNIntranuke2018", pDEBUG)
+//    << "ElasHN() is invoked for a : " << p->Name()
+//    << " whose fate is : " << INukeHadroFates2018::AsString(fate);
+//#endif
 
   if(fate!=kIHNFtCEx && fate!=kIHNFtElas)
     {
@@ -717,13 +717,13 @@ void HNIntranuke2018::ElasHN(
 
   bool pass = utils::intranuke2018::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
 						  p,t,fRemnA,fRemnZ,fRemnP4,kIMdHN);
-
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2018",pDEBUG)
-    << "|p3| = " << P3L << ", E3 = " << E3L;
-  LOG("HNIntranuke2018",pDEBUG)
-    << "|p4| = " << P4L << ", E4 = " << E4L;
-#endif
+//
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("HNIntranuke2018",pDEBUG)
+//    << "|p3| = " << P3L << ", E3 = " << E3L;
+//  LOG("HNIntranuke2018",pDEBUG)
+//    << "|p4| = " << P4L << ", E4 = " << E4L;
+//#endif
 
   if (pass==true)
   {
@@ -861,12 +861,12 @@ void HNIntranuke2018::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFat
   bool pass = utils::intranuke2018::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
 						  p,t,fRemnA,fRemnZ,fRemnP4,kIMdHN);
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2018",pDEBUG)
-    << "|p3| = " << P3L << ", E3 = " << E3L;
-  LOG("HNIntranuke2018",pDEBUG)
-    << "|p4| = " << P4L << ", E4 = " << E4L;
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("HNIntranuke2018",pDEBUG)
+//    << "|p3| = " << P3L << ", E3 = " << E3L;
+//  LOG("HNIntranuke2018",pDEBUG)
+//    << "|p4| = " << P4L << ", E4 = " << E4L;
+//#endif
 
   if (pass==true)
   {

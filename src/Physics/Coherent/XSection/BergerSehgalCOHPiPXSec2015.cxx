@@ -199,7 +199,7 @@ double BergerSehgalCOHPiPXSec2015::XSec(
     << "\n inelastic pi+N cross section ... sigI  = " << siginel_pin
     << "\n nuclear size scale ............. Ro    = " << fRo
     << "\n pion absorption factor ......... Fabs  = " << fabs
-    << "\n t integration range ............ [" << tmin << "," << tmax << "]"
+    << "\n t integration range ............ [" << tmin << "," << tmax << "]";
   LOG("BergerSehgalCohPi", pINFO)
     << "d2xsec/dQ2dy[COHPi] (Q2= " << Q2 << ", y="
     << y << ", E=" << E << ") = "<< xsec;

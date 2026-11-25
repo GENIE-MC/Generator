@@ -193,16 +193,17 @@ double BergerSehgalFMCOHPiPXSec2015::XSec(
         << "\n momentum transfer .............. Q2    = " << Q2
         << "\n mass number .................... A     = " << A
         << "\n pion energy .................... Epi   = " << Epi
-        << "\n propagator term ................ propg = " << propg
-        << "\n Re/Im of fwd pion scat. ampl. .. Re/Im = " << fReIm
+//        << "\n propagator term ................ propg = " << propg
+//        << "\n Re/Im of fwd pion scat. ampl. .. Re/Im = " << fReIm
         << "\n total pi+N cross section ....... sigT  = " << sTot
-        << "\n inelastic pi+N cross section ... sigI  = " << sInel
+//        << "\n inelastic pi+N cross section ... sigI  = " << sInel
         << "\n nuclear size scale ............. Ro    = " << fRo
-        << "\n pion absorption factor ......... Fabs  = " << Fabs
-        << "\n t integration factor ........... tint  = " << tint;
+        << "\n pion absorption factor ......... Fabs  = " << Fabs;
+//        << "\n t integration factor ........... tint  = " << tint;
     LOG("BergerSehgalFMCohPi", pINFO)
-        << "d3xsec/dQ2dydt[COHPi] (x= " << x << ", y="
-        << y << ", E=" << E << ") = "<< xsec;
+        << "d3xsec/dQ2dydt[COHPi] "
+//        "(x= " << x << 
+        ", y= " << y << ", E=" << E << ") = "<< xsec;
 #endif
 
     //----- The algorithm computes d^3xsec/dQ^2dydt

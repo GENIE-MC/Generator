@@ -741,10 +741,10 @@ double COHKinematicsGenerator::MaxXSec_BergerSehgal(const Interaction * in) cons
 
       // Note: We're not stepping through log Q^2, log y - we "unpacked"
       double xsec = fXSecModel->XSec(in, kPSQ2yfE);
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-      LOG("COHKinematics", pDEBUG)
-        << "xsec(Q2= " << Q2 << ", y= " << gy << ", t = " << gt << ") = " << xsec;
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//      LOG("COHKinematics", pDEBUG)
+//        << "xsec(Q2= " << Q2 << ", y= " << gy << ", t = " << gt << ") = " << xsec;
+//#endif
       max_xsec = TMath::Max(max_xsec, xsec);
 
     } // y

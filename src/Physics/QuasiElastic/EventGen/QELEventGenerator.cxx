@@ -531,7 +531,6 @@ double QELEventGenerator::ComputeMaxXSec(const Interaction * in) const
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
     SLOG("QELEvent", pDEBUG) << interaction->AsString();
-    SLOG("QELEvent", pDEBUG) << "Max xsec in phase space = " << max_xsec;
     SLOG("QELEvent", pDEBUG) << "Computed using alg = " << *fXSecModel;
 #endif
 

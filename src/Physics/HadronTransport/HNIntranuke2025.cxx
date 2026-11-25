@@ -560,46 +560,38 @@ void HNIntranuke2025::AbsorbHN(
   P2L = tP2L.Mag();
   tPtot = tP1L + tP2L;
 
-          TLorentzVector t4P1L,t4P2L,t4P3L,t4P4L;
-          t4P1L=*p->P4();
-          t4P2L=TLorentzVector(TVector3(tP2_1L+tP2_2L),E2L);
+  TLorentzVector t4P1L,t4P2L,t4P3L,t4P4L;
+  t4P1L=*p->P4();
+  t4P2L=TLorentzVector(TVector3(tP2_1L+tP2_2L),E2L);
 //          double bindE=0.050; // set to fit McKeown data, updated aug 18 - double counting, don't do
-          double bindE=0.0;
-          if (utils::intranuke2025::TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,fRemnP4,bindE))
-            {
-              //construct remnant nucleus and its mass
-
-
-              if (pdgc==kPdgPiP || pdgc==kPdgKP) fRemnZ++;
-              if (pdgc==kPdgPiM) fRemnZ--;  //sd: remove K-, only K+ at present
-              if (t1code==kPdgProton) fRemnZ--;
-              if (t2code==kPdgProton) fRemnZ--;
-              fRemnA-=2;
-
-              fRemnP4-=dNucl_P4;
-
-              TParticlePDG * remn = 0;
-              double MassRem = 0.;
-              int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
-              remn = PDGLibrary::Instance()->Find(ipdgc);
-              if(!remn)
-                {
-                  LOG("HNIntranuke2025", pINFO)
-                    << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
-                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-                }
-              else
-                {
-                  MassRem = remn->Mass();
-                  LOG("HNIntranuke2025", pINFO)
-                    << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
-                    << ", pdgc = " << ipdgc << "] in PDGLibrary!";
-                }
-              double ERemn = fRemnP4.E();
-              double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
-              double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
-              LOG("HNIntranuke2025",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
-              LOG("HNIntranuke2025",pINFO) << "expt MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy =" << (MRemn-MassRem)*1000. << " MeV";
+  double bindE=0.0;
+  if (utils::intranuke2025::TwoBodyKinematics(M3,M4,t4P1L,t4P2L,t4P3L,t4P4L,C3CM,fRemnP4,bindE)) {
+    //construct remnant nucleus and its mass
+    if (pdgc==kPdgPiP || pdgc==kPdgKP) fRemnZ++;
+    if (pdgc==kPdgPiM) fRemnZ--;  //sd: remove K-, only K+ at present
+    if (t1code==kPdgProton) fRemnZ--;
+    if (t2code==kPdgProton) fRemnZ--;
+    fRemnA-=2;
+    fRemnP4-=dNucl_P4;
+    TParticlePDG * remn = 0;
+    double MassRem = 0.;
+    int ipdgc = pdg::IonPdgCode(fRemnA, fRemnZ);
+    remn = PDGLibrary::Instance()->Find(ipdgc);
+    if(!remn) {
+        LOG("HNIntranuke2025", pINFO)
+          << "NO Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+          << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+    } else {
+        MassRem = remn->Mass();
+        LOG("HNIntranuke2025", pINFO)
+          << "Particle with [A = " << fRemnA << ", Z = " << fRemnZ
+          << ", pdgc = " << ipdgc << "] in PDGLibrary!";
+    }
+    double ERemn = fRemnP4.E();
+    double PRemn = TMath::Sqrt(fRemnP4.Px()*fRemnP4.Px() + fRemnP4.Py()*fRemnP4.Py() + fRemnP4.Pz()*fRemnP4.Pz());
+    double MRemn = TMath::Sqrt(ERemn*ERemn - PRemn*PRemn);
+    LOG("HNIntranuke2025",pINFO) << "PRemn = " << PRemn << " ;ERemn=  " << ERemn;
+    LOG("HNIntranuke2025",pINFO) << "expt MRemn=  " << MRemn << "  ;true Mass=  " << MassRem << "   ; excitation energy =" << (MRemn-MassRem)*1000. << " MeV";
 
 
 
@@ -628,50 +620,47 @@ void HNIntranuke2025::AbsorbHN(
 */
 
   // handle remnant nucleus updates
-  fRemnZ--;
-  fRemnA -=2;
-  fRemnP4 -= TLorentzVector(tP2_1L,E2_1L);
-  fRemnP4 -= TLorentzVector(tP2_2L,E2_2L);
+    fRemnZ--;
+    fRemnA -=2;
+    fRemnP4 -= TLorentzVector(tP2_1L,E2_1L);
+    fRemnP4 -= TLorentzVector(tP2_2L,E2_2L);
 
-  // create t particle w/ appropriate momenta, code, and status
-  // set target's mom to be the mom of the hadron that was cloned
-  GHepParticle * t = new GHepParticle(*p);
-  t->SetFirstMother(p->FirstMother());
-  t->SetLastMother(p->LastMother());
+    // create t particle w/ appropriate momenta, code, and status
+    // set target's mom to be the mom of the hadron that was cloned
+    GHepParticle * t = new GHepParticle(*p);
+    t->SetFirstMother(p->FirstMother());
+    t->SetLastMother(p->LastMother());
 
-//  TLorentzVector t4P4L(tP4L,E4L);
-  t->SetPdgCode(s2code);
-  t->SetMomentum(t4P4L);   //no change with switch to hA method
-  t->SetStatus(kIStHadronInTheNucleus);
+//    TLorentzVector t4P4L(tP4L,E4L);
+    t->SetPdgCode(s2code);
+    t->SetMomentum(t4P4L);   //no change with switch to hA method
+    t->SetStatus(kIStHadronInTheNucleus);
 
-  // adjust p to reflect scattering
-//  TLorentzVector t4P3L(tP3L,E3L);
-  p->SetPdgCode(scode);
-  p->SetMomentum(t4P3L);
-  p->SetStatus(kIStHadronInTheNucleus);
+    // adjust p to reflect scattering
+//    TLorentzVector t4P3L(tP3L,E3L);
+    p->SetPdgCode(scode);
+    p->SetMomentum(t4P3L);
+    p->SetStatus(kIStHadronInTheNucleus);
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2025", pDEBUG)
-    << "|p3| = " << (P3L) << ", E3 = " << (E3L);
-  LOG("HNIntranuke2025", pDEBUG)
-    << "|p4| = " << (P4L) << ", E4 = " << (E4L);
-#endif
+//  #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//    LOG("HNIntranuke2025", pDEBUG)
+//      << "|p3| = " << (P3L) << ", E3 = " << (E3L);
+//    LOG("HNIntranuke2025", pDEBUG)
+//      << "|p4| = " << (P4L) << ", E4 = " << (E4L);
+//  #endif
 
-  ev->AddParticle(*p);
-  ev->AddParticle(*t);
+    ev->AddParticle(*p);
+    ev->AddParticle(*t);
 
-  delete t; // delete particle clone
+    delete t; // delete particle clone
 
-   return;
-    }
-          else
-      {
-         LOG("HNIntranuke2025", pNOTICE) << "Absorb in hN failed calling TwoBodyKineamtics";
-         exceptions::INukeException exception;
-         exception.SetReason("Pion absorption kinematics through TwoBodyKinematics failed");
-         throw exception;
-
-       }
+    return;
+  } else {
+     LOG("HNIntranuke2025", pNOTICE) << "Absorb in hN failed calling TwoBodyKineamtics";
+     exceptions::INukeException exception;
+     exception.SetReason("Pion absorption kinematics through TwoBodyKinematics failed");
+     throw exception;
+   }
 
 
 }
@@ -761,12 +750,12 @@ void HNIntranuke2025::ElasHN(
   bool pass = utils::intranuke2025::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
 						  p,t,fRemnA,fRemnZ,fRemnP4,kIMdHN);
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2025",pDEBUG)
-    << "|p3| = " << P3L << ", E3 = " << E3L;
-  LOG("HNIntranuke2025",pDEBUG)
-    << "|p4| = " << P4L << ", E4 = " << E4L;
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("HNIntranuke2025",pDEBUG)
+//    << "|p3| = " << P3L << ", E3 = " << E3L;
+//  LOG("HNIntranuke2025",pDEBUG)
+//    << "|p4| = " << P4L << ", E4 = " << E4L;
+//#endif
 
   if (pass==true)
   {
@@ -903,12 +892,12 @@ void HNIntranuke2025::GammaInelasticHN(GHepRecord* ev, GHepParticle* p, INukeFat
   bool pass = utils::intranuke2025::TwoBodyCollision(ev,pcode,tcode,scode,s2code,C3CM,
 						  p,t,fRemnA,fRemnZ,fRemnP4,kIMdHN);
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("HNIntranuke2025",pDEBUG)
-    << "|p3| = " << P3L << ", E3 = " << E3L;
-  LOG("HNIntranuke2025",pDEBUG)
-    << "|p4| = " << P4L << ", E4 = " << E4L;
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("HNIntranuke2025",pDEBUG)
+//    << "|p3| = " << P3L << ", E3 = " << E3L;
+//  LOG("HNIntranuke2025",pDEBUG)
+//    << "|p4| = " << P4L << ", E4 = " << E4L;
+//#endif
 
   if (pass==true)
   {

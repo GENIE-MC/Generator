@@ -55,9 +55,6 @@ double BYCharmXSec::XSec(const Interaction * interaction, KinePhaseSpace_t kps) 
   // Calculate the DIS structure functions
   this->Calculate(interaction);
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pDEBUG) << fDISSF;
-#endif
 
 
   double Q2 = utils::kinematics::XYtoQ2(E, Mnuc, x, y);
