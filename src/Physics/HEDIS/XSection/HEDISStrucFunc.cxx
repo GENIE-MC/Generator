@@ -130,8 +130,7 @@ HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
     mPDFQrk[i] = pdf->quarkMass(i);
     LOG("HEDISStrucFunc", pINFO) << "M" << i << " = " << mPDFQrk[i];
   }
-#endif
-#ifdef __GENIE_LHAPDF5_ENABLED__
+#elif defined(__GENIE_LHAPDF5_ENABLED__)
   LOG("HEDISStrucFunc", pINFO) << "Initialising LHAPDF5...";
   LHAPDF::initPDFByName(fSF.LHAPDFset, LHAPDF::LHGRID, fSF.LHAPDFmember);
   xPDFmin  = LHAPDF::getXmin(0);
@@ -143,6 +142,11 @@ HEDISStrucFunc::HEDISStrucFunc(SF_info sfinfo)
     mPDFQrk[i] = LHAPDF::getQMass(i);
     LOG("HEDISStrucFunc", pINFO) << "M" << i << " = " << mPDFQrk[i];
   }
+
+#else
+  LOG("HEDISStrucFunc", pFATAL) << "Neither LHAPDF5 nor LHAPDF6 are defined, aborting";
+  gAbortingInErr = true;
+  exit(1);
 #endif
 
   // checking if LHAPDF boundaries matches boundaries defined by user
@@ -470,15 +474,18 @@ void HEDISStrucFunc::CreateQrkSF( const Interaction * in, string sfFile )
         double xPDF = TMath::Max( z, xPDFmin );
         double Q2PDF = TMath::Max( Q2, Q2PDFmin );
         Q2PDF = TMath::Min( Q2PDF, Q2PDFmax  );
-
+        double fPDF = 0;
         // Extract PDF requiring then to be higher than zero
 #ifdef __GENIE_LHAPDF6_ENABLED__
-        double fPDF = fmax( pdf->xfxQ2(qpdf1, xPDF, Q2PDF)/z , 0.);
+        fPDF = fmax( pdf->xfxQ2(qpdf1, xPDF, Q2PDF)/z , 0.);
         if (qpdf2!= -999) fPDF -= fmax( pdf->xfxQ2(qpdf2, xPDF, Q2PDF)/z , 0.);
-#endif
-#ifdef __GENIE_LHAPDF5_ENABLED__
-        double fPDF = fmax( LHAPDF::xfx(xPDF, TMath::Sqrt(Q2PDF), qpdf1)/z , 0.);
+#elif defined(__GENIE_LHAPDF5_ENABLED__)
+        fPDF = fmax( LHAPDF::xfx(xPDF, TMath::Sqrt(Q2PDF), qpdf1)/z , 0.);
         if (qpdf2!= -999) fPDF -= fmax( LHAPDF::xfx(xPDF, TMath::Sqrt(Q2PDF), qpdf2)/z , 0.);
+#else
+  LOG("HEDISStrucFunc", pFATAL) << "Neither LHAPDF5 nor LHAPDF6 are defined, aborting";
+  gAbortingInErr = true;
+  exit(1);
 #endif
 
         // Compute SF
