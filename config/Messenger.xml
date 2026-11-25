@@ -223,7 +223,7 @@
   <priority msgstream="VldTestInputs">         WARN   </priority>
   <priority msgstream="XSecBase">              NOTICE </priority>
   <priority msgstream="XSecAlgMap">            NOTICE </priority>
-  <priority msgstream="XSecSplLst">            NOTICE </priority>
+  <priority msgstream="XSecSplLst">            FATAL </priority>
   <priority msgstream="ZExpAxialFormFactorModel"> NOTICE </priority>
   <priority msgstream="ZExpELFormFactorModel"> WARN </priority>
   <priority msgstream="HELeptonXSec">          WARN    </priority>
