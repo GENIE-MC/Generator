@@ -156,10 +156,10 @@ double LwlynSmithQELCCPXSec::XSec(
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("LwlynSmith", pDEBUG)
-       << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("LwlynSmith", pDEBUG)
+//       << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
+//#endif
 
   xsec *= (R*NNucl); // nuclear xsec
 
@@ -294,10 +294,10 @@ double LwlynSmithQELCCPXSec::FullDifferentialXSec(const Interaction*  interactio
   int nucpdgc = target.HitNucPdg();
   int NNucl = (pdg::IsProton(nucpdgc)) ? target.Z() : target.N();
 
-#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("LwlynSmith", pDEBUG)
-    << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
-#endif
+//#ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
+//  LOG("LwlynSmith", pDEBUG)
+//    << "Nuclear suppression factor R(Q2) = " << R << ", NNucl = " << NNucl;
+//#endif
 
   xsec *= NNucl; // nuclear xsec
 

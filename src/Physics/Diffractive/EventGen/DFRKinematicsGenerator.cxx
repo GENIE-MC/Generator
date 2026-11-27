@@ -283,7 +283,7 @@ double DFRKinematicsGenerator::ComputeMaxXSec(
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("DFRKinematics", pDEBUG)
     << "Searching max. in x [" << xmin << ", " << xmax
-    << "], y [" << ymin << ", " << ymax << "], z [" << zmin << ", " << zmax << "]";
+    << "], y [" << ymin << ", " << ymax << "]";
 #endif
   double xseclast_y = -1;
   bool increasing_y;

@@ -79,8 +79,8 @@ double ReinDFRPXSec::XSec(
     << "E = " << E << ", x = " << x << ", y = " << y << ", Q2 = " << Q2;
   LOG("ReinDFR", pDEBUG)
     << "Epi = " << Epi << ", s^{piN}_{tot} = " << sTot;
-  LOG("ReinDFR", pDEBUG)
-    << "b = " << b << ", t = [" << tmin << ", " << tmax << "]";
+//  LOG("ReinDFR", pDEBUG)
+//    << "b = " << b << ", t = [" << tmin << ", " << tmax << "]";
 #endif
 
   // fixme: WARNING: don't leave this in here!!!

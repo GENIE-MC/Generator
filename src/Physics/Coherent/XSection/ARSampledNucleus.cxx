@@ -130,7 +130,7 @@ void ARSampledNucleus::Fill()
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("AR_PiWFunction_Table", pDEBUG)<< "N:: fR_max = " << fR_max
   << "N:: z = " << fZ
-  << "N:: a = " << fA
+  << "N:: a = " << fA;
 #endif
 
   this->FillSamplePoints();

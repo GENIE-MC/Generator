@@ -120,7 +120,7 @@ double ReinSehgalSPPPXSec::XSecNRES(
      << "Contrib. from [" << utils::res::AsString(res) << "] = "
      << "<Clebsch-Gordon = " << igg
      << "> * <BR(->1pi) = " << br
-     << "> * <Breit-Wigner * d^nxsec/dK^n = " << rxsec
+     << "> * <Breit-Wigner * d^nxsec/dK^n = " << xsec
      << "> = " << res_xsec_contrib;
 #endif
 

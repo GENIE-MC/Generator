@@ -61,8 +61,8 @@ double KNOTunedQPMDISPXSec::XSec(const Interaction *interaction,
   double xsec = fDISModel->XSec(interaction, kps);
 
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
-  LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN] (E= " << E << ", x= " << x
-                         << ", y= " << y << ") = " << xsec;
+  LOG("DISPXSec", pINFO) << "d2xsec/dxdy[FreeN] (E= " << interaction->InitState().ProbeE(kRfHitNucRest) << ", x= " << interaction->Kine().x()
+                         << ", y= " << interaction->Kine().y() << ") = " << xsec;
 #endif
   double R = this->DISRESJoinSuppressionFactor(interaction);
   xsec *= R;
