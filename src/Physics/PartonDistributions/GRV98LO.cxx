@@ -102,6 +102,20 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
     pdf.gl   = 0.;
     return pdf;
   }
+  if (x < fGridXbj[0]){
+    LOG("GRV98LO", pWARN)
+      << "x outside of valid region. pdf set to zero. x = " << x << " Q2 = " << Q2;
+    pdf.uval = 0.;
+    pdf.dval = 0.;
+    pdf.usea = 0.;
+    pdf.dsea = 0.;
+    pdf.str  = 0.;
+    pdf.chm  = 0.;
+    pdf.bot  = 0.;
+    pdf.top  = 0.;
+    pdf.gl   = 0.;
+    return pdf;
+  }
 #ifdef __GENIE_LOW_LEVEL_MESG_ENABLED__
   LOG("GRV98LO", pDEBUG)
     << "Inputs x = " << x << ", Q2 = " << Q2;
@@ -110,7 +124,6 @@ PDF_t GRV98LO::AllPDFs(double x, double Q2) const
 //Q2 = TMath::Max(Q2, fGridQ2[0]);
   if(Q2 <= 0.8) Q2 = 0.80001;
   Q2 = std::min(Q2, fGridQ2[kNQ2-1]);
-  x  = std::max(x,  fGridXbj[0]);
   x  = std::min(x,  fGridXbj[kNXbj-1]);
 
   double logx  = std::log(x);

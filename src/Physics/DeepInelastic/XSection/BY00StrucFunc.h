@@ -37,7 +37,7 @@ public:
   // at the algorithm initialization and set private data members
   void Configure (const Registry & config);
   void Configure (string param_set);
-
+  double ScalingVar (const Interaction * i, double Mf) const;
 protected:
 
   void Init         (void);
@@ -45,7 +45,6 @@ protected:
 
   // override part of the DISStructureFuncModel implementation
   // to compute all the corrections applied by the Bodek-Yang model.
-  double ScalingVar (const Interaction * i, double Mf) const;
   void   KVectorFactors   (const Interaction * i, double & kuv,
                          double & kdv, double & kus, double & kds, double & ks) const;
   void   KAxialFactors    (const Interaction * i, double & kuv,
