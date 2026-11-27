@@ -290,14 +290,5 @@ void QPMDISPXSec::LoadConfig(void) {
   fXSecIntegrator = dynamic_cast<const XSecIntegratorI *>(this->SubAlg("XSec-Integrator"));
   assert(fXSecIntegrator);
 
-  // Load the charm production cross section model
-  RgKey local_key = "CharmXSec";
-  RgAlg xalg;
-  GetParam(local_key, xalg);
-  LOG("DISXSec", pDEBUG) << "Loading the cross section model: " << xalg;
-
-  fCharmProdModel = dynamic_cast<const XSecAlgorithmI *>(this->SubAlg(local_key));
-  assert(fCharmProdModel);
-
 }
 //____________________________________________________________________________

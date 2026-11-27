@@ -95,16 +95,15 @@ double AivazisCharmPXSecLO::XSec(
   if(xi<=0 || xi>1) return 0;
 
   //----- Calculate the PDFs
-  PDF pdfs;
-  pdfs.SetModel(fPDFModel);  // <-- attach algorithm
-  pdfs.Calculate(xi, Q2);    // <-- calculate
+  fPDF  -> Reset();
+  fPDF->Calculate(xi, Q2);    // <-- calculate
 
   //----- proton pdfs
-  double us = pdfs.UpSea()/xi;
-  double uv = pdfs.UpValence()/xi;
-  double ds = pdfs.DownSea()/xi;
-  double dv = pdfs.DownValence()/xi;
-  double s  = pdfs.Strange()/xi;
+  double us = fPDF->UpSea()/xi;
+  double uv = fPDF->UpValence()/xi;
+  double ds = fPDF->DownSea()/xi;
+  double dv = fPDF->DownValence()/xi;
+  double s  = fPDF->Strange()/xi;
 
   //----- if the hit nucleon is a neutron, swap u<->d
   double tmp;
@@ -125,7 +124,7 @@ double AivazisCharmPXSecLO::XSec(
   if(isnub) dv=0;
 
   //----- calculate the cross section
-  double Gw2    = TMath::Power((kGF/kSqrt2)*(1+Q2/kMw2), 2);
+  double Gw2    = TMath::Power((kGF/kSqrt2)/(1+Q2/kMw2), 2);
   double f1     = TMath::Power( (1+coshpsi)/2, 2);
   double f2     = 0.25 * (fMc2/Q2) * sinh2psi;
   double xsec_0 = 2 * Gw2 * (y*Q2/kPi) * (f1+f2);
@@ -151,7 +150,8 @@ double AivazisCharmPXSecLO::XSec(
 
   //----- If requested return the free nucleon xsec even for input nuclear tgt
   if( interaction->TestBit(kIAssumeFreeNucleon) ) return xsec;
-
+  int NNucl = (isP) ? target.Z() : target.N();
+  xsec *= NNucl;
   return xsec;
 }
 //____________________________________________________________________________
@@ -211,7 +211,7 @@ void AivazisCharmPXSecLO::LoadConfig(void)
   // load PDF set
   fPDFModel = dynamic_cast<const PDFModelI *> (this->SubAlg("PDF-Set"));
   assert(fPDFModel);
-
+  fPDF->SetModel(fPDFModel);  // <-- attach algorithm
   // load XSec Integrator
   fXSecIntegrator =
       dynamic_cast<const XSecIntegratorI *> (this->SubAlg("XSec-Integrator"));
