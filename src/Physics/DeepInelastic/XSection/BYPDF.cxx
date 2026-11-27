@@ -51,9 +51,6 @@ PDF_t BYPDF::AllPDFs(double x, double q2) const {
   LOG("BodekYang", pDEBUG) << "Inputs: x = " << x
                            << ", |q2| = " << TMath::Abs(q2);
 #endif
-  if (TMath::Abs(q2) < fQ2min)
-    q2 = fQ2min;
-
   // get the uncorrected PDFs
   PDF_t uncorrected_pdfs = fBasePDFModel->AllPDFs(x, q2);
   double uv = uncorrected_pdfs.uval;
@@ -149,7 +146,6 @@ void BYPDF::LoadConfig(void)
   GetParamDef( "BY-UpScale", fUpScale, 0. );
   GetParamDef( "BY-DownScale", fDownScale, 0. );
   GetParamDef( "BY-Delta", fApplyDelta, true );
-  GetParam( "PDF-Q2min", fQ2min ) ;
 
   // get the base PDF model (typically GRV9* LO)
   fBasePDFModel =

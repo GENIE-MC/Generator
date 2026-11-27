@@ -73,6 +73,7 @@ private:
   static const int kNQ2     = 27;
   static const int kNXbj    = 68;
   static const int kNParton = 6;
+  mutable double fPDFQ2Min;
 
   // >> Information read from the PDF grid file
   //
