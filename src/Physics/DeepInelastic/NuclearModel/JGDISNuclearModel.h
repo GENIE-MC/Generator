@@ -29,7 +29,7 @@ class JGDISNuclearModel : public DISNuclearModelI {
 
 public:
   JGDISNuclearModel();
-  JGDISNuclearModel(string config);
+  JGDISNuclearModel(string /*config*/);
   virtual ~JGDISNuclearModel() {};
 
   double DISACorrection (const Interaction * interaction) const ;

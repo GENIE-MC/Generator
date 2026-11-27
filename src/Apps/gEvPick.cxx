@@ -345,17 +345,17 @@ bool AcceptEvent(const EventRecord & event)
   bool isstr     = interaction->ExclTag().IsStrangeEvent();
   bool ischm     = interaction->ExclTag().IsCharmEvent();
 
-  int NfP        = 0; // number of protons         in final state
-  int NfPbar     = 0; // number of anti-protons    in final state
-  int NfN        = 0; // number of neutrons        in final state
-  int NfNbar     = 0; // number of anti-neutrons   in final state
+//  int NfP        = 0; // number of protons         in final state
+//  int NfPbar     = 0; // number of anti-protons    in final state
+//  int NfN        = 0; // number of neutrons        in final state
+//  int NfNbar     = 0; // number of anti-neutrons   in final state
   int NfPip      = 0; // number of \pi^+'s         in final state
   int NfPim      = 0; // number of \pi^-'s         in final state
   int NfPi0      = 0; // number of \pi^0's         in final state
-  int NfKp       = 0; // number of \K^+'s          in final state
-  int NfKm       = 0; // number of \K^-'s          in final state
-  int NfK0       = 0; // number of \K^0's          in final state
-  int NfK0bar    = 0; // number of \bar{\K^0}'s    in final state
+//  int NfKp       = 0; // number of \K^+'s          in final state
+//  int NfKm       = 0; // number of \K^-'s          in final state
+//  int NfK0       = 0; // number of \K^0's          in final state
+//  int NfK0bar    = 0; // number of \bar{\K^0}'s    in final state
   int NfSigmap   = 0; // number of \Sigma^+'s      in final state
   int NfSigma0   = 0; // number of \Sigma^0's      in final state
   int NfSigmam   = 0; // number of \Sigma^-'s      in final state
@@ -363,7 +363,7 @@ bool AcceptEvent(const EventRecord & event)
   int NfXi0      = 0; // number of \Xi^0's         in final state
   int NfXim      = 0; // number of \Xi^-'s         in final state
   int NfOmegam   = 0; // number of \Omega^-'s      in final state
-  int NfOther    = 0; // number of other particles in final state
+//  int NfOther    = 0; // number of other particles in final state
 
   TObjArrayIter piter(&event);
   GHepParticle * p = 0;
@@ -379,17 +379,18 @@ bool AcceptEvent(const EventRecord & event)
     // skip pseudo-particles
     if(pdg::IsPseudoParticle(pdgc)) continue;
     // count ...
-    if      (pdgc == kPdgProton     ) NfP++;
-    else if (pdgc == kPdgAntiProton ) NfPbar++;
-    else if (pdgc == kPdgNeutron    ) NfN++;
-    else if (pdgc == kPdgAntiNeutron) NfNbar++;
-    else if (pdgc == kPdgPiP        ) NfPip++;
+//    if      (pdgc == kPdgProton     ) NfP++;
+//    else if (pdgc == kPdgAntiProton ) NfPbar++;
+//    else if (pdgc == kPdgNeutron    ) NfN++;
+//    else if (pdgc == kPdgAntiNeutron) NfNbar++;
+//    else 
+    if (pdgc == kPdgPiP        ) NfPip++;
     else if (pdgc == kPdgPiM        ) NfPim++;
     else if (pdgc == kPdgPi0        ) NfPi0++;
-    else if (pdgc == kPdgKP         ) NfKp++;
-    else if (pdgc == kPdgKM         ) NfKm++;
-    else if (pdgc == kPdgK0         ) NfK0++;
-    else if (pdgc == kPdgAntiK0     ) NfK0bar++;
+//    else if (pdgc == kPdgKP         ) NfKp++;
+//    else if (pdgc == kPdgKM         ) NfKm++;
+//    else if (pdgc == kPdgK0         ) NfK0++;
+//    else if (pdgc == kPdgAntiK0     ) NfK0bar++;
     else if (pdgc == kPdgSigmaP     ) NfSigmap++;
     else if (pdgc == kPdgSigma0     ) NfSigma0++;
     else if (pdgc == kPdgSigmaM     ) NfSigmam++;
@@ -397,7 +398,7 @@ bool AcceptEvent(const EventRecord & event)
     else if (pdgc == kPdgXi0        ) NfXi0++;
     else if (pdgc == kPdgXiM        ) NfXim++;
     else if (pdgc == kPdgOmegaM     ) NfOmegam++;
-    else                              NfOther++;
+//    else                              NfOther++;
   }
 
   bool is1pipX  = (NfPip==1 && NfPi0==0 && NfPim==0);

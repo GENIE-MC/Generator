@@ -708,7 +708,7 @@ void FillFlux( FluxContainer &ggn, FluxContainer &tgn )
 //............................................................................
 #endif // #ifdef __CAN_GENERATE_EVENTS_USING_A_FLUX__
 //_________________________________________________________________________________________
-TLorentzVector GeneratePosition( GHepRecord * event )
+TLorentzVector GeneratePosition( GHepRecord * /*event*/ )
 { 
   __attribute__((unused)) RandomGen * rnd = RandomGen::Instance();
   TRandom3 & rnd_geo = rnd->RndGeom();

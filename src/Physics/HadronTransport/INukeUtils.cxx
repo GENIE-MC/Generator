@@ -322,12 +322,12 @@ double genie::utils::intranuke::Dist2ExitMFP(
 
    TLorentzVector x4_curr(x4); // current position
 
-   double d=0;
+//   double d=0;
    double d_mfp=0;
    while(1) {
         double rnow  = x4_curr.Vect().Mag();
         x4_curr += (step*dr4);
-        d+=step;
+//        d+=step;
         rnow = x4_curr.Vect().Mag();
 
         double lambda = genie::utils::intranuke::MeanFreePath(pdgc,x4_curr,p4,A,Z);

@@ -125,12 +125,10 @@ int main(void)
       assert(0);
   }
 
-  const int nx = 1000.;
-
+#ifdef __GENIE_APFEL_ENABLED__
   int nucs[2] = { kPdgProton, kPdgNeutron };
   int pdgs[6] = { kPdgNuE, kPdgAntiNuE, kPdgNuMu, kPdgAntiNuMu, kPdgNuTau, kPdgAntiNuTau };
-  
-#ifdef __GENIE_APFEL_ENABLED__
+  const int nx = 1000.;
   for (int k=0; k<2; k++) {
     
     fNucPdg = nucs[k];

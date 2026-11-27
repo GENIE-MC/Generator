@@ -401,12 +401,12 @@ double genie::utils::intranuke2025::Dist2ExitMFP(
 
    TLorentzVector x4_curr(x4); // current position
 
-   double d=0;
+//   double d=0;
    double d_mfp=0;
    while(1) {
         double rnow  = x4_curr.Vect().Mag();
         x4_curr += (step*dr4);
-        d+=step;
+//        d+=step;
         rnow = x4_curr.Vect().Mag();
 
         double lambda = genie::utils::intranuke2025::MeanFreePath(pdgc,x4_curr,p4,A,Z);
@@ -878,7 +878,7 @@ bool genie::utils::intranuke2025::TwoBodyKinematics(
   //
   // All 4-momenta should be on mass shell
 
-  double E1L, E2L, P1L, P2L, E3L, P3L;
+  double E1L, E2L, P1L, P2L, E3L, P3L = 0;
   double beta, gm; // speed and gamma for CM frame in Lab
   double S3CM; // sin of scattering angle
   double PHI3;
@@ -914,7 +914,7 @@ bool genie::utils::intranuke2025::TwoBodyKinematics(
   t4Ptot = t4P1buf + t4P2buf;
 
   LOG("INukeUtils",pINFO) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
-  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
+  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L;//<< ", E1CM  "<<E1CM;
   LOG("INukeUtils",pINFO) <<"bindE = " << bindE;
 
   // binding energy
@@ -1072,7 +1072,7 @@ bool genie::utils::intranuke2025::ThreeBodyKinematics(
   double M1, M2, M3, M4, M5; // rest energies, in GeV
   double P1L, P2L, P3L, P4L, P5L;
   double E1L, E2L, E3L, E4L, E5L;
-  double E1CM, E2CM, P3tL;
+  double E1CM = 0, E2CM, P3tL;
   double PizL, PitL, PiL, EiL;
   double EiCM, P4CM2, E4CM2, E5CM2, P3CM, E3CM;
   double beta, gm, beta2, gm2;

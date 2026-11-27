@@ -1395,9 +1395,9 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
 /// Swim through the geometry from the from the input position
 /// r0 (top vol coord & units) and moving along the direction of the
 /// unit vector udir (topvol coord) to create a filled PathSegmentList
-
+#ifdef RWH_COUNTVOLS
   int nvolswim = 0; //rwh
-
+#endif
   if ( ! fCurrPathSegmentList ) fCurrPathSegmentList = new PathSegmentList();
 
   // don't swim if the current PathSegmentList is up-to-date
@@ -1530,9 +1530,9 @@ void ROOTGeomAnalyzer::SwimOnce(const TVector3 & r0, const TVector3 & udir)
        ps_curr.SetExit(fGeometry->GetCurrentPoint());
        ps_curr.SetStep(step);
        fCurrPathSegmentList->AddSegment(ps_curr);
-
+#ifdef RWH_COUNTVOLS
        nvolswim++; //rwh
-
+#endif
 #ifdef DUMP_SWIM
        LOG("GROOTGeom", pDEBUG) << "Current volume: " << vol->GetName()
                                 << " step " << step << " in " << mat->GetName();

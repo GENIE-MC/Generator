@@ -324,7 +324,7 @@ double LwlynSmithQELCCPXSec::Integral(const Interaction * in) const
     return fXSecIntegrator->Integrate(this,in);
   }
 
-  double E = in->InitState().ProbeE(kRfHitNucRest);
+  //double E = in->InitState().ProbeE(kRfHitNucRest);
   if( fLFG ) {
     // clone the input interaction so as to tweak the
     // hit nucleon 4-momentum in the averaging loop

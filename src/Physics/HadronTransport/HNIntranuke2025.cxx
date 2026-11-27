@@ -416,11 +416,11 @@ void HNIntranuke2025::AbsorbHN(
   // -- -- #4 -> other scattered particle
   // -- Suffix "L" is for lab frame, suffix "CM" is for center of mass frame
   // -- Subscript "z" is for parallel component, "t" is for transverse
-
-  int pcode, t1code, t2code, scode, s2code; // particles
-  double M1, M2_1, M2_2, M3, M4;        // rest energies, in GeV
-  double E1L, P1L, E2L, P2L;
-  double C3CM, S3CM;  // cos of scattering angle
+//  int pcode = 0;
+  int t1code, t2code, scode, s2code; // particles
+  double /*M1,*/ M2_1, M2_2, M3, M4;            // rest energies, in GeV
+  double E1L, /*P1L,*/ E2L /*,P2L*/;
+  double C3CM /*,S3CM*/; // cos of scattering angle
   double E2_1L, E2_2L;
   TVector3 tP2_1L, tP2_2L, tP1L, tP2L, tPtot, P1zCM, P2zCM;
   TVector3 tP3L, tP4L;
@@ -509,7 +509,7 @@ void HNIntranuke2025::AbsorbHN(
     }
 */ 
   // assign proper masses
-  M1   = pLib->Find(pcode) ->Mass();
+//  M1 = pLib->Find(pcode)->Mass();
   M2_1 = pLib->Find(t1code)->Mass();
   M2_2 = pLib->Find(t2code)->Mass();
   M3   = pLib->Find(scode) ->Mass();
@@ -549,15 +549,16 @@ void HNIntranuke2025::AbsorbHN(
       ev->AddParticle(*p);
       return;
     }
-  S3CM = TMath::Sqrt(1.0 - C3CM*C3CM);
+//  S3CM = TMath::Sqrt(1.0 - C3CM * C3CM);
 
   // Get lab energy and momenta
   E1L = p->E();
-  if(E1L<0.001) E1L=0.001;
-  P1L = TMath::Sqrt(E1L*E1L - M1*M1);
+  if (E1L < 0.001)
+    E1L = 0.001;
+//  P1L = TMath::Sqrt(E1L * E1L - M1 * M1);
   tP1L = p->P4()->Vect();
   tP2L = tP2_1L + tP2_2L;
-  P2L = tP2L.Mag();
+//  P2L = tP2L.Mag();
   tPtot = tP1L + tP2L;
 
           TLorentzVector t4P1L,t4P2L,t4P3L,t4P4L;

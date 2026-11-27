@@ -241,9 +241,9 @@ double genie::utils::mec::OldTensorContraction(
   double q3 = sqrt(q3sq);
 
   // Define some calculation placeholders
-  double part1, part2;
-  double modkprime ;
-  double w1, w2, w3, w4, w5;
+  double part1 = 0, part2 = 0;
+  double modkprime = 0;
+  double w1 = 0, w2 = 0, w3 = 0, w4 = 0, w5 = 0;
   double wtotd[5];
 
   double xsec = 0;

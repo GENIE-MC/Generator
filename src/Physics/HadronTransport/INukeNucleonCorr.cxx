@@ -201,7 +201,7 @@ void read_file(string rfilename)
   if (file.is_open())
     {
     string line;
-    int cur_line = 0;
+//    int cur_line = 0;
     while (getline(file,line))
       {
       if (line[0]=='#')
@@ -218,7 +218,7 @@ void read_file(string rfilename)
           temp_vector.push_back(atof(s.c_str()));
         }
         infile_values.push_back(temp_vector);
-        cur_line++;
+//        cur_line++;
       }
     }
     LOG("INukeNucleonCorr",pNOTICE) << "Successful open file" << rfilename << "\n";

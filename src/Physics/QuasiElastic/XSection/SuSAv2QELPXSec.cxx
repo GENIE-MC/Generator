@@ -268,9 +268,9 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
 	// Finally we can now get the tensors we need
 
-	const LabFrameHadronTensorI* tensor_susa;
-	const LabFrameHadronTensorI* tensor_crpa;
-	const LabFrameHadronTensorI* tensor_blen;
+	const LabFrameHadronTensorI* tensor_susa = nullptr;
+	const LabFrameHadronTensorI* tensor_crpa = nullptr;
+	const LabFrameHadronTensorI* tensor_blen = nullptr;
 
 	if( modelConfig == kMd_SuSAv2 ){
 		tensor_susa = dynamic_cast<const LabFrameHadronTensorI*>
@@ -345,6 +345,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	// Set the xsec to zero for interactions with q0,q3 outside the requested range
 
 	if( modelConfig == kMd_SuSAv2){
+		if(!tensor_susa){return 0.0;}
 		double Q0min = tensor_susa->q0Min();
 		double Q0max = tensor_susa->q0Max();
 		double Q3min = tensor_susa->qMagMin();
@@ -356,6 +357,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 
 	else if ( modelConfig == kMd_CRPA   || modelConfig == kMd_HF ||
 			modelConfig == kMd_CRPAPW || modelConfig == kMd_HFPW ){
+		if(!tensor_crpa){return 0.0;}
 		double Q0min = tensor_crpa->q0Min();
 		double Q0max = tensor_crpa->q0Max();
 		double Q3min = tensor_crpa->qMagMin();
@@ -366,6 +368,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	}
 
 	else if ( modelConfig == kMd_SuSAv2Blend){
+		if(!tensor_blen){return 0.0;}
 		double Q0min = tensor_blen->q0Min();
 		double Q0max = tensor_blen->q0Max();
 		double Q3min = tensor_blen->qMagMin();
@@ -376,6 +379,7 @@ double SuSAv2QELPXSec::XSec(const Interaction* interaction,
 	}
 
 	else{ // hybrid (blending) cases. Low kinematics handled by CRPA/HF, high kinematics by blended SuSA
+		if(!tensor_blen || !tensor_crpa){return 0.0;}
 		double Q0min = tensor_crpa->q0Min();
 		double Q0max = tensor_blen->q0Max();
 		double Q3min = tensor_crpa->qMagMin();

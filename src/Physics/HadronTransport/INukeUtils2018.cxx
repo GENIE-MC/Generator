@@ -416,12 +416,12 @@ double genie::utils::intranuke2018::Dist2ExitMFP(
 
    TLorentzVector x4_curr(x4); // current position
 
-   double d=0;
+//   double d=0;
    double d_mfp=0;
    while(1) {
         double rnow  = x4_curr.Vect().Mag();
         x4_curr += (step*dr4);
-        d+=step;
+//        d+=step;
         rnow = x4_curr.Vect().Mag();
 
         double lambda = genie::utils::intranuke2018::MeanFreePath(pdgc,x4_curr,p4,A,Z);
@@ -929,7 +929,7 @@ bool genie::utils::intranuke2018::TwoBodyKinematics(
   t4Ptot = t4P1buf + t4P2buf;
 
   LOG("INukeUtils",pINFO) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
-  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
+  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L; //<< ", E1CM  "<<E1CM;
   LOG("INukeUtils",pINFO) <<"bindE = " << bindE;
 
   // binding energy

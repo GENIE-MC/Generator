@@ -65,7 +65,7 @@ double AivazisCharmPXSecLO::XSec(
   //----- get target information (hit nucleon and quark)
   int  nu    = init_state.ProbePdg();
   int  nuc   = target.HitNucPdg();
-  bool isP   = pdg::IsProton (nuc);
+  //bool isP   = pdg::IsProton (nuc);
   bool isN   = pdg::IsNeutron(nuc);
   bool qset  = target.HitQrkIsSet();
   int  qpdg  = (qset) ? target.HitQrkPdg()       : 0;
