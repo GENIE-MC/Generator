@@ -882,7 +882,7 @@ bool genie::utils::intranuke2025::TwoBodyKinematics(
   double beta, gm; // speed and gamma for CM frame in Lab
   double S3CM; // sin of scattering angle
   double PHI3;
-  double E1CM = 0, E2CM = 0, E3CM = 0, P3CM = 0;//, E4CM, P4CM;
+  double E1CM, E2CM, E3CM, P3CM;//, E4CM, P4CM;
   double P3zL, P3tL;//, P4zL, P4tL;
   double Et;
   double theta1, theta2, theta5, P1zL, P2zL, P1tL, P2tL;
@@ -914,7 +914,7 @@ bool genie::utils::intranuke2025::TwoBodyKinematics(
   t4Ptot = t4P1buf + t4P2buf;
 
   LOG("INukeUtils",pINFO) <<"M1   "<<t4P1L.M()<<  ", M2    "<<t4P2L.M();
-  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L<< ", E1CM  "<<E1CM;
+  LOG("INukeUtils",pINFO) <<"E1L  "<<E1L;//<< ", E1CM  "<<E1CM;
   LOG("INukeUtils",pINFO) <<"bindE = " << bindE;
 
   // binding energy

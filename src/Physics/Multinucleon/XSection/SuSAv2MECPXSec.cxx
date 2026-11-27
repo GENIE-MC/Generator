@@ -22,6 +22,9 @@
 #include "Physics/NuclearState/FermiMomentumTablePool.h"
 #include "Physics/NuclearState/FermiMomentumTable.h"
 
+#include <math.h>
+#include <limits.h>
+
 using namespace genie;
 
 //_________________________________________________________________________
@@ -258,7 +261,7 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
   // Compute the cross section using the hadron tensor
   double xsec_all = tensor->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);
 
-  double ratio = 0;
+  double ratio = std::numeric_limits<double>::signaling_NaN();
 
   if (final_state_ratio == "pnFraction") { // pnFraction will be calculated by default
     double xsec_pn = tensor_pn->dSigma_dT_dCosTheta_rosenbluth(interaction, Delta_Q_value);

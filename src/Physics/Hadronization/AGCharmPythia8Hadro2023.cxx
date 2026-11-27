@@ -125,7 +125,7 @@ void AGCharmPythia8Hadro2023::LoadConfig(void)
 
 bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
                                                 double WR, TLorentzVector p4R,
-                       unsigned int& /*rpos*/, TClonesArray * /*particle_list*/) const
+                       unsigned int& rpos, TClonesArray * particle_list) const
 {
 #ifdef __GENIE_PYTHIA8_ENABLED__
   Pythia8::Pythia* gPythia = Pythia8Singleton::Instance()->Pythia8();
@@ -223,7 +223,7 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 //     istfin = GHepStatus_t(1);
 
       // set the proper GENIE status according to a number of things:
-//      GHepStatus_t ist = (pythia_particle_status > 0) ? istfin : kIStDISPreFragmHadronicState;
+      GHepStatus_t ist = (pythia_particle_status > 0) ? GHepStatus_t(1) : kIStDISPreFragmHadronicState;
 
       // handle gammas, and leptons that might come from internal pythia decay
       // mark them as final state particles
@@ -233,15 +233,15 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
 //      bool not_hadr = is_gamma || is_nu || is_lchg;
 //      if (not_hadr) { ist = kIStStableFinalState; }
 
-//      int mother1 = mom;
-//      int mother2 = -1;
+      int mother1 = -1;
+      int mother2 = -1;
 //
-//      int daughter1 = -1;
-//      int daughter2 = -1;
+      int daughter1 = -1;
+      int daughter2 = -1;
 
       // create GHepParticle
-/*
-      bremn = new ((*particle_list)[rpos++]) GHepParticle(
+
+      new ((*particle_list)[rpos++]) GHepParticle(
                                                           particle_pdg_code, // pdg
                                                           ist,               // status
                                                           mother1,           // first parent
@@ -257,7 +257,7 @@ bool AGCharmPythia8Hadro2023::HadronizeRemnant (int qrkSyst1, int qrkSyst2,
                                                           vtx.Z(),           // z
                                                           vtx.T()            // t
                                                           );
-*/
+
       //std::cout << "bremn " << rpos-1 << "||" << *bremn << std::endl;
 
     } // if (copy)
