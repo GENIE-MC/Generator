@@ -213,6 +213,11 @@ Generator-%d                alg     No
      <param type="alg" name="Generator-2">    genie::EventGenerator/DIS-CC-CHARM </param>
   </param_set>
 
+  <param_set name="CCDISNoCharm">
+     <param type="int" name="NGenerators">    1                               </param>
+     <param type="alg" name="Generator-0">    genie::EventGenerator/DIS-CC    </param>
+  </param_set>
+
   <param_set name="CCDIS"> 
      <param type="int" name="NGenerators">    2                               </param>
      <param type="alg" name="Generator-0 ">   genie::EventGenerator/DIS-CC    </param>

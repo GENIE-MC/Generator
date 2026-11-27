@@ -31,8 +31,8 @@ typedef enum ENuclearModel {
    kNucmFermiGas,
    kNucmLocalFermiGas,
    kNucmSpectralFunc,
-   kNucmEffSpectralFunc
-
+   kNucmEffSpectralFunc,
+   kNucmNoFermiGas,
 } NuclearModel_t; 
 
 typedef enum EFermiMoverInteractionType {
@@ -53,7 +53,8 @@ public:
      case kNucmLocalFermiGas:   return "Local Fermi gas model";    break;
      case kNucmSpectralFunc:    return "Spectral function model";  break;
      case kNucmEffSpectralFunc: return "Effective spectral function model"; break;
-     default:                 break;
+     case kNucmNoFermiGas:      return "No Fermi gas"; break;
+     default:                   return " "; break;
      }
      return " ";
   }
