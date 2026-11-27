@@ -619,7 +619,7 @@ void GMCJDriver::BootstrapXSecSplines(void)
            << "Computing all splines needed for init-state: "
            << init_state.AsString();
        GEVGDriver * evgdriver = fGPool->FindDriver(init_state);
-       evgdriver->CreateSplines(-1,-1,fUseLogE);
+       evgdriver->CreateSplines(-1,-1,-1,fUseLogE);
      } // targets
   } // neutrinos
   LOG("GMCJDriver", pINFO) << "Finished creating cross section splines\n";

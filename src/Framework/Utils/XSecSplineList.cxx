@@ -12,6 +12,7 @@
 #include <cmath>   //provides: std::isnan()
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <chrono>
 
@@ -26,6 +27,7 @@
 #include <TLorentzVector.h>
 
 #include "Framework/EventGen/XSecAlgorithmI.h"
+#include "Framework/Conventions/Controls.h"
 #include "Framework/Conventions/Units.h"
 #include "Framework/Conventions/GBuild.h"
 #include "Framework/Messenger/Messenger.h"
@@ -516,8 +518,66 @@ XmlParserStatus_t XSecSplineList::LoadFromXml(const string & filename, bool keep
                  mm_iter = fSplineMap.find( temp_tune );
                }
                map<string, Spline *> & spl_map_curr_tune = mm_iter->second;
-               spl_map_curr_tune.insert(
-                  map<string, Spline *>::value_type(spline_name, spline) );
+               map<string, Spline *>::iterator spl_iter =
+                  spl_map_curr_tune.find(spline_name);
+               if(spl_iter != spl_map_curr_tune.end()) {
+                  LOG("XSecSplLst", pNOTICE) << "Found existing spline, merging.";
+                  // An existing spline was found: merge the two splines.
+                  Spline * old_spline = spl_iter->second;
+                  int nold = old_spline->NKnots();
+                  int nnew = spline->NKnots();
+                  vector<double> E_merge;
+                  vector<double> xsec_merge;
+                  for(int i = 0; i < nold; i++) {
+                    E_merge.push_back(old_spline->GetKnotX(i));
+                    xsec_merge.push_back(old_spline->GetKnotY(i));
+                  }
+
+                  // Add knots from the new spline, including the overlap.
+                  // Skip points that are too close to an already included point.
+                  for(int i = 0; i < nnew; i++) {
+
+                    double E = spline->GetKnotX(i);
+                    double xsec = spline->GetKnotY(i);
+
+                    bool skip = false;
+
+                    for(size_t j = 0; j < E_merge.size(); j++) {
+                        if(fabs(E - E_merge[j]) < genie::controls::kASmallNum ) {
+                          skip = true;
+                          break;
+                        }
+                    }
+
+                    if(!skip) {
+                        E_merge.push_back(E);
+                        xsec_merge.push_back(xsec);
+                    }
+                  }
+
+                  // Sort the merged knots by energy.
+                  for(size_t i = 0; i < E_merge.size(); i++) {
+                    for(size_t j = i + 1; j < E_merge.size(); j++) {
+                        if(E_merge[j] < E_merge[i]) {
+                          std::swap(E_merge[i], E_merge[j]);
+                          std::swap(xsec_merge[i], xsec_merge[j]);
+                        }
+                    }
+                  }
+
+                  // Construct the merged spline.
+                  Spline * merged_spline =
+                    new Spline(E_merge.size(),
+                                &E_merge[0],
+                                &xsec_merge[0]);
+                  delete old_spline;
+                  delete spline;
+                  spl_iter->second = merged_spline;
+                  spl_iter->second->Print(std::cout);
+               } else {
+                  spl_map_curr_tune.insert(
+                     map<string, Spline *>::value_type(spline_name, spline) );
+               }
                fLoadedSplineSet[temp_tune].insert(spline_name);
             }
             xmlFree(name);

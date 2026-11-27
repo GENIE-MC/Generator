@@ -214,7 +214,7 @@ int main(int argc, char ** argv)
           GEVGDriver driver;
           driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
           driver.Configure(init_state);
-          driver.CreateSplines(gOptNKnots, gOptMaxE);
+          driver.CreateSplines(gOptNKnots, -1, gOptMaxE);
         }
         delete targets;
       }

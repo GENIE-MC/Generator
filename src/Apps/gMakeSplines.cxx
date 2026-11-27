@@ -136,6 +136,7 @@ string   gOptTgtPdgCodeList = "";
 string   gOptGeomFilename   = "";
 int      gOptNKnots         = -1;
 double   gOptMaxE           = -1.;
+double   gOptMinE           = -1.;
 bool     gOptNoCopy         = false;
 long int gOptRanSeed        = -1;   // random number seed
 string   gOptInpXSecFile    = "";   // input cross-section file
@@ -198,7 +199,7 @@ int main(int argc, char ** argv)
       GEVGDriver driver;
       driver.SetEventGeneratorList(RunOpt::Instance()->EventGeneratorList());
       driver.Configure(init_state);
-      driver.CreateSplines(gOptNKnots, gOptMaxE);
+      driver.CreateSplines(gOptNKnots, gOptMinE, gOptMaxE);
     }
   }
 
@@ -254,7 +255,17 @@ void GetCommandLineArgs(int argc, char ** argv)
   // max spline energy (if < max of validity range)
   if( parser.OptionExists('e') ) {
     LOG("gmkspl", pINFO) << "Reading maximum spline energy";
-    gOptMaxE = parser.ArgAsDouble('e');
+    std::string nue = parser.ArgAsString('e');
+    if(nue.find(",") != string::npos) {
+       // split the comma separated list
+       std::vector<std::string> nurange = utils::str::Split(nue, ",");
+       assert(nurange.size() == 2);
+       gOptMinE = atof(nurange[0].c_str());
+       gOptMaxE = atof(nurange[1].c_str());
+       assert(gOptMaxE>gOptMinE && gOptMinE>=0);
+    } else {
+      gOptMaxE = atof(nue.c_str());
+    }
   } else {
     LOG("gmkspl", pINFO)
        << "Unspecified maximum spline energy - Using default";
