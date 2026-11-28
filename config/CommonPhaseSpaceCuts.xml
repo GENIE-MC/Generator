@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+***************************************************************************************************
+This file defines configurable kinematic phase-space cuts that are shared by the generator.
+Physical limits remain in KineUtils/KPhaseSpace; these values are user-configurable cuts layered
+on top of those physical limits. A tune can supply its own CommonPhaseSpaceCuts.xml [Default]
+via the standard GENIE XML search order. Include EM-Q2-min when providing a replacement file.
+***************************************************************************************************
+-->
+
+<common_PhaseSpaceCuts_list>
+
+  <param_set name="Default">
+    <param type="double" name="EM-Q2-min"> 0.02 </param>
+
+    <!-- Weak-Q2-min is optional and can raise the built-in weak Q2 floor.
+         Raising the floor can substantially slow neutrino cross-section spline generation,
+         especially for resonance production. Generate matching splines if you set this cut. -->
+  </param_set>
+
+</common_PhaseSpaceCuts_list>

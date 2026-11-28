@@ -20,14 +20,13 @@
 
 #include <ostream>
 #include <map>
-#include <set>
+#include <memory>
 #include <vector>
 #include <string>
 
 #include "Framework/Conventions/XmlParserStatus.h"
 
 using std::map;
-using std::set;
 using std::pair;
 using std::vector;
 using std::string;
@@ -51,6 +50,8 @@ public:
   // Save/load to/from XML file
   void               SaveAsXml   (const string & filename, bool save_init = true) const;
   XmlParserStatus_t  LoadFromXml (const string & filename, bool keep = false);
+  XmlParserStatus_t  LoadFromXml (const string & filename, bool keep,
+                                   bool require_consistent_em_cuts);
 
   // Print available splines
   void   Print (ostream & stream) const;
@@ -62,6 +63,10 @@ public:
   void   SetCurrentTune (const string & tune) { fCurrentTune = tune; }
   string CurrentTune    (void) const  { return fCurrentTune; }
   bool   HasSplineFromTune( const string & tune ) const { return fSplineMap.count(tune) > 0 ; }
+  // A zero value means no configured cut. A missing stamp returns false.
+  bool   GetSplineQ2MinKinematics(const string & key, double & Q2min) const;
+  void   EnableQ2CutValidation(void) { fValidateQ2Cuts = true; }
+  bool   Q2CutValidationEnabled(void) const { return fValidateQ2Cuts; }
 
   std::vector< std::string > GetLoadedTunes(void) const;
 
@@ -107,8 +112,34 @@ private:
 
   string fCurrentTune; ///< The `active' tune, out the many that can co-exist
 
-  map<string, map<string, Spline *> > fSplineMap;       ///< tune -> { xsec_alg/xsec_config/interaction -> Spline }
-  map<string, set<string>           > fLoadedSplineSet; ///< tune -> { set of initialy loaded splines             }
+  struct KinematicsMetadata {
+    bool   known = false;
+    double Q2_min = 0.;
+    string Q2_source;
+  };
+
+  struct SplineEntry {
+    std::unique_ptr<Spline> spline;
+    KinematicsMetadata cuts;
+    bool loaded = false;
+    mutable bool validated = false;
+  };
+
+  struct EMCutOrigin {
+    double Q2_min;
+    string filename;
+  };
+
+  using SplineMap = map<string, SplineEntry>;
+  map<string, SplineMap> fSplineMap; ///< tune -> spline key -> spline and metadata
+  map<string, EMCutOrigin> fMergedEMCuts; ///< First known EM cut per tune in a checked merge
+  bool fValidateQ2Cuts = false;
+
+  const SplineEntry * FindSpline(const string & key) const;
+  void ValidateQ2Cut(const string & key, const Interaction * interaction,
+                     const SplineEntry & entry) const;
+  bool CheckEMCutForMerge(const string & tune, const string & key,
+                         const KinematicsMetadata & cuts, const string & filename);
 
   struct Cleaner {
       void DummyMethodAndSilentCompiler() { }

@@ -146,6 +146,7 @@ Syntax:
 
 #include <cstdlib>
 #include <cassert>
+#include <algorithm>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -287,6 +288,7 @@ void Initialize()
   utils::app_init::MesgThresholds(RunOpt::Instance()->MesgThresholdFiles());
   utils::app_init::CacheFile(RunOpt::Instance()->CacheFile());
   utils::app_init::XSecTable(gOptInpXSecFile, false);
+  XSecSplineList::Instance()->EnableQ2CutValidation();
 
   // Set GHEP print level
   GHepRecord::SetPrintLevel(RunOpt::Instance()->EventRecordPrintLevel());

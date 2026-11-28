@@ -160,6 +160,16 @@ void GEVGDriver::Configure(const InitialState & is)
   this -> BuildInteractionGeneratorMap ();
   this -> BuildInteractionSelector     ();
 
+  // Check supplied splines for this driver's enabled interactions before
+  // event generation opens its output file.
+  XSecSplineList * splines = XSecSplineList::Instance();
+  if(splines->Q2CutValidationEnabled() && !splines->IsEmpty()) {
+    for(const Interaction * interaction : fIntGenMap->GetInteractionList()) {
+      const XSecAlgorithmI * alg = fIntGenMap->FindGenerator(interaction)->CrossSectionAlg();
+      if(splines->SplineExists(alg, interaction)) splines->GetSpline(alg, interaction);
+    }
+  }
+
   LOG("GEVGDriver", pINFO) << "Done configuring. \n";
 }
 //___________________________________________________________________________

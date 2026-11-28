@@ -441,8 +441,13 @@ void Spline::SaveAsXml(
   outxml.close();
 }
 //___________________________________________________________________________
+void Spline::SaveAsXml(ofstream & ofs, string xtag, string ytag, string name) const
+{
+  this->SaveAsXml(ofs, xtag, ytag, name, "");
+}
+//___________________________________________________________________________
 void Spline::SaveAsXml(
-    ofstream & ofs, string xtag, string ytag, string name) const
+    ofstream & ofs, string xtag, string ytag, string name, const string & header_xml) const
 {
   string spline_name = (name.size()>0 ? name : fName);
 
@@ -451,6 +456,8 @@ void Spline::SaveAsXml(
   string padding = "    ";
   ofs << padding << "<spline name=\"" << spline_name
       << "\" nknots=\"" << nknots << "\">" << endl;
+
+  ofs << header_xml;
 
   // start printing the knots
   double x=0, y=0;

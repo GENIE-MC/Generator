@@ -21,6 +21,7 @@
 #include "Framework/Conventions/Constants.h"
 #include "Framework/Conventions/Controls.h"
 #include "Framework/EventGen/EVGThreadException.h"
+#include "Framework/Interaction/KPhaseSpaceCuts.h"
 #include "Framework/EventGen/RunningThreadInfo.h"
 #include "Framework/EventGen/EventGeneratorI.h"
 #include "Framework/GHEP/GHepStatus.h"
@@ -248,11 +249,20 @@ void MECGenerator::SelectEmpiricalKinematics(GHepRecord * event) const
   Interaction * interaction = event->Summary();
   double Ev = interaction->InitState().ProbeE(kRfHitNucRest);
 
-  // **** NOTE / TODO:
-  // **** Hardcode bogus limits for the time-being
-  // **** Should be able to get limits via Interaction::KPhaseSpace
-  double Q2min =  0.01;
-  double Q2max =  8.00;
+  // Keep the historical proposal bound for runs without a configured cut.
+  // Otherwise scan and sample down to the same floor used by the cross section.
+  const KPhaseSpaceCuts * cuts = KPhaseSpaceCuts::Instance();
+  const double Q2min = cuts->HasQ2MinCut(interaction)
+    ? cuts->Q2MinCut(interaction, interaction->ProcInfo().IsEM() ? 0. : kMinQ2Limit)
+    : 0.01;
+  const double Q2max = 8.00;
+  if (Q2min >= Q2max) {
+    event->EventFlags()->SetBitNumber(kKineGenErr, true);
+    genie::exceptions::EVGThreadException exception;
+    exception.SetReason("Q2 cut leaves no empirical MEC proposal range");
+    exception.SwitchOnFastForward();
+    throw exception;
+  }
   double Wmin  =  1.88;
   double Wmax  =  3.00;
 
@@ -869,9 +879,9 @@ void MECGenerator::SelectSuSALeptonKinematics(GHepRecord* event) const
   // Choose the appropriate minimum Q^2 value based on the interaction
   // mode (this is important for EM interactions since the differential
   // cross section blows up as Q^2 --> 0)
-  double Q2min = genie::controls::kMinQ2Limit; // CC/NC limit
-  if ( interaction->ProcInfo().IsEM() ) Q2min = genie::utils::kinematics
-    ::electromagnetic::kMinQ2Limit; // EM limit
+  double Q2min = KPhaseSpaceCuts::Instance()->Q2MinCut(
+    interaction, interaction->ProcInfo().IsEM() ?
+    0. : genie::controls::kMinQ2Limit);
 
   LOG("MEC", pDEBUG) << "Q2min = " << Q2min;
 

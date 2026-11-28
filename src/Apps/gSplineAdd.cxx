@@ -25,6 +25,8 @@
 
          Notes :
            There must be at least 2 files for the merges to work
+           Known EM Q2 cuts must agree within each tune.
+           Legacy splines with unknown cuts are kept without a Q2 stamp.
 
          Examples :
 
@@ -50,7 +52,6 @@
 */
 //____________________________________________________________________________
 
-#include <cassert>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -96,8 +97,11 @@ int main(int argc, char ** argv)
   for( ; file_iter != gAllFiles.end(); ++file_iter) {
     string filename = *file_iter;
     LOG("gspladd", pNOTICE) << " ---- >> Loading file : " << filename;
-    XmlParserStatus_t ist = xspl->LoadFromXml(filename, true);
-    assert(ist==kXmlOK);
+    XmlParserStatus_t status = xspl->LoadFromXml(filename, true, true);
+    if(status != kXmlOK) {
+      LOG("gspladd", pERROR) << "Could not merge spline file: " << filename;
+      return 1;
+    }
   }
 
   LOG("gspladd",pDEBUG) << *xspl ;

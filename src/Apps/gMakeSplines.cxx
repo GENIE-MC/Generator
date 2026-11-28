@@ -344,8 +344,8 @@ void GetCommandLineArgs(int argc, char ** argv)
      << "\n Input ROOT geometry : " << gOptGeomFilename
      << "\n Output cross-section file : " << gOptOutXSecFile
      << "\n Input cross-section file : " << gOptInpXSecFile
-     << "\n Random number seed : " << gOptRanSeed
-     << "\n";
+     << "\n Random number seed : " << gOptRanSeed;
+  LOG("gmkspl", pNOTICE) << "\n";
 
   LOG("gmkspl", pNOTICE) << *RunOpt::Instance();
 }
