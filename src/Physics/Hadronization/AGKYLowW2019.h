@@ -109,7 +109,6 @@ private:
   // Note: additional configuration parameters common to all hadronizers
   // (Wcut,Rijk,...) are declared one layer down in the inheritance tree
 
-  bool     fForceNeuGenLimit;    ///< force upper hadronic multiplicity to NeuGEN limit
 //bool     fUseLegacyKNOSpline;  ///< use legacy spline instead of Levy
   bool     fUseIsotropic2BDecays;///< force isotropic, non-reweighted 2-body decays for consistency with neugen/daikon
   bool     fUseBaryonXfPt2Param; ///< Generate baryon xF,pT2 from experimental parameterization?

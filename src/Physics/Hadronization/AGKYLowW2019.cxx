@@ -405,10 +405,6 @@ TH1D * AGKYLowW2019::MultiplicityProb(
   // Find the max possible multiplicity as W = Mneutron + (maxmult-1)*Mpion
   double maxmult = this->MaxMult(interaction);
 
-  // If required force the NeuGEN maximum multiplicity limit (10)
-  // Note: use for NEUGEN/GENIE comparisons, not physics MC production
-  if(fForceNeuGenLimit && maxmult>10) maxmult=10;
-
   // Set maximum multiplicity so that it does not exceed the max number of
   // particles accepted by the ROOT phase space decayer (18)
   // Change this if ROOT authors remove the TGenPhaseSpace limitation.
