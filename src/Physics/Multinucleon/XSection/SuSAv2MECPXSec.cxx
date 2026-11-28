@@ -280,6 +280,11 @@ double SuSAv2MECPXSec::PairRatio(const Interaction* interaction,
 
     ratio = pp_ratio;
 
+  } else {
+    LOG("SuSAv2MECPXSec", pFATAL)
+      << "PairRatio(): unknown final_state_ratio \"" << final_state_ratio
+      << "\"; expected \"pnFraction\" or \"ppFraction\"";
+    exit(1);
   }
 
   return ratio;

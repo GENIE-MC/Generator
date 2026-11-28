@@ -38,7 +38,7 @@ class Interaction;
 namespace evtlib {
 
 class IEvtLibRecordList;
-class EvtLibRecord;
+struct EvtLibRecord;
 
 class EventLibraryInterface: public EventRecordVisitorI {
 
