@@ -1496,6 +1496,7 @@ void GetCommandLineArgs(int argc, char ** argv)
     LOG("gspl2root", pINFO) << "Reading number of knots";
     kNP       = parser.ArgAsInt('n');
     kNSplineP = parser.ArgAsInt('n') - 1;
+    RunOpt::Instance()->SetKNots(kNP);
     kNPset = true;
   }
   // probe PDG code:
@@ -1536,10 +1537,14 @@ void GetCommandLineArgs(int argc, char ** argv)
        assert(nurange.size() == 2);
        gEmin = atof(nurange[0].c_str());
        gEmax = atof(nurange[1].c_str());
+       RunOpt::Instance()->SetEMin(gEmin);
+       RunOpt::Instance()->SetEMax(gEmax);
     } else {
       const Registry * val_reg = AlgConfigPool::Instance() -> CommonList( "Param", "Validation" ) ;
       gEmin = val_reg -> GetDouble( "GVLD-Emin" ) ; 
       gEmax = atof(nue.c_str());
+      RunOpt::Instance()->SetEMin(gEmin);
+      RunOpt::Instance()->SetEMax(gEmax);
       LOG("gspl2root", pDEBUG)
 	<< "Unspecified Emin - Setting to " << gEmin << " GeV as per configuration";
     }

@@ -245,6 +245,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   if( parser.OptionExists('n') ) {
     LOG("gmkspl", pINFO) << "Reading number of knots/spline";
     gOptNKnots = parser.ArgAsInt('n');
+    RunOpt::Instance()->SetKNots(gOptNKnots);
   } else {
     LOG("gmkspl", pINFO)
       << "Unspecified number of knots - Using default";
@@ -255,6 +256,7 @@ void GetCommandLineArgs(int argc, char ** argv)
   if( parser.OptionExists('e') ) {
     LOG("gmkspl", pINFO) << "Reading maximum spline energy";
     gOptMaxE = parser.ArgAsDouble('e');
+    RunOpt::Instance()->SetEMax(gOptMaxE);
   } else {
     LOG("gmkspl", pINFO)
        << "Unspecified maximum spline energy - Using default";
